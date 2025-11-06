@@ -1,0 +1,178 @@
+erDiagram
+    %% USER MANAGEMENT
+    User ||--o{ Account : "has many"
+    User ||--o{ Session : "has many"
+    User ||--o{ Alert : "creates"
+    User ||--o{ Watchlist : "owns"
+    User ||--o{ UserPreference : "has"
+    User ||--o| Subscription : "has one"
+    User ||--o{ ApiUsage : "generates"
+    User ||--o{ Notification : "receives"
+
+    User {
+        string id PK
+        string email UK
+        string name
+        string passwordHash
+        datetime emailVerified
+        string image
+        string tier "FREE or PRO"
+        datetime createdAt
+        datetime updatedAt
+        datetime lastLogin
+        boolean isActive
+    }
+
+    %% AUTHENTICATION
+    Account {
+        string id PK
+        string userId FK
+        string type
+        string provider
+        string providerAccountId
+        text refresh_token
+        text access_token
+        int expires_at
+        string token_type
+        string scope
+        text id_token
+        string session_state
+    }
+
+    Session {
+        string id PK
+        string sessionToken UK
+        string userId FK
+        datetime expires
+    }
+
+    VerificationToken {
+        string identifier
+        string token UK
+        datetime expires
+    }
+
+    %% ALERTS
+    Alert ||--o{ AlertNotification : "triggers"
+    
+    Alert {
+        string id PK
+        string userId FK
+        string name
+        string symbol
+        string timeframe
+        string alertType
+        json condition
+        boolean isActive
+        datetime lastTriggered
+        int triggerCount
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    AlertNotification {
+        string id PK
+        string alertId FK
+        datetime triggeredAt
+        float price
+        json details
+        boolean isRead
+        datetime readAt
+    }
+
+    %% WATCHLISTS (V5)
+    Watchlist ||--o{ WatchlistItem : "contains"
+    
+    Watchlist {
+        string id PK
+        string userId FK
+        string name
+        int order
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    WatchlistItem {
+        string id PK
+        string watchlistId FK
+        string symbol
+        string timeframe
+        int order
+        datetime createdAt
+    }
+
+    %% USER PREFERENCES
+    UserPreference {
+        string id PK
+        string userId FK
+        string category
+        string key
+        json value
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    %% SUBSCRIPTIONS (V5: 2-TIER)
+    Subscription {
+        string id PK
+        string userId FK
+        string stripeCustomerId UK
+        string stripeSubscriptionId UK
+        string stripePriceId
+        datetime stripeCurrentPeriodEnd
+        string status
+        string plan
+        datetime createdAt
+        datetime updatedAt
+        datetime canceledAt
+        boolean cancelAtPeriodEnd
+    }
+
+    %% NOTIFICATIONS
+    Notification {
+        string id PK
+        string userId FK
+        string type
+        string title
+        text message
+        json data
+        boolean isRead
+        datetime readAt
+        datetime createdAt
+    }
+
+    %% INDICATOR CACHE
+    IndicatorCache {
+        string id PK
+        string symbol
+        string timeframe
+        datetime timestamp
+        string dataType
+        json data
+        datetime createdAt
+        datetime expiresAt
+    }
+
+    %% API USAGE
+    ApiUsage {
+        string id PK
+        string userId FK
+        string endpoint
+        string method
+        int status
+        int duration
+        string symbol
+        string timeframe
+        string tier
+        datetime createdAt
+    }
+
+    %% SYSTEM LOGS
+    SystemLog {
+        string id PK
+        string level
+        string source
+        text message
+        json metadata
+        datetime createdAt
+    }
