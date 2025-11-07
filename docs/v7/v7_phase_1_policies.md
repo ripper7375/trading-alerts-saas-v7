@@ -69,69 +69,7 @@
    
    Verify: Run `ls -la` and see all folders ✓
 
-☐ STEP 4: Download and Organize Seed Code (30 minutes)
-   What: Clone the 3 seed code repositories
-   Why: Aider needs these as reference/foundation code
-   
-   **Part A: Clone Next.js Seed Repos (15 minutes)**
-   
-   ```bash
-   cd seed-code
-   
-   # Clone nextjs/saas-starter (Backend API routes & auth)
-   git clone https://github.com/nextjs/saas-starter.git
-   
-   # Clone next-shadcn-dashboard-starter (Frontend UI)
-   git clone https://github.com/Kiranism/next-shadcn-dashboard-starter.git
-   
-   cd ..
-   ```
-   
-   **Part B: Add market_ai_engine.py (5 minutes)**
-   
-   ```bash
-   # Copy your market_ai_engine.py to seed-code folder
-   cp /path/to/your/market_ai_engine.py seed-code/
-   ```
-   
-   **Part C: Verify Seed Code Structure (5 minutes)**
-   
-   Your seed-code folder should look like this:
-   ```
-   seed-code/
-   ├── market_ai_engine.py          # Flask/MT5 foundation
-   ├── saas-starter/                # Next.js backend reference
-   │   ├── app/
-   │   ├── components/
-   │   ├── lib/
-   │   └── ...
-   └── next-shadcn-dashboard-starter/ # Frontend UI reference
-       ├── app/
-       ├── components/
-       ├── lib/
-       └── ...
-   ```
-   
-   **Part D: Remove Git History from Cloned Repos (5 minutes)**
-   
-   💡 BEGINNER TIP: Remove .git folders from cloned repos so they become 
-   part of YOUR repo, not separate git repositories!
-   
-   ```bash
-   # Windows
-   rmdir /s /q seed-code\saas-starter\.git
-   rmdir /s /q seed-code\next-shadcn-dashboard-starter\.git
-   
-   # Mac/Linux
-   rm -rf seed-code/saas-starter/.git
-   rm -rf seed-code/next-shadcn-dashboard-starter/.git
-   ```
-   
-   Verify: 
-   ```bash
-   ls seed-code/
-   # Should see: market_ai_engine.py, saas-starter/, next-shadcn-dashboard-starter/
-   ```
+☐ STEP 4: REMOVED
 
 ☐ STEP 5: Copy Essential Documents (20 minutes)
    What: Add your existing docs
