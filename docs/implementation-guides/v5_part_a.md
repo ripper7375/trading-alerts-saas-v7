@@ -82,7 +82,7 @@ Before your next chat, ensure you have:
 ☐ (Optional) Saved market_ai_engine.py for reference
 ☐ Noted which phase you want to start with
 ☐ Prepared your MT5 credentials (Login, Password, Server)
-☐ Decided on initial symbol to test (e.g., "XAUUSD")
+☐ Decided on initial symbol to test (e.g., "EURUSD" - FREE tier accessible)
 ☐ Installed development tools (VS Code, Node.js 18+, Python 3.11+)
 ```
 
@@ -135,8 +135,8 @@ Build a commercial SaaS platform for trading alerts and signal generation with r
 **🆕 V5 KEY CHANGE - Commercial Model:**
 - **Single Data Source:** YOUR MT5 terminal is the ONLY data source
 - **Users CANNOT connect their own MT5**
-- **2-Tier System:** FREE (1 symbol) + PRO (10 symbols)
-- **7 Timeframes:** M15, M30, H1, H2, H4, H8, D1 (removed M1, M5; added H2, H8)
+- **2-Tier System:** FREE (5 symbols × 3 timeframes) + PRO (15 symbols × 9 timeframes)
+- **9 Timeframes:** M5, M15, M30, H1, H2, H4, H8, H12, D1 (added M5, H12 for PRO tier)
 
 ### Development Stages
 - **MVP (6 weeks):** Core functionality with database, auth, and basic features
@@ -169,12 +169,16 @@ Hybrid architecture leveraging Next.js 15 for primary backend/frontend and Flask
 │   • Fractal Diagonal Line_V4.mq5   ◄── ATTACH IN NEXT CHAT│
 │                                                             │
 │   Symbols Available:                                        │
-│   FREE Tier:  XAUUSD (1 symbol)                           │
-│   PRO Tier:   AUDUSD, BTCUSD, ETHUSD, EURUSD, GBPUSD,    │
-│               NDX100, US30, USDJPY, XAGUSD, XAUUSD        │
-│               (10 symbols)                                  │
+│   FREE Tier:  BTCUSD, EURUSD, USDJPY, US30, XAUUSD       │
+│               (5 symbols)                                   │
+│   PRO Tier:   AUDJPY, AUDUSD, BTCUSD, ETHUSD, EURUSD,    │
+│               GBPJPY, GBPUSD, NDX100, NZDUSD, US30,       │
+│               USDCAD, USDCHF, USDJPY, XAGUSD, XAUUSD      │
+│               (15 symbols)                                  │
 │                                                             │
-│   Timeframes: M15, M30, H1, H2, H4, H8, D1 (7 total)     │
+│   Timeframes:                                              │
+│   FREE Tier:  H1, H4, D1 (3 total)                        │
+│   PRO Tier:   M5, M15, M30, H1, H2, H4, H8, H12, D1 (9)  │
 └────────────────────┬────────────────────────────────────────┘
                      │
                      │ Indicator Buffers
@@ -247,8 +251,8 @@ Hybrid architecture leveraging Next.js 15 for primary backend/frontend and Flask
 │              USERS (SUBSCRIBERS)                            │
 │  • Web Browser (Desktop/Mobile)                            │
 │  • PWA (iOS/Android)                                       │
-│  • FREE: Access XAUUSD on 7 timeframes                    │
-│  • PRO: Access 10 symbols on 7 timeframes each            │
+│  • FREE: Access 5 symbols on 3 timeframes (15 combos)     │
+│  • PRO: Access 15 symbols on 9 timeframes (135 combos)    │
 │  • CANNOT connect their own MT5                            │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -282,35 +286,58 @@ User Login → NextAuth.js → JWT → Protected Routes → Tier-based API Acces
 ```typescript
 // Tier-based symbol access
 export const TIER_SYMBOLS = {
-  FREE: ['XAUUSD'],  // Only 1 symbol
+  FREE: [
+    'BTCUSD',
+    'EURUSD',
+    'USDJPY',
+    'US30',
+    'XAUUSD',
+  ],  // 5 symbols
   PRO: [
+    'AUDJPY',
     'AUDUSD',
     'BTCUSD',
     'ETHUSD',
     'EURUSD',
+    'GBPJPY',
     'GBPUSD',
     'NDX100',
+    'NZDUSD',
     'US30',
+    'USDCAD',
+    'USDCHF',
     'USDJPY',
     'XAGUSD',
     'XAUUSD',
-  ],  // 10 symbols
+  ],  // 15 symbols
 } as const;
 
-// All tiers get same 7 timeframes
+// Tier-based timeframe access
+export const TIER_TIMEFRAMES = {
+  FREE: ['H1', 'H4', 'D1'],  // 3 timeframes
+  PRO: ['M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12', 'D1'],  // 9 timeframes
+} as const;
+
+// All timeframes
 export const TIMEFRAMES = {
+  M5: 'M5',    // 🆕 V7: Re-added (PRO only - scalping)
   M15: 'M15',
   M30: 'M30',
   H1: 'H1',
-  H2: 'H2',   // 🆕 V5: Added
+  H2: 'H2',
   H4: 'H4',
-  H8: 'H8',   // 🆕 V5: Added
+  H8: 'H8',
+  H12: 'H12',  // 🆕 V7: Added (PRO only - swing trading)
   D1: 'D1',
 };
 
 // Access control helpers
 export function canAccessSymbol(tier: 'FREE' | 'PRO', symbol: string): boolean {
   return TIER_SYMBOLS[tier].includes(symbol);
+}
+
+export function canAccessTimeframe(tier: 'FREE' | 'PRO', timeframe: string): boolean {
+  return TIER_TIMEFRAMES[tier].includes(timeframe);
 }
 
 export function canAccessCombination(
@@ -320,7 +347,7 @@ export function canAccessCombination(
 ): boolean {
   return (
     TIER_SYMBOLS[tier].includes(symbol) &&
-    Object.keys(TIMEFRAMES).includes(timeframe)
+    TIER_TIMEFRAMES[tier].includes(timeframe)
   );
 }
 ```
@@ -329,10 +356,12 @@ export function canAccessCombination(
 
 | Feature | FREE | PRO |
 |---------|------|-----|
-| Symbols | XAUUSD (1) | 10 symbols |
-| Timeframes | 7 (M15-D1) | 7 (M15-D1) |
-| Watchlists | Symbol+TF combos | Symbol+TF combos |
-| Alerts | Limited | Unlimited |
+| Symbols | 5 (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) | 15 symbols |
+| Timeframes | 3 (H1, H4, D1) | 9 (M5, M15, M30, H1, H2, H4, H8, H12, D1) |
+| Chart Combinations | 15 (5×3) | 135 (15×9) |
+| Watchlists | 5 items max | 50 items max |
+| Alerts | 5 max | 20 max |
+| API Rate Limit | 60/hour | 300/hour |
 | Real-time Updates | Yes | Yes |
 | Price | $0 | $29/month |
 
