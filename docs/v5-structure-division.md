@@ -182,11 +182,13 @@ lib/config/
 └── plans.ts         # Updated for 2 tiers
 ```
 
-**Key Changes from V4:**
+**Key Changes from V5:**
 - ✅ NEW folder: `lib/tier/`
-- ✅ Timeframes: H2, H8 added; M1, M5 removed
-- ✅ Symbol lists per tier
-- ✅ Access validation functions
+- ✅ Timeframes: M5, H12 added; FREE tier limited to 3 timeframes (H1, H4, D1)
+- ✅ Symbol lists per tier: FREE (5 symbols), PRO (15 symbols)
+- ✅ Access validation functions for BOTH symbols AND timeframes
+- ✅ PRO-only timeframes: M5, M15, M30, H2, H8, H12
+- ✅ 5 new symbols added: AUDJPY, GBPJPY, NZDUSD, USDCAD, USDCHF
 
 **File Count:** ~4 files
 
@@ -270,11 +272,14 @@ mt5-service/
 └── .env.example
 ```
 
-**Key Changes from V4:**
+**Key Changes from V5:**
 - ✅ NEW: `tier_service.py`
-- ✅ Updated timeframe mapping: H2, H8 added; M1, M5 removed
-- ✅ Tier validation before reading indicators
+- ✅ Updated timeframe mapping: M5, H12 added; 9 total timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
+- ✅ Tier validation for BOTH symbols AND timeframes before reading indicators
 - ✅ Tier parameter in all functions
+- ✅ FREE tier validation: 5 symbols × 3 timeframes only
+- ✅ PRO tier validation: 15 symbols × 9 timeframes
+- ✅ 5 new symbols in MT5 symbol mapping: AUDJPY, GBPJPY, NZDUSD, USDCAD, USDCHF
 
 **File Count:** ~15 files
 
@@ -650,9 +655,11 @@ public/
 tests/                     # Future: Testing
 ```
 
-**Key Changes from V4:**
-- ✅ NEW: `watchlist.ts` validation
-- ✅ Updated constants: H2, H8; no M1, M5
+**Key Changes from V5:**
+- ✅ NEW: `watchlist.ts` validation for symbol+timeframe combinations
+- ✅ Updated constants: M5, H12 added; 9 total timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
+- ✅ Updated symbol constants: 15 total symbols (added AUDJPY, GBPJPY, NZDUSD, USDCAD, USDCHF)
+- ✅ Tier-specific constants: FREE_SYMBOLS (5), PRO_SYMBOLS (15), FREE_TIMEFRAMES (3), PRO_TIMEFRAMES (9)
 - ✅ Docker compose for all services
 
 **File Count:** ~25 files
