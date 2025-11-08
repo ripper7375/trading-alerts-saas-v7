@@ -213,6 +213,21 @@
    
    Verify: You have the API key saved ✓
 
+☐ STEP 17.5: Get Resend API Key (10 minutes)
+   What: Email service for transactional emails
+   Why: Send verification emails, password resets, alert notifications
+   How:
+   1. Go to resend.com
+   2. Create account (free tier: 100 emails/day)
+   3. Navigate to API Keys section
+   4. Create new API key
+   5. Copy the key (starts with "re_...")
+   6. Save it securely! 📝
+   
+   💡 BEGINNER TIP: Resend is developer-friendly with great Next.js integration!
+   
+   Verify: You have the API key saved ✓
+
 ☐ STEP 18: Set Environment Variables for MiniMax M2 (10 minutes)
    What: Configure Aider to use MiniMax M2
    Why: Tell Aider which API to use
@@ -404,17 +419,27 @@
    
    💡 BEGINNER NOTE: You need a demo or real MT5 account
 
-☐ STEP 25: Compile MQL5 Indicators (15 minutes)
-   What: Custom indicators
-   Why: Read fractal data
+☐ STEP 25: Verify MQL5 Indicators (10 minutes)
+   What: Ensure custom indicators are compiled and running
+   Why: Flask service reads from these specific indicators
    How:
-   1. Open MetaEditor in MT5 (F4)
-   2. Open: Fractal Horizontal Line_V5.mq5
-   3. Click Compile (F7)
-   4. Repeat for: Fractal Diagonal Line_V4.mq5
-   5. Attach both to chart
+   1. Open MetaTrader 5
+   2. Navigate to: Navigator → Indicators → Custom
+   3. Verify you see:
+      - Fractal Horizontal Line_V5
+      - Fractal Diagonal Line_V4
+   4. If missing, compile from seed-code/mlq5-indicator/:
+      - Open MetaEditor (F4 in MT5)
+      - File → Open: Fractal Horizontal Line_V5.mq5
+      - Click Compile (F7)
+      - Repeat for Fractal Diagonal Line_V4.mq5
+   5. Attach both indicators to a chart
    
-   Verify: Indicators show on chart ✓
+   ⚠️ IMPORTANT: These run ONLY on YOUR MT5 terminal
+   💡 Users of your SaaS will NOT have MT5 access
+   💡 Users subscribe to view data from YOUR indicators
+   
+   Verify: Indicators showing on chart ✓
 
 ☐ STEP 26: Document MT5 Credentials (5 minutes)
    What: Save your login info

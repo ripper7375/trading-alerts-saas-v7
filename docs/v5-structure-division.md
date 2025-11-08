@@ -1,8 +1,8 @@
-# V5 Project Structure Division - 15 Logical Parts
+# V5 Project Structure Division - 16 Logical Parts
 
 ## Overview
 
-The V5 project structure is divided into **15 logical parts** that can be built systematically. Each part represents a cohesive set of files and folders.
+The V5 project structure is divided into **16 logical parts** that can be built systematically. Each part represents a cohesive set of files and folders.
 
 ---
 
@@ -46,13 +46,93 @@ trading-alerts-saas/
 ```
 prisma/
 ├── schema.prisma
-├── seed.ts
+├── seed.ts              # ← Seeds initial admin user
 └── migrations/
 
 lib/db/
 ├── prisma.ts
-└── seed.ts
+└── seed.ts              # ← Admin creation script
+Create new file: docs/admin-seed-instructions.md
 ```
+
+# Admin User Creation Guide
+
+## During Development (Part 2: Database)
+
+After creating Prisma schema, create seed script:
+
+**File:** `prisma/seed.ts`
+
+typescript
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+
+const prisma = new PrismaClient();
+
+async function main() {
+  // Create first admin user
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@tradingalerts.com';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
+  
+  const hashedPassword = await bcrypt.hash(adminPassword, 10);
+  
+  const admin = await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {},
+    create: {
+      email: adminEmail,
+      name: 'Admin User',
+      password: hashedPassword,
+      role: 'ADMIN',
+      tier: 'PRO',
+      emailVerified: new Date(),
+      isActive: true,
+    },
+  });
+  
+  console.log('✅ Admin user created:', admin.email);
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
+Add to package.json:
+
+{
+  "scripts": {
+    "db:seed": "ts-node prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
+}
+Run after first migration:
+
+# Create database
+npx prisma migrate dev --name init
+
+# Seed admin user
+pnpm db:seed
+
+# Or with custom credentials
+ADMIN_EMAIL=your@email.com ADMIN_PASSWORD=SecurePass123! pnpm db:seed
+Default Credentials (CHANGE IN PRODUCTION):
+
+Email: admin@davintrade.com
+Password: ChangeMe123!
+Role: ADMIN
+Tier: PRO
+First Login:
+
+Go to /login
+Login with admin credentials
+Change password in Settings
+You now have admin access to /admin dashboard
 
 **Key Changes from V4:**
 - ✅ `schema.prisma` - 2 tiers (FREE/PRO), WatchlistItem model
@@ -360,6 +440,16 @@ hooks/
 
 **Scope:** Subscription and payment system
 
+**Pricing:**
+- FREE tier: $0/month (XAUUSD only, 5 alerts)
+- PRO tier: $29/month (10 symbols, 20 alerts)  # ← CONFIRMED
+
+**Features:**
+- Stripe integration for PRO upgrades
+- Webhook handling for subscription events
+- Invoice management
+- Upgrade/downgrade flows
+
 **Folders & Files:**
 ```
 app/(marketing)/pricing/
@@ -376,7 +466,7 @@ app/api/invoices/
 └── route.ts
 
 app/api/webhooks/stripe/
-└── route.ts                # Updated: 2-tier logic
+└── route.ts                # POST handler (Next.js 15 App Router)
 
 components/billing/
 ├── subscription-card.tsx   # Updated: Show 2 tiers

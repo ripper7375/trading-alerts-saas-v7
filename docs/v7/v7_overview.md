@@ -107,6 +107,31 @@ smart escalations instead of exhausting repetition.
 💪 RESULT: Professional SaaS + Modern AI development skills
 
 ---
+## 🤖 YOUR ARCHITECTURE
+
+┌─────────────────────────────────────────────────────────────┐
+│                    YOUR MT5 TERMINAL                        │
+│               (SINGLE CENTRALIZED SOURCE)                   │
+│   ⚠️ USERS CANNOT ACCESS MT5 OR METAEDITOR                 │
+│   ⚠️ USERS SUBSCRIBE TO YOUR DATA ONLY                     │
+│                                                            │
+│   Running YOUR Custom Indicators (pre-compiled):           │
+│   • Fractal Horizontal Line_V5.ex5 (compiled from .mq5)    │
+│   • Fractal Diagonal Line_V4.ex5 (compiled from .mq5)      │
+│                                                            │
+│   Users CANNOT:                                            │
+│   ❌ Connect their own MT5 terminal                        │
+│   ❌ Configure symbols or parameters                       │
+│   ❌ Access MetaEditor                                     │
+│   ❌ Modify indicators                                     │
+│                                                             │
+│   Users CAN:                                                │
+│   ✅ View data from YOUR MT5 terminal                      │
+│   ✅ Create alerts on YOUR symbols                         │
+│   ✅ Subscribe to PRO for more symbols                     │
+└─────────────────────────────────────────────────────────────┘
+
+---
 
 ## 🤖 YOUR AI TEAM (Explained Simply)
 

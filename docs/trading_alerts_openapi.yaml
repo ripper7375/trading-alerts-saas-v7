@@ -1721,12 +1721,20 @@ components:
           properties:
             symbols:
               type: integer
+              description: Number of symbols allowed
+              example: 10  # PRO tier
             alerts:
               type: integer
+              description: Maximum alerts allowed  # ← NEW
+              example: 20  # PRO tier (FREE = 5)  # ← NEW
             watchlistItems:
               type: integer
+              description: Maximum watchlist items  # ← NEW
+              example: 50  # PRO tier (FREE = 5)  # ← NEW
             apiCallsPerHour:
               type: integer
+              description: API rate limit per hour  # ← NEW
+              example: 300  # PRO tier (FREE = 60)  # ← NEW
 
     Subscription:
       type: object

@@ -77,7 +77,7 @@
    | STRIPE_SECRET_KEY | [your key] | From Stripe dashboard |
    | STRIPE_WEBHOOK_SECRET | [will add] | After webhook setup |
    | NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY | [your key] | Stripe public key |
-   | RESEND_API_KEY | [your key] | For emails |
+   | RESEND_API_KEY | [your key] | For transactional emails (resend.com) |
    
    💡 BEGINNER TIP: Variables starting with NEXT_PUBLIC_ are visible in browser!
 
@@ -230,6 +230,9 @@ In your Flask project (mt5-service/), verify these files exist:
    2. Developers → Webhooks
    3. Click "+ Add endpoint"
    4. URL: https://your-app.vercel.app/api/webhooks/stripe
+      💡 NOTE: Next.js 15 App Router structure:
+         File location: app/api/webhooks/stripe/route.ts
+         Route handler: POST function exported from route.ts
    5. Events to send:
       - customer.subscription.created
       - customer.subscription.updated

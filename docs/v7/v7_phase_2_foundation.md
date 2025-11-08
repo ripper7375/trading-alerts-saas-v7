@@ -306,6 +306,13 @@ understand the concept!
 **What:** Container setup for Flask service
 **Why:** Package Flask for deployment
 
+💡 BEGINNER TIP: Docker is OPTIONAL for local development!
+   - Local dev: Run Flask with `python run.py`
+   - Production: Docker required for Railway deployment
+   
+   You can develop the Flask service without Docker, then
+   containerize it when ready to deploy.
+
 ☐ STEP 1: Start Aider (2 minutes)
    ```
    py -3.11 -m aider --model openai/MiniMax-M2
@@ -352,17 +359,22 @@ Show me complete docker-compose.yml for approval.
 
 ☐ STEP 4: Test Docker Build (10 minutes)
 
-Exit Aider: `/exit`
+   Exit Aider: `/exit`
+   
+   OPTIONAL - Try building (will fail - no requirements.txt yet, that's OK!):
+cd mt5-service docker build -t mt5-service.
 
-Try building (will fail - no requirements.txt yet, that's OK!):
-```
-cd mt5-service
-docker build -t mt5-service .
-```
 
 Expected: Error about missing files - normal!
 
-✅ CHECKPOINT: Docker files ready for Phase 3
+💡 BEGINNER NOTE: 
+   You DON'T need Docker working now for local development.
+   
+   Local development: Just run `python run.py`
+   
+   Docker is required LATER for Railway deployment in Phase 4.
+
+✅ CHECKPOINT: Docker files ready for Phase 4 deployment
 
 💡 BEGINNER TIP: You'll test this properly in Phase 3 when Flask code exists!
 
