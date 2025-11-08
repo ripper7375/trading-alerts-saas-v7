@@ -167,25 +167,23 @@ seed-code/mlq5-indicator/
 
 ## 🎯 **Tier System**
 
-### **FREE Tier** (Product-Market Fit Period)
-During PMF testing, FREE tier includes:
-- ✅ **10 symbols** (AUDUSD, BTCUSD, ETHUSD, EURUSD, GBPUSD, NDX100, US30, USDJPY, XAGUSD, XAUUSD)
-- ✅ **7 timeframes** (M15, M30, H1, H2, H4, H8, D1)
-- ✅ **20 alerts** maximum
-- ✅ **50 watchlist items** maximum
-- ✅ **300 API requests/hour**
+### **FREE Tier**
+- ✅ **5 symbols** (BTCUSD, EURUSD, USDJPY, US30, XAUUSD)
+- ✅ **3 timeframes** (H1, H4, D1)
+- ✅ **15 chart combinations** (5 symbols × 3 timeframes)
+- ✅ **5 alerts** maximum
+- ✅ **5 watchlist items** maximum
+- ✅ **60 API requests/hour** (1 per minute average)
 - 💰 **$0/month**
 
-### **PRO Tier** (Post-PMF)
-After product-market fit validation:
-- 📊 **10 symbols** (all markets)
-- ⏱️ **7 timeframes**
+### **PRO Tier**
+- 📊 **15 symbols** (AUDJPY, AUDUSD, BTCUSD, ETHUSD, EURUSD, GBPJPY, GBPUSD, NDX100, NZDUSD, US30, USDCAD, USDCHF, USDJPY, XAGUSD, XAUUSD)
+- ⏱️ **9 timeframes** (M5, M15, M30, H1, H2, H4, H8, H12, D1)
+- 📈 **135 chart combinations** (15 symbols × 9 timeframes)
 - 🔔 **20 alerts** maximum
 - 📝 **50 watchlist items** maximum
-- 🚀 **300 API requests/hour**
+- 🚀 **300 API requests/hour** (5 per minute average)
 - 💳 **$29/month**
-
-**FREE tier (Post-PMF):** Reverts to 1 symbol (XAUUSD), 5 alerts, 5 watchlist items
 
 ---
 

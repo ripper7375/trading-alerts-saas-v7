@@ -360,10 +360,11 @@ hooks/
 └── use-auth.ts
 ```
 
-**Key Changes from V4:**
-- ✅ Timeframe selector: H2, H8 added; M1, M5 removed
-- ✅ Symbol selector shows only tier-allowed symbols
-- ✅ Chart page validates tier access
+**Key Changes from V5:**
+- ✅ Timeframe selector: M5, H12 added; FREE tier limited to H1, H4, D1
+- ✅ Symbol selector shows tier-allowed symbols (FREE: 5 symbols, PRO: 15 symbols)
+- ✅ Chart page validates BOTH symbol AND timeframe access
+- ✅ PRO-only timeframes: M5, M15, M30, H2, H8, H12
 
 **File Count:** ~8 files
 
