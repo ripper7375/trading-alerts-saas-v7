@@ -5,7 +5,7 @@
 # ============================================================================
 # AIDER AI Files
 # ============================================================================
-.aider*
+# Allow .aider.conf.yml but ignore everything else
 .aider.tags.cache.v4
 .aider.chat.history.md
 .aider.input.history

@@ -1,0 +1,24 @@
+model: openai/MiniMax-M2
+# Aider V7 Configuration for Trading Alerts SaaS
+# Using MiniMax M2 for cost-effective autonomous development
+
+# Model to use
+model: openai/MiniMax-M2
+
+# Files to read on startup (Aider's context)
+read:
+  - docs/v5-structure-division.md
+  - docs/trading_alerts_openapi.yaml
+  - docs/flask_mt5_openapi.yaml
+  - seed-code/market_ai_engine.py
+  - README.md
+  - phase_milestones_v7_minimax.md
+
+# Auto-commit when work is approved
+auto-commits: false
+
+# Run linting checks
+lint: true
+
+# Show diffs
+show-diffs: true
