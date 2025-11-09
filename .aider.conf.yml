@@ -122,7 +122,7 @@ map-tokens: 2048
 
 # Use universal ctags for better code navigation
 # Disabled: may cause issues if ctags not installed
-use-ctags: false
+# use-ctags: false  # Not supported in config file for this version
 
 # ============================================================================
 # VALIDATION & TESTING
@@ -158,26 +158,30 @@ show-model-warnings: true
 # FILE HANDLING
 # ============================================================================
 
+# Note: auto-add and ignore are not supported in .aider.conf.yml for v0.86.1
+# Use .aiderignore file instead for ignoring files
+# Use command-line arguments to add specific files
+
 # Automatically add commonly needed files
-auto-add:
-  - "*.ts"
-  - "*.tsx"
-  - "*.py"
-  - "*.yaml"
-  - "*.yml"
-  - "*.json"
-  - "*.md"
+# auto-add:
+#   - "*.ts"
+#   - "*.tsx"
+#   - "*.py"
+#   - "*.yaml"
+#   - "*.yml"
+#   - "*.json"
+#   - "*.md"
 
 # Ignore patterns (in addition to .gitignore)
-ignore:
-  - node_modules/
-  - .next/
-  - dist/
-  - build/
-  - __pycache__/
-  - "*.pyc"
-  - .env
-  - .env.local
+# ignore:
+#   - node_modules/
+#   - .next/
+#   - dist/
+#   - build/
+#   - __pycache__/
+#   - "*.pyc"
+#   - .env
+#   - .env.local
 
 # ============================================================================
 # ADVANCED SETTINGS
