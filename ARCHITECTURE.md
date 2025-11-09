@@ -1,0 +1,906 @@
+# Trading Alerts SaaS - System Architecture
+
+## 1. System Overview
+
+**What the Project Does:**
+
+Trading Alerts SaaS is a web application that enables traders to monitor multiple financial markets (Forex, Crypto, Indices, Commodities) and set automated alerts based on technical indicator conditions. The system integrates with MetaTrader 5 (MT5) to fetch real-time market data and provides a tiered subscription model (FREE and PRO) with varying levels of access.
+
+**Key Features:**
+- Real-time market data visualization from MT5
+- Technical indicator monitoring (RSI, MACD, Moving Averages, Bollinger Bands)
+- Automated alert system with customizable conditions
+- Watchlist management for favorite symbol/timeframe combinations
+- Tiered access control (FREE: 5 symbols × 3 timeframes, PRO: 15 symbols × 9 timeframes)
+- Subscription management with Stripe integration
+- Responsive dashboard built with Next.js 15 and shadcn/ui
+
+---
+
+## 2. Tech Stack
+
+### Frontend
+- **Framework:** Next.js 15 (App Router)
+- **Runtime:** React 19
+- **Language:** TypeScript 5
+- **Styling:** Tailwind CSS 3
+- **UI Components:** shadcn/ui (Radix UI primitives)
+- **Charts:** Recharts or lightweight-charts
+- **Forms:** React Hook Form + Zod validation
+- **Icons:** Lucide React
+
+### Backend (Next.js)
+- **API Routes:** Next.js 15 serverless functions
+- **Authentication:** NextAuth.js v5
+- **Database ORM:** Prisma 5
+- **Validation:** Zod
+- **API Contract:** OpenAPI 3.0 (trading_alerts_openapi.yaml)
+
+### Backend (Flask Microservice)
+- **Framework:** Flask 3.x
+- **Language:** Python 3.11
+- **MT5 Integration:** MetaTrader5 Python package
+- **API Contract:** OpenAPI 3.0 (flask_mt5_openapi.yaml)
+- **Production Server:** Gunicorn
+
+### Database
+- **Primary Database:** PostgreSQL 15
+- **Hosting:** Railway
+- **ORM:** Prisma (TypeScript)
+- **Migrations:** Prisma Migrate
+
+### External Services
+- **MT5 Terminal:** MetaTrader 5 (Windows/Linux VPS)
+- **Payments:** Stripe
+- **Email:** Resend
+- **Deployment:** Vercel (Next.js), Railway (PostgreSQL + Flask)
+
+### AI Development
+- **Model:** MiniMax M2 (via OpenAI-compatible API)
+- **Validation:** Claude Code
+- **Autonomous Builder:** Aider
+
+---
+
+## 3. High-Level Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         USERS (Browsers)                         │
+│                    FREE Tier  |  PRO Tier                        │
+└───────────────────────────────┬─────────────────────────────────┘
+                                │ HTTPS
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    VERCEL (Edge Network)                         │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │           NEXT.JS 15 APPLICATION (SSR + API)               │ │
+│  │                                                            │ │
+│  │  Frontend:                    Backend API:                │ │
+│  │  ├─ Server Components         ├─ /api/alerts             │ │
+│  │  ├─ Client Components         ├─ /api/indicators         │ │
+│  │  ├─ Dashboard UI              ├─ /api/users              │ │
+│  │  ├─ Charts                    ├─ /api/watchlist          │ │
+│  │  └─ Forms                     ├─ /api/auth (NextAuth)    │ │
+│  │                               └─ /api/webhooks (Stripe)  │ │
+│  └────────────────────────────────────────────────────────────┘ │
+└───────────┬──────────────────────────┬───────────────────────────┘
+            │                          │
+            │                          │
+    ┌───────▼──────────┐      ┌────────▼────────────┐
+    │  PostgreSQL DB   │      │  Flask MT5 Service  │
+    │   (Railway)      │      │    (Railway)        │
+    │                  │      │                     │
+    │ - Users          │      │ - MT5 Integration   │
+    │ - Alerts         │      │ - Indicator Fetch   │
+    │ - Watchlists     │      │ - Real-time Data    │
+    │ - Subscriptions  │      │ - Tier Validation   │
+    └──────────────────┘      └─────────┬───────────┘
+                                        │
+                                        │ MT5 API
+                                        ▼
+                              ┌─────────────────────┐
+                              │   MT5 Terminal      │
+                              │   (VPS/Local)       │
+                              │                     │
+                              │ - Market Data       │
+                              │ - Price Feeds       │
+                              │ - Indicator Values  │
+                              └─────────────────────┘
+
+    External Services:
+    ├─ Stripe (Payments) ──────────┐
+    └─ Resend (Email) ──────────┐  │
+                                │  │
+                            ┌───▼──▼───────┐
+                            │  Webhooks    │
+                            │  (Vercel)    │
+                            └──────────────┘
+```
+
+---
+
+## 4. Component Breakdown
+
+### 4.1 Frontend (Next.js - Vercel)
+
+**Location:** `app/` directory
+
+**Responsibilities:**
+- Server-side rendering (SSR) for SEO and performance
+- Client-side interactivity (forms, real-time updates)
+- User authentication UI (login, register, profile)
+- Dashboard with charts, alerts, watchlists
+- Tier-aware UI (disable PRO features for FREE users)
+
+**Key Files:**
+```
+app/
+├── (marketing)/
+│   ├── page.tsx                 # Homepage
+│   ├── pricing/page.tsx         # Pricing page
+│   └── layout.tsx               # Marketing layout
+├── dashboard/
+│   ├── page.tsx                 # Dashboard home (Server Component)
+│   ├── layout.tsx               # Dashboard layout with nav
+│   ├── alerts/
+│   │   ├── page.tsx             # Alerts list
+│   │   └── [id]/page.tsx        # Alert detail
+│   ├── charts/
+│   │   └── page.tsx             # Live charts
+│   ├── watchlist/
+│   │   └── page.tsx             # Watchlist management
+│   └── settings/
+│       └── page.tsx             # User settings
+├── api/                         # API Routes (serverless functions)
+│   ├── alerts/route.ts
+│   ├── indicators/[symbol]/[timeframe]/route.ts
+│   ├── auth/[...nextauth]/route.ts
+│   └── webhooks/stripe/route.ts
+└── layout.tsx                   # Root layout
+
+components/
+├── ui/                          # shadcn/ui primitives
+├── alerts/
+│   ├── alert-form.tsx           # Create/edit alert (Client Component)
+│   ├── alert-card.tsx           # Display alert
+│   └── alert-list.tsx           # List of alerts
+├── charts/
+│   └── trading-chart.tsx        # TradingView-style chart
+└── dashboard/
+    └── nav.tsx                  # Dashboard navigation
+```
+
+**Tech Notes:**
+- Default to **Server Components** (async, fetch data directly)
+- Use **Client Components** (`'use client'`) only when needed (state, events, hooks)
+- Data fetching: Server Components fetch directly, Client Components use `/api` routes
+- Real-time updates: Polling (not WebSocket for MVP)
+
+---
+
+### 4.2 Backend API (Next.js API Routes - Vercel)
+
+**Location:** `app/api/` directory
+
+**Responsibilities:**
+- RESTful API endpoints for frontend
+- Authentication and authorization (NextAuth.js)
+- Tier validation before data access
+- Database operations via Prisma
+- Business logic layer
+- Webhook handlers (Stripe)
+
+**API Structure:**
+```typescript
+// Standard pattern for ALL API routes:
+export async function GET(req: Request) {
+  try {
+    // 1. Authentication
+    const session = await getServerSession();
+    if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // 2. Tier validation (if applicable)
+    const userTier = session.user.tier || 'FREE';
+    validateChartAccess(userTier, symbol, timeframe);
+
+    // 3. Business logic
+    const data = await fetchData();
+
+    // 4. Response matching OpenAPI schema
+    return Response.json(data);
+  } catch (error) {
+    // 5. Error handling
+    console.error('Error:', error);
+    return Response.json({ error: 'Internal error' }, { status: 500 });
+  }
+}
+```
+
+**Key Endpoints:**
+- `GET /api/alerts` - Fetch user's alerts
+- `POST /api/alerts` - Create new alert (with tier validation)
+- `GET /api/indicators/{symbol}/{timeframe}` - Fetch MT5 data (with tier validation)
+- `GET /api/users/me` - Get current user profile
+- `POST /api/webhooks/stripe` - Handle Stripe payment events
+
+**Tech Notes:**
+- All endpoints defined in `docs/trading_alerts_openapi.yaml`
+- Auto-generated TypeScript types in `lib/api-client/`
+- Tier validation uses `lib/tier/validation.ts`
+- Database operations use `lib/db/` utilities
+
+---
+
+### 4.3 Business Logic Layer
+
+**Location:** `lib/` directory
+
+**Responsibilities:**
+- Pure business logic (no HTTP, no UI)
+- Tier validation utilities
+- Database operation wrappers
+- Shared utilities and helpers
+- Custom React hooks
+
+**Key Modules:**
+```
+lib/
+├── tier/
+│   ├── validation.ts            # Tier access validation
+│   └── constants.ts             # Tier limits and rules
+├── db/
+│   ├── prisma.ts                # Prisma client singleton
+│   ├── alerts.ts                # Alert CRUD operations
+│   ├── users.ts                 # User CRUD operations
+│   └── watchlist.ts             # Watchlist CRUD operations
+├── utils/
+│   ├── date-helpers.ts          # Date formatting (date-fns)
+│   └── error-handlers.ts        # Custom error classes
+└── hooks/
+    ├── use-alerts.ts            # Client-side alert data hook
+    └── use-session.ts           # Wrapper for useSession
+```
+
+**Separation of Concerns:**
+- `lib/tier/` → Tier validation (used by API routes)
+- `lib/db/` → Database operations (used by API routes)
+- `lib/utils/` → Pure utilities (used everywhere)
+- `lib/hooks/` → React hooks (used by Client Components)
+
+---
+
+### 4.4 Database Layer (Prisma + PostgreSQL)
+
+**Location:** `prisma/schema.prisma`
+
+**Responsibilities:**
+- Data persistence
+- Relational data modeling
+- Type-safe database queries
+- Migrations
+
+**Schema Overview:**
+```prisma
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String   // Hashed with bcrypt
+  name          String?
+  tier          String   @default("FREE")  // "FREE" or "PRO"
+  role          String   @default("USER")  // "USER" or "ADMIN"
+  isActive      Boolean  @default(true)
+  emailVerified DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  alerts        Alert[]
+  watchlistItems WatchlistItem[]
+  subscription  Subscription?
+}
+
+model Alert {
+  id          String   @id @default(cuid())
+  userId      String
+  symbol      String
+  timeframe   String
+  condition   String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  triggeredAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+model WatchlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  symbol    String
+  timeframe String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, symbol, timeframe])
+  @@index([userId])
+}
+
+model Subscription {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  stripeCustomerId  String   @unique
+  stripePriceId     String
+  stripeCurrentPeriodEnd DateTime
+  status            String   // "active", "canceled", "past_due"
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+```
+
+**Migration Workflow:**
+1. Update `prisma/schema.prisma`
+2. Local: `npx prisma migrate dev --name description`
+3. Railway: `DATABASE_URL=[Railway] npx prisma migrate deploy`
+4. Verify: `npx prisma studio`
+
+---
+
+### 4.5 Flask MT5 Service (Railway)
+
+**Location:** `mt5-service/` directory
+
+**Responsibilities:**
+- Connect to MetaTrader 5 terminal
+- Fetch real-time market data
+- Calculate technical indicators
+- Validate tier access (double-check)
+- Serve indicator data via REST API
+
+**Structure:**
+```
+mt5-service/
+├── app/
+│   ├── __init__.py              # Flask app factory
+│   ├── routes/
+│   │   └── indicators.py        # /api/indicators routes
+│   ├── services/
+│   │   └── mt5_connector.py     # MT5 connection logic
+│   └── middleware/
+│       └── tier_validator.py    # Tier validation
+├── requirements.txt             # Python dependencies
+├── Dockerfile                   # Container config
+├── .env.example
+└── run.py                       # Entry point
+```
+
+**Key Endpoint:**
+```python
+# GET /api/indicators/{symbol}/{timeframe}
+@indicators_bp.route('/api/indicators/<symbol>/<timeframe>', methods=['GET'])
+@validate_tier_access  # Tier validation middleware
+def get_indicators(symbol: str, timeframe: str):
+    """Fetch indicator data from MT5"""
+    try:
+        data = fetch_indicator_data(symbol, timeframe)
+        return jsonify({
+            'symbol': symbol,
+            'timeframe': timeframe,
+            'indicators': data,
+            'metadata': {
+                'fetchedAt': datetime.utcnow().isoformat(),
+                'source': 'MT5'
+            }
+        }), 200
+    except Exception as e:
+        return jsonify({'error': 'Failed to fetch data'}), 500
+```
+
+**Why Separate Service:**
+- MT5 Python library requires Python (Next.js is JavaScript)
+- Isolates MT5 connection from main app
+- Can scale independently
+- Easier to debug MT5-specific issues
+
+---
+
+## 5. Data Flow
+
+### 5.1 User Creates an Alert
+
+```
+1. USER clicks "Create Alert" button in dashboard
+   │
+   ▼
+2. FRONTEND (components/alerts/alert-form.tsx - Client Component)
+   - Displays form with tier-aware symbol/timeframe dropdowns
+   - FREE users see 5 symbols × 3 timeframes (some disabled with 🔒 PRO)
+   - PRO users see all 15 symbols × 9 timeframes
+   - User fills: symbol=EURUSD, timeframe=H1, condition="RSI > 70"
+   - Client-side validation with Zod
+   - On submit: fetch('/api/alerts', { method: 'POST', body: {...} })
+   │
+   ▼
+3. API LAYER (app/api/alerts/route.ts)
+   - Receives POST /api/alerts request
+   - Step 1: Authentication check (getServerSession)
+     * If no session → return 401 Unauthorized
+   - Step 2: Input validation with Zod
+     * Validate symbol, timeframe, condition
+     * If invalid → return 400 Bad Request
+   - Step 3: Tier validation
+     * Get user's tier from session (FREE or PRO)
+     * Call validateChartAccess(tier, symbol, timeframe)
+     * If FREE user tries AUDJPY → return 403 Forbidden
+   - Step 4: Check alert count limit
+     * Count user's existing alerts
+     * FREE tier: max 5 alerts
+     * PRO tier: max 20 alerts
+     * If limit reached → return 403 Forbidden
+   - Step 5: Create alert in database
+     * Call prisma.alert.create({ data: {...} })
+   - Step 6: Return created alert (matching OpenAPI schema)
+     * Return 201 Created with alert object
+   │
+   ▼
+4. BUSINESS LOGIC (lib/tier/validation.ts)
+   - validateChartAccess(tier, symbol, timeframe)
+   - Checks if tier can access symbol (FREE: 5 symbols, PRO: 15)
+   - Checks if tier can access timeframe (FREE: 3 TFs, PRO: 9)
+   - If violation → throw ForbiddenError
+   │
+   ▼
+5. DATABASE LAYER (Prisma)
+   - prisma.alert.create({
+       data: {
+         userId: session.user.id,
+         symbol: 'EURUSD',
+         timeframe: 'H1',
+         condition: 'RSI > 70',
+         isActive: true,
+       }
+     })
+   - PostgreSQL on Railway receives INSERT statement
+   - Returns created alert object with id, createdAt, etc.
+   │
+   ▼
+6. API LAYER returns response to FRONTEND
+   - Response.json(alert, { status: 201 })
+   │
+   ▼
+7. FRONTEND receives response
+   - Form shows success message
+   - Redirects to /dashboard/alerts
+   - Alert appears in list
+```
+
+---
+
+### 5.2 User Views Live Chart
+
+```
+1. USER navigates to /dashboard/charts?symbol=EURUSD&timeframe=H1
+   │
+   ▼
+2. FRONTEND (app/dashboard/charts/page.tsx - Server Component)
+   - Fetches initial data on server-side
+   - Passes to TradingChart Client Component
+   │
+   ▼
+3. FRONTEND (components/charts/trading-chart.tsx - Client Component)
+   - Displays chart with initial data
+   - Sets up polling interval (60s for FREE, 30s for PRO)
+   - Every N seconds: fetch('/api/indicators/EURUSD/H1')
+   │
+   ▼
+4. API LAYER (app/api/indicators/[symbol]/[timeframe]/route.ts)
+   - Receives GET /api/indicators/EURUSD/H1
+   - Step 1: Authentication (getServerSession)
+   - Step 2: Tier validation (validateChartAccess)
+   - Step 3: Call Flask MT5 service
+     * fetch('http://flask-service/api/indicators/EURUSD/H1', {
+         headers: { 'X-User-Tier': userTier }
+       })
+   │
+   ▼
+5. FLASK MT5 SERVICE (mt5-service/app/routes/indicators.py)
+   - Receives GET /api/indicators/EURUSD/H1
+   - Middleware validates tier (double-check security)
+   - Calls MT5 connector: fetch_indicator_data('EURUSD', 'H1')
+   │
+   ▼
+6. MT5 CONNECTOR (mt5-service/app/services/mt5_connector.py)
+   - Connects to MT5 terminal (local or VPS)
+   - Fetches EURUSD H1 candles (OHLCV data)
+   - Calculates indicators:
+     * RSI (14 period)
+     * MACD (12, 26, 9)
+     * Bollinger Bands (20, 2)
+     * Moving Averages (50, 200)
+   - Returns indicator data
+   │
+   ▼
+7. FLASK returns data to Next.js API
+   - JSON response with indicators
+   │
+   ▼
+8. API LAYER returns data to FRONTEND
+   - Response.json({ symbol, timeframe, indicators, metadata })
+   │
+   ▼
+9. FRONTEND updates chart
+   - TradingChart component receives new data
+   - Updates chart visualization
+   - Shows "Last updated: X seconds ago"
+   - Cycle repeats every N seconds
+```
+
+---
+
+## 6. Authentication Flow
+
+### 6.1 User Registration
+
+```
+1. User fills registration form (/register)
+   ↓
+2. POST /api/auth/register
+   ↓
+3. Validate input (email, password, name)
+   ↓
+4. Hash password with bcrypt
+   ↓
+5. Create user in database (default tier: FREE, role: USER)
+   ↓
+6. Send verification email (Resend)
+   ↓
+7. Return success (auto-login or redirect to /login)
+```
+
+### 6.2 User Login (NextAuth.js)
+
+```
+1. User submits login form
+   ↓
+2. NextAuth.js CredentialsProvider
+   ↓
+3. Validate email + password against database
+   ↓
+4. If valid: Create JWT session
+   ↓
+5. Store session in secure cookie
+   ↓
+6. Redirect to /dashboard
+```
+
+### 6.3 Session Management
+
+**NextAuth.js Configuration:**
+```typescript
+// app/api/auth/[...nextauth]/route.ts
+export const authOptions = {
+  providers: [
+    CredentialsProvider({
+      async authorize(credentials) {
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email }
+        });
+
+        if (!user || !await bcrypt.compare(credentials.password, user.password)) {
+          return null;
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          tier: user.tier,  // Include tier in session
+          role: user.role,
+        };
+      }
+    })
+  ],
+  session: { strategy: 'jwt' },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.tier = user.tier;
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.user.id = token.id;
+      session.user.tier = token.tier;
+      session.user.role = token.role;
+      return session;
+    }
+  }
+};
+```
+
+**Protected Routes (Middleware):**
+```typescript
+// middleware.ts
+export async function middleware(request: NextRequest) {
+  const token = await getToken({ req: request });
+
+  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
+  return NextResponse.next();
+}
+```
+
+---
+
+## 7. Tier System
+
+### 7.1 Tier Definitions
+
+| Feature | FREE Tier | PRO Tier |
+|---------|-----------|----------|
+| **Price** | $0/month | $29/month |
+| **Symbols** | 5 (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) | 15 (all symbols) |
+| **Timeframes** | 3 (H1, H4, D1) | 9 (M5, M15, M30, H1, H2, H4, H8, H12, D1) |
+| **Chart Combinations** | 15 (5 × 3) | 135 (15 × 9) |
+| **Max Alerts** | 5 | 20 |
+| **Max Watchlist Items** | 5 | 50 |
+| **API Rate Limit** | 60 req/hour | 300 req/hour |
+
+### 7.2 Tier Enforcement
+
+**Backend Validation (CRITICAL):**
+```typescript
+// lib/tier/validation.ts
+export function validateChartAccess(tier: UserTier, symbol: string, timeframe: string) {
+  // Validate symbol
+  const allowedSymbols = tier === 'PRO' ? PRO_SYMBOLS : FREE_SYMBOLS;
+  if (!allowedSymbols.includes(symbol)) {
+    throw new ForbiddenError(`${tier} tier cannot access ${symbol}`);
+  }
+
+  // Validate timeframe
+  const allowedTimeframes = tier === 'PRO' ? PRO_TIMEFRAMES : FREE_TIMEFRAMES;
+  if (!allowedTimeframes.includes(timeframe)) {
+    throw new ForbiddenError(`${tier} tier cannot access ${timeframe} timeframe`);
+  }
+}
+```
+
+**Used in:**
+- Next.js API routes: `app/api/indicators/[symbol]/[timeframe]/route.ts`
+- Flask MT5 service: `mt5-service/app/middleware/tier_validator.py`
+
+**Frontend UI (User Experience):**
+```typescript
+// components/charts/symbol-selector.tsx
+<Select>
+  {SYMBOLS.map(symbol => (
+    <SelectItem
+      value={symbol.value}
+      disabled={!canAccessSymbol(userTier, symbol.value)}
+    >
+      {symbol.label}
+      {symbol.proOnly && userTier === 'FREE' && ' 🔒 PRO'}
+    </SelectItem>
+  ))}
+</Select>
+```
+
+---
+
+## 8. Deployment Architecture
+
+### 8.1 Production Environment
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                  VERCEL (Next.js)                         │
+│  - Auto-deploy from GitHub main branch                   │
+│  - Serverless functions for API routes                   │
+│  - Edge runtime for middleware                           │
+│  - Environment variables: NEXTAUTH_SECRET, DATABASE_URL  │
+└──────────┬────────────────────────┬──────────────────────┘
+           │                        │
+           ▼                        ▼
+┌──────────────────┐      ┌──────────────────────┐
+│  RAILWAY         │      │  RAILWAY             │
+│  PostgreSQL      │      │  Flask MT5 Service   │
+│                  │      │                      │
+│  - Production DB │      │  - Docker container  │
+│  - Auto backups  │      │  - Python 3.11       │
+│  - Migrations    │      │  - MT5 connection    │
+└──────────────────┘      └──────────┬───────────┘
+                                     │
+                                     ▼
+                          ┌──────────────────────┐
+                          │  MT5 Terminal        │
+                          │  (Windows VPS)       │
+                          │                      │
+                          │  - Broker: [Your]    │
+                          │  - Real-time data    │
+                          └──────────────────────┘
+```
+
+### 8.2 Deployment Steps
+
+**1. Next.js (Vercel):**
+```bash
+# Connect GitHub repo to Vercel
+# Configure environment variables:
+NEXTAUTH_URL=https://your-domain.com
+NEXTAUTH_SECRET=[generated-secret]
+DATABASE_URL=[Railway PostgreSQL URL]
+FLASK_MT5_URL=https://your-flask-service.railway.app
+STRIPE_SECRET_KEY=[Stripe secret]
+RESEND_API_KEY=[Resend API key]
+
+# Vercel auto-deploys on push to main
+git push origin main
+```
+
+**2. PostgreSQL (Railway):**
+```bash
+# Already deployed in Phase 2
+# Run migrations:
+DATABASE_URL=[Railway URL] npx prisma migrate deploy
+```
+
+**3. Flask MT5 Service (Railway):**
+```bash
+# Push to Railway
+railway up
+
+# Configure environment variables:
+MT5_SERVER=[broker server]
+MT5_LOGIN=[MT5 account]
+MT5_PASSWORD=[MT5 password]
+FLASK_API_KEY=[same as Next.js]
+```
+
+---
+
+## 9. AI Development with MiniMax M2
+
+### 9.1 Policy-Driven Development
+
+**Workflow:**
+```
+1. Create 6 Policy Documents (Phase 1)
+   - 01-approval-policies.md
+   - 02-quality-standards.md
+   - 03-architecture-rules.md
+   - 04-escalation-triggers.md
+   - 05-coding-patterns.md
+   - 06-aider-instructions.md
+
+2. Configure Aider with MiniMax M2
+   - .aider.conf.yml loads all policies
+   - MiniMax M2 API for cost-effective building
+
+3. Autonomous Building (Phase 3)
+   - Aider builds files following policies
+   - Auto-validates with Claude Code
+   - Auto-approves if quality standards met
+   - Auto-fixes common issues
+   - Escalates complex decisions to human
+
+4. Human Role
+   - Handles escalations (1-2 per part)
+   - Makes architectural decisions
+   - Tests completed features
+   - Updates policies based on learnings
+```
+
+### 9.2 Cost-Effectiveness
+
+**MiniMax M2 vs Alternatives:**
+- MiniMax M2: ~80% cheaper than Claude/GPT-4
+- Quality: Sufficient for code generation with validation
+- Validation: Claude Code ensures quality regardless of model
+- Result: 170+ files built at fraction of cost
+
+---
+
+## 10. Seed Code Foundation
+
+### 10.1 Reference Repositories
+
+**1. market_ai_engine.py (Flask/MT5 Reference):**
+- **What:** Python Flask server with MT5 integration
+- **Used for:** Part 6 (Flask MT5 Service)
+- **Reference patterns:**
+  * Flask route structure
+  * MT5 connection handling
+  * Indicator data fetching
+  * Error handling in Python
+
+**2. nextjs/saas-starter (Backend/Auth Reference):**
+- **What:** Next.js SaaS template with auth, database, payments
+- **Used for:** Parts 5 (Auth), 7 (API Routes), 12 (E-commerce)
+- **Reference patterns:**
+  * NextAuth.js configuration
+  * Prisma database patterns
+  * Stripe payment integration
+  * API route structure
+  * Middleware patterns
+
+**3. next-shadcn-dashboard-starter (Frontend/UI Reference):**
+- **What:** Next.js dashboard with shadcn/ui components
+- **Used for:** Parts 8-14 (All UI components)
+- **Reference patterns:**
+  * Dashboard layout structure
+  * shadcn/ui component usage
+  * Chart components (Recharts)
+  * Form patterns (React Hook Form)
+  * Navigation structure
+  * Responsive design
+
+### 10.2 How Aider Uses Seed Code
+
+**Aider references seed code as:**
+- **Inspiration** (not copy/paste)
+- **Pattern reference** (adapt to our requirements)
+- **Best practices** (proven approaches)
+
+**Always adapted for:**
+- Our OpenAPI contracts
+- Our tier system (FREE: 5×3, PRO: 15×9)
+- Our specific business logic
+- Our quality standards
+
+---
+
+## 11. Security Considerations
+
+### 11.1 Authentication & Authorization
+
+- ✅ NextAuth.js for session management
+- ✅ JWT-based sessions (secure, httpOnly cookies)
+- ✅ Password hashing with bcrypt (10 rounds)
+- ✅ Protected routes with middleware
+- ✅ API routes check session on every request
+
+### 11.2 Tier Security
+
+- ✅ Backend validation on ALL tier-restricted endpoints
+- ✅ Double validation (Next.js + Flask)
+- ✅ Frontend disables UI (UX), backend enforces (security)
+- ✅ Never trust client-provided tier information
+
+### 11.3 Input Validation
+
+- ✅ Zod schemas validate all user inputs
+- ✅ OpenAPI specs define valid request shapes
+- ✅ Prisma prevents SQL injection
+- ✅ React automatically escapes XSS
+
+### 11.4 Secrets Management
+
+- ✅ All secrets in environment variables
+- ✅ .env files gitignored
+- ✅ .env.example with placeholders
+- ✅ No secrets in logs or error messages
+
+---
+
+## Summary
+
+This architecture enables:
+- ✅ **Scalability:** Serverless Next.js, independent Flask service
+- ✅ **Security:** Multi-layer validation, NextAuth.js, Prisma
+- ✅ **Performance:** Server Components, edge runtime, polling
+- ✅ **Maintainability:** TypeScript, OpenAPI contracts, Prisma
+- ✅ **Cost-Effectiveness:** Vercel free tier, Railway affordable, MiniMax M2 AI
+- ✅ **Developer Experience:** Policy-driven AI development, 80% autonomous building
+
+**Next Steps:** Proceed to Phase 2 (CI/CD & Database Foundation) or Phase 3 (Autonomous Building with Aider + MiniMax M2).
