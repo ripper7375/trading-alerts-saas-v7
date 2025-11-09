@@ -238,28 +238,40 @@ Create `lib/tier-access.ts`:
 // V5: Tier-based symbol access control
 
 export const TIER_SYMBOLS = {
-  FREE: ['XAUUSD'],
+  FREE: ['BTCUSD', 'EURUSD', 'USDJPY', 'US30', 'XAUUSD'],  // 5 symbols
   PRO: [
+    'AUDJPY',  // V7: Added
     'AUDUSD',
     'BTCUSD',
     'ETHUSD',
     'EURUSD',
+    'GBPJPY',  // V7: Added
     'GBPUSD',
     'NDX100',
+    'NZDUSD',  // V7: Added
     'US30',
+    'USDCAD',  // V7: Added
+    'USDCHF',  // V7: Added
     'USDJPY',
     'XAGUSD',
     'XAUUSD',
-  ],
+  ],  // 15 symbols
+} as const;
+
+export const TIER_TIMEFRAMES = {
+  FREE: ['H1', 'H4', 'D1'],  // 3 timeframes
+  PRO: ['M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12', 'D1'],  // 9 timeframes
 } as const;
 
 export const TIMEFRAMES = {
+  M5: 'M5',    // V7: Re-added (PRO only - scalping)
   M15: 'M15',
   M30: 'M30',
   H1: 'H1',
-  H2: 'H2', // V5: Added
+  H2: 'H2',
   H4: 'H4',
-  H8: 'H8', // V5: Added
+  H8: 'H8',
+  H12: 'H12',  // V7: Added (PRO only - swing trading)
   D1: 'D1',
 } as const;
 
@@ -372,9 +384,13 @@ export async function getTier() {
 
 ### Access Control
 - [ ] Middleware protects routes
-- [ ] Tier helpers validate access correctly
-- [ ] FREE tier can only access XAUUSD
-- [ ] PRO tier can access all 10 symbols
+- [ ] Tier helpers validate symbol access correctly
+- [ ] Tier helpers validate timeframe access correctly
+- [ ] FREE tier can access 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD)
+- [ ] FREE tier can access 3 timeframes (H1, H4, D1)
+- [ ] PRO tier can access all 15 symbols
+- [ ] PRO tier can access all 9 timeframes
+- [ ] M5 and H12 timeframes blocked for FREE tier
 
 ### Next.js 15 Compatibility
 - [ ] Auth routes work in Next.js 15

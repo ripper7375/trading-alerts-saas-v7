@@ -193,8 +193,8 @@ In your Flask project (mt5-service/), verify these files exist:
    curl -H "X-User-Tier: FREE" \
         https://your-flask-url.railway.app/api/symbols
    ```
-   
-   Expected: `{"symbols": ["XAUUSD"]}`
+
+   Expected: `{"symbols": ["BTCUSD", "EURUSD", "USDJPY", "US30", "XAUUSD"]}`
    
    **Test 3: Indicator Data**
    ```
@@ -210,7 +210,7 @@ In your Flask project (mt5-service/), verify these files exist:
    1. Go to your Vercel URL
    2. Login
    3. Navigate to Charts
-   4. Select XAUUSD, H1
+   4. Select EURUSD, H4 (FREE tier accessible)
    5. Chart loads with data? ✅
    
    💡 BEGINNER VICTORY: Your full stack is now live! 
@@ -310,11 +310,13 @@ In your Flask project (mt5-service/), verify these files exist:
 
 **FREE Tier:**
    ☐ Dashboard loads
-   ☐ Can only see XAUUSD in symbol list
-   ☐ Create watchlist with XAUUSD
-   ☐ View XAUUSD chart with indicators
-   ☐ Create alert for XAUUSD
-   ☐ Try accessing EURUSD (should be blocked ✓)
+   ☐ Can see 5 symbols in symbol list (BTCUSD, EURUSD, USDJPY, US30, XAUUSD)
+   ☐ Can see 3 timeframes (H1, H4, D1)
+   ☐ Create watchlist with EURUSD + H4
+   ☐ View chart with indicators (any FREE symbol + timeframe)
+   ☐ Create alert for USDJPY
+   ☐ Try accessing M5 timeframe (should be blocked - PRO only ✓)
+   ☐ Try accessing AUDJPY symbol (should be blocked - PRO only ✓)
 
 **Upgrade to PRO:**
    ☐ Click "Upgrade to PRO"
@@ -322,9 +324,10 @@ In your Flask project (mt5-service/), verify these files exist:
    ☐ Use test card: 4242 4242 4242 4242
    ☐ Payment succeeds
    ☐ Dashboard shows PRO badge
-   ☐ Can now see all 10 symbols
-   ☐ Can create alerts for any symbol
-   ☐ Try creating 21st alert (should hit limit)
+   ☐ Can now see all 15 symbols (including AUDJPY, GBPJPY, NZDUSD, USDCAD, USDCHF)
+   ☐ Can now access all 9 timeframes (including M5, H12)
+   ☐ Can create alerts for any symbol + timeframe combination
+   ☐ Try creating 21st alert (should hit limit - max 20 for PRO)
 
 **Watchlists:**
    ☐ Create watchlist

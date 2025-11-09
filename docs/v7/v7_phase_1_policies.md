@@ -171,8 +171,9 @@ I'm creating approval-policies.md for my Aider AI system using MiniMax M2.
 I'm a complete beginner building a Trading Alerts SaaS.
 
 My project context:
-- Trading Alerts SaaS with 2 tiers: FREE (XAUUSD only), PRO (10 symbols)
-- 7 timeframes: M15, M30, H1, H2, H4, H8, D1
+- Trading Alerts SaaS with 2 tiers: FREE (5 symbols), PRO (15 symbols)
+- FREE: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1)
+- PRO: 15 symbols × 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
 - Next.js 15 frontend + Flask backend + MT5 integration
 - PostgreSQL database on Railway
 - Using MiniMax M2 API for cost-effective autonomous development
@@ -346,7 +347,7 @@ Define:
 
 5. AUTHENTICATION & AUTHORIZATION
    - NextAuth.js for authentication
-   - Tier validation pattern: FREE → XAUUSD, PRO → 10 symbols
+   - Tier validation pattern: FREE → 5 symbols × 3 timeframes, PRO → 15 symbols × 9 timeframes
    - Where to check auth (middleware, API routes)
    - Include code example
 
@@ -503,7 +504,7 @@ Include:
 - Full imports
 - Authentication check with NextAuth
 - Request validation with Zod
-- Tier validation (FREE → XAUUSD only)
+- Tier validation (FREE → 5 symbols × 3 timeframes, PRO → 15 symbols × 9 timeframes)
 - Business logic with Prisma
 - Response matching AlertResponse from OpenAPI
 - Error handling (try/catch)
@@ -562,7 +563,7 @@ Complete with TypeScript types!
 Each pattern should be:
 - Complete and working
 - Well-commented
-- Following our tier system (FREE=XAUUSD, PRO=10 symbols)
+- Following our tier system (FREE: 5 symbols × 3 timeframes, PRO: 15 symbols × 9 timeframes)
 - Ready to copy/paste
 - Explained with WHY, not just WHAT
 
@@ -623,7 +624,7 @@ Include:
    
    **Important:** Seed code is REFERENCE only. Always:
    - Adapt to our OpenAPI contracts
-   - Follow our tier system (FREE=XAUUSD, PRO=10 symbols)
+   - Follow our tier system (FREE: 5 symbols × 3 timeframes, PRO: 15 symbols × 9 timeframes)
    - Use our specific business logic
    - Match our quality standards
 
@@ -773,7 +774,7 @@ Ask me:
 Review all 6 policy documents for consistency:
 
 1. Check for contradictions between policies
-2. Ensure tier rules consistent (FREE=XAUUSD, PRO=10 symbols)
+2. Ensure tier rules consistent (FREE: 5 symbols × 3 timeframes, PRO: 15 symbols × 9 timeframes)
 3. Verify approval conditions align with quality standards
 4. Confirm escalation triggers align with approval policies
 5. Check coding patterns follow architecture rules
@@ -1351,7 +1352,7 @@ If accurate ✅ → Good!
 
 You: `What are the tier restrictions in this project?`
 
-Expected: "FREE tier: XAUUSD only, PRO tier: 10 symbols [list]"
+Expected: "FREE tier: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1). PRO tier: 15 symbols × 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)"
 
 If correct ✅ → Good!
 
@@ -1387,7 +1388,7 @@ Expected: Aider outlines:
 - Imports
 - Authentication check
 - Input validation
-- Tier validation (FREE → XAUUSD only)
+- Tier validation (FREE → 5 symbols × 3 timeframes only)
 - Prisma database operation
 - Response matching OpenAPI schema
 - Error handling
