@@ -8,20 +8,23 @@
 # ============================================================================
 
 # ============================================================================
-# MODEL CONFIGURATION - MiniMax M2
+# MODEL CONFIGURATION
 # ============================================================================
+# NOTE: Model can be specified via command line (--model flag)
+# If you're using Anthropic models via CLI, comment out these lines
+# to avoid conflicts with weak-model settings
 
-# Main model for code generation (MiniMax M2)
-# Note: MiniMax M2 is ~80% cheaper than GPT-4 while maintaining quality
-model: openai/MiniMax-M2
+# Default model for code generation (MiniMax M2)
+# Comment out if using --model flag on command line
+# model: openai/MiniMax-M2
 
 # Editor model for smaller edits (can use same or lighter model)
-# For cost optimization, use same model for consistency
-editor-model: openai/MiniMax-M2
+# Comment out if using --model flag on command line
+# editor-model: openai/MiniMax-M2
 
 # Weak model for simple tasks (summaries, commit messages)
-# Use lighter/cheaper model for non-critical tasks
-weak-model: openai/MiniMax-M2
+# Comment out if using --model flag on command line
+# weak-model: openai/MiniMax-M2
 
 # ============================================================================
 # AUTO-COMMIT SETTINGS
