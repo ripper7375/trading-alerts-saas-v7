@@ -8,12 +8,12 @@ info:
     **Architecture:** Next.js 15 + Flask MT5 Microservice
     
     **Tier System:**
-    - FREE: 1 symbol (XAUUSD) across 7 timeframes
-    - PRO: 10 symbols across 7 timeframes each
-    
+    - FREE: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1) = 15 combinations
+    - PRO: 15 symbols × 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1) = 135 combinations
+
     **Data Source:** Centralized MT5 terminal (users cannot connect their own MT5)
-    
-    **Timeframes:** M15, M30, H1, H2, H4, H8, D1
+
+    **Timeframes:** M5 (PRO only), M15, M30, H1, H2, H4, H8, H12 (PRO only), D1
   contact:
     name: API Support
     email: support@tradingalerts.com
@@ -232,10 +232,10 @@ paths:
       summary: Get indicator data for symbol and timeframe
       description: |
         Retrieves indicator data from centralized MT5 terminal. Access is tier-based:
-        - FREE tier: XAUUSD only
-        - PRO tier: All 10 symbols
-        
-        All tiers have access to 7 timeframes: M15, M30, H1, H2, H4, H8, D1
+        - FREE tier: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1)
+        - PRO tier: 15 symbols × 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
+
+        Timeframe access control: M5 and H12 are PRO-only timeframes
       parameters:
         - name: symbol
           in: path
@@ -1140,38 +1140,48 @@ components:
         - PRO
       description: |
         User subscription tier:
-        - FREE: 1 symbol (XAUUSD), 7 timeframes
-        - PRO: 10 symbols, 7 timeframes each
+        - FREE: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1) = 15 combinations
+        - PRO: 15 symbols × 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1) = 135 combinations
 
     Symbol:
       type: string
       enum:
+        - AUDJPY    # NEW - Forex
         - AUDUSD
         - BTCUSD
         - ETHUSD
         - EURUSD
+        - GBPJPY    # NEW - Forex
         - GBPUSD
         - NDX100
+        - NZDUSD    # NEW - Forex
         - US30
+        - USDCAD    # NEW - Forex
+        - USDCHF    # NEW - Forex
         - USDJPY
         - XAGUSD
         - XAUUSD
       description: |
-        Trading symbols available on the platform.
-        FREE tier: XAUUSD only
-        PRO tier: All symbols
+        Trading symbols available on the platform (15 total).
+        FREE tier: BTCUSD, EURUSD, USDJPY, US30, XAUUSD (5 symbols)
+        PRO tier: All 15 symbols
 
     Timeframe:
       type: string
       enum:
+        - M5     # NEW - PRO only (scalping)
         - M15
         - M30
         - H1
         - H2
         - H4
         - H8
+        - H12    # NEW - PRO only (swing trading)
         - D1
-      description: Chart timeframes (available to all tiers)
+      description: |
+        Chart timeframes (9 total).
+        FREE tier: H1, H4, D1 (3 timeframes)
+        PRO tier: M5, M15, M30, H1, H2, H4, H8, H12, D1 (9 timeframes)
 
     AlertType:
       type: string
@@ -1722,19 +1732,27 @@ components:
             symbols:
               type: integer
               description: Number of symbols allowed
-              example: 10  # PRO tier
+              example: 15  # PRO tier (FREE = 5)
+            timeframes:
+              type: integer
+              description: Number of timeframes allowed
+              example: 9   # PRO tier (FREE = 3)
+            chartCombinations:
+              type: integer
+              description: Total symbol×timeframe combinations (symbols × timeframes)
+              example: 135 # PRO tier: 15×9 (FREE = 15: 5×3)
             alerts:
               type: integer
-              description: Maximum alerts allowed  # ← NEW
-              example: 20  # PRO tier (FREE = 5)  # ← NEW
+              description: Maximum alerts allowed
+              example: 20  # PRO tier (FREE = 5)
             watchlistItems:
               type: integer
-              description: Maximum watchlist items  # ← NEW
-              example: 50  # PRO tier (FREE = 5)  # ← NEW
+              description: Maximum watchlist items (symbol+timeframe combinations)
+              example: 50  # PRO tier (FREE = 5)
             apiCallsPerHour:
               type: integer
-              description: API rate limit per hour  # ← NEW
-              example: 300  # PRO tier (FREE = 60)  # ← NEW
+              description: API rate limit per hour
+              example: 300  # PRO tier (FREE = 60)
 
     Subscription:
       type: object
