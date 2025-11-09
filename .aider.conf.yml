@@ -31,7 +31,8 @@
 # ============================================================================
 
 # Enable auto-commits after successful code generation
-auto-commits: true
+# Set to false for interactive testing, true for autonomous mode
+auto-commits: false
 
 # Commit message template
 # Aider will use this format for commit messages
