@@ -10,6 +10,9 @@
 .aider.chat.history.md
 .aider.input.history
 
+# Allow .aider.conf.yml to be committed (configuration file)
+!.aider.conf.yml
+
 # ============================================================================
 # ENVIRONMENT VARIABLES (CRITICAL - NEVER COMMIT SECRETS!)
 # ============================================================================
