@@ -14,10 +14,10 @@ info:
       - Fractal Diagonal Line_V4.mq5
     
     **Tier-Based Access Control:**
-    - FREE tier: XAUUSD only
-    - PRO tier: 10 symbols (AUDUSD, BTCUSD, ETHUSD, EURUSD, GBPUSD, NDX100, US30, USDJPY, XAGUSD, XAUUSD)
-    
-    **Timeframes:** M15, M30, H1, H2, H4, H8, D1
+    - FREE tier: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1)
+    - PRO tier: 15 symbols × 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
+
+    **Timeframes:** M5 (PRO only), M15, M30, H1, H2, H4, H8, H12 (PRO only), D1
     
     **Authentication:** API key via X-API-Key header (called by Next.js backend only)
   contact:
@@ -96,6 +96,10 @@ paths:
                     success: true
                     tier: FREE
                     symbols:
+                      - BTCUSD
+                      - EURUSD
+                      - USDJPY
+                      - US30
                       - XAUUSD
                 pro_tier:
                   summary: PRO tier response
@@ -103,13 +107,18 @@ paths:
                     success: true
                     tier: PRO
                     symbols:
+                      - AUDJPY
                       - AUDUSD
                       - BTCUSD
                       - ETHUSD
                       - EURUSD
+                      - GBPJPY
                       - GBPUSD
                       - NDX100
+                      - NZDUSD
                       - US30
+                      - USDCAD
+                      - USDCHF
                       - USDJPY
                       - XAGUSD
                       - XAUUSD
@@ -121,24 +130,41 @@ paths:
       tags:
         - Metadata
       summary: Get available timeframes
-      description: Returns list of all supported timeframes (V5 - 7 timeframes)
+      description: Returns list of all supported timeframes (V7 - 9 timeframes)
+      parameters:
+        - $ref: '#/components/parameters/UserTierHeader'
       responses:
         '200':
-          description: List of timeframes
+          description: List of timeframes (tier-filtered)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TimeframesResponse'
-              example:
-                success: true
-                timeframes:
-                  - M15
-                  - M30
-                  - H1
-                  - H2
-                  - H4
-                  - H8
-                  - D1
+              examples:
+                free_tier:
+                  summary: FREE tier timeframes
+                  value:
+                    success: true
+                    tier: FREE
+                    timeframes:
+                      - H1
+                      - H4
+                      - D1
+                pro_tier:
+                  summary: PRO tier timeframes
+                  value:
+                    success: true
+                    tier: PRO
+                    timeframes:
+                      - M5
+                      - M15
+                      - M30
+                      - H1
+                      - H2
+                      - H4
+                      - H8
+                      - H12
+                      - D1
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -154,9 +180,10 @@ paths:
         Retrieves indicator data from custom MQL5 indicators running on centralized MT5 terminal.
         
         **Access Control:**
-        - Validates tier access to symbol before reading data
-        - FREE tier: XAUUSD only
-        - PRO tier: All 10 symbols
+        - Validates tier access to BOTH symbol AND timeframe before reading data
+        - FREE tier: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1)
+        - PRO tier: 15 symbols × 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
+        - Timeframe restrictions: M5 and H12 are PRO-only
         
         **Data Sources:**
         - OHLC: Direct from MT5 terminal
@@ -189,14 +216,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/AccessDeniedResponse'
               examples:
-                free_tier_denied:
-                  summary: FREE tier accessing PRO symbol
+                free_tier_symbol_denied:
+                  summary: FREE tier accessing PRO-only symbol
                   value:
                     success: false
-                    error: FREE tier cannot access EURUSD
+                    error: FREE tier cannot access AUDJPY
                     tier: FREE
                     accessible_symbols:
+                      - BTCUSD
+                      - EURUSD
+                      - USDJPY
+                      - US30
                       - XAUUSD
+                    upgrade_required: true
+                free_tier_timeframe_denied:
+                  summary: FREE tier accessing PRO-only timeframe
+                  value:
+                    success: false
+                    error: FREE tier cannot access M5 timeframe
+                    tier: FREE
+                    accessible_timeframes:
+                      - H1
+                      - H4
+                      - D1
                     upgrade_required: true
         '500':
           description: MT5 error or indicator read failure
@@ -219,7 +261,7 @@ paths:
                   summary: Invalid timeframe provided
                   value:
                     success: false
-                    error: Invalid timeframe M5. Valid options M15, M30, H1, H2, H4, H8, D1
+                    error: Invalid timeframe M1. Valid options M5, M15, M30, H1, H2, H4, H8, H12, D1
 
 components:
   securitySchemes:
@@ -284,42 +326,49 @@ components:
         - PRO
       description: |
         User subscription tier for access control:
-        - FREE: XAUUSD only
-        - PRO: All 10 symbols
+        - FREE: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1)
+        - PRO: 15 symbols × 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
 
     Symbol:
       type: string
       enum:
+        - AUDJPY    # NEW - Forex
         - AUDUSD
         - BTCUSD
         - ETHUSD
         - EURUSD
+        - GBPJPY    # NEW - Forex
         - GBPUSD
         - NDX100
+        - NZDUSD    # NEW - Forex
         - US30
+        - USDCAD    # NEW - Forex
+        - USDCHF    # NEW - Forex
         - USDJPY
         - XAGUSD
         - XAUUSD
       description: |
-        Trading symbols available on platform.
+        Trading symbols available on platform (15 total).
         Access is tier-based:
-        - FREE: XAUUSD
-        - PRO: All symbols
+        - FREE: BTCUSD, EURUSD, USDJPY, US30, XAUUSD (5 symbols)
+        - PRO: All 15 symbols
 
     Timeframe:
       type: string
       enum:
+        - M5     # NEW - PRO only (scalping)
         - M15
         - M30
         - H1
         - H2
         - H4
         - H8
+        - H12    # NEW - PRO only (swing trading)
         - D1
       description: |
-        Chart timeframes (V5 - 7 timeframes).
-        Removed: M1, M5
-        Added: H2, H8
+        Chart timeframes (V7 - 9 timeframes).
+        FREE tier: H1, H4, D1 (3 timeframes)
+        PRO tier: All 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
 
     # ============================================
     # RESPONSE SCHEMAS

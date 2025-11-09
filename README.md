@@ -1,5 +1,7 @@
 # Trading Alerts SaaS V7 - MiniMax M2 Edition
+
 **Professional Trading Alerts Platform with AI-Driven Development**
+
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11+-blue)](https://www.python.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6+-blue)](https://www.typescriptlang.org/)
@@ -7,6 +9,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ---
+
 ## 📋 **Project Overview**
 
 A commercial SaaS platform providing real-time trading alerts and chart visualization with MT5 integration. Built using modern web technologies and cost-effective AI-driven autonomous development with MiniMax M2.
@@ -34,6 +37,7 @@ A commercial SaaS platform providing real-time trading alerts and chart visualiz
 
 ## 🏗️ **Architecture**
 
+```
 ┌─────────────────────────────────────────┐
 │       YOUR MT5 TERMINAL                 │
 │  (Centralized Data Source)              │
@@ -61,6 +65,7 @@ A commercial SaaS platform providing real-time trading alerts and chart visualiz
 │  - User authentication                  │
 │  - Subscription management              │
 └─────────────────────────────────────────┘
+```
 
 **Users subscribe to YOUR data** - they cannot connect their own MT5 terminals.
 
@@ -107,42 +112,39 @@ OpenAPI 3.0 specifications for all endpoints:
 ---
 
 ## 🌱 **Seed Code** (Reference Implementations)
+
 The `seed-code/` folder contains reference implementations for Aider to learn patterns from:
 
 ### **1. Flask/MT5 Service Pattern**
-
-
+```
 seed-code/market_ai_engine.py
-
-
+```
 - Flask route structure
 - MT5 connection patterns
 - Indicator data fetching logic
-
 - **Used in:** Part 6 (Flask MT5 Service)
 
 ### **2. Next.js Backend Patterns**
-
+```
 seed-code/saas-starter/
 ├── app/api/          # API route patterns
 ├── lib/stripe.ts     # Stripe integration
 ├── middleware.ts     # NextAuth patterns
 └── prisma/           # Database patterns
-
+```
 - NextAuth.js configuration
 - Prisma database patterns
 - Stripe payment integration
-
 - **Used in:** Parts 5, 7, 12 (Auth, API Routes, E-commerce)
 
 ### **3. Frontend UI Patterns**
-
+```
 seed-code/next-shadcn-dashboard-starter/
 ├── app/dashboard/    # Dashboard layouts
 ├── components/ui/    # shadcn/ui components
 ├── components/charts/ # Chart patterns
 └── lib/utils.ts      # Utility functions
-
+```
 - Dashboard layout structure
 - shadcn/ui component usage
 - Chart components
@@ -150,11 +152,11 @@ seed-code/next-shadcn-dashboard-starter/
 - **Used in:** Parts 8-14 (All UI components)
 
 ### **4. MQL5 Indicators**
-
+```
 seed-code/mlq5-indicator/
 ├── Fractal Horizontal Line_V5.mq5
 └── Fractal Diagonal Line_V4.mq5
-
+```
 - Custom indicator source code
 - Buffer index reference
 - **Used in:** Part 6 (Flask MT5 integration)
@@ -164,33 +166,30 @@ seed-code/mlq5-indicator/
 ---
 
 ## 🎯 **Tier System**
-### **FREE Tier** (Product-Market Fit Period)
-During PMF testing, FREE tier includes:
-- ✅ **10 symbols** (AUDUSD, BTCUSD, ETHUSD, EURUSD, GBPUSD, NDX100, US30, USDJPY, XAGUSD, XAUUSD)
-- ✅ **7 timeframes** (M15, M30, H1, H2, H4, H8, D1)
-- ✅ **20 alerts** maximum
-- ✅ **50 watchlist items** maximum
-- ✅ **300 API requests/hour**
+
+### **FREE Tier**
+- ✅ **5 symbols** (BTCUSD, EURUSD, USDJPY, US30, XAUUSD)
+- ✅ **3 timeframes** (H1, H4, D1)
+- ✅ **15 chart combinations** (5 symbols × 3 timeframes)
+- ✅ **5 alerts** maximum
+- ✅ **5 watchlist items** maximum
+- ✅ **60 API requests/hour** (1 per minute average)
 - 💰 **$0/month**
 
-### **PRO Tier** (Post-PMF)
-After product-market fit validation:
-
-- 📊 **10 symbols** (all markets)
-- ⏱️ **7 timeframes**
+### **PRO Tier**
+- 📊 **15 symbols** (AUDJPY, AUDUSD, BTCUSD, ETHUSD, EURUSD, GBPJPY, GBPUSD, NDX100, NZDUSD, US30, USDCAD, USDCHF, USDJPY, XAGUSD, XAUUSD)
+- ⏱️ **9 timeframes** (M5, M15, M30, H1, H2, H4, H8, H12, D1)
+- 📈 **135 chart combinations** (15 symbols × 9 timeframes)
 - 🔔 **20 alerts** maximum
 - 📝 **50 watchlist items** maximum
-- 🚀 **300 API requests/hour**
+- 🚀 **300 API requests/hour** (5 per minute average)
 - 💳 **$29/month**
 
-**FREE tier (Post-PMF):** Reverts to 1 symbol (XAUUSD), 5 alerts, 5 watchlist items
-
- ---
+---
 
 ## 🚀 **Quick Start**
 
 ### **Prerequisites**
-
 - Node.js 18.18+
 - Python 3.11+
 - PostgreSQL 15+
@@ -198,11 +197,11 @@ After product-market fit validation:
 - MiniMax M2 API key (for AI development)
 
 ### **Phase 0: Setup (4 hours)**
-
 Follow the detailed setup guide:
-
+```bash
 # See complete instructions in:
 docs/v7/v7_phase_0_setup.md
+```
 
 Key installations:
 1. Git, Node.js 18.18+, Python 3.11+
@@ -212,12 +211,11 @@ Key installations:
 5. MetaTrader 5 with custom indicators
 
 ### **Phase 1: Create Policies (14 hours)**
-
 **MOST IMPORTANT PHASE** - Create the "AI constitution":
-
+```bash
 # See complete instructions in:
 docs/v7/v7_phase_1_policies.md
-
+```
 
 Create 6 policy documents that guide autonomous development:
 1. `01-approval-policies.md` - When to auto-approve, auto-fix, or escalate
@@ -228,7 +226,6 @@ Create 6 policy documents that guide autonomous development:
 6. `06-aider-instructions.md` - How Aider should operate
 
 ### **Phase 2-5: Build & Deploy (49 hours)**
-
 Follow remaining phases for autonomous building with MiniMax M2.
 
 ---
@@ -247,7 +244,6 @@ Follow remaining phases for autonomous building with MiniMax M2.
 ## 🛠️ **Technology Stack**
 
 ### **Frontend**
-
 - **Framework:** Next.js 15 (App Router)
 - **Language:** TypeScript 5.6+
 - **Styling:** Tailwind CSS 3.4
@@ -256,7 +252,6 @@ Follow remaining phases for autonomous building with MiniMax M2.
 - **State Management:** React 19 hooks
 
 ### **Backend**
-
 - **API:** Next.js 15 API Routes
 - **Auth:** NextAuth.js 4.24+
 - **Validation:** Zod schemas
@@ -264,38 +259,33 @@ Follow remaining phases for autonomous building with MiniMax M2.
 - **Database:** PostgreSQL 15+
 
 ### **MT5 Integration**
-
 - **Language:** Python 3.11+
 - **Framework:** Flask 3.0+
 - **MT5 API:** MetaTrader5 Python library 5.0.45+
 - **Deployment:** Docker containers
 
 ### **Payments**
-
 - **Provider:** Stripe
 - **SDK:** stripe-js + stripe (Node)
 
 ### **Development**
-
 - **AI Coding:** Aider with MiniMax M2
-
 - **Package Manager:** pnpm
-
 - **Linting:** ESLint + Prettier
-
 - **Type Checking:** TypeScript strict mode
 
 ### **Deployment**
-
 - **Frontend:** Vercel (Next.js)
 - **Database:** Railway (PostgreSQL)
 - **Backend:** Railway (Flask Docker)
 - **CI/CD:** GitHub Actions
 
+---
+
 ## 📁 **Repository Structure**
 
+```
 trading-alerts-saas-v7/
-
 ├── docs/                          # All documentation
 │   ├── v7/                        # V7 phase guides
 │   ├── implementation-guides/     # V5 part details
@@ -335,6 +325,7 @@ trading-alerts-saas-v7/
 ├── .aider.conf.yml                # Aider configuration
 ├── documents-fixing-v1.md         # Corrections reference
 └── README.md                      # This file
+```
 
 ---
 
@@ -347,22 +338,21 @@ This project uses a **3-AI team** approach:
 3. **Claude Code** - Your quality validator
 
 ### **Why MiniMax M2?**
-
 - ✅ **Cost-effective:** Significantly cheaper than Anthropic API
 - ✅ **Quality output:** Same professional code quality
 - ✅ **Perfect for autonomous building:** Excellent for repetitive tasks
 - ✅ **Lower total project cost:** 67 hours of development at reduced API cost
 
 ### **Development Workflow**
-
+```
 1. You define policies (rules for AI)
 2. Aider builds autonomously with MiniMax M2
 3. Claude Code validates quality
 4. You handle escalations (exceptions only)
 5. Test and deploy
+```
 
 **Your involvement:** ~20% (escalations + testing)
-
 **Aider's work:** ~80% (autonomous building with MiniMax M2)
 
 ---
@@ -370,49 +360,39 @@ This project uses a **3-AI team** approach:
 ## 📖 **Getting Started Guide**
 
 ### **For Beginners**
-
 Start here: [`docs/v7/v7_overview.md`](docs/v7/v7_overview.md)
 
 This guide explains:
-
 - ✅ What you're building (in simple terms)
 - ✅ Why V7 approach is powerful
 - ✅ How AI helps you build faster
 - ✅ Step-by-step roadmap
 
 ### **For Developers**
-
 Jump to: [`docs/v7/v7_phase_0_setup.md`](docs/v7/v7_phase_0_setup.md)
 
 Then follow phases 0-5 sequentially.
 
 ### **For Reviewers**
-
 Check out:
-
 - OpenAPI specs: [`docs/trading_alerts_openapi.yaml`](docs/trading_alerts_openapi.yaml)
 - Architecture: [`docs/v5-structure-division.md`](docs/v5-structure-division.md)
 - Testing: [`docs/mvp-manual-testing-checklist.md`](docs/mvp-manual-testing-checklist.md)
- 
+
 ---
 
 ## 🧪 **Testing**
 
 ### **Automated Testing** (Optional for MVP)
-
 - Jest for unit tests
 - React Testing Library for component tests
 - Configured in Phase 2
 
- 
 ### **Manual Testing** (Required)
-
 Complete checklist available:
-
 - [`docs/mvp-manual-testing-checklist.md`](docs/mvp-manual-testing-checklist.md)
 
 Covers:
-
 - Authentication flows
 - Tier access control
 - Watchlist & alerts CRUD
@@ -426,17 +406,15 @@ Covers:
 
 Create `.env.local` in Next.js project root:
 
+```bash
 # Auth
-
 NEXTAUTH_SECRET=                    # Generate with: openssl rand -base64 32
 NEXTAUTH_URL=http://localhost:3000  # Production: https://your-domain.com
 
 # Database
-
 DATABASE_URL=                       # PostgreSQL connection string
 
 # MT5 Service
-
 MT5_API_URL=http://localhost:5001  # Flask service URL
 MT5_LOGIN=                          # Your MT5 login
 MT5_PASSWORD=                       # Your MT5 password
@@ -444,19 +422,17 @@ MT5_SERVER=                         # Your MT5 server
 MT5_API_KEY=                        # Generate with: openssl rand -hex 32
 
 # Stripe (Optional - for payments)
-
 STRIPE_SECRET_KEY=                  # From Stripe dashboard
 STRIPE_WEBHOOK_SECRET=              # From Stripe webhook setup
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY= # Public key from Stripe
 
 # Email (Optional - for notifications)
-
 RESEND_API_KEY=                     # From resend.com
 
 # MiniMax M2 (for AI development)
-
 OPENAI_API_KEY=                     # Your MiniMax API key
 OPENAI_API_BASE=https://api.minimaxi.com/v1
+```
 
 **Note:** During PMF period, Stripe and Resend are optional (no payments, basic notifications).
 
@@ -465,8 +441,8 @@ OPENAI_API_BASE=https://api.minimaxi.com/v1
 ## 🤝 **Contributing**
 
 This is a commercial project with AI-driven development approach.
-For improvements to documentation or policies:
 
+For improvements to documentation or policies:
 1. Fork the repository
 2. Make your changes
 3. Submit a pull request with clear description
@@ -486,7 +462,6 @@ MIT License - See [LICENSE](LICENSE) file for details
 - [Kiranism/next-shadcn-dashboard-starter](https://github.com/Kiranism/next-shadcn-dashboard-starter) - Dashboard UI patterns
 
 **Technologies:**
-
 - Next.js, React, TypeScript (Vercel)
 - Prisma, PostgreSQL
 - Stripe (payments)
@@ -520,9 +495,7 @@ MIT License - See [LICENSE](LICENSE) file for details
 **Built with ❤️ using AI-driven development**
 
 **Time to Professional SaaS:** 67 hours
-
 **Cost-Effective Development:** MiniMax M2
-
 **Quality Assurance:** Claude Code validation
 
 *Welcome to the future of SaaS development!* 🚀
