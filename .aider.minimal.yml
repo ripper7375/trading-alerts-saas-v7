@@ -1,0 +1,35 @@
+# ============================================================================
+# Minimal Aider Configuration - For Testing/Debugging
+# ============================================================================
+
+# Model will be specified via --model flag on command line
+
+# ============================================================================
+# POLICY DOCUMENTS (READ-ONLY)
+# ============================================================================
+read:
+  - docs/policies/01-approval-policies.md
+  - docs/policies/02-quality-standards.md
+  - docs/policies/03-architecture-rules.md
+  - docs/policies/04-escalation-triggers.md
+  - docs/policies/05-coding-patterns.md
+  - docs/policies/06-aider-instructions.md
+  - ARCHITECTURE.md
+  - README.md
+
+# ============================================================================
+# MINIMAL SETTINGS
+# ============================================================================
+git: true
+auto-commits: false
+edit-format: diff
+stream: true
+pretty: true
+dark-mode: true
+
+# Disable potentially problematic features
+lint: false
+use-ctags: false
+
+# Chat history
+chat-history-file: .aider.minimal.history.md
