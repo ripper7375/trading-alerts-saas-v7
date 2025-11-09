@@ -121,14 +121,16 @@ stream: true
 map-tokens: 2048
 
 # Use universal ctags for better code navigation
-use-ctags: true
+# Disabled: may cause issues if ctags not installed
+use-ctags: false
 
 # ============================================================================
 # VALIDATION & TESTING
 # ============================================================================
 
 # Run linting checks
-lint: true
+# Disabled: may cause issues if linter not configured
+lint: false
 
 # Run tests after changes (if available)
 # test-cmd: npm test
