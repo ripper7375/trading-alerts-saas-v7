@@ -27,6 +27,12 @@ weak-model: openai/MiniMax-M2
 # set OPENAI_API_BASE=https://api.minimax.chat/v1  (or actual endpoint)
 
 # ============================================================================
+# ENVIRONMENT FILE
+# ============================================================================
+# Load API keys from .env file automatically
+env-file: .env
+
+# ============================================================================
 # AUTO-COMMIT SETTINGS
 # ============================================================================
 
