@@ -10,21 +10,21 @@
 # ============================================================================
 # MODEL CONFIGURATION
 # ============================================================================
-# NOTE: Model can be specified via command line (--model flag)
-# If you're using Anthropic models via CLI, comment out these lines
-# to avoid conflicts with weak-model settings
+# MiniMax M2 is configured as the default model
+# ~80% cheaper than GPT-4 while maintaining quality
 
-# Default model for code generation (MiniMax M2)
-# Comment out if using --model flag on command line
-# model: openai/MiniMax-M2
+# Main model for code generation (MiniMax M2)
+model: openai/MiniMax-M2
 
-# Editor model for smaller edits (can use same or lighter model)
-# Comment out if using --model flag on command line
-# editor-model: openai/MiniMax-M2
+# Editor model for smaller edits
+editor-model: openai/MiniMax-M2
 
 # Weak model for simple tasks (summaries, commit messages)
-# Comment out if using --model flag on command line
-# weak-model: openai/MiniMax-M2
+weak-model: openai/MiniMax-M2
+
+# Note: Set OPENAI_API_KEY and OPENAI_API_BASE in your environment:
+# set OPENAI_API_KEY=your_minimax_api_key
+# set OPENAI_API_BASE=https://api.minimax.chat/v1  (or actual endpoint)
 
 # ============================================================================
 # AUTO-COMMIT SETTINGS
