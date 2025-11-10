@@ -19,7 +19,7 @@ echo.
 REM Set MiniMax API credentials
 REM Replace YOUR_MINIMAX_API_KEY_HERE with your actual key from MiniMax dashboard
 set OPENAI_API_KEY=YOUR_MINIMAX_API_KEY_HERE
-set OPENAI_API_BASE=https://api.minimaxi.com/v1
+set OPENAI_API_BASE=https://api.minimax.io/v1
 
 REM Check if API key is set
 if "%OPENAI_API_KEY%"=="YOUR_MINIMAX_API_KEY_HERE" (
