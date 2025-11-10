@@ -1,5 +1,23 @@
 # Aider Setup & Testing Guide for Beginners
 
+---
+
+## ⚠️ **LEGACY DOCUMENT WARNING** ⚠️
+
+**This document has been superseded by `MINIMAX-TROUBLESHOOTING.md`.**
+
+This file is kept for historical reference but contains **redundant information**. The information below has been **updated with correct configuration**, but for the most current and comprehensive troubleshooting guide, please refer to:
+
+**➡️ See: `MINIMAX-TROUBLESHOOTING.md` (recommended)**
+
+Key differences resolved in the new guide:
+- ✅ Uses Anthropic-compatible endpoint (the only configuration that works)
+- ✅ Includes free trial expiration troubleshooting
+- ✅ Complete step-by-step debugging process
+- ✅ Updated for November 2025
+
+---
+
 **Welcome!** This guide will walk you through setting up and testing Aider with MiniMax M2 API. Don't worry if you're new to coding - I'll explain everything step-by-step.
 
 ---
@@ -68,25 +86,34 @@ Expected output: `aider 0.x.x` (any version 0.30.0+ is good)
 
 ### 2. Get MiniMax API Key
 
-1. Go to [MiniMax Platform](https://api.minimax.chat/) (or wherever you signed up)
+1. Go to [MiniMax Platform](https://platform.minimax.io)
 2. Navigate to **API Keys** section
 3. Click **Create New API Key**
-4. Copy the key (it looks like: `sk-xxxxxxxxxxxxxxxx`)
+4. Copy the key (it looks like: `eyJhbGciOiJSUzI1NiIs...`)
 5. **IMPORTANT:** Save it somewhere safe - you won't see it again!
+6. **CRITICAL:** Ensure you have **credits** in your account (free trial ended Nov 7, 2025)
 
 ### 3. Set Up Environment Variables
 
 Environment variables are like secret passwords your computer remembers. We need to tell your computer about your MiniMax API key.
 
+**IMPORTANT:** Use the **Anthropic-compatible** environment variables (this is the only configuration that works with MiniMax M2):
+
+#### **Recommended: Use start-aider-anthropic.bat (Windows)**
+
+The easiest method is to edit `start-aider-anthropic.bat` and set your API key on line 21. See MINIMAX-TROUBLESHOOTING.md for details.
+
 #### **On Windows (PowerShell):**
 
 ```powershell
 # Open PowerShell as Administrator
-# Set environment variable permanently
-[System.Environment]::SetEnvironmentVariable('MINIMAX_API_KEY', 'your_actual_api_key_here', 'User')
+# Set environment variables permanently
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_API_KEY', 'your_actual_api_key_here', 'User')
+[System.Environment]::SetEnvironmentVariable('ANTHROPIC_BASE_URL', 'https://api.minimax.io/anthropic', 'User')
 
 # Restart PowerShell and verify:
-echo $env:MINIMAX_API_KEY
+echo $env:ANTHROPIC_API_KEY
+echo $env:ANTHROPIC_BASE_URL
 ```
 
 #### **On Mac/Linux (Bash/Zsh):**
@@ -95,8 +122,9 @@ echo $env:MINIMAX_API_KEY
 # Open your shell configuration file
 nano ~/.bashrc  # or ~/.zshrc on Mac
 
-# Add this line at the end:
-export MINIMAX_API_KEY="your_actual_api_key_here"
+# Add these lines at the end:
+export ANTHROPIC_API_KEY="your_actual_api_key_here"
+export ANTHROPIC_BASE_URL="https://api.minimax.io/anthropic"
 
 # Save and exit (Ctrl+X, then Y, then Enter)
 
@@ -104,7 +132,8 @@ export MINIMAX_API_KEY="your_actual_api_key_here"
 source ~/.bashrc  # or source ~/.zshrc
 
 # Verify:
-echo $MINIMAX_API_KEY
+echo $ANTHROPIC_API_KEY
+echo $ANTHROPIC_BASE_URL
 ```
 
 #### **Alternative: Use .env File (Easier for Beginners)**
@@ -121,7 +150,8 @@ touch .env  # Mac/Linux
 type nul > .env  # Windows
 
 # Open with text editor and add:
-MINIMAX_API_KEY=your_actual_api_key_here
+ANTHROPIC_API_KEY=your_actual_api_key_here
+ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic
 ```
 
 **IMPORTANT:** `.env` is already in your `.gitignore`, so it won't be committed to GitHub (keeps your secrets safe!)
@@ -184,12 +214,12 @@ nano .aider.conf.yml
 
 **Key Settings to Notice:**
 
-1. **Model Configuration** (lines 17-27):
+1. **Model Configuration**:
    ```yaml
-   model: minimax/abab6.5s-chat
-   editor-model: minimax/abab6.5s-chat
-   weak-model: minimax/abab6.5s-chat
-   openai-api-base: https://api.minimax.chat/v1
+   model: anthropic/MiniMax-M2
+   editor-model: anthropic/MiniMax-M2
+   weak-model: anthropic/MiniMax-M2
+   # Note: API base URL is set via ANTHROPIC_BASE_URL environment variable
    ```
 
 2. **Auto-Commits** (line 34):
@@ -257,19 +287,29 @@ Now let's test that Aider can read your policies and understand your project!
 
 ### Step 1: Start Aider
 
+**On Windows (Recommended):**
+```cmd
+# Make sure you're in the project root
+cd "D:\SaaS Project\trading-alerts-saas-v7"
+
+# Start Aider with Anthropic-compatible configuration
+start-aider-anthropic.bat
+```
+
+**On Mac/Linux:**
 ```bash
 # Make sure you're in the project root
 cd /home/user/trading-alerts-saas-v7
 
-# Start Aider
-aider
+# Start Aider (ensure environment variables are set)
+aider --model anthropic/MiniMax-M2
 ```
 
 **What You'll See:**
 
 ```
 Aider v0.x.x
-Model: minimax/abab6.5s-chat with diff edit format
+Model: anthropic/MiniMax-M2 with diff edit format
 Git repo: /home/user/trading-alerts-saas-v7
 Repo-map: disabled
 Auto-commits: enabled
@@ -289,7 +329,8 @@ Reading files from 'read' config...
 ```
 
 **Troubleshooting:**
-- If Aider says "Model not found", check your `MINIMAX_API_KEY` environment variable
+- If Aider says "Model not found", check your `ANTHROPIC_API_KEY` environment variable
+- If connection errors occur, see MINIMAX-TROUBLESHOOTING.md for detailed debugging
 - If policy files don't load, check the paths in `.aider.conf.yml`
 - If Git errors appear, make sure you're in a Git repository (`git status`)
 
@@ -576,15 +617,22 @@ pip3 install aider-chat
 ### Issue 2: "Model not found" or "Authentication failed"
 
 **Solution:**
-Check your API key:
+Check your API key and ensure you have credits:
 
 ```bash
-# Verify environment variable
-echo $MINIMAX_API_KEY  # Mac/Linux
-echo $env:MINIMAX_API_KEY  # Windows PowerShell
+# Verify environment variables
+echo $ANTHROPIC_API_KEY  # Mac/Linux
+echo $ANTHROPIC_BASE_URL  # Mac/Linux
+echo $env:ANTHROPIC_API_KEY  # Windows PowerShell
+echo $env:ANTHROPIC_BASE_URL  # Windows PowerShell
 
-# If empty, set it again (see Prerequisites section)
+# If empty, set them again (see Prerequisites section)
 ```
+
+**Also check:**
+- Verify you have credits in your MiniMax account (free trial ended Nov 7, 2025)
+- Log in to https://platform.minimax.io and check balance
+- See MINIMAX-TROUBLESHOOTING.md for detailed debugging
 
 ### Issue 3: Policy Files Not Loading
 
@@ -658,24 +706,36 @@ git config user.email "your.email@example.com"
 
 ### Starting Development with Aider:
 
-```bash
+**On Windows:**
+```cmd
 # Start Aider
-aider
+start-aider-anthropic.bat
 
 # Tell Aider what to build
 You: "Let's start building Part 1: Foundation & Root Configuration.
       Follow the 7-step workflow from 06-aider-instructions.md.
       Start with creating package.json following our V7 requirements."
-
-# Aider will:
-# 1. Read requirements from docs/v5-structure-division.md
-# 2. Plan which files to create
-# 3. Generate code following patterns
-# 4. Validate with Claude Code (if available)
-# 5. Auto-commit (if passes validation)
-# 6. Update PROGRESS.md
-# 7. Report progress every 3 files
 ```
+
+**On Mac/Linux:**
+```bash
+# Start Aider
+aider --model anthropic/MiniMax-M2
+
+# Tell Aider what to build
+You: "Let's start building Part 1: Foundation & Root Configuration.
+      Follow the 7-step workflow from 06-aider-instructions.md.
+      Start with creating package.json following our V7 requirements."
+```
+
+**Aider will:**
+1. Read requirements from docs/v5-structure-division.md
+2. Plan which files to create
+3. Generate code following patterns
+4. Validate with Claude Code (if available)
+5. Auto-commit (if passes validation)
+6. Update PROGRESS.md
+7. Report progress every 3 files
 
 ### Monitoring Progress:
 
@@ -716,8 +776,11 @@ You've successfully:
 ## Quick Reference Commands
 
 ```bash
-# Start Aider
-aider
+# Start Aider (Windows)
+start-aider-anthropic.bat
+
+# Start Aider (Mac/Linux)
+aider --model anthropic/MiniMax-M2
 
 # Add files to context
 /add path/to/file.ts
