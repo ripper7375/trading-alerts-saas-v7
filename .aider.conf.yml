@@ -27,6 +27,12 @@ weak-model: openai/MiniMax-M2
 # set OPENAI_API_BASE=https://api.minimax.chat/v1  (or actual endpoint)
 
 # ============================================================================
+# ENVIRONMENT FILE
+# ============================================================================
+# Load API keys from .env file automatically
+env-file: .env
+
+# ============================================================================
 # AUTO-COMMIT SETTINGS
 # ============================================================================
 
@@ -202,12 +208,14 @@ dark-mode: true
 # ============================================================================
 # ENVIRONMENT VARIABLES (Set these in your shell, NOT here!)
 # ============================================================================
-# Required:
-#   MINIMAX_API_KEY=your_minimax_api_key_here
-#   or
-#   OPENAI_API_KEY=your_openai_key (if using OpenAI-compatible endpoint)
+# Required for MiniMax M2:
+#   OPENAI_API_KEY=your_minimax_api_key_here
+#   OPENAI_API_BASE=https://api.minimaxi.com/v1
 #
-# Optional:
+# MiniMax uses OpenAI-compatible API, so set these two variables.
+# Do NOT use MINIMAX_API_KEY - only OPENAI_API_KEY and OPENAI_API_BASE.
+#
+# Optional (for the app itself):
 #   DATABASE_URL=postgresql://...
 #   NEXT_PUBLIC_API_URL=http://localhost:3000
 #
