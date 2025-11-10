@@ -2,17 +2,38 @@
 REM ============================================================================
 REM Start Aider with MiniMax M2
 REM ============================================================================
-REM This batch file automatically sets environment variables and starts Aider
 REM
-REM Usage:
-REM   start-aider.bat              (starts Aider in current directory)
-REM   start-aider.bat README.md    (starts Aider with README.md loaded)
+REM ⚠️  WARNING: THIS SCRIPT DOES NOT WORK! ⚠️
 REM
+REM This is a legacy/template script that uses the OpenAI-compatible endpoint,
+REM which does NOT work reliably with MiniMax M2 and LiteLLM.
+REM
+REM ✅ INSTEAD, USE: start-aider-anthropic.bat
+REM
+REM The Anthropic-compatible endpoint is the only configuration that works
+REM reliably with MiniMax M2. See MINIMAX-TROUBLESHOOTING.md for details.
+REM
+REM This file is kept as a template/reference only.
 REM ============================================================================
 
 echo.
 echo ========================================
+echo   ⚠️  WARNING - THIS SCRIPT DOES NOT WORK
+echo ========================================
+echo.
+echo This script uses an outdated configuration that
+echo does not work with MiniMax M2.
+echo.
+echo ✅ Please use: start-aider-anthropic.bat
+echo.
+echo Press Ctrl+C to cancel, or Enter to continue anyway
+echo (not recommended - will likely fail with connection errors)
+echo.
+pause
+echo.
+echo ========================================
 echo   Starting Aider with MiniMax M2
+echo   (OpenAI-compatible - WILL LIKELY FAIL)
 echo ========================================
 echo.
 

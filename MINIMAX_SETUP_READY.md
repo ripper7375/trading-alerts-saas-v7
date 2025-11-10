@@ -1,5 +1,24 @@
 # ✅ MiniMax M2 Configuration Complete
 
+---
+
+## ⚠️ **LEGACY DOCUMENT WARNING** ⚠️
+
+**This document has been superseded by `MINIMAX-TROUBLESHOOTING.md`.**
+
+This file is kept for historical reference but contains **redundant information**. The information below has been **updated with correct configuration**, but for the most current and comprehensive troubleshooting guide, please refer to:
+
+**➡️ See: `MINIMAX-TROUBLESHOOTING.md` (recommended)**
+
+Key improvements in the new guide:
+- ✅ Uses Anthropic-compatible endpoint (the only working configuration)
+- ✅ Includes test scripts for API connectivity verification
+- ✅ Troubleshooting for connection errors and free trial expiration
+- ✅ Complete cost estimation and token usage tracking
+- ✅ Updated for November 2025
+
+---
+
 **Status:** All files configured for MiniMax M2 API
 **Date:** 2025-11-10
 **Branch:** `claude/aider-setup-testing-011CUwomNS5nvK7YYUcyykVb`
@@ -27,13 +46,29 @@
 
 ## Configuration Details
 
-### `.aider.conf.yml` Settings:
+### Correct Configuration (Anthropic-Compatible):
 
+**Environment Variables:**
+```bash
+ANTHROPIC_API_KEY=your_minimax_api_key_here
+ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic
+```
+
+**Aider Command:**
+```bash
+# Windows
+start-aider-anthropic.bat
+
+# Mac/Linux
+aider --model anthropic/MiniMax-M2
+```
+
+**Model Settings:**
 ```yaml
-# Model Configuration
-model: openai/MiniMax-M2
-editor-model: openai/MiniMax-M2
-weak-model: openai/MiniMax-M2
+# Model Configuration (Anthropic-compatible)
+model: anthropic/MiniMax-M2
+editor-model: anthropic/MiniMax-M2
+weak-model: anthropic/MiniMax-M2
 
 # Auto-Commits
 auto-commits: false  # Set to true for autonomous building
@@ -67,12 +102,13 @@ read:
 
 ### Step 2: Get Your API Credentials
 
-You need **two pieces of information** from MiniMax:
+You need **your API key** from MiniMax:
 
-1. **API Key** - Looks like: `sk-xxxxxxxxxxxxxxxx`
-2. **API Base URL** - Their OpenAI-compatible endpoint (e.g., `https://api.minimax.chat/v1`)
+1. **API Key** - Looks like: `eyJhbGciOiJSUzI1NiIs...`
+2. Get it from: https://platform.minimax.io
+3. **Important:** Ensure you have credits (free trial ended Nov 7, 2025)
 
-> **Note:** Check MiniMax documentation for the exact API base URL
+**API Base URL** is fixed: `https://api.minimax.io/anthropic` (Anthropic-compatible endpoint)
 
 ### Step 3: Pull All Changes to Local Machine
 
@@ -83,36 +119,56 @@ cd "D:\SaaS Project\trading-alerts-saas-v7"
 git pull
 ```
 
-### Step 4: Set Environment Variables
+### Step 4: Edit start-aider-anthropic.bat
 
-On your **Windows Command Prompt**:
+**Recommended approach:** Edit the startup script with your API key.
+
+1. Open `start-aider-anthropic.bat` in Notepad
+2. Find line 21: `set ANTHROPIC_API_KEY=YOUR_MINIMAX_API_KEY_HERE`
+3. Replace with your actual MiniMax API key
+4. Save the file
+
+**Alternative:** Set environment variables in Command Prompt:
 
 ```cmd
-set OPENAI_API_KEY=your_minimax_api_key_here
-set OPENAI_API_BASE=https://api.minimax.chat/v1
+set ANTHROPIC_API_KEY=your_minimax_api_key_here
+set ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic
 ```
-
-> **Tip:** Replace with your actual MiniMax API key and base URL
 
 ### Step 5: Run Aider!
 
 ```cmd
-py -3.11 -m aider
+start-aider-anthropic.bat
 ```
 
-That's it! No need for `--model` flag or other arguments - everything is configured in `.aider.conf.yml`.
+**Or with environment variables set:**
+
+```cmd
+py -3.11 -m aider --model anthropic/MiniMax-M2
+```
 
 ---
 
 ## Expected Behavior
 
-When you run `aider`, you should see:
+When you run `start-aider-anthropic.bat`, you should see:
 
 ```
+========================================
+  Starting Aider with MiniMax M2
+  (Anthropic-Compatible Endpoint)
+========================================
+
+Environment variables set:
+  ANTHROPIC_API_KEY: eyJhbGciOiJSUzI1NiIs...
+  ANTHROPIC_BASE_URL: https://api.minimax.io/anthropic
+
+Starting Aider with Anthropic-compatible model: anthropic/MiniMax-M2
+
 ──────────────────────────────────────────────────────────────────
 Aider v0.86.1
-Main model: openai/MiniMax-M2 with diff edit format, infinite output
-Weak model: openai/MiniMax-M2
+Main model: anthropic/MiniMax-M2 with diff edit format, infinite output
+Weak model: anthropic/MiniMax-M2
 Git repo: .git with 309 files
 Repo-map: using 2048 tokens, auto refresh
 Added docs\policies\01-approval-policies.md to the chat (read-only).
@@ -169,12 +225,14 @@ Aider should:
 
 ## Troubleshooting
 
-### Issue: "Model not found"
+### Issue: "Model not found" or Connection Errors
 
 **Solution:**
-- Check `OPENAI_API_KEY` is set: `echo %OPENAI_API_KEY%`
-- Check `OPENAI_API_BASE` is set: `echo %OPENAI_API_BASE%`
+- Check `ANTHROPIC_API_KEY` is set: `echo %ANTHROPIC_API_KEY%`
+- Check `ANTHROPIC_BASE_URL` is set: `echo %ANTHROPIC_BASE_URL%`
 - Verify API key is valid in MiniMax dashboard
+- **Important:** Check you have credits (free trial ended Nov 7, 2025)
+- See MINIMAX-TROUBLESHOOTING.md for detailed debugging steps
 
 ### Issue: "Rate limit error"
 
@@ -186,15 +244,18 @@ Aider should:
 ### Issue: Aider exits immediately
 
 **Solution:**
-- Add a file to edit: `py -3.11 -m aider README.md`
+- Make sure you're using: `start-aider-anthropic.bat`
+- Or add a file to edit: `py -3.11 -m aider --model anthropic/MiniMax-M2 README.md`
 - This gives Aider something to work on
 
-### Issue: "Service Unavailable"
+### Issue: "Service Unavailable" or Connection Errors
 
 **Solution:**
-- Check MiniMax API status
-- Verify `OPENAI_API_BASE` URL is correct
-- Wait and retry
+- Use `test-minimax-api.bat` to verify API connectivity
+- Check MiniMax API status at https://platform.minimax.io
+- Verify `ANTHROPIC_BASE_URL` is correct: `https://api.minimax.io/anthropic`
+- Ensure you have credits in your account
+- See MINIMAX-TROUBLESHOOTING.md for step-by-step debugging
 
 ---
 
@@ -212,11 +273,12 @@ Aider should:
 
 ### 🎯 What You Need to Do
 
-1. ✅ Top up MiniMax credit
-2. ✅ Get API key and base URL
-3. ✅ Pull changes: `git pull`
-4. ✅ Set environment variables
-5. ✅ Run: `py -3.11 -m aider`
+1. ✅ Top up MiniMax credit (free trial ended Nov 7, 2025)
+2. ✅ Get API key from https://platform.minimax.io
+3. ✅ Pull changes: `git pull origin claude/debug-minimax-api-errors-011CUz3tNHzC6QgvfVcnYDEH`
+4. ✅ Edit `start-aider-anthropic.bat` with your API key (line 21)
+5. ✅ Run: `start-aider-anthropic.bat`
+6. ✅ Use `test-minimax-api.bat` if you encounter connection issues
 
 ---
 
