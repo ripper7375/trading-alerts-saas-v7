@@ -28,7 +28,7 @@ if "%OPENAI_API_KEY%"=="YOUR_MINIMAX_API_KEY_HERE" (
     echo Open start-aider.bat in a text editor and replace:
     echo   YOUR_MINIMAX_API_KEY_HERE
     echo.
-    echo With your actual API key from: https://platform.minimaxi.com
+    echo With your actual API key from: https://platform.minimaxi.io
     echo.
     pause
     exit /b 1
