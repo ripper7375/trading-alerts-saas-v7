@@ -210,7 +210,7 @@ dark-mode: true
 # ============================================================================
 # Required for MiniMax M2:
 #   OPENAI_API_KEY=your_minimax_api_key_here
-#   OPENAI_API_BASE=https://api.minimaxi.com/v1
+#   OPENAI_API_BASE=https://api.minimax.io/v1
 #
 # MiniMax uses OpenAI-compatible API, so set these two variables.
 # Do NOT use MINIMAX_API_KEY - only OPENAI_API_KEY and OPENAI_API_BASE.
