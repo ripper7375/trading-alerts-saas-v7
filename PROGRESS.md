@@ -20,7 +20,7 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 
 **Key Tools You'll Use:**
 - **OpenAPI Scripts** (Milestone 1.2) → Used in Phase 3 Step 1
-- **Postman Testing** (Milestone 1.3) → Used after each API endpoint in Phase 3
+- **Postman Testing** (Milestone 1.3) → Used after completing Parts 5, 7, 11, 12 in Phase 3
 - **Aider with MiniMax M2** → Used throughout Phase 3 for autonomous building
 
 ---
@@ -753,6 +753,109 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 **Your Role:** Monitor progress, handle escalations, test as you build.
 
 **Aider's Role:** Read requirements, generate code, validate, commit.
+
+---
+
+### 🔄 TWO LEVELS OF VALIDATION (Critical to Understand!)
+
+Phase 3 uses **TWO different types of validation** at **TWO different scales**:
+
+#### 1️⃣ FILE-LEVEL VALIDATION (Automated, Continuous)
+
+**Tool:** Claude Code (built into Aider)
+**Frequency:** After each file or small batch of files
+**Purpose:** Check code quality, standards compliance, type safety
+**Automated:** Yes - happens automatically
+
+**The Process:**
+```
+Aider builds: app/api/auth/signup/route.ts
+    ↓
+Claude Code validates: Check TypeScript types, patterns, standards
+    ↓
+Decision:
+  ✅ APPROVE → Commit → Next file
+  🔧 FIX → Aider fixes → Claude Code re-validates → Commit
+  🚨 ESCALATE → Ask you → You decide → Continue
+```
+
+**What it catches:**
+- ✅ Syntax errors, type errors
+- ✅ Code pattern violations
+- ✅ Missing error handling
+- ✅ Inconsistencies with policies
+- ❌ **CANNOT** test if API actually works end-to-end
+
+---
+
+#### 2️⃣ PART-LEVEL VALIDATION (Manual, Milestone-Based)
+
+**Tool:** Postman API Testing
+**Frequency:** After completing an entire Part (e.g., all 18 Auth files)
+**Purpose:** Verify APIs actually work end-to-end
+**Automated:** No - you run these tests manually
+
+**The Process:**
+```
+Aider completes ALL files in Part 5 (Authentication)
+  ├─ route.ts (Claude validated ✅)
+  ├─ schema.ts (Claude validated ✅)
+  ├─ service.ts (Claude validated ✅)
+  └─ All 18 auth files built and committed
+    ↓
+🧪 NOW YOU USE POSTMAN
+    ↓
+Open Postman → Run "Scenario 1: User Registration & Auth"
+    ↓
+Test POST /api/auth/signup
+Test POST /api/auth/login
+Test GET /api/auth/profile
+    ↓
+Decision:
+  ✅ All tests pass → Move to Part 6
+  ❌ Some tests fail → Tell Aider to fix → Re-test
+```
+
+**What it catches:**
+- ✅ Actual HTTP requests/responses work
+- ✅ Database operations function correctly
+- ✅ Authentication flows are secure
+- ✅ APIs match OpenAPI specifications
+- ✅ Tier restrictions are enforced
+- ❌ Too slow to run after every single file
+
+---
+
+#### 📊 VALIDATION COMPARISON
+
+| Aspect | Claude Code (File-Level) | Postman (Part-Level) |
+|--------|-------------------------|---------------------|
+| **When** | After each file | After Parts 5, 7, 11, 12 |
+| **Tool** | Claude Code (automated) | Postman (manual) |
+| **Speed** | Fast (seconds) | Slower (30 min per part) |
+| **What** | Code quality, types | API functionality |
+| **Who** | Aider (automatic) | You (manual testing) |
+| **Frequency** | 170+ times | 4 times in Phase 3 |
+
+---
+
+#### ⏱️ TIME BREAKDOWN
+
+**Total Phase 3 Time:** 38 hours
+
+**Aider's Autonomous Work:** ~36 hours (96%)
+- Building 170+ files
+- Claude Code validation after each file
+- Auto-fixes and commits
+- Progress reporting
+
+**Your Manual Work:** ~2-3 hours (4%)
+- Postman testing: ~2 hours (4 sessions × 30 min)
+- Handling escalations: ~30-60 min (if any occur)
+
+**Result: 96% autonomous, 4% human oversight**
+
+This is why V7 is so efficient - you only intervene at strategic milestones!
 
 ---
 
