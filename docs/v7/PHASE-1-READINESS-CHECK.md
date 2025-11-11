@@ -91,7 +91,7 @@ cat .aider.conf.yml
 
 **Verification:**
 ```bash
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 # Check startup output
 /exit
 ```
@@ -260,7 +260,7 @@ curl https://api.minimax.ai/v1/models \
 
 #### Test with Aider
 ```bash
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 **Ask Aider:**

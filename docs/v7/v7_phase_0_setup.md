@@ -235,20 +235,20 @@
    
    **Windows (PowerShell):**
    ```powershell
-   $env:OPENAI_API_KEY="your-minimax-api-key-here"
-   $env:OPENAI_API_BASE="https://api.minimaxi.com/v1"
+   $env:ANTHROPIC_API_KEY="your-minimax-api-key-here"
+   $env:ANTHROPIC_API_BASE="https://api.minimaxi.com/v1"
    ```
    
    **Windows (Command Prompt):**
    ```cmd
-   set OPENAI_API_KEY=your-minimax-api-key-here
-   set OPENAI_API_BASE=https://api.minimaxi.com/v1
+   set ANTHROPIC_API_KEY=your-minimax-api-key-here
+   set ANTHROPIC_API_BASE=https://api.minimaxi.com/v1
    ```
    
    **Mac/Linux:**
    ```bash
-   export OPENAI_API_KEY="your-minimax-api-key-here"
-   export OPENAI_API_BASE="https://api.minimaxi.com/v1"
+   export ANTHROPIC_API_KEY="your-minimax-api-key-here"
+   export ANTHROPIC_API_BASE="https://api.minimaxi.com/v1"
    ```
    
    **Make it Permanent (Optional):**
@@ -258,13 +258,13 @@
    2. Click "Edit the system environment variables"
    3. Click "Environment Variables"
    4. Under "User variables", click "New"
-   5. Add OPENAI_API_KEY with your key
-   6. Add OPENAI_API_BASE with https://api.minimaxi.com/v1
+   5. Add ANTHROPIC_API_KEY with your key
+   6. Add ANTHROPIC_API_BASE with https://api.minimaxi.com/v1
    
    Mac/Linux: Add to ~/.bashrc or ~/.zshrc:
    ```bash
-   echo 'export OPENAI_API_KEY="your-minimax-api-key-here"' >> ~/.bashrc
-   echo 'export OPENAI_API_BASE="https://api.minimaxi.com/v1"' >> ~/.bashrc
+   echo 'export ANTHROPIC_API_KEY="your-minimax-api-key-here"' >> ~/.bashrc
+   echo 'export ANTHROPIC_API_BASE="https://api.minimaxi.com/v1"' >> ~/.bashrc
    source ~/.bashrc
    ```
    
@@ -272,9 +272,9 @@
    
    Verify: 
    ```
-   echo %OPENAI_API_KEY%    # Windows CMD
-   echo $env:OPENAI_API_KEY # Windows PowerShell
-   echo $OPENAI_API_KEY     # Mac/Linux
+   echo %ANTHROPIC_API_KEY%    # Windows CMD
+   echo $env:ANTHROPIC_API_KEY # Windows PowerShell
+   echo $ANTHROPIC_API_KEY     # Mac/Linux
    ```
    Should show your API key ✓
 
@@ -293,7 +293,7 @@
    # Aider V7 Configuration - MiniMax M2
    
    # Model to use
-   model: openai/MiniMax-M2
+   model: anthropic/MiniMax-M2
    
    # Auto-commit when approved
    auto-commits: true
@@ -311,13 +311,13 @@
    Why: Ensure everything is configured correctly
    How:
    ```
-   py -3.11 -m aider --model openai/MiniMax-M2
+   py -3.11 -m aider --model anthropic/MiniMax-M2
    ```
    
    You should see:
    ```
    Aider v0.x.x
-   Model: openai/MiniMax-M2
+   Model: anthropic/MiniMax-M2
    Main model: MiniMax-M2 with Agentic API
    
    Ready! Type /help for commands.
@@ -334,7 +334,7 @@
    Verify: Aider responds correctly ✓
 
 💡 BEGINNER TIP: From now on, always start Aider with:
-   `py -3.11 -m aider --model openai/MiniMax-M2`
+   `py -3.11 -m aider --model anthropic/MiniMax-M2`
 
 ✅ CHECKPOINT: Aider installed and configured with MiniMax M2!
 
@@ -471,7 +471,7 @@ YOU ARE READY WHEN ALL CHECKED:
 ☐ 6 VSCode extensions installed and enabled
 ☐ Aider installed (py -3.11 -m aider --version works)
 ☐ MiniMax API key obtained and saved
-☐ Environment variables set (OPENAI_API_KEY, OPENAI_API_BASE)
+☐ Environment variables set (ANTHROPIC_API_KEY, ANTHROPIC_API_BASE)
 ☐ Aider configuration file created (.aider.conf.yml)
 ☐ Aider tested with MiniMax M2 (responds correctly)
 ☐ GitHub token created and set

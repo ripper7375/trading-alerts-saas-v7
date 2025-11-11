@@ -16,7 +16,7 @@ Instead of manually creating workflow files, use Aider with MiniMax M2!
 
 ☐ STEP 1: Start Aider (2 minutes)
    ```
-   py -3.11 -m aider --model openai/MiniMax-M2
+   py -3.11 -m aider --model anthropic/MiniMax-M2
    ```
 
 ☐ STEP 2: Create Next.js CI Workflow (30 minutes)
@@ -125,8 +125,8 @@ Expected: Some failures (project doesn't exist yet) - that's OK!
    | NEXTAUTH_SECRET | [from Step 2] | Auth encryption key |
    | DATABASE_URL | postgresql://temp:temp@localhost/temp | Temporary (will update) |
    | MT5_API_KEY | temp-key-123 | Temporary (will update) |
-   | OPENAI_API_KEY | [your MiniMax key] | For Aider in CI |
-   | OPENAI_API_BASE | https://api.minimaxi.com/v1 | MiniMax endpoint |
+   | ANTHROPIC_API_KEY | [your MiniMax key] | For Aider in CI |
+   | ANTHROPIC_API_BASE | https://api.minimaxi.com/v1 | MiniMax endpoint |
 
 ☐ STEP 4: Verify Secrets (5 minutes)
    Check: All 5 secrets show in list (values hidden) ✓
@@ -315,7 +315,7 @@ understand the concept!
 
 ☐ STEP 1: Start Aider (2 minutes)
    ```
-   py -3.11 -m aider --model openai/MiniMax-M2
+   py -3.11 -m aider --model anthropic/MiniMax-M2
    ```
 
 ☐ STEP 2: Create Dockerfile for Flask (25 minutes)
@@ -387,7 +387,7 @@ Expected: Error about missing files - normal!
 
 ☐ STEP 1: Start Aider (2 minutes)
    ```
-   py -3.11 -m aider --model openai/MiniMax-M2
+   py -3.11 -m aider --model anthropic/MiniMax-M2
    ```
 
 ☐ STEP 2: Setup Jest (25 minutes)

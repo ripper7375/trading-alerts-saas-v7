@@ -31,7 +31,7 @@ This document provides a **comprehensive test plan** to verify that Aider fully 
 
 ```bash
 cd /path/to/trading-alerts-saas-v7
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 **Verify files loaded:**
@@ -1338,17 +1338,17 @@ What AI model should you use for this project? Why was it chosen?
 ```
 
 **Expected Answer:**
-- **Model:** MiniMax M2 (via OpenAI-compatible API)
+- **Model:** MiniMax M2 (via Anthropic-compatible API)
 - **Why Chosen:**
   - Cost-effective (vs Claude Opus, GPT-4)
   - Good balance of quality and cost
   - Handles coding tasks well
   - Suitable for autonomous development
-  - Anthropic-compatible API support
+  - Anthropic-compatible API
 
 **Command to start Aider:**
 ```bash
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 **Result:** ✅ PASS / ❌ FAIL
@@ -1737,7 +1737,7 @@ After updating policies:
 /exit
 
 # Restart to load updated policies
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 ### Step 4: Retest

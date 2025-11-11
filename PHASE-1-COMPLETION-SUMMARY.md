@@ -49,7 +49,7 @@ f2017d9 Add first 4 policy documents for Aider with MiniMax M2
 **File:** `.aider.conf.yml`
 
 **Configuration Includes:**
-- ✅ Model set to `openai/MiniMax-M2`
+- ✅ Model set to `anthropic/MiniMax-M2`
 - ✅ All 7 policy files in `read:` section
 - ✅ v5-structure-division.md included
 - ✅ OpenAPI specs included
@@ -75,7 +75,7 @@ f2017d9 Add first 4 policy documents for Aider with MiniMax M2
 
 **Test Command:**
 ```bash
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 # Should show all files loading with ✓ checkmarks
 /exit
 ```
@@ -107,9 +107,9 @@ py -3.11 -m aider --model openai/MiniMax-M2
 **Status:** ⚠️ **USER ACTION REQUIRED**
 
 **User Must:**
-1. Set environment variable: `OPENAI_API_KEY=your_minimax_api_key`
-2. Set environment variable: `OPENAI_API_BASE=https://api.minimax.io/v1`
-3. Test with: `py -3.11 -m aider --model openai/MiniMax-M2`
+1. Set environment variable: `ANTHROPIC_API_KEY=your_minimax_api_key`
+2. Set environment variable: `ANTHROPIC_API_BASE=https://api.minimax.io/v1`
+3. Test with: `py -3.11 -m aider --model anthropic/MiniMax-M2`
 
 **Documentation Available:**
 - MiniMax troubleshooting: `MINIMAX-TROUBLESHOOTING.md`
@@ -331,7 +331,7 @@ d1808ac docs: create comprehensive Phase 1 readiness check
 
 1. **Test Aider Configuration**
    ```bash
-   py -3.11 -m aider --model openai/MiniMax-M2
+   py -3.11 -m aider --model anthropic/MiniMax-M2
    # Verify all files load successfully
    /exit
    ```
@@ -349,8 +349,8 @@ d1808ac docs: create comprehensive Phase 1 readiness check
    - Sign off when ready
 
 4. **Verify MiniMax M2 API**
-   - Set `OPENAI_API_KEY` environment variable
-   - Set `OPENAI_API_BASE` environment variable
+   - Set `ANTHROPIC_API_KEY` environment variable
+   - Set `ANTHROPIC_API_BASE` environment variable
    - Test API connection with Aider
    - Refer to: `MINIMAX-TROUBLESHOOTING.md` if issues arise
 
@@ -389,7 +389,7 @@ d1808ac docs: create comprehensive Phase 1 readiness check
 
 **Using Aider:**
 ```bash
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 
 # Build a part
 Build Part 5: Authentication from v5_part_e.md

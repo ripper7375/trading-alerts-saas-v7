@@ -146,13 +146,13 @@ Before starting Aider, ensure:
 
 ```bash
 cd /path/to/trading-alerts-saas-v7
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 **On startup, you should see:**
 ```
 Aider v0.x.x
-Model: openai/MiniMax-M2
+Model: anthropic/MiniMax-M2
 Reading files...
 ✓ docs/policies/00-tier-specifications.md
 ✓ docs/policies/01-approval-policies.md
@@ -452,7 +452,7 @@ For each part (Parts 1-16):
 
 ```bash
 # Start Aider if not already running
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 
 # Give the build command
 Build Part [N]: [Name] from v5_part_[X].md
@@ -829,7 +829,7 @@ By the end, you'll understand:
 
 ```bash
 cd /path/to/trading-alerts-saas-v7
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 ### Building a Part

@@ -184,13 +184,13 @@ This is your first autonomous build with MiniMax M2! I'll explain every step in 
 #### STEP 1: Start Aider (2 minutes)
 
 ```
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 Wait for Aider to load all files:
 ```
 Aider v0.x.x
-Model: openai/MiniMax-M2
+Model: anthropic/MiniMax-M2
 Main model: MiniMax M2 with Agentic API
 Reading files...
 ✓ docs/policies/01-approval-policies.md
@@ -548,7 +548,7 @@ git push
 
 Restart Aider:
 ```
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 Give next command:
@@ -571,7 +571,7 @@ Work autonomously.
 
 **Part 2 begins! 🚀**
 
-💡 BEGINNER TIP: Always use `py -3.11 -m aider --model openai/MiniMax-M2` to ensure MiniMax M2 is used!
+💡 BEGINNER TIP: Always use `py -3.11 -m aider --model anthropic/MiniMax-M2` to ensure MiniMax M2 is used!
 
 ---
 
@@ -583,7 +583,7 @@ For remaining parts, follow this SAME pattern:
 FOR EACH PART:
 
 1. Start Aider (if not running)
-   py -3.11 -m aider --model openai/MiniMax-M2
+   py -3.11 -m aider --model anthropic/MiniMax-M2
 
 2. Give Simple Command
    "Build Part [X]: [NAME]
@@ -615,7 +615,7 @@ FOR EACH PART:
 7. Move to Next Part
 ```
 
-💡 BEGINNER TIP: Always use `py -3.11 -m aider --model openai/MiniMax-M2` - this ensures 
+💡 BEGINNER TIP: Always use `py -3.11 -m aider --model anthropic/MiniMax-M2` - this ensures 
 you're using MiniMax M2 API which is cost-effective!
 
 ---
