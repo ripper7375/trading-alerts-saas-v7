@@ -19,7 +19,7 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 6. ✅ **Test as you build** - Use testing tools at the right times
 
 **Key Tools You'll Use:**
-- **OpenAPI Scripts** (Milestone 1.2) → Used in Phase 3 Step 1
+- **OpenAPI Scripts** (Milestone 1.2) → Used ONCE in Phase 2 Step 2 (before building starts)
 - **Postman Testing** (Milestone 1.3) → Used after completing Parts 5, 7, 11, 12 in Phase 3
 - **Aider with MiniMax M2** → Used throughout Phase 3 for autonomous building
 
@@ -856,6 +856,123 @@ Decision:
 **Result: 96% autonomous, 4% human oversight**
 
 This is why V7 is so efficient - you only intervene at strategic milestones!
+
+---
+
+#### 🔧 HOW OPENAPI-GENERATED TYPES FIT IN
+
+**Understanding the Connection:**
+
+The OpenAPI scripts create the **foundation** that makes all three validation levels work together seamlessly.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ PHASE 2, STEP 2: Generate Types (ONE TIME, BEFORE BUILDING)    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ sh scripts/openapi/generate-nextjs-types.sh                    │
+│ sh scripts/openapi/generate-flask-types.sh                     │
+│                                                                 │
+│ Reads: docs/trading_alerts_openapi.yaml                        │
+│        docs/flask_mt5_openapi.yaml                             │
+│                                                                 │
+│ Generates:                                                      │
+│   ├─ lib/api-client/types.ts (User, Alert, Subscription, etc.) │
+│   └─ lib/mt5-client/types.ts (IndicatorData, SymbolInfo, etc.) │
+│                                                                 │
+│ ✅ Types are now ready for Aider to use                        │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+                    Types Generated Once
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ PHASE 3: Aider Builds Files (USES THE GENERATED TYPES)         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ Part 5, File 1: app/api/auth/signup/route.ts                   │
+│                                                                 │
+│   Aider writes:                                                 │
+│   import { CreateUserRequest, User } from '@/lib/api-client'    │
+│                                                                 │
+│   export async function POST(req: NextRequest) {               │
+│     const body: CreateUserRequest = await req.json()           │
+│     const user: User = await createUser(body)                  │
+│     return NextResponse.json(user, { status: 201 })            │
+│   }                                                             │
+│                                                                 │
+│   ↓ Claude Code validates ↓                                    │
+│   ✅ Types match OpenAPI spec                                  │
+│   ✅ No TypeScript errors                                      │
+│   ✅ Request/response types correct                            │
+│   → APPROVED → Commit                                          │
+│                                                                 │
+├─────────────────────────────────────────────────────────────────┤
+│ Part 5, File 2: app/api/auth/login/route.ts                    │
+│   Aider writes: import { LoginRequest, User } ...              │
+│   ↓ Claude Code validates ✅ → Commit                          │
+│                                                                 │
+│ ... continues for all 18 files in Part 5 ...                   │
+│                                                                 │
+│ ✅ All Part 5 files built, all validated, all committed        │
+└─────────────────────────────────────────────────────────────────┘
+                              ↓
+                   All Part 5 Files Complete
+                              ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ YOU TEST WITH POSTMAN (Part 5 Complete)                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ Test: POST /api/auth/signup                                    │
+│   Body: { "email": "test@example.com", "password": "..." }     │
+│   ↓                                                             │
+│   Response matches OpenAPI spec ✅                             │
+│   (Because Aider used the generated types!)                    │
+│                                                                 │
+│ Test: POST /api/auth/login                                     │
+│   ↓                                                             │
+│   Response matches OpenAPI spec ✅                             │
+│                                                                 │
+│ ✅ All Postman tests pass → Move to Part 6                     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Why This Matters:**
+
+1. **Single Source of Truth**
+   - OpenAPI specs define your API contract
+   - Scripts generate TypeScript types from specs
+   - Aider builds code using those types
+   - Postman tests against the same specs
+   - **Everyone uses the same contract!**
+
+2. **Type Safety Throughout**
+   - Aider can't use wrong types (TypeScript enforces)
+   - Claude Code validates types match spec
+   - Postman verifies runtime behavior matches spec
+
+3. **No Manual Type Definitions**
+   - Without scripts: Aider guesses types (error-prone)
+   - With scripts: Types auto-generated (always correct)
+
+**When to Re-run Scripts:**
+
+```bash
+# Only re-run if OpenAPI spec changes during Phase 3
+
+# Example: Aider discovers missing field in spec
+Aider: "The Alert model needs a 'priority' field, but it's not in the OpenAPI spec"
+
+You: Edit docs/trading_alerts_openapi.yaml (add priority field)
+You: sh scripts/openapi/generate-nextjs-types.sh (regenerate types)
+Aider: "Thanks! Now continuing with updated types..."
+```
+
+**Summary:**
+- **OpenAPI scripts run ONCE** in Phase 2 Step 2
+- **Aider uses generated types** in all 170+ files during Phase 3
+- **Claude Code validates** types match during Phase 3
+- **Postman tests** APIs match specs during Phase 3
+- **Re-run only if specs change** (rare)
 
 ---
 
