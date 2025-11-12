@@ -4,16 +4,20 @@
 
 **What the Project Does:**
 
-Trading Alerts SaaS is a web application that enables traders to monitor multiple financial markets (Forex, Crypto, Indices, Commodities) and set automated alerts based on technical indicator conditions. The system integrates with MetaTrader 5 (MT5) to fetch real-time market data and provides a tiered subscription model (FREE and PRO) with varying levels of access.
+Trading Alerts SaaS is a web application that enables traders to monitor multiple financial markets (Forex, Crypto, Indices, Commodities) and set automated alerts based on fractal-based support and resistance levels. The system integrates with MetaTrader 5 (MT5) to fetch real-time market data and provides a tiered subscription model (FREE and PRO) with varying levels of access.
 
 **Key Features:**
 - Real-time market data visualization from MT5
-- Technical indicator monitoring (RSI, MACD, Moving Averages, Bollinger Bands)
-- Automated alert system with customizable conditions
+- Fractal-based support/resistance detection with multi-point trendlines
+- Automated alert system when price approaches key levels
 - Watchlist management for favorite symbol/timeframe combinations
 - Tiered access control (FREE: 5 symbols × 3 timeframes, PRO: 15 symbols × 9 timeframes)
 - Subscription management with Stripe integration
 - Responsive dashboard built with Next.js 15 and shadcn/ui
+
+**Technical Indicators:**
+- **Fractal Horizontal Lines V5** (Peak-to-Peak and Bottom-to-Bottom trendlines)
+- **Fractal Diagonal Lines V4** (Mixed Peak-Bottom ascending/descending trendlines)
 
 ---
 
@@ -73,27 +77,27 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    VERCEL (Edge Network)                         │
-│  ┌────────────────────────────────────────────────────────────┐ │
+│  ┌───────────────────────────────────────────────────────────┐ │
 │  │           NEXT.JS 15 APPLICATION (SSR + API)               │ │
 │  │                                                            │ │
 │  │  Frontend:                    Backend API:                │ │
 │  │  ├─ Server Components         ├─ /api/alerts             │ │
-│  │  ├─ Client Components         ├─ /api/indicators         │ │
+│  │  ├─ Client Components         ├─ /api/fractals           │ │
 │  │  ├─ Dashboard UI              ├─ /api/users              │ │
 │  │  ├─ Charts                    ├─ /api/watchlist          │ │
 │  │  └─ Forms                     ├─ /api/auth (NextAuth)    │ │
 │  │                               └─ /api/webhooks (Stripe)  │ │
-│  └────────────────────────────────────────────────────────────┘ │
-└───────────┬──────────────────────────┬───────────────────────────┘
+│  └───────────────────────────────────────────────────────────┘ │
+└────────────┬──────────────────────────┬───────────────────────────┘
             │                          │
             │                          │
-    ┌───────▼──────────┐      ┌────────▼────────────┐
+    ┌───────▼──────────────┐      ┌────────▼─────────────────┐
     │  PostgreSQL DB   │      │  Flask MT5 Service  │
     │   (Railway)      │      │    (Railway)        │
     │                  │      │                     │
     │ - Users          │      │ - MT5 Integration   │
-    │ - Alerts         │      │ - Indicator Fetch   │
-    │ - Watchlists     │      │ - Real-time Data    │
+    │ - Alerts         │      │ - Fractal Detection │
+    │ - Watchlists     │      │ - Trendline Calc    │
     │ - Subscriptions  │      │ - Tier Validation   │
     └──────────────────┘      └─────────┬───────────┘
                                         │
@@ -105,14 +109,14 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
                               │                     │
                               │ - Market Data       │
                               │ - Price Feeds       │
-                              │ - Indicator Values  │
+                              │ - Fractal Indicators│
                               └─────────────────────┘
 
     External Services:
-    ├─ Stripe (Payments) ──────────┐
+    ├─ Stripe (Payments) ───────────┐
     └─ Resend (Email) ──────────┐  │
                                 │  │
-                            ┌───▼──▼───────┐
+                            ┌───▼──▼──────┐
                             │  Webhooks    │
                             │  (Vercel)    │
                             └──────────────┘
@@ -147,14 +151,14 @@ app/
 │   │   ├── page.tsx             # Alerts list
 │   │   └── [id]/page.tsx        # Alert detail
 │   ├── charts/
-│   │   └── page.tsx             # Live charts
+│   │   └── page.tsx             # Live charts with fractals
 │   ├── watchlist/
 │   │   └── page.tsx             # Watchlist management
 │   └── settings/
 │       └── page.tsx             # User settings
 ├── api/                         # API Routes (serverless functions)
 │   ├── alerts/route.ts
-│   ├── indicators/[symbol]/[timeframe]/route.ts
+│   ├── fractals/[symbol]/[timeframe]/route.ts
 │   ├── auth/[...nextauth]/route.ts
 │   └── webhooks/stripe/route.ts
 └── layout.tsx                   # Root layout
@@ -166,7 +170,8 @@ components/
 │   ├── alert-card.tsx           # Display alert
 │   └── alert-list.tsx           # List of alerts
 ├── charts/
-│   └── trading-chart.tsx        # TradingView-style chart
+│   ├── fractal-chart.tsx        # Chart with fractal indicators
+│   └── trendline-overlay.tsx   # Trendline visualization
 └── dashboard/
     └── nav.tsx                  # Dashboard navigation
 ```
@@ -205,7 +210,7 @@ export async function GET(req: Request) {
     validateChartAccess(userTier, symbol, timeframe);
 
     // 3. Business logic
-    const data = await fetchData();
+    const data = await fetchFractalData();
 
     // 4. Response matching OpenAPI schema
     return Response.json(data);
@@ -220,7 +225,7 @@ export async function GET(req: Request) {
 **Key Endpoints:**
 - `GET /api/alerts` - Fetch user's alerts
 - `POST /api/alerts` - Create new alert (with tier validation)
-- `GET /api/indicators/{symbol}/{timeframe}` - Fetch MT5 data (with tier validation)
+- `GET /api/fractals/{symbol}/{timeframe}` - Fetch fractal data from MT5
 - `GET /api/users/me` - Get current user profile
 - `POST /api/webhooks/stripe` - Handle Stripe payment events
 
@@ -304,7 +309,8 @@ model Alert {
   userId      String
   symbol      String
   timeframe   String
-  condition   String
+  condition   String   // "price_near_fractal_horizontal", "price_near_fractal_diagonal", etc.
+  targetPrice Double?  // Optional target price for alert
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   triggeredAt DateTime?
@@ -357,9 +363,10 @@ model Subscription {
 **Responsibilities:**
 - Connect to MetaTrader 5 terminal
 - Fetch real-time market data
-- Calculate technical indicators
+- Calculate fractal indicators (using MQL5 indicators)
+- Calculate trendlines (horizontal and diagonal)
 - Validate tier access (double-check)
-- Serve indicator data via REST API
+- Serve fractal data via REST API
 
 **Structure:**
 ```
@@ -367,11 +374,15 @@ mt5-service/
 ├── app/
 │   ├── __init__.py              # Flask app factory
 │   ├── routes/
-│   │   └── indicators.py        # /api/indicators routes
+│   │   └── fractals.py          # /api/fractals routes
 │   ├── services/
-│   │   └── mt5_connector.py     # MT5 connection logic
+│   │   ├── mt5_connector.py     # MT5 connection logic
+│   │   └── fractal_calculator.py # Fractal detection logic
 │   └── middleware/
 │       └── tier_validator.py    # Tier validation
+├── indicators/
+│   ├── Fractal_Horizontal_Line_V5.mq5
+│   └── Fractal_Diagonal_Line_V4.mq5
 ├── requirements.txt             # Python dependencies
 ├── Dockerfile                   # Container config
 ├── .env.example
@@ -380,28 +391,48 @@ mt5-service/
 
 **Key Endpoint:**
 ```python
-# GET /api/indicators/{symbol}/{timeframe}
-@indicators_bp.route('/api/indicators/<symbol>/<timeframe>', methods=['GET'])
+# GET /api/fractals/{symbol}/{timeframe}
+@fractals_bp.route('/api/fractals/<symbol>/<timeframe>', methods=['GET'])
 @validate_tier_access  # Tier validation middleware
-def get_indicators(symbol: str, timeframe: str):
-    """Fetch indicator data from MT5"""
+def get_fractals(symbol: str, timeframe: str):
+    """Fetch fractal data from MT5"""
     try:
-        data = fetch_indicator_data(symbol, timeframe)
+        # Fetch raw market data
+        ohlcv_data = fetch_mt5_data(symbol, timeframe)
+        
+        # Calculate fractals using indicator logic
+        horizontal_lines = calculate_horizontal_fractals(ohlcv_data)
+        diagonal_lines = calculate_diagonal_fractals(ohlcv_data)
+        
         return jsonify({
             'symbol': symbol,
             'timeframe': timeframe,
-            'indicators': data,
+            'horizontal_lines': horizontal_lines,
+            'diagonal_lines': diagonal_lines,
             'metadata': {
                 'fetchedAt': datetime.utcnow().isoformat(),
                 'source': 'MT5'
             }
         }), 200
     except Exception as e:
-        return jsonify({'error': 'Failed to fetch data'}), 500
+        return jsonify({'error': 'Failed to fetch fractal data'}), 500
 ```
+
+**Fractal Detection:**
+- **Horizontal Lines:** Peak-to-Peak and Bottom-to-Bottom multi-point trendlines
+  - Detects fractals using 108-bar pattern (configurable)
+  - Connects 3+ fractal points in near-horizontal lines
+  - Displays angles (positive for ascending, negative for descending)
+  
+- **Diagonal Lines:** Mixed Peak-Bottom trendlines
+  - Ascending support (Bottom → Peak)
+  - Descending resistance (Peak → Bottom)
+  - Requires alternating peak/bottom touches
+  - Minimum 4 touches with proper alternation
 
 **Why Separate Service:**
 - MT5 Python library requires Python (Next.js is JavaScript)
+- MQL5 indicators need MT5 terminal connection
 - Isolates MT5 connection from main app
 - Can scale independently
 - Easier to debug MT5-specific issues
@@ -418,9 +449,9 @@ def get_indicators(symbol: str, timeframe: str):
    ▼
 2. FRONTEND (components/alerts/alert-form.tsx - Client Component)
    - Displays form with tier-aware symbol/timeframe dropdowns
-   - FREE users see 5 symbols × 3 timeframes (some disabled with 🔒 PRO)
+   - FREE users see 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1)
    - PRO users see all 15 symbols × 9 timeframes
-   - User fills: symbol=EURUSD, timeframe=H1, condition="RSI > 70"
+   - User fills: symbol=XAUUSD, timeframe=H1, condition="price_near_fractal"
    - Client-side validation with Zod
    - On submit: fetch('/api/alerts', { method: 'POST', body: {...} })
    │
@@ -435,7 +466,7 @@ def get_indicators(symbol: str, timeframe: str):
    - Step 3: Tier validation
      * Get user's tier from session (FREE or PRO)
      * Call validateChartAccess(tier, symbol, timeframe)
-     * If FREE user tries AUDJPY → return 403 Forbidden
+     * If FREE user tries AUDJPY (PRO-only) → return 403 Forbidden
    - Step 4: Check alert count limit
      * Count user's existing alerts
      * FREE tier: max 5 alerts
@@ -449,8 +480,8 @@ def get_indicators(symbol: str, timeframe: str):
    ▼
 4. BUSINESS LOGIC (lib/tier/validation.ts)
    - validateChartAccess(tier, symbol, timeframe)
-   - Checks if tier can access symbol (FREE: 5 symbols, PRO: 15)
-   - Checks if tier can access timeframe (FREE: 3 TFs, PRO: 9)
+   - Checks if tier can access symbol (FREE: 5 symbols, PRO: 15 symbols)
+   - Checks if tier can access timeframe (FREE: 3 TFs, PRO: 9 TFs)
    - If violation → throw ForbiddenError
    │
    ▼
@@ -458,9 +489,9 @@ def get_indicators(symbol: str, timeframe: str):
    - prisma.alert.create({
        data: {
          userId: session.user.id,
-         symbol: 'EURUSD',
+         symbol: 'XAUUSD',
          timeframe: 'H1',
-         condition: 'RSI > 70',
+         condition: 'price_near_fractal_horizontal',
          isActive: true,
        }
      })
@@ -480,61 +511,72 @@ def get_indicators(symbol: str, timeframe: str):
 
 ---
 
-### 5.2 User Views Live Chart
+### 5.2 User Views Live Chart with Fractals
 
 ```
-1. USER navigates to /dashboard/charts?symbol=EURUSD&timeframe=H1
+1. USER navigates to /dashboard/charts?symbol=XAUUSD&timeframe=H1
    │
    ▼
 2. FRONTEND (app/dashboard/charts/page.tsx - Server Component)
    - Fetches initial data on server-side
-   - Passes to TradingChart Client Component
+   - Passes to FractalChart Client Component
    │
    ▼
-3. FRONTEND (components/charts/trading-chart.tsx - Client Component)
-   - Displays chart with initial data
+3. FRONTEND (components/charts/fractal-chart.tsx - Client Component)
+   - Displays chart with initial fractal data
    - Sets up polling interval (60s for FREE, 30s for PRO)
-   - Every N seconds: fetch('/api/indicators/EURUSD/H1')
+   - Every N seconds: fetch('/api/fractals/XAUUSD/H1')
    │
    ▼
-4. API LAYER (app/api/indicators/[symbol]/[timeframe]/route.ts)
-   - Receives GET /api/indicators/EURUSD/H1
+4. API LAYER (app/api/fractals/[symbol]/[timeframe]/route.ts)
+   - Receives GET /api/fractals/XAUUSD/H1
    - Step 1: Authentication (getServerSession)
    - Step 2: Tier validation (validateChartAccess)
    - Step 3: Call Flask MT5 service
-     * fetch('http://flask-service/api/indicators/EURUSD/H1', {
+     * fetch('http://flask-service/api/fractals/XAUUSD/H1', {
          headers: { 'X-User-Tier': userTier }
        })
    │
    ▼
-5. FLASK MT5 SERVICE (mt5-service/app/routes/indicators.py)
-   - Receives GET /api/indicators/EURUSD/H1
+5. FLASK MT5 SERVICE (mt5-service/app/routes/fractals.py)
+   - Receives GET /api/fractals/XAUUSD/H1
    - Middleware validates tier (double-check security)
-   - Calls MT5 connector: fetch_indicator_data('EURUSD', 'H1')
+   - Calls MT5 connector: fetch_fractal_data('XAUUSD', 'H1')
    │
    ▼
-6. MT5 CONNECTOR (mt5-service/app/services/mt5_connector.py)
+6. MT5 CONNECTOR (mt5-service/app/services/fractal_calculator.py)
    - Connects to MT5 terminal (local or VPS)
-   - Fetches EURUSD H1 candles (OHLCV data)
-   - Calculates indicators:
-     * RSI (14 period)
-     * MACD (12, 26, 9)
-     * Bollinger Bands (20, 2)
-     * Moving Averages (50, 200)
-   - Returns indicator data
+   - Fetches XAUUSD H1 candles (OHLCV data)
+   - Detects fractals using 108-bar pattern
+   - Calculates horizontal trendlines:
+     * Peak-to-Peak lines (resistance)
+     * Bottom-to-Bottom lines (support)
+   - Calculates diagonal trendlines:
+     * Ascending support (Bottom → Peak)
+     * Descending resistance (Peak → Bottom)
+   - Returns fractal data with trendlines
    │
    ▼
 7. FLASK returns data to Next.js API
-   - JSON response with indicators
+   - JSON response with horizontal and diagonal lines
    │
    ▼
 8. API LAYER returns data to FRONTEND
-   - Response.json({ symbol, timeframe, indicators, metadata })
+   - Response.json({ 
+       symbol, 
+       timeframe, 
+       horizontal_lines: [...], 
+       diagonal_lines: [...],
+       metadata 
+     })
    │
    ▼
 9. FRONTEND updates chart
-   - TradingChart component receives new data
-   - Updates chart visualization
+   - FractalChart component receives new data
+   - Updates chart visualization with:
+     * Red lines for resistance (peak-to-peak, descending)
+     * Green lines for support (bottom-to-bottom, ascending)
+     * Labels showing touches, bar length, angles
    - Shows "Last updated: X seconds ago"
    - Cycle repeats every N seconds
 ```
@@ -649,12 +691,13 @@ export async function middleware(request: NextRequest) {
 | Feature | FREE Tier | PRO Tier |
 |---------|-----------|----------|
 | **Price** | $0/month | $29/month |
-| **Symbols** | 5 (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) | 15 (all symbols) |
+| **Symbols** | 5 (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) | 15 (AUDJPY, AUDUSD, BTCUSD, ETHUSD, EURUSD, GBPJPY, GBPUSD, NDX100, NZDUSD, US30, USDCAD, USDCHF, USDJPY, XAGUSD, XAUUSD) |
 | **Timeframes** | 3 (H1, H4, D1) | 9 (M5, M15, M30, H1, H2, H4, H8, H12, D1) |
 | **Chart Combinations** | 15 (5 × 3) | 135 (15 × 9) |
 | **Max Alerts** | 5 | 20 |
 | **Max Watchlist Items** | 5 | 50 |
-| **API Rate Limit** | 60 req/hour | 300 req/hour |
+| **API Rate Limit** | 60 req/hour (1 per minute) | 300 req/hour (5 per minute) |
+| **Chart Update Interval** | 60 seconds | 30 seconds |
 
 ### 7.2 Tier Enforcement
 
@@ -674,10 +717,21 @@ export function validateChartAccess(tier: UserTier, symbol: string, timeframe: s
     throw new ForbiddenError(`${tier} tier cannot access ${timeframe} timeframe`);
   }
 }
+
+// lib/tier/constants.ts
+export const FREE_SYMBOLS = ['BTCUSD', 'EURUSD', 'USDJPY', 'US30', 'XAUUSD'];
+export const FREE_TIMEFRAMES = ['H1', 'H4', 'D1'];
+
+export const PRO_SYMBOLS = [
+  'AUDJPY', 'AUDUSD', 'BTCUSD', 'ETHUSD', 'EURUSD', 
+  'GBPJPY', 'GBPUSD', 'NDX100', 'NZDUSD', 'US30', 
+  'USDCAD', 'USDCHF', 'USDJPY', 'XAGUSD', 'XAUUSD'
+];
+export const PRO_TIMEFRAMES = ['M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12', 'D1'];
 ```
 
 **Used in:**
-- Next.js API routes: `app/api/indicators/[symbol]/[timeframe]/route.ts`
+- Next.js API routes: `app/api/fractals/[symbol]/[timeframe]/route.ts`
 - Flask MT5 service: `mt5-service/app/middleware/tier_validator.py`
 
 **Frontend UI (User Experience):**
@@ -698,9 +752,97 @@ export function validateChartAccess(tier: UserTier, symbol: string, timeframe: s
 
 ---
 
-## 8. Deployment Architecture
+## 8. Fractal Indicator System
 
-### 8.1 Production Environment
+### 8.1 Fractal Detection Algorithm
+
+**Base Pattern (108-Bar Fractals):**
+- Uses configurable N-bar pattern (default: 35 bars = 17 bars each side)
+- **Upper Fractal (Peak):** High[i] must be highest among surrounding bars
+- **Lower Fractal (Bottom):** Low[i] must be lowest among surrounding bars
+
+**Code Pattern (from MQL5):**
+```cpp
+bool IsUpperFractal(const double &high[], int index, int side_bars) {
+   double center_high = high[index];
+   
+   // Check left side
+   for(int i = 1; i <= side_bars; i++)
+      if(center_high <= high[index - i])
+         return false;
+   
+   // Check right side
+   for(int i = 1; i <= side_bars; i++)
+      if(center_high < high[index + i])
+         return false;
+   
+   return true;
+}
+```
+
+### 8.2 Horizontal Trendlines (Fractal Horizontal Line V5)
+
+**Purpose:** Connect fractals at similar price levels
+
+**Algorithm:**
+1. **Detect fractals** using 108-bar pattern
+2. **Find multi-point lines:**
+   - Connect 3+ peaks (Peak-to-Peak resistance)
+   - Connect 3+ bottoms (Bottom-to-Bottom support)
+3. **Tolerance:** ±1.5% or 1.5× ATR
+4. **Angle calculation:** ATR-normalized (preserves sign)
+   - Positive angle = ascending
+   - Negative angle = descending
+5. **Scoring system:**
+   - Fractals touched × 25 points
+   - Slope quality × 15 points
+   - Line length × 10 points
+   - Proximity to current price × 50 points
+6. **Display:** Top 3 peak lines + top 3 bottom lines
+
+**Alert Conditions:**
+- Price approaches fractal peak + nearby trendline
+- Price approaches fractal bottom + nearby trendline
+
+### 8.3 Diagonal Trendlines (Fractal Diagonal Line V4)
+
+**Purpose:** Detect trendline channels with alternating peaks/bottoms
+
+**Algorithm:**
+1. **Detect fractals** using same 108-bar pattern
+2. **Find diagonal lines:**
+   - **Ascending Support:** Bottom → Peak (positive slope)
+   - **Descending Resistance:** Peak → Bottom (negative slope)
+3. **Mixed touch requirement:**
+   - Minimum 4 total touches
+   - At least 2 peaks AND 2 bottoms
+   - Maximum 2 consecutive same-type touches (alternating pattern)
+4. **Angle filtering:** 2° to 45° (configurable)
+5. **Display:** Top 3 ascending + top 3 descending lines
+
+**Alert Conditions:**
+- Price approaches diagonal support line
+- Price approaches diagonal resistance line
+
+### 8.4 Performance Optimizations
+
+Both indicators include advanced optimizations:
+
+1. **Slope Filter:** Pre-filters invalid slopes before full calculation
+2. **Spatial Grid:** 20×20 grid indexes fractals by location for faster lookup
+3. **Line Cache:** Caches calculated lines when fractal map unchanged
+4. **Early Exit:** Stops searching after finding N high-quality lines
+
+**Performance Impact:**
+- 60-80% reduction in calculation time
+- Caching prevents redundant recalculation
+- Spatial indexing reduces O(n²) to O(n log n)
+
+---
+
+## 9. Deployment Architecture
+
+### 9.1 Production Environment
 
 ```
 ┌──────────────────────────────────────────────────────────┐
@@ -709,7 +851,7 @@ export function validateChartAccess(tier: UserTier, symbol: string, timeframe: s
 │  - Serverless functions for API routes                   │
 │  - Edge runtime for middleware                           │
 │  - Environment variables: NEXTAUTH_SECRET, DATABASE_URL  │
-└──────────┬────────────────────────┬──────────────────────┘
+└──────────┬───────────────────────────┬─────────────────────┘
            │                        │
            ▼                        ▼
 ┌──────────────────┐      ┌──────────────────────┐
@@ -728,10 +870,11 @@ export function validateChartAccess(tier: UserTier, symbol: string, timeframe: s
                           │                      │
                           │  - Broker: [Your]    │
                           │  - Real-time data    │
+                          │  - Fractal Indicators│
                           └──────────────────────┘
 ```
 
-### 8.2 Deployment Steps
+### 9.2 Deployment Steps
 
 **1. Next.js (Vercel):**
 ```bash
@@ -767,11 +910,22 @@ MT5_PASSWORD=[MT5 password]
 FLASK_API_KEY=[same as Next.js]
 ```
 
+**4. MT5 Terminal Setup:**
+```
+1. Install MT5 on Windows VPS or local machine
+2. Copy indicator files to MT5 Indicators folder:
+   - Fractal_Horizontal_Line_V5.mq5
+   - Fractal_Diagonal_Line_V4.mq5
+3. Compile indicators in MetaEditor
+4. Connect Flask service to MT5 terminal
+5. Test indicator data retrieval
+```
+
 ---
 
-## 9. AI Development with MiniMax M2
+## 10. AI Development with MiniMax M2
 
-### 9.1 Policy-Driven Development
+### 10.1 Policy-Driven Development
 
 **Workflow:**
 ```
@@ -801,7 +955,7 @@ FLASK_API_KEY=[same as Next.js]
    - Updates policies based on learnings
 ```
 
-### 9.2 Cost-Effectiveness
+### 10.2 Cost-Effectiveness
 
 **MiniMax M2 vs Alternatives:**
 - MiniMax M2: ~80% cheaper than Claude/GPT-4
@@ -811,9 +965,9 @@ FLASK_API_KEY=[same as Next.js]
 
 ---
 
-## 10. Seed Code Foundation
+## 11. Seed Code Foundation
 
-### 10.1 Reference Repositories
+### 11.1 Reference Repositories
 
 **1. market_ai_engine.py (Flask/MT5 Reference):**
 - **What:** Python Flask server with MT5 integration
@@ -845,7 +999,7 @@ FLASK_API_KEY=[same as Next.js]
   * Navigation structure
   * Responsive design
 
-### 10.2 How Aider Uses Seed Code
+### 11.2 How Aider Uses Seed Code
 
 **Aider references seed code as:**
 - **Inspiration** (not copy/paste)
@@ -855,14 +1009,14 @@ FLASK_API_KEY=[same as Next.js]
 **Always adapted for:**
 - Our OpenAPI contracts
 - Our tier system (FREE: 5×3, PRO: 15×9)
-- Our specific business logic
+- Our specific business logic (fractal-based alerts)
 - Our quality standards
 
 ---
 
-## 11. Security Considerations
+## 12. Security Considerations
 
-### 11.1 Authentication & Authorization
+### 12.1 Authentication & Authorization
 
 - ✅ NextAuth.js for session management
 - ✅ JWT-based sessions (secure, httpOnly cookies)
@@ -870,21 +1024,21 @@ FLASK_API_KEY=[same as Next.js]
 - ✅ Protected routes with middleware
 - ✅ API routes check session on every request
 
-### 11.2 Tier Security
+### 12.2 Tier Security
 
 - ✅ Backend validation on ALL tier-restricted endpoints
 - ✅ Double validation (Next.js + Flask)
 - ✅ Frontend disables UI (UX), backend enforces (security)
 - ✅ Never trust client-provided tier information
 
-### 11.3 Input Validation
+### 12.3 Input Validation
 
 - ✅ Zod schemas validate all user inputs
 - ✅ OpenAPI specs define valid request shapes
 - ✅ Prisma prevents SQL injection
 - ✅ React automatically escapes XSS
 
-### 11.4 Secrets Management
+### 12.4 Secrets Management
 
 - ✅ All secrets in environment variables
 - ✅ .env files gitignored
@@ -898,9 +1052,10 @@ FLASK_API_KEY=[same as Next.js]
 This architecture enables:
 - ✅ **Scalability:** Serverless Next.js, independent Flask service
 - ✅ **Security:** Multi-layer validation, NextAuth.js, Prisma
-- ✅ **Performance:** Server Components, edge runtime, polling
+- ✅ **Performance:** Server Components, edge runtime, polling, optimized indicators
 - ✅ **Maintainability:** TypeScript, OpenAPI contracts, Prisma
 - ✅ **Cost-Effectiveness:** Vercel free tier, Railway affordable, MiniMax M2 AI
 - ✅ **Developer Experience:** Policy-driven AI development, 80% autonomous building
+- ✅ **Trading Accuracy:** Advanced fractal detection with multi-point trendlines
 
 **Next Steps:** Proceed to Phase 2 (CI/CD & Database Foundation) or Phase 3 (Autonomous Building with Aider + MiniMax M2).
