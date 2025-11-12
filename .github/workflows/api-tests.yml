@@ -38,23 +38,50 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check if Next.js project exists
+        id: check_project
+        run: |
+          if [ -d "app" ] || [ -d "pages" ] || [ -f "next.config.js" ] || [ -f "next.config.mjs" ]; then
+            echo "project_exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Next.js project found"
+          else
+            echo "project_exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Next.js project not created yet (Phase 3)"
+          fi
+
       - name: Setup Node.js
+        if: steps.check_project.outputs.project_exists == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
 
       - name: Install dependencies
+        if: steps.check_project.outputs.project_exists == 'true'
         run: npm ci
 
       - name: Setup test environment
+        if: steps.check_project.outputs.project_exists == 'true'
         run: |
           cp .env.example .env.test || echo "No .env.example found"
           echo "DATABASE_URL=postgresql://testuser:testpass@localhost:5432/trading_alerts_test" >> .env.test
           echo "NEXTAUTH_SECRET=test-secret-key-for-ci" >> .env.test
           echo "NEXTAUTH_URL=http://localhost:3000" >> .env.test
 
+      - name: Check for Prisma schema
+        if: steps.check_project.outputs.project_exists == 'true'
+        id: check_prisma
+        run: |
+          if [ -f "prisma/schema.prisma" ]; then
+            echo "prisma_exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Prisma schema found"
+          else
+            echo "prisma_exists=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Prisma schema not found, skipping migrations"
+          fi
+
       - name: Run database migrations
+        if: steps.check_project.outputs.project_exists == 'true' && steps.check_prisma.outputs.prisma_exists == 'true'
         run: |
           npx prisma generate
           npx prisma migrate deploy
@@ -62,9 +89,11 @@ jobs:
           DATABASE_URL: postgresql://testuser:testpass@localhost:5432/trading_alerts_test
 
       - name: Build Next.js application
+        if: steps.check_project.outputs.project_exists == 'true'
         run: npm run build
 
       - name: Start Next.js server
+        if: steps.check_project.outputs.project_exists == 'true'
         run: |
           npm run start &
           echo $! > server.pid
@@ -75,6 +104,7 @@ jobs:
           NEXTAUTH_URL: http://localhost:3000
 
       - name: Wait for server to be ready
+        if: steps.check_project.outputs.project_exists == 'true'
         run: |
           echo "⏳ Waiting for Next.js server..."
           npx wait-on http://localhost:3000 --timeout 60000
@@ -84,6 +114,7 @@ jobs:
         run: npm install -g newman newman-reporter-htmlextra
 
       - name: Check for Postman collections
+        if: steps.check_project.outputs.project_exists == 'true'
         id: check_collections
         run: |
           if [ -f "postman/trading-alerts-api.postman_collection.json" ]; then
@@ -95,7 +126,7 @@ jobs:
           fi
 
       - name: Run API tests with Newman
-        if: steps.check_collections.outputs.collections_exist == 'true'
+        if: steps.check_project.outputs.project_exists == 'true' && steps.check_collections.outputs.collections_exist == 'true'
         run: |
           echo "🧪 Running API integration tests..."
           newman run postman/trading-alerts-api.postman_collection.json \
@@ -108,24 +139,29 @@ jobs:
         continue-on-error: true
 
       - name: Upload test results
-        if: steps.check_collections.outputs.collections_exist == 'true'
+        if: steps.check_project.outputs.project_exists == 'true' && steps.check_collections.outputs.collections_exist == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: newman-test-results
           path: newman-report.html
 
       - name: Stop Next.js server
-        if: always()
+        if: always() && steps.check_project.outputs.project_exists == 'true'
         run: |
           if [ -f server.pid ]; then
             kill $(cat server.pid) || true
           fi
 
       - name: Summary
+        if: always()
         run: |
           echo "## 🧪 API Tests Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [[ "${{ steps.check_collections.outputs.collections_exist }}" == "true" ]]; then
+          if [[ "${{ steps.check_project.outputs.project_exists }}" == "false" ]]; then
+            echo "- ℹ️ **Next.js project not created yet (Phase 1/2)**" >> $GITHUB_STEP_SUMMARY
+            echo "- 📋 This workflow will activate after Phase 3 when project is created" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Workflow configuration validated successfully" >> $GITHUB_STEP_SUMMARY
+          elif [[ "${{ steps.check_collections.outputs.collections_exist }}" == "true" ]]; then
             echo "- ✅ Postman collections found and executed" >> $GITHUB_STEP_SUMMARY
             echo "- 📊 Test report uploaded to artifacts" >> $GITHUB_STEP_SUMMARY
           else
