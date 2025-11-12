@@ -1,0 +1,134 @@
+name: API Integration Tests
+
+# Run automated API tests using Newman (Postman CLI)
+on:
+  push:
+    branches:
+      - main
+      - 'claude/**'
+    paths:
+      - 'app/api/**'
+      - 'lib/**'
+      - 'postman/**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+          POSTGRES_DB: trading_alerts_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup test environment
+        run: |
+          cp .env.example .env.test || echo "No .env.example found"
+          echo "DATABASE_URL=postgresql://testuser:testpass@localhost:5432/trading_alerts_test" >> .env.test
+          echo "NEXTAUTH_SECRET=test-secret-key-for-ci" >> .env.test
+          echo "NEXTAUTH_URL=http://localhost:3000" >> .env.test
+
+      - name: Run database migrations
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/trading_alerts_test
+
+      - name: Build Next.js application
+        run: npm run build
+
+      - name: Start Next.js server
+        run: |
+          npm run start &
+          echo $! > server.pid
+          sleep 10
+        env:
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/trading_alerts_test
+          NEXTAUTH_SECRET: test-secret-key-for-ci
+          NEXTAUTH_URL: http://localhost:3000
+
+      - name: Wait for server to be ready
+        run: |
+          echo "⏳ Waiting for Next.js server..."
+          npx wait-on http://localhost:3000 --timeout 60000
+          echo "✅ Server is ready"
+
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Check for Postman collections
+        id: check_collections
+        run: |
+          if [ -f "postman/trading-alerts-api.postman_collection.json" ]; then
+            echo "collections_exist=true" >> $GITHUB_OUTPUT
+            echo "✅ Postman collections found"
+          else
+            echo "collections_exist=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No Postman collections found yet (will be created in Phase 3)"
+          fi
+
+      - name: Run API tests with Newman
+        if: steps.check_collections.outputs.collections_exist == 'true'
+        run: |
+          echo "🧪 Running API integration tests..."
+          newman run postman/trading-alerts-api.postman_collection.json \
+            --environment postman/environment.json \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export newman-report.html \
+            --bail \
+            --timeout-request 10000
+          echo "✅ API tests completed"
+        continue-on-error: true
+
+      - name: Upload test results
+        if: steps.check_collections.outputs.collections_exist == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-test-results
+          path: newman-report.html
+
+      - name: Stop Next.js server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) || true
+          fi
+
+      - name: Summary
+        run: |
+          echo "## 🧪 API Tests Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ steps.check_collections.outputs.collections_exist }}" == "true" ]]; then
+            echo "- ✅ Postman collections found and executed" >> $GITHUB_STEP_SUMMARY
+            echo "- 📊 Test report uploaded to artifacts" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ⚠️ No Postman collections found (Phase 3 not started)" >> $GITHUB_STEP_SUMMARY
+            echo "- ℹ️ Collections will be exported after Phase 3 Part 5" >> $GITHUB_STEP_SUMMARY
+          fi

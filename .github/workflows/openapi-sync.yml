@@ -1,0 +1,87 @@
+name: OpenAPI Type Sync
+
+# Automatically regenerate TypeScript types when OpenAPI specs change
+on:
+  push:
+    paths:
+      - 'docs/trading_alerts_openapi.yaml'
+      - 'docs/flask_mt5_openapi.yaml'
+    branches:
+      - main
+      - 'claude/**'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  generate-types:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install -g @openapitools/openapi-generator-cli
+          npm install -g swagger-cli
+
+      - name: Validate OpenAPI specs
+        run: |
+          echo "🔍 Validating OpenAPI specifications..."
+          swagger-cli validate docs/trading_alerts_openapi.yaml
+          swagger-cli validate docs/flask_mt5_openapi.yaml
+          echo "✅ OpenAPI specs are valid"
+
+      - name: Generate Next.js API types
+        run: |
+          echo "🔧 Generating Next.js API types..."
+          sh scripts/openapi/generate-nextjs-types.sh
+          echo "✅ Next.js types generated"
+
+      - name: Generate Flask MT5 types
+        run: |
+          echo "🔧 Generating Flask MT5 types..."
+          sh scripts/openapi/generate-flask-types.sh
+          echo "✅ Flask types generated"
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [[ -n $(git status --porcelain lib/) ]]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "📝 Type changes detected"
+          else
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "✅ No type changes needed"
+          fi
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add lib/
+          git commit -m "chore: regenerate types from OpenAPI specs [skip ci]"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## 🎉 OpenAPI Type Sync Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ OpenAPI specs validated" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Next.js types generated" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Flask types generated" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ steps.check_changes.outputs.changes }}" == "true" ]]; then
+            echo "- ✅ Changes committed and pushed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- ℹ️ No changes needed" >> $GITHUB_STEP_SUMMARY
+          fi
