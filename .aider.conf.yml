@@ -4,7 +4,7 @@
 # This file configures Aider to work autonomously with MiniMax M2 API
 # following our 6 policy documents for consistent, high-quality code generation.
 #
-# Last Updated: 2025-11-09
+# Last Updated: 2025-11-11
 # ============================================================================
 
 # ============================================================================
@@ -14,17 +14,18 @@
 # ~80% cheaper than GPT-4 while maintaining quality
 
 # Main model for code generation (MiniMax M2)
-model: openai/MiniMax-M2
+model: anthropic/MiniMax-M2
 
 # Editor model for smaller edits
-editor-model: openai/MiniMax-M2
+editor-model: anthropic/MiniMax-M2
 
 # Weak model for simple tasks (summaries, commit messages)
-weak-model: openai/MiniMax-M2
+weak-model: anthropic/MiniMax-M2
 
-# Note: Set OPENAI_API_KEY and OPENAI_API_BASE in your environment:
-# set OPENAI_API_KEY=your_minimax_api_key
-# set OPENAI_API_BASE=https://api.minimax.io/v1
+# Note: Set ANTHROPIC_API_KEY in your environment:
+# set ANTHROPIC_API_KEY=your_minimax_api_key
+# If using a custom Anthropic-compatible endpoint, also set:
+# set ANTHROPIC_API_BASE=https://your-custom-endpoint.com/v1
 
 # ============================================================================
 # ENVIRONMENT FILE
@@ -209,11 +210,11 @@ dark-mode: true
 # ENVIRONMENT VARIABLES (Set these in your shell, NOT here!)
 # ============================================================================
 # Required for MiniMax M2:
-#   OPENAI_API_KEY=your_minimax_api_key_here
-#   OPENAI_API_BASE=https://api.minimax.io/v1
+#   ANTHROPIC_API_KEY=your_minimax_api_key_here
 #
-# MiniMax uses OpenAI-compatible API, so set these two variables.
-# Do NOT use MINIMAX_API_KEY - only OPENAI_API_KEY and OPENAI_API_BASE.
+# MiniMax M2 uses Anthropic-compatible API, so set ANTHROPIC_API_KEY.
+# If using a custom endpoint (not standard Anthropic API), also set:
+#   ANTHROPIC_API_BASE=https://your-custom-endpoint.com/v1
 #
 # Optional (for the app itself):
 #   DATABASE_URL=postgresql://...
@@ -285,7 +286,7 @@ dark-mode: true
 # ============================================================================
 #
 # Issue: "Model not found"
-# Fix: Ensure MINIMAX_API_KEY or OPENAI_API_KEY is set and model name is correct
+# Fix: Ensure ANTHROPIC_API_KEY is set and model name is correct
 #
 # Issue: "Policy files not loading"
 # Fix: Check that 'read' paths are correct (relative to project root)
@@ -297,6 +298,6 @@ dark-mode: true
 # Fix: Reduce map-tokens or use lighter weak-model
 #
 # Issue: "Validation failing"
-# Fix: Ensure Claude Code is available and OPENAI_API_KEY is set
+# Fix: Ensure Claude Code is available and ANTHROPIC_API_KEY is set
 #
 # ============================================================================

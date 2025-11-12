@@ -16,7 +16,7 @@ Instead of manually creating workflow files, use Aider with MiniMax M2!
 
 ☐ STEP 1: Start Aider (2 minutes)
    ```
-   py -3.11 -m aider --model openai/MiniMax-M2
+   py -3.11 -m aider --model anthropic/MiniMax-M2
    ```
 
 ☐ STEP 2: Create Next.js CI Workflow (30 minutes)
@@ -79,14 +79,72 @@ Requirements:
 Show me complete workflow.
 ```
 
-☐ STEP 5: Push and Test (30 minutes)
+☐ STEP 5: Create OpenAPI Auto-Sync Workflow (30 minutes) ⚡ NEW!
+
+**What:** Automatically regenerate TypeScript types when OpenAPI specs change
+**Why:** Eliminates manual type generation step - fully automated!
+
+This workflow is ALREADY CREATED for you in `.github/workflows/openapi-sync.yml`
+
+✅ **What it does automatically:**
+- Detects changes to OpenAPI YAML files
+- Validates OpenAPI specs
+- Runs `generate-nextjs-types.sh` automatically
+- Runs `generate-flask-types.sh` automatically
+- Commits and pushes updated types
+- No human intervention needed!
+
+**How to verify:**
+```
+cat .github/workflows/openapi-sync.yml
+```
+
+💡 **AUTOMATION WIN:** You'll NEVER need to manually run type generation scripts after Phase 2!
+
+☐ STEP 6: Create API Auto-Testing Workflow (30 minutes) ⚡ NEW!
+
+**What:** Automatically run API tests using Newman (Postman CLI)
+**Why:** Continuous API testing on every code push!
+
+This workflow is ALREADY CREATED for you in `.github/workflows/api-tests.yml`
+
+✅ **What it does automatically:**
+- Starts test database (PostgreSQL)
+- Runs database migrations
+- Starts Next.js dev server
+- Runs all Postman collections via Newman
+- Generates HTML test reports
+- Uploads reports to GitHub artifacts
+- No manual Postman testing needed in CI!
+
+**Note:** This workflow activates AFTER Phase 3 Part 5 when you export Postman collections.
+
+**How to export collections for CI (do this after Phase 3 Part 5):**
+```
+1. Open Postman
+2. Right-click "Trading Alerts API" collection
+3. Export → Collection v2.1
+4. Save as: postman/trading-alerts-api.postman_collection.json
+5. Export environment as: postman/environment.json
+6. Commit both files
+7. Push → CI will now auto-test APIs! 🎉
+```
+
+**How to verify:**
+```
+cat .github/workflows/api-tests.yml
+```
+
+💡 **AUTOMATION WIN:** After Phase 3 Part 5, every code push runs full API test suite automatically!
+
+☐ STEP 7: Push and Test (30 minutes)
 
 Exit Aider: `/exit`
 
 Commit all workflows:
 ```
 git add .github/
-git commit -m "Add CI/CD workflows for Next.js, Flask, and OpenAPI validation"
+git commit -m "Add CI/CD workflows: Next.js, Flask, OpenAPI validation, auto-sync, and API tests"
 git push
 ```
 
@@ -94,9 +152,12 @@ Go to GitHub.com → Your repo → "Actions" tab
 
 Watch workflows run!
 
-Expected: Some failures (project doesn't exist yet) - that's OK!
+Expected results:
+- ✅ OpenAPI sync workflow: Should pass (validates specs)
+- ⚠️ Next.js/Flask workflows: May fail (project doesn't exist yet) - that's OK!
+- ⚠️ API tests: Will skip (no Postman collections yet) - that's OK!
 
-✅ CHECKPOINT: CI/CD configured
+✅ CHECKPOINT: Full CI/CD automation configured
 
 💡 BEGINNER TIP: GitHub Actions runs these checks automatically on every push!
 
@@ -125,8 +186,8 @@ Expected: Some failures (project doesn't exist yet) - that's OK!
    | NEXTAUTH_SECRET | [from Step 2] | Auth encryption key |
    | DATABASE_URL | postgresql://temp:temp@localhost/temp | Temporary (will update) |
    | MT5_API_KEY | temp-key-123 | Temporary (will update) |
-   | OPENAI_API_KEY | [your MiniMax key] | For Aider in CI |
-   | OPENAI_API_BASE | https://api.minimaxi.com/v1 | MiniMax endpoint |
+   | ANTHROPIC_API_KEY | [your MiniMax key] | For Aider in CI |
+   | ANTHROPIC_API_BASE | https://api.minimaxi.com/v1 | MiniMax endpoint |
 
 ☐ STEP 4: Verify Secrets (5 minutes)
    Check: All 5 secrets show in list (values hidden) ✓
@@ -315,7 +376,7 @@ understand the concept!
 
 ☐ STEP 1: Start Aider (2 minutes)
    ```
-   py -3.11 -m aider --model openai/MiniMax-M2
+   py -3.11 -m aider --model anthropic/MiniMax-M2
    ```
 
 ☐ STEP 2: Create Dockerfile for Flask (25 minutes)
@@ -387,7 +448,7 @@ Expected: Error about missing files - normal!
 
 ☐ STEP 1: Start Aider (2 minutes)
    ```
-   py -3.11 -m aider --model openai/MiniMax-M2
+   py -3.11 -m aider --model anthropic/MiniMax-M2
    ```
 
 ☐ STEP 2: Setup Jest (25 minutes)
@@ -427,7 +488,12 @@ git push
 
 ### What You Accomplished:
 
-☐ GitHub Actions CI/CD configured (3 workflows)
+☐ GitHub Actions CI/CD configured (5 workflows!) ⚡
+  - ✅ Next.js CI workflow
+  - ✅ Flask CI workflow
+  - ✅ OpenAPI validation workflow
+  - ✅ **OpenAPI auto-sync workflow (NEW!)** - Auto-generates types
+  - ✅ **API auto-testing workflow (NEW!)** - Auto-runs Newman tests
 ☐ GitHub secrets configured (5 secrets including MiniMax)
 ☐ Railway PostgreSQL deployed and tested ⭐
 ☐ Prisma workflow understood
@@ -455,7 +521,12 @@ throughout Phase 3, not discover problems at the end!
 
 ### Readiness Check:
 
-☐ All 3 GitHub Actions workflows created
+☐ All 5 GitHub Actions workflows created ⚡
+  - openapi-sync.yml (auto type generation)
+  - api-tests.yml (auto API testing)
+  - ci-nextjs.yml
+  - ci-flask.yml
+  - openapi-validation.yml
 ☐ All 5 GitHub secrets configured (including MiniMax)
 ☐ Railway PostgreSQL live and accessible
 ☐ Understand Prisma workflow
@@ -463,6 +534,24 @@ throughout Phase 3, not discover problems at the end!
 ☐ Jest configured
 
 If all checked ✅ → **READY FOR PHASE 3!** 🚀
+
+### 🎯 Automation Benefits (What You Gained):
+
+**BEFORE (Manual):**
+- ❌ Manually run `generate-nextjs-types.sh` after OpenAPI changes
+- ❌ Manually run `generate-flask-types.sh` after OpenAPI changes
+- ❌ Manually open Postman to test APIs
+- ❌ Manually verify each endpoint
+- ⏱️ Time lost: ~30-60 min per change
+
+**AFTER (Automated):**
+- ✅ Types auto-generate on OpenAPI spec changes (GitHub Actions)
+- ✅ API tests auto-run on every push (Newman)
+- ✅ Test reports auto-generated (HTML artifacts)
+- ✅ Immediate feedback on breaking changes
+- ⏱️ Time saved: ~30-60 min per change → ZERO manual work!
+
+**Result: 95%+ automation in Phase 3!** 🚀
 
 💡 BEGINNER INSIGHT: Your infrastructure is ready! Foundation = solid. 
 Now comes the fun part - building features autonomously with MiniMax M2!

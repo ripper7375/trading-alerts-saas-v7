@@ -12,7 +12,7 @@ Use Aider for all future changes.
 **Example: Add email notifications when alerts trigger**
 
 ```bash
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 
 "Add feature: Email notifications when alerts trigger
 
@@ -41,7 +41,7 @@ Aider will:
 **Example: Fix tier validation bug**
 
 ```bash
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 
 "Bug: FREE tier users can access EURUSD charts
 

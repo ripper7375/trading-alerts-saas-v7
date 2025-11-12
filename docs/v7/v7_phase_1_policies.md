@@ -1009,7 +1009,7 @@ Include:
    - How they improve over time
 
 3. WORKING WITH AIDER (MiniMax M2)
-   - Starting Aider: py -3.11 -m aider --model openai/MiniMax-M2
+   - Starting Aider: py -3.11 -m aider --model anthropic/MiniMax-M2
    - Giving commands
    - Monitoring progress
    - Reading output
@@ -1178,7 +1178,7 @@ Create: `.aider.conf.yml` (in project root)
 # Using MiniMax M2 for cost-effective autonomous development
 
 # Model to use (MiniMax M2)
-model: openai/MiniMax-M2
+model: anthropic/MiniMax-M2
 
 # Files to read on startup (Aider's context)
 read:
@@ -1299,13 +1299,13 @@ git push
 ☐ STEP 3: Test Aider Setup (5 minutes)
 
 ```
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 You should see:
 ```
 Aider v0.x.x
-Model: openai/MiniMax-M2
+Model: anthropic/MiniMax-M2
 Reading files...
 ✓ docs/policies/01-approval-policies.md
 ✓ docs/policies/02-quality-standards.md
@@ -1337,7 +1337,7 @@ Exit: `/exit`
 
 Launch Aider:
 ```
-py -3.11 -m aider --model openai/MiniMax-M2
+py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 ☐ TEST 1: Policy Understanding (5 minutes)
