@@ -223,9 +223,13 @@ You + Claude Chat → Write the rules Aider will follow
 
 WEEK 2: SETUP FOUNDATION (5 hours)
 You + Aider → Build infrastructure
-├─ CI/CD pipeline
+├─ CI/CD pipeline (5 GitHub Actions workflows)
+├─ **⚡ OpenAPI auto-sync (NEW!)** - Auto-generates types on spec changes
+├─ **⚡ API auto-testing (NEW!)** - Auto-runs Newman tests on push
 ├─ Database on Railway (early!)
 └─ Docker & testing
+
+**🎉 AUTOMATION RESULT:** Type generation and API testing now 100% automated!
 
 WEEKS 3-10: BUILD EVERYTHING (38 hours)
 You give simple commands → Aider builds autonomously

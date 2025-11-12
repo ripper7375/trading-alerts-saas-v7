@@ -430,8 +430,8 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY= # Public key from Stripe
 RESEND_API_KEY=                     # From resend.com
 
 # MiniMax M2 (for AI development)
-OPENAI_API_KEY=                     # Your MiniMax API key
-OPENAI_API_BASE=https://api.minimaxi.com/v1
+ANTHROPIC_API_KEY=                     # Your MiniMax API key
+ANTHROPIC_API_BASE=https://api.minimaxi.com/v1
 ```
 
 **Note:** During PMF period, Stripe and Resend are optional (no payments, basic notifications).

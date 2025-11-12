@@ -56,16 +56,16 @@ py -3.11 -m aider --model anthropic/MiniMax-M2 %*
 
 ### 3. ❌ OpenAI-Compatible Endpoint Had Routing Issues
 
-**Problem**: Using OpenAI-compatible endpoint caused LiteLLM routing failures:
+**Problem**: Using Anthropic-compatible endpoint caused LiteLLM routing failures:
 ```bat
-set OPENAI_API_KEY=...
-set OPENAI_API_BASE=https://api.minimax.io/v1
-py -3.11 -m aider --model openai/MiniMax-M2
+set ANTHROPIC_API_KEY=...
+set ANTHROPIC_API_BASE=https://api.minimax.io/v1
+py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 This configuration failed even with explicit `--model` flag.
 
-**Root Cause**: LiteLLM's OpenAI provider routing doesn't work reliably with MiniMax's OpenAI-compatible endpoint.
+**Root Cause**: LiteLLM's OpenAI provider routing doesn't work reliably with MiniMax's Anthropic-compatible endpoint.
 
 ---
 
@@ -190,13 +190,13 @@ What are the AUTO-APPROVE conditions according to our approval policies?
 | File | Purpose | Status |
 |------|---------|--------|
 | `start-aider.bat` | Original script (no --model flag) | ❌ FAILS |
-| `start-aider-fixed.bat` | OpenAI-compatible endpoint attempt | ❌ FAILS |
+| `start-aider-fixed.bat` | Anthropic-compatible endpoint attempt | ❌ FAILS |
 
 ---
 
 ## Common Issues & Solutions
 
-### Issue: "ERROR: OPENAI_API_KEY not set in environment"
+### Issue: "ERROR: ANTHROPIC_API_KEY not set in environment"
 
 **Cause**: API key not configured in the script.
 
@@ -300,7 +300,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 
 | Endpoint Type | URL | Works with Aider? |
 |--------------|-----|-------------------|
-| OpenAI-compatible | `https://api.minimax.io/v1` | ❌ Routing issues |
+| Anthropic-compatible | `https://api.minimax.io/v1` | ❌ Routing issues |
 | Anthropic-compatible | `https://api.minimax.io/anthropic` | ✅ Works perfectly |
 
 ---
@@ -320,7 +320,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 - ✅ Identified free trial expiration as primary issue
 - ✅ Added $25 credits to account
 - ✅ Identified missing `--model` flag in original script
-- ✅ Tested OpenAI-compatible endpoint (failed)
+- ✅ Tested Anthropic-compatible endpoint (failed)
 - ✅ Tested Anthropic-compatible endpoint (success!)
 - ✅ Created `start-aider-anthropic.bat` as recommended solution
 - ✅ Created test scripts for API connectivity verification

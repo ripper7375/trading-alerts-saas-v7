@@ -123,7 +123,7 @@ In your Flask project (mt5-service/), verify these files exist:
    
    If missing, use Aider to create them:
    ```
-   py -3.11 -m aider --model openai/MiniMax-M2
+   py -3.11 -m aider --model anthropic/MiniMax-M2
    
    "Verify mt5-service has all files needed for Railway deployment:
    - requirements.txt with all dependencies

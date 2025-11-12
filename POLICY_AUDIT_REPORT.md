@@ -91,9 +91,9 @@ These correctly describe that MiniMax M2 uses an OpenAI-compatible API format.
 
 ```yaml
 # Model Configuration - ✅ CORRECT
-model: openai/MiniMax-M2
-editor-model: openai/MiniMax-M2
-weak-model: openai/MiniMax-M2
+model: anthropic/MiniMax-M2
+editor-model: anthropic/MiniMax-M2
+weak-model: anthropic/MiniMax-M2
 
 # Auto-commits - ✅ CORRECT (set to false for testing)
 auto-commits: false
@@ -119,8 +119,8 @@ read:
 ### Environment Variables Required:
 
 ```cmd
-set OPENAI_API_KEY=your_minimax_api_key_here
-set OPENAI_API_BASE=https://api.minimax.chat/v1
+set ANTHROPIC_API_KEY=your_minimax_api_key_here
+set ANTHROPIC_API_BASE=https://api.minimax.chat/v1
 ```
 
 ---
