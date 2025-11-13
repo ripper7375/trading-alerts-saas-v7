@@ -89,16 +89,31 @@ read:
   # Progress tracking (Aider updates this, but reads for context)
   - PROGRESS.md
 
-# ============================================================================
-# SEED CODE (REFERENCE ONLY - READ-ONLY)
-# ============================================================================
-# Seed code provides patterns to learn from, but is never modified
+  # ============================================================================
+  # SEED CODE (REFERENCE ONLY - READ-ONLY)
+  # ============================================================================
+  # V0.dev component references for UI frontend development
+  # These serve as visual references and coding patterns for production components
+  # Organized by category: layouts, charts, alerts
 
-# Automatically read seed code when relevant
-# Note: Add specific seed files here that Aider should reference
-# Example:
-# - seed-code/trading-alerts-bolt-2/app/api/example/route.ts
-# - seed-code/trading-alerts-saas-v4/components/example.tsx
+  # V0 Components - Main README (explains mapping to production files)
+  - seed-code/v0-components/README.md
+
+  # V0 Components - Layouts (Dashboard shell, sidebar, navigation)
+  - seed-code/v0-components/layouts/dashboard-layout.tsx
+  - seed-code/v0-components/layouts/dashboard-page.tsx
+  - seed-code/v0-components/layouts/dashboard-globals.css
+
+  # V0 Components - Charts (TradingView integration examples)
+  - seed-code/v0-components/charts/trading-chart.tsx
+  - seed-code/v0-components/charts/trading-chart-page.tsx
+
+  # V0 Components - Alerts (Alert card and management)
+  - seed-code/v0-components/alerts/alert-card.tsx
+  - seed-code/v0-components/alerts/alert-card-page.tsx
+
+  # Note: Package.json files in seed-code are for reference only
+  # Dependencies should be added to main package.json after review
 
 # ============================================================================
 # GIT CONFIGURATION

@@ -733,3 +733,138 @@ Parts 13, 14, 15, 16
 - Notifications
 - Utilities
 ```
+
+---
+
+## SEED CODE: V0.dev Component References
+
+**Scope:** Visual references and seed code for UI frontend components
+
+**Purpose:** These files serve as visual prototypes and coding patterns for Aider to build production-ready components.
+
+**Folders & Files:**
+```
+seed-code/v0-components/
+├── README.md                          # Mapping guide: seed → production
+├── layouts/
+│   ├── dashboard-layout.tsx          # → app/(dashboard)/layout.tsx
+│   ├── dashboard-page.tsx            # Reference implementation
+│   ├── dashboard-package.json        # Dependencies needed
+│   ├── dashboard-globals.css         # Global styles reference
+│   └── professional-trader-avatar.png # Asset example
+├── charts/
+│   ├── trading-chart.tsx             # → components/charts/trading-chart.tsx
+│   ├── trading-chart-page.tsx        # Full page example
+│   └── trading-chart-package.json    # TradingView dependencies
+└── alerts/
+    ├── alert-card.tsx                # → components/alerts/alert-card.tsx
+    ├── alert-card-page.tsx           # Usage example
+    └── alert-card-package.json       # Component dependencies
+```
+
+**How Aider Uses These Files:**
+
+1. **Pattern 1: Direct Adaptation**
+   - Read seed component structure
+   - Adapt for Next.js 15 App Router
+   - Replace mock data with API calls
+   - Add tier validation logic
+
+2. **Pattern 2: Component Extraction**
+   - Extract sub-components from seed files
+   - Create separate files (e.g., timeframe-selector.tsx)
+   - Add tier-based filtering
+
+3. **Pattern 3: Layout Reference**
+   - Use as visual template
+   - Add authentication handling
+   - Integrate with NextAuth session
+
+**Key Features of Seed Components:**
+
+- **TradingView Lightweight Charts Integration**
+  - Professional-grade charting
+  - Interactive crosshair and tooltips
+  - Zoom and pan functionality
+  - Mobile-optimized touch gestures
+
+- **Modern UI Components (shadcn/ui)**
+  - Consistent design system
+  - Accessible components
+  - Dark mode support
+  - Responsive layouts
+
+- **Mock Data → Real Data Transformation**
+  - Seed files use mock data
+  - Production files connect to:
+    - `/api/indicators` (Flask MT5 service)
+    - `/api/alerts` (Trading Alerts API)
+    - `/api/tier` (Tier validation)
+
+**Integration Points:**
+
+```
+seed-code/v0-components/charts/trading-chart.tsx
+    ↓
+(Aider adapts)
+    ↓
+components/charts/trading-chart.tsx (Production)
+    ├── Uses TradingView Lightweight Charts
+    ├── Fetches data from /api/indicators
+    ├── Validates tier access
+    ├── Adds real-time updates
+    └── Integrates with alert creation
+```
+
+**Dependencies to Install:**
+
+Based on seed-code package.json files:
+- `lightweight-charts` - TradingView charts
+- `@radix-ui/*` - shadcn/ui components
+- `lucide-react` - Icon library
+- `recharts` - Additional charting (optional)
+
+**File Count:** ~12 reference files
+
+**Usage in .aider.conf.yml:**
+
+These files are marked as `read-only` in Aider configuration to serve as reference material without modification. Aider reads these to understand:
+- UI patterns and structure
+- Component composition
+- Styling conventions
+- Interactive behaviors
+
+**Important Notes:**
+
+- ⚠️ These are **reference implementations** only
+- ⚠️ Do NOT copy directly to production without adaptation
+- ✅ Use as visual guide and pattern reference
+- ✅ Extract reusable patterns and components
+- ✅ Adapt for tier validation and API integration
+- ✅ Ensure type safety with OpenAPI-generated types
+
+---
+
+## 📊 Updated Summary Statistics
+
+| Part | Name | Files | Priority | Complexity |
+|------|------|-------|----------|------------|
+| 1 | Foundation | ~12 | ⭐⭐⭐ | Low |
+| 2 | Database | ~4 | ⭐⭐⭐ | Medium |
+| 3 | Types | ~6 | ⭐⭐⭐ | Low |
+| 4 | Tier System | ~4 | ⭐⭐⭐ | Medium |
+| 5 | Authentication | ~17 | ⭐⭐⭐ | High |
+| 6 | Flask Service | ~15 | ⭐⭐⭐ | High |
+| 7 | Indicators API | ~6 | ⭐⭐⭐ | Medium |
+| 8 | Dashboard | ~9 | ⭐⭐ | Medium |
+| 9 | Charts | ~8 | ⭐⭐⭐ | High |
+| 10 | Watchlist | ~8 | ⭐⭐ | Medium |
+| 11 | Alerts | ~10 | ⭐⭐ | Medium |
+| 12 | E-commerce | ~11 | ⭐⭐⭐ | High |
+| 13 | Settings | ~17 | ⭐⭐ | Low |
+| 14 | Admin | ~9 | ⭐ | Medium |
+| 15 | Notifications | ~9 | ⭐⭐ | Medium |
+| 16 | Utilities | ~25 | ⭐⭐ | Low |
+| **Seed** | **V0 Components** | **~12** | **⭐⭐⭐** | **Reference** |
+
+**Total: ~170 production files + ~12 seed reference files**
