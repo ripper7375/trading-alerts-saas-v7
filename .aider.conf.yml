@@ -85,6 +85,7 @@ read:
 
   # Project overview
   - README.md
+  - package.json  # Dependencies available for code generation
 
   # Progress tracking (Aider updates this, but reads for context)
   - PROGRESS.md
