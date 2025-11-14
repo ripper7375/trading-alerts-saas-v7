@@ -93,28 +93,60 @@ read:
   # ============================================================================
   # SEED CODE (REFERENCE ONLY - READ-ONLY)
   # ============================================================================
-  # V0.dev component references for UI frontend development
+  # V0.dev component references for UI frontend development (20 total components)
   # These serve as visual references and coding patterns for production components
-  # Organized by category: layouts, charts, alerts
+  # Complete documentation: seed-code/v0-components/README.md & docs/ui-components-map.md
+  # Organized by category: public-pages, auth, dashboard, components, layouts, charts, alerts
 
-  # V0 Components - Main README (explains mapping to production files)
+  # V0 Components - Main README (complete 20-component mapping guide)
   - seed-code/v0-components/README.md
 
-  # V0 Components - Layouts (Dashboard shell, sidebar, navigation)
+  # V0 Components - PUBLIC PAGES (Marketing & Registration - 3 components)
+  # When generated from v0.dev, uncomment these files:
+  # - seed-code/v0-components/public-pages/homepage.tsx              # → app/(marketing)/page.tsx
+  # - seed-code/v0-components/public-pages/pricing-page.tsx          # → app/(marketing)/pricing/page.tsx
+  # - seed-code/v0-components/public-pages/registration-page.tsx     # → app/(auth)/register/page.tsx
+
+  # V0 Components - AUTH (Authentication pages - 2 components)
+  # When generated from v0.dev, uncomment these files:
+  # - seed-code/v0-components/auth/login-page.tsx                    # → app/(auth)/login/page.tsx
+  # - seed-code/v0-components/auth/forgot-password-page.tsx          # → app/(auth)/forgot-password/page.tsx
+
+  # V0 Components - DASHBOARD (Main app pages - 8 components)
+  # When generated from v0.dev, uncomment these files:
+  # - seed-code/v0-components/dashboard/dashboard-overview.tsx       # → app/(dashboard)/dashboard/page.tsx
+  # - seed-code/v0-components/dashboard/watchlist-page.tsx           # → app/(dashboard)/watchlist/page.tsx
+  # - seed-code/v0-components/dashboard/alert-creation-modal.tsx     # → components/alerts/alert-modal.tsx
+  # - seed-code/v0-components/dashboard/alerts-list.tsx              # → app/(dashboard)/alerts/page.tsx
+  # - seed-code/v0-components/dashboard/billing-page.tsx             # → app/(dashboard)/settings/billing/page.tsx
+  # - seed-code/v0-components/dashboard/settings-layout.tsx          # → app/(dashboard)/settings/layout.tsx
+  # - seed-code/v0-components/dashboard/profile-settings.tsx         # → app/(dashboard)/settings/profile/page.tsx
+
+  # V0 Components - COMPONENTS (Reusable UI - 4 components)
+  # When generated from v0.dev, uncomment these files:
+  # - seed-code/v0-components/components/chart-controls.tsx          # → components/charts/chart-controls.tsx
+  # - seed-code/v0-components/components/empty-states.tsx            # → components/ui/empty-state.tsx
+  # - seed-code/v0-components/components/notification-bell.tsx       # → components/layout/notification-bell.tsx
+  # - seed-code/v0-components/components/user-menu.tsx               # → components/layout/user-menu.tsx
+  # - seed-code/v0-components/components/footer.tsx                  # → components/layout/footer.tsx
+
+  # V0 Components - EXISTING SEED (Reference implementations - 3 components)
+  # Layouts (Dashboard shell, sidebar, navigation)
   - seed-code/v0-components/layouts/dashboard-layout.tsx
   - seed-code/v0-components/layouts/dashboard-page.tsx
   - seed-code/v0-components/layouts/dashboard-globals.css
 
-  # V0 Components - Charts (TradingView integration examples)
+  # Charts (TradingView integration examples)
   - seed-code/v0-components/charts/trading-chart.tsx
   - seed-code/v0-components/charts/trading-chart-page.tsx
 
-  # V0 Components - Alerts (Alert card and management)
+  # Alerts (Alert card and management)
   - seed-code/v0-components/alerts/alert-card.tsx
   - seed-code/v0-components/alerts/alert-card-page.tsx
 
   # Note: Package.json files in seed-code are for reference only
   # Dependencies should be added to main package.json after review
+  # When you generate the 17 new components from v0.dev, uncomment the relevant lines above
 
 # ============================================================================
 # GIT CONFIGURATION
