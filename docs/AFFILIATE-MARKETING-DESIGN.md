@@ -28,48 +28,130 @@
 ## 1. EXECUTIVE SUMMARY
 
 ### Overview
-Integrate a comprehensive affiliate marketing program that allows:
-- Admin to generate and manage discount codes
-- Affiliates to promote the PRO tier with custom discounts
-- Automated commission tracking and reporting
-- Manual monthly commission payouts
+Build a **2-sided marketplace platform** that operates both as a SaaS provider AND distributor. This comprehensive affiliate marketing system enables:
 
-### Key Metrics
-- **Discount Range:** 0-50% off PRO tier ($29/month regular price)
-- **Commission Range:** 0-50% of discounted payment
-- **Payment Cycle:** Monthly (1st week of each month)
-- **Code Validity:** Configurable expiry date per code
+**Affiliate Marketers (Side 1):**
+- Self-service registration and authentication
+- Personal dashboard with code inventory and commission reports
+- Profile management with payment preferences
+- Real-time tracking of conversions and earnings
+
+**End Users (Side 2):**
+- Apply affiliate discount codes at checkout
+- Upgrade from FREE to PRO tier with discounts
+
+**Admin (Platform Operator):**
+- Manage affiliate accounts and code distribution
+- View P&L, sales performance, and commission owings reports
+- Process monthly commission payouts
+- Monitor aggregate code inventory across all affiliates
+
+### Key Business Model
+- **Automated Code Distribution:** 15 codes per affiliate at registration + 15 monthly
+- **Code Lifecycle:** All codes expire at end of month automatically
+- **Code Format:** Cryptographically random >12 characters (e.g., `SxTYo25#1dpgiNguD`)
+- **Commission Formula:** `[(Regular Price × (100% - %discount)) × %commission]`
+- **Payment Options:** Bank transfers, Crypto (USDT), Global wallets (PayPal, Apple Pay, Google Pay, Stripe), Local wallets
 
 ### Success Criteria
-- ✅ Admin can create/manage unlimited discount codes
-- ✅ Free tier users can apply codes during checkout
-- ✅ Commission automatically tracked on successful payment
-- ✅ Monthly commission reports for admin and affiliates
+- ✅ Affiliates can self-register and manage their business independently
+- ✅ Automated monthly code distribution (15 codes per affiliate)
+- ✅ Comprehensive accounting-style reports (opening/closing balances)
+- ✅ Admin can view P&L and sales performance across all affiliates
+- ✅ Flexible payment preferences with 4 different options
 - ✅ Zero fraudulent code usage
 
 ---
 
 ## 2. BUSINESS REQUIREMENTS
 
-### 2.1 Discount Code System
+### 2.1 Affiliate Registration & Authentication
+
+**Affiliate Self-Registration:**
+```
+1. Public registration page: /affiliate/register
+2. Required fields:
+   - Full Name
+   - Email (unique, verified)
+   - Password (min 8 chars, hashed with bcrypt)
+   - Country
+   - Social Media Channels (optional: Facebook, Instagram, Twitter, YouTube, TikTok)
+   - Payment Preference (one of 4 options - see 2.6)
+3. Email verification required before activation
+4. Upon successful registration:
+   - Affiliate account created
+   - 15 discount codes auto-generated
+   - Welcome email sent with login credentials
+```
+
+**Affiliate Authentication:**
+```
+- Separate login system from end users
+- Login page: /affiliate/login
+- JWT-based session management
+- Forgot password flow
+- 2FA optional (future enhancement)
+```
+
+### 2.2 Discount Code System
 
 **Code Generation:**
-- System generates unique alphanumeric codes (e.g., `TRADE2024ABC`)
-- Format: `PREFIX` + `RANDOM8CHARS` (configurable)
-- Uniqueness enforced at database level
+- **Format:** Cryptographically random >12 characters (e.g., `SxTYo25#1dpgiNguD`)
+- **Uniqueness:** Enforced at database level
+- **Security:** Using crypto.randomBytes for generation
+- **Ownership:** Each code belongs to exactly one affiliate
 
-**Code Configuration (by Admin):**
+**Automated Code Distribution:**
 ```
-- Code: "SAVE20PRO"
-- Discount Percentage: 20%
-- Commission Percentage: 30%
-- Expiry Date: 2025-12-31
-- Affiliate Owner: affiliate@example.com
-- Status: Active | Disabled
-- Max Uses: Unlimited | Limited (future feature)
+1. At Registration: 15 codes generated automatically
+2. Monthly Distribution: 15 new codes at beginning of each month (automated cron job)
+3. Code Expiry: All codes expire at end of month (last day 23:59:59)
+4. Code Cancellation: Admin can cancel specific codes before expiry
 ```
 
-### 2.2 Commission Calculation
+**Code Configuration:**
+```
+- Code: "SxTYo25#1dpgiNguD" (auto-generated, >12 chars)
+- Discount Percentage: Set by admin (0-50%)
+- Commission Percentage: Set by admin (0-50%)
+- Affiliate Owner: affiliate_id (relationship)
+- Distributed Date: Timestamp when given to affiliate
+- Expiry Date: End of current month (auto-calculated)
+- Status: Active | Used | Expired | Cancelled
+- Used By: user_id (if redeemed)
+- Used At: Timestamp (if redeemed)
+```
+
+### 2.3 Code Inventory Tracking (Accounting Style)
+
+**Monthly Code Inventory Formula:**
+```
+(1.0) Opening codes balance (at beginning of current month)
+(1.1) + Discount codes received from Admin during current month
+(1.2) - Codes used by free tier users to upgrade to pro plan
+(1.3) - Codes expired (at end of month)
+(1.4) - Codes cancelled by Admin
+(1.5) = Closing codes balance
+```
+
+**Example Report for November 2025:**
+```
+Affiliate: John Doe (john@example.com)
+
+Opening Balance (Nov 1):        10 codes
++ Received (Nov 1):             15 codes (monthly distribution)
+- Used (during Nov):            -3 codes
+- Expired (Nov 30):             -5 codes (unused)
+- Cancelled by Admin:           -2 codes
+= Closing Balance (Nov 30):     15 codes
+
+Drill-down capability:
+- Click on "Used (3)" → View 3 specific codes with user details
+- Click on "Expired (5)" → View 5 expired codes
+- Click on "Cancelled (2)" → View 2 cancelled codes with reason
+```
+
+### 2.4 Commission Calculation
 
 **Formula:**
 ```
@@ -84,7 +166,68 @@ Commission (USD) = (Regular Price × (100% - Discount%)) × Commission%
 | $29.00        | 50%        | $14.50          | 40%          | $5.80           |
 | $29.00        | 10%        | $26.10          | 25%          | $6.53           |
 
-### 2.3 Payment Lifecycle
+### 2.5 Commission Receivable Tracking (Accounting Style)
+
+**Monthly Commission Receivable Formula:**
+```
+(2.0) Opening commission receivable balance (beginning of month)
+(2.1) + Commission earned during current month (from code usage)
+(2.2) - Commission paid during current month (by admin)
+(2.3) = Closing commission receivable
+```
+
+**Example Report for November 2025:**
+```
+Affiliate: John Doe (john@example.com)
+
+Opening Balance (Nov 1):        $15.50 (unpaid from Oct)
++ Earned (during Nov):          $20.88 (3 conversions)
+- Paid (Nov 5):                 -$15.50 (Oct commission payout)
+= Closing Balance (Nov 30):     $20.88 (pending Dec payout)
+
+Drill-down capability:
+- Click on "Earned ($20.88)" → View 3 conversions with user emails, dates, amounts
+- Click on "Paid ($15.50)" → View payment details (method, date, reference)
+```
+
+### 2.6 Payment Preferences
+
+**4 Payment Options:**
+
+```
+1. Local Bank Transfers (in local currency)
+   - Bank Name
+   - Account Number
+   - Account Holder Name
+   - Swift Code / Routing Number
+   - Currency (e.g., USD, EUR, GBP)
+
+2. Crypto Transfers (USDT)
+   - Crypto Wallet Address (USDT)
+   - Network (TRC20 / ERC20 / BEP20)
+
+3. Global Digital Wallets (in USD)
+   - PayPal Email
+   - Apple Pay ID
+   - Google Pay Email
+   - Stripe Connect Account
+
+4. Local/Regional Digital Wallets (in local currency)
+   - Wallet Provider Name
+   - Wallet ID / Phone Number
+   - Currency
+```
+
+**Affiliate Profile Fields:**
+```
+- Personal Info: Full Name, Email, Country
+- Social Media: Facebook, Instagram, Twitter, YouTube, TikTok URLs
+- Payment Preference: Selected option (1-4)
+- Payment Details: Fields based on selected option
+- Tax Info: Optional (Tax ID, VAT number)
+```
+
+### 2.7 Payment Lifecycle
 
 ```
 User Applies Code → Checkout with Discount → Payment Success
@@ -93,110 +236,287 @@ Commission Record Created (Status: PENDING)
     ↓
 Commission Accumulated (Monthly)
     ↓
-Admin Reviews Report (First Week of Month)
+Admin Reviews Commission Owings Report (First Week of Month)
     ↓
-Admin Marks as PAID (Manual External Payment)
+Admin Makes External Payments per Payment Preference
     ↓
-Affiliate Notified (Email)
+Admin Marks Commissions as PAID (with payment reference)
+    ↓
+Affiliate Notified (Email) + Balance Updated
 ```
 
-### 2.4 User Restrictions
+### 2.8 User Restrictions
 
 **Who Can Use Codes:**
-- ✅ FREE tier users upgrading to PRO
+- ✅ FREE tier users upgrading to PRO (first-time)
 - ❌ Existing PRO users (no renewal discounts for MVP)
 - ❌ Users who previously had PRO subscription
 
 **Code Validation:**
-- Code must exist and be active
-- Code must not be expired
+- Code must exist in database
+- Code must be Active (not Used, Expired, or Cancelled)
+- Code must not be expired (expiresAt > now)
 - User must be FREE tier
-- User must not have active PRO subscription
+- User must not have any active or past PRO subscription
 
 ---
 
 ## 3. SYSTEM ARCHITECTURE
 
-### 3.1 Architecture Diagram
+### 3.1 Overall Platform Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                     2-SIDED MARKETPLACE PLATFORM                     │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  ┌────────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│  │   ADMIN PANEL      │  │ AFFILIATE PORTAL│  │  USER CHECKOUT  │  │
+│  │  (Platform Mgmt)   │  │  (Self-Service) │  │  (Redeem Codes) │  │
+│  └────────────────────┘  └─────────────────┘  └─────────────────┘  │
+│                                                                      │
+├──────────────────────────────────────────────────────────────────────┤
+│                       SHARED SERVICES LAYER                          │
+│  - Authentication (NextAuth.js with 3 roles: Admin, Affiliate, User)│
+│  - Code Generation Service (crypto.randomBytes)                     │
+│  - Commission Calculation Engine                                    │
+│  - Email Notification Service                                       │
+│  - Report Generation Service                                        │
+├──────────────────────────────────────────────────────────────────────┤
+│                         DATABASE LAYER                               │
+│  PostgreSQL + Prisma ORM                                            │
+│  - User (end users)                                                 │
+│  - Affiliate (marketers)                                            │
+│  - AffiliateCode (discount codes)                                   │
+│  - Commission (earnings tracking)                                   │
+│  - Subscription (user subscriptions)                                │
+├──────────────────────────────────────────────────────────────────────┤
+│                      EXTERNAL INTEGRATIONS                           │
+│  - Stripe (payment processing)                                      │
+│  - SendGrid/Resend (transactional emails)                           │
+│  - Vercel Cron (monthly automation)                                 │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+### 3.2 Affiliate Portal Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         ADMIN PANEL                              │
-│  /admin/affiliates                                              │
-│  - Create discount codes                                         │
-│  - Set % discount, % commission, expiry                          │
-│  - Enable/disable codes                                          │
-│  - View commission reports                                       │
-│  - Mark commissions as paid                                      │
+│                    AFFILIATE REGISTRATION                        │
+│  /affiliate/register                                            │
+│  1. Affiliate fills registration form                           │
+│  2. Email verification sent                                     │
+│  3. Upon verification:                                          │
+│     - Affiliate record created                                  │
+│     - 15 codes auto-generated (status: Active)                  │
+│     - Welcome email with dashboard link                         │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    AFFILIATE DASHBOARD                           │
-│  /affiliate/dashboard (Optional - Future Phase)                 │
-│  - View my discount codes                                        │
-│  - Track usage statistics                                        │
-│  - View commission earnings (PENDING, PAID)                      │
-│  - Download monthly reports                                      │
+│  /affiliate/dashboard (Main Hub)                                │
+│                                                                  │
+│  Navigation:                                                     │
+│  ├─ Dashboard (Overview)                                        │
+│  ├─ Code Inventory Report                                       │
+│  ├─ Commission Receivable Report                                │
+│  ├─ Profile Settings                                            │
+│  └─ Help & Resources                                            │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │
+          ┌────────────────┼────────────────┐
+          ▼                ▼                ▼
+┌──────────────────┐ ┌───────────────┐ ┌──────────────────┐
+│  CODE INVENTORY  │ │  COMMISSION   │ │     PROFILE      │
+│     REPORT       │ │    REPORT     │ │    MANAGEMENT    │
+├──────────────────┤ ├───────────────┤ ├──────────────────┤
+│ Opening Balance  │ │ Opening $     │ │ Personal Info    │
+│ + Received       │ │ + Earned      │ │ Social Media     │
+│ - Used           │ │ - Paid        │ │ Payment Prefs    │
+│ - Expired        │ │ = Closing $   │ │ Tax Info         │
+│ - Cancelled      │ │               │ │                  │
+│ = Closing Bal    │ │ Drill-downs:  │ │ Update Password  │
+│                  │ │ - Conversions │ │                  │
+│ Drill-downs:     │ │ - Payments    │ │                  │
+│ - Used codes     │ │               │ │                  │
+│ - Expired list   │ │               │ │                  │
+└──────────────────┘ └───────────────┘ └──────────────────┘
+```
+
+### 3.3 Admin Panel Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      ADMIN DASHBOARD                             │
+│  /admin/affiliates (Main Hub)                                   │
+│                                                                  │
+│  Navigation:                                                     │
+│  ├─ Affiliate Management (list all affiliates)                  │
+│  ├─ Code Distribution (manual/auto)                             │
+│  ├─ Profit & Loss Report (3 months)                             │
+│  ├─ Sales Performance by Affiliate                              │
+│  ├─ Commission Owings Report                                    │
+│  ├─ Aggregate Code Inventory (all affiliates)                   │
+│  └─ System Settings                                             │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │
+          ┌────────────────┼────────────────┬──────────────────┐
+          ▼                ▼                ▼                  ▼
+┌──────────────┐ ┌─────────────┐ ┌──────────────┐ ┌──────────────┐
+│   P&L        │ │   SALES     │ │  COMMISSION  │ │  AGGREGATE   │
+│   REPORT     │ │ PERFORMANCE │ │   OWINGS     │ │    CODE      │
+│  (3 months)  │ │  BY AFFILIATE│ │    REPORT    │ │  INVENTORY   │
+├──────────────┤ ├─────────────┤ ├──────────────┤ ├──────────────┤
+│ Month 1:     │ │ Affiliate 1 │ │ Pending:     │ │ All Affs:    │
+│  Revenue     │ │  Conversions│ │  Affiliate 1 │ │ Active: 450  │
+│  -Discounts  │ │  Revenue    │ │    $34.80    │ │ Used: 120    │
+│  -Commissions│ │  Discount   │ │  Affiliate 2 │ │ Expired: 80  │
+│  =Profit     │ │  Commission │ │    $20.88    │ │ Cancelled: 5 │
+│              │ │             │ │              │ │              │
+│ Month 2: ... │ │ Affiliate 2 │ │ Total Owe:   │ │ Chart View   │
+│ Month 3: ... │ │  ...        │ │  $125.40     │ │ Trend View   │
+│              │ │             │ │              │ │              │
+│ Summary      │ │ Drill-down: │ │ Actions:     │ │ Filter by    │
+│ Chart View   │ │ - User list │ │ - Bulk pay   │ │ affiliate    │
+└──────────────┘ └─────────────┘ └──────────────┘ └──────────────┘
+```
+
+### 3.4 User Checkout Flow Integration
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    USER CHECKOUT FLOW                            │
+│  /checkout (FREE tier user upgrading to PRO)                    │
+│                                                                  │
+│  1. User clicks "Upgrade to PRO"                                │
+│  2. Checkout page shows:                                        │
+│     - Regular price: $29.00/month                               │
+│     - Input field: "Have an affiliate code?"                    │
+│  3. User enters code (e.g., SxTYo25#1dpgiNguD)                  │
+│  4. Real-time validation via API                                │
+│  5. If valid:                                                   │
+│     - Show discount: $29.00 → $23.20 (20% off)                 │
+│     - Show affiliate name (optional)                            │
+│  6. User clicks "Pay with Stripe"                               │
+│  7. Stripe checkout with custom unit_amount (2320 cents)        │
+│  8. Metadata includes: {codeId, affiliateId, discountPercent}   │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                    CHECKOUT FLOW                                 │
-│  /checkout?code=SAVE20PRO                                       │
-│  1. User (FREE tier) clicks "Upgrade to PRO"                    │
-│  2. Input field: "Have a discount code?"                         │
-│  3. Enter code → Validate via API                               │
-│  4. Show discounted price: $29.00 → $23.20                      │
-│  5. Stripe checkout with custom price                            │
-└──────────────────────────┬──────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    PAYMENT PROCESSING                            │
-│  1. Stripe Payment Success Webhook                              │
-│  2. Create Subscription record (tier: PRO)                       │
-│  3. Create Commission record if code used                        │
-│  4. Send email to affiliate (code used successfully)             │
-└─────────────────────────────────────────────────────────────────┘
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    MONTHLY PAYOUT PROCESS                        │
-│  1. First week of month: Admin views report                     │
-│  2. Filter: PENDING commissions for last month                   │
-│  3. Admin makes external payments (bank transfer/PayPal)         │
-│  4. Admin marks commissions as PAID in dashboard                 │
-│  5. System sends payment confirmation emails to affiliates       │
+│                   STRIPE WEBHOOK HANDLER                         │
+│  /api/webhooks/stripe                                           │
+│                                                                  │
+│  Event: checkout.session.completed                              │
+│  1. Extract metadata (codeId, affiliateId)                      │
+│  2. Create Subscription record                                  │
+│  3. Upgrade user.tier to PRO                                    │
+│  4. Update AffiliateCode:                                       │
+│     - status: Active → Used                                     │
+│     - usedBy: user_id                                           │
+│     - usedAt: timestamp                                         │
+│  5. Create Commission record:                                   │
+│     - affiliateId, codeId, userId                               │
+│     - commissionAmount (calculated)                             │
+│     - status: PENDING                                           │
+│  6. Send emails:                                                │
+│     - User: "Welcome to PRO"                                    │
+│     - Affiliate: "Your code was used! Earned $6.96"             │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 3.2 Component Breakdown
+### 3.5 Automated Monthly Processes
 
-**New Components:**
-1. **Admin Affiliate Manager** (`app/admin/affiliates/`)
-   - Code creation interface
-   - Commission reports
-   - Payment management
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              MONTHLY AUTOMATION (Vercel Cron)                    │
+│  Schedule: 1st day of month, 00:00 UTC                          │
+│                                                                  │
+│  Job 1: CODE DISTRIBUTION                                       │
+│  ────────────────────────────────────────────────────────────   │
+│  1. Query all active affiliates                                 │
+│  2. For each affiliate:                                         │
+│     - Generate 15 new codes                                     │
+│     - Set expiresAt = end of current month                      │
+│     - Set status = Active                                       │
+│     - Insert into AffiliateCode table                           │
+│  3. Send email to affiliate: "15 new codes distributed"         │
+│                                                                  │
+│  Job 2: CODE EXPIRY                                             │
+│  ────────────────────────────────────────────────────────────   │
+│  Schedule: Last day of month, 23:59 UTC                         │
+│  1. Query all Active codes where expiresAt < now                │
+│  2. Update status: Active → Expired                             │
+│  3. Log expiry events for reporting                             │
+│                                                                  │
+│  Job 3: MONTHLY REPORT EMAIL                                    │
+│  ────────────────────────────────────────────────────────────   │
+│  Schedule: 1st day of month, 09:00 UTC                          │
+│  1. Generate monthly report for each affiliate:                 │
+│     - Code inventory summary                                    │
+│     - Commission earned summary                                 │
+│     - Closing balances                                          │
+│  2. Send email with PDF attachment (optional)                   │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-2. **Discount Code Validator** (`lib/affiliate/validator.ts`)
-   - Code validation logic
-   - Eligibility checks
-   - Price calculation
+### 3.6 Component Breakdown
 
-3. **Commission Tracker** (`lib/affiliate/commission.ts`)
-   - Create commission records
-   - Calculate amounts
-   - Generate reports
+**New Components for Affiliate Portal:**
+1. **Affiliate Auth** (`app/affiliate/(auth)/`)
+   - Registration page
+   - Login page
+   - Email verification
+   - Password reset
 
-4. **Checkout Integration** (Update existing `app/checkout/`)
+2. **Affiliate Dashboard** (`app/affiliate/dashboard/`)
+   - Overview page with stats
+   - Code inventory report
+   - Commission receivable report
+   - Profile management
+
+3. **Admin Affiliate Manager** (`app/admin/affiliates/`)
+   - Affiliate list and details
+   - Manual code distribution
+   - P&L report (3 months)
+   - Sales performance by affiliate
+   - Commission owings report
+   - Aggregate code inventory
+
+4. **Shared Services** (`lib/affiliate/`)
+   - Code generator (`code-generator.ts`)
+   - Code validator (`validator.ts`)
+   - Commission calculator (`commission.ts`)
+   - Report generator (`reports.ts`)
+   - Automated jobs (`cron-jobs.ts`)
+
+5. **API Endpoints** (`app/api/affiliate/`, `app/api/admin/affiliate/`)
+   - Affiliate registration, login, profile
+   - Code inventory and commission reports
+   - Admin management and reporting
+   - Code validation for checkout
+
+6. **Database Models** (Prisma)
+   - Affiliate model (new)
+   - AffiliateCode model (updated with status enum)
+   - Commission model (updated with affiliate relationship)
+
+7. **Checkout Integration** (Update existing `app/checkout/`)
    - Code input field
    - Real-time validation
-   - Price preview
+   - Price preview with discount
 
-5. **Webhook Handler** (Update existing `/api/webhooks/stripe/route.ts`)
-   - Detect discount code in metadata
-   - Create commission on payment success
+8. **Webhook Handler** (Update existing `/api/webhooks/stripe/route.ts`)
+   - Handle code usage
+   - Create commission
+   - Update code status
+   - Send notifications
+
+9. **Automated Jobs** (`app/api/cron/`)
+   - Monthly code distribution
+   - Monthly code expiry
+   - Monthly report emails
 
 ---
 
@@ -204,56 +524,181 @@ Affiliate Notified (Email)
 
 ### 4.1 New Tables
 
-**Table: `AffiliateCode`**
+**Table: `Affiliate`** (New - Core entity for affiliate marketers)
+```prisma
+model Affiliate {
+  id                String   @id @default(cuid())
+
+  // Authentication
+  email             String   @unique
+  password          String                      // Hashed with bcrypt
+  emailVerified     DateTime?                   // Email verification timestamp
+
+  // Personal Info
+  fullName          String
+  country           String                      // ISO country code (e.g., "US", "GB")
+
+  // Social Media (Optional)
+  facebookUrl       String?
+  instagramUrl      String?
+  twitterUrl        String?
+  youtubeUrl        String?
+  tiktokUrl         String?
+
+  // Payment Preferences (4 options - one selected)
+  paymentMethod     PaymentMethod               // BANK, CRYPTO, GLOBAL_WALLET, LOCAL_WALLET
+
+  // Payment Details - Bank Transfer
+  bankName          String?
+  bankAccountNumber String?
+  bankAccountHolder String?
+  bankSwiftCode     String?
+  bankCurrency      String?                     // "USD", "EUR", "GBP", etc.
+
+  // Payment Details - Crypto
+  cryptoWalletAddress String?
+  cryptoNetwork     String?                     // "TRC20", "ERC20", "BEP20"
+
+  // Payment Details - Global Wallet
+  paypalEmail       String?
+  applePayId        String?
+  googlePayEmail    String?
+  stripeConnectId   String?
+
+  // Payment Details - Local Wallet
+  localWalletProvider String?
+  localWalletId     String?
+  localWalletCurrency String?
+
+  // Tax Info (Optional)
+  taxId             String?
+  vatNumber         String?
+
+  // Status
+  status            AffiliateStatus @default(PENDING_VERIFICATION)
+
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  codes             AffiliateCode[]
+  commissions       Commission[]
+
+  @@index([email])
+  @@index([status])
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER      // Local bank transfers in local currency
+  CRYPTO             // USDT to crypto wallet
+  GLOBAL_WALLET      // PayPal, Apple Pay, Google Pay, Stripe
+  LOCAL_WALLET       // Local/regional digital wallets
+}
+
+enum AffiliateStatus {
+  PENDING_VERIFICATION  // Email not verified yet
+  ACTIVE                // Email verified, can operate
+  SUSPENDED             // Temporarily disabled by admin
+  TERMINATED            // Permanently disabled
+}
+```
+
+**Table: `AffiliateCode`** (Updated with comprehensive tracking)
 ```prisma
 model AffiliateCode {
   id                String   @id @default(cuid())
-  code              String   @unique        // "SAVE20PRO"
+
+  // Code Details
+  code              String   @unique        // "SxTYo25#1dpgiNguD" (>12 chars random)
   discountPercent   Int                     // 20 (represents 20%)
   commissionPercent Int                     // 30 (represents 30%)
-  affiliateEmail    String                  // Owner of this code
-  expiresAt         DateTime?               // Null = never expires
-  isActive          Boolean  @default(true) // Admin can disable
+
+  // Ownership
+  affiliateId       String                  // Belongs to which affiliate
+
+  // Distribution & Expiry
+  distributedAt     DateTime @default(now()) // When given to affiliate
+  expiresAt         DateTime                 // Auto-set to end of month
+
+  // Status Tracking
+  status            CodeStatus @default(ACTIVE)
+
+  // Usage Tracking (when status = USED)
+  usedBy            String?                  // User ID who redeemed
+  usedAt            DateTime?                // When redeemed
+
+  // Cancellation Tracking (when status = CANCELLED)
+  cancelledBy       String?                  // Admin ID who cancelled
+  cancelledAt       DateTime?                // When cancelled
+  cancellationReason String?                 // Why cancelled
+
+  // Timestamps
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  createdBy         String                  // Admin user ID
 
   // Relations
-  creator           User     @relation("CodeCreator", fields: [createdBy], references: [id])
+  affiliate         Affiliate    @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  userWhoUsed       User?        @relation("CodeUsedByUser", fields: [usedBy], references: [id])
+  adminWhoCancelled User?        @relation("CodeCancelledByAdmin", fields: [cancelledBy], references: [id])
   commissions       Commission[]
 
   @@index([code])
-  @@index([isActive])
+  @@index([affiliateId])
+  @@index([status])
   @@index([expiresAt])
 }
 
+enum CodeStatus {
+  ACTIVE      // Available for use
+  USED        // Redeemed by user
+  EXPIRED     // Passed expiry date
+  CANCELLED   // Manually cancelled by admin
+}
+```
+
+**Table: `Commission`** (Updated with affiliate relationship)
+```prisma
 model Commission {
   id                  String   @id @default(cuid())
+
+  // Relationships
+  affiliateId         String                    // Affiliate who earned this
   codeId              String                    // Which code was used
   userId              String                    // User who upgraded
   subscriptionId      String   @unique          // Stripe subscription ID
 
+  // Price Breakdown
   regularPrice        Decimal  @db.Decimal(10, 2) // 29.00
   discountPercent     Int                         // 20
   discountedPrice     Decimal  @db.Decimal(10, 2) // 23.20
   commissionPercent   Int                         // 30
   commissionAmount    Decimal  @db.Decimal(10, 2) // 6.96
 
+  // Payment Status
   status              CommissionStatus @default(PENDING)
   paidAt              DateTime?
   paidBy              String?                     // Admin who marked as paid
+  paymentReference    String?                     // External payment ref (e.g., PayPal transaction ID)
+  paymentMethod       String?                     // How paid (copied from affiliate profile)
+  paymentNotes        String?                     // Admin notes
 
+  // Timestamps
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
   // Relations
+  affiliate           Affiliate     @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
   code                AffiliateCode @relation(fields: [codeId], references: [id])
-  user                User          @relation(fields: [userId], references: [id])
+  user                User          @relation("UserCommissions", fields: [userId], references: [id])
   paidByUser          User?         @relation("CommissionPaidBy", fields: [paidBy], references: [id])
 
+  @@index([affiliateId])
   @@index([codeId])
+  @@index([userId])
   @@index([status])
   @@index([createdAt])
+  @@index([paidAt])
 }
 
 enum CommissionStatus {
@@ -265,15 +710,23 @@ enum CommissionStatus {
 
 ### 4.2 Existing Table Updates
 
-**Table: `User`** (Add relations)
+**Table: `User`** (Add relations for admin operations)
 ```prisma
 model User {
   // ... existing fields ...
 
-  // New relations
-  createdCodes   AffiliateCode[] @relation("CodeCreator")
-  commissions    Commission[]
-  paidCommissions Commission[]   @relation("CommissionPaidBy")
+  role              Role     @default(USER)  // USER | ADMIN
+
+  // New relations for affiliate system
+  codeUsages        AffiliateCode[] @relation("CodeUsedByUser")
+  codeCancellations AffiliateCode[] @relation("CodeCancelledByAdmin")
+  commissions       Commission[]    @relation("UserCommissions")
+  paidCommissions   Commission[]    @relation("CommissionPaidBy")
+}
+
+enum Role {
+  USER     // Regular end user
+  ADMIN    // Platform administrator
 }
 ```
 
@@ -282,67 +735,1016 @@ model User {
 model Subscription {
   // ... existing fields ...
 
-  // New fields
-  discountCodeId  String?        // Which code was used (if any)
-  originalPrice   Decimal?       // 29.00 (for reference)
-  discountedPrice Decimal?       // 23.20 (actual charged amount)
+  // New fields for affiliate tracking
+  codeId          String?        // AffiliateCode ID (if discount code used)
+  originalPrice   Decimal?       // 29.00 (regular PRO price)
+  discountedPrice Decimal?       // 23.20 (actual charged amount with discount)
 }
 ```
 
 ### 4.3 Migration Strategy
 
-**Phase 1 Migration:**
+**Prisma Migration Steps:**
+```bash
+# 1. Update schema.prisma with new models
+# 2. Generate migration
+npx prisma migrate dev --name add_affiliate_system
+
+# This will create migration SQL automatically
+```
+
+**Generated Migration SQL (Example):**
 ```sql
--- Add new tables
-CREATE TABLE "AffiliateCode" (...);
-CREATE TABLE "Commission" (...);
+-- CreateEnum
+CREATE TYPE "PaymentMethod" AS ENUM ('BANK_TRANSFER', 'CRYPTO', 'GLOBAL_WALLET', 'LOCAL_WALLET');
+CREATE TYPE "AffiliateStatus" AS ENUM ('PENDING_VERIFICATION', 'ACTIVE', 'SUSPENDED', 'TERMINATED');
+CREATE TYPE "CodeStatus" AS ENUM ('ACTIVE', 'USED', 'EXPIRED', 'CANCELLED');
+CREATE TYPE "CommissionStatus" AS ENUM ('PENDING', 'PAID', 'CANCELLED');
 
--- Add indexes
-CREATE INDEX "AffiliateCode_code_idx" ON "AffiliateCode"("code");
-CREATE INDEX "Commission_status_idx" ON "Commission"("status");
+-- CreateTable: Affiliate
+CREATE TABLE "Affiliate" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "email" TEXT NOT NULL UNIQUE,
+    "password" TEXT NOT NULL,
+    "emailVerified" TIMESTAMP(3),
+    "fullName" TEXT NOT NULL,
+    "country" TEXT NOT NULL,
+    "facebookUrl" TEXT,
+    "instagramUrl" TEXT,
+    "twitterUrl" TEXT,
+    "youtubeUrl" TEXT,
+    "tiktokUrl" TEXT,
+    "paymentMethod" "PaymentMethod" NOT NULL,
+    "bankName" TEXT,
+    "bankAccountNumber" TEXT,
+    "bankAccountHolder" TEXT,
+    "bankSwiftCode" TEXT,
+    "bankCurrency" TEXT,
+    "cryptoWalletAddress" TEXT,
+    "cryptoNetwork" TEXT,
+    "paypalEmail" TEXT,
+    "applePayId" TEXT,
+    "googlePayEmail" TEXT,
+    "stripeConnectId" TEXT,
+    "localWalletProvider" TEXT,
+    "localWalletId" TEXT,
+    "localWalletCurrency" TEXT,
+    "taxId" TEXT,
+    "vatNumber" TEXT,
+    "status" "AffiliateStatus" NOT NULL DEFAULT 'PENDING_VERIFICATION',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL
+);
 
--- Update existing tables
-ALTER TABLE "Subscription" ADD COLUMN "discountCodeId" TEXT;
+-- CreateTable: AffiliateCode
+CREATE TABLE "AffiliateCode" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "code" TEXT NOT NULL UNIQUE,
+    "discountPercent" INTEGER NOT NULL,
+    "commissionPercent" INTEGER NOT NULL,
+    "affiliateId" TEXT NOT NULL,
+    "distributedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "status" "CodeStatus" NOT NULL DEFAULT 'ACTIVE',
+    "usedBy" TEXT,
+    "usedAt" TIMESTAMP(3),
+    "cancelledBy" TEXT,
+    "cancelledAt" TIMESTAMP(3),
+    "cancellationReason" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "AffiliateCode_affiliateId_fkey" FOREIGN KEY ("affiliateId") REFERENCES "Affiliate" ("id") ON DELETE CASCADE,
+    CONSTRAINT "AffiliateCode_usedBy_fkey" FOREIGN KEY ("usedBy") REFERENCES "User" ("id"),
+    CONSTRAINT "AffiliateCode_cancelledBy_fkey" FOREIGN KEY ("cancelledBy") REFERENCES "User" ("id")
+);
+
+-- CreateTable: Commission
+CREATE TABLE "Commission" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "affiliateId" TEXT NOT NULL,
+    "codeId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "subscriptionId" TEXT NOT NULL UNIQUE,
+    "regularPrice" DECIMAL(10,2) NOT NULL,
+    "discountPercent" INTEGER NOT NULL,
+    "discountedPrice" DECIMAL(10,2) NOT NULL,
+    "commissionPercent" INTEGER NOT NULL,
+    "commissionAmount" DECIMAL(10,2) NOT NULL,
+    "status" "CommissionStatus" NOT NULL DEFAULT 'PENDING',
+    "paidAt" TIMESTAMP(3),
+    "paidBy" TEXT,
+    "paymentReference" TEXT,
+    "paymentMethod" TEXT,
+    "paymentNotes" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "Commission_affiliateId_fkey" FOREIGN KEY ("affiliateId") REFERENCES "Affiliate" ("id") ON DELETE CASCADE,
+    CONSTRAINT "Commission_codeId_fkey" FOREIGN KEY ("codeId") REFERENCES "AffiliateCode" ("id"),
+    CONSTRAINT "Commission_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id"),
+    CONSTRAINT "Commission_paidBy_fkey" FOREIGN KEY ("paidBy") REFERENCES "User" ("id")
+);
+
+-- Update Subscription table
+ALTER TABLE "Subscription" ADD COLUMN "codeId" TEXT;
 ALTER TABLE "Subscription" ADD COLUMN "originalPrice" DECIMAL(10,2);
 ALTER TABLE "Subscription" ADD COLUMN "discountedPrice" DECIMAL(10,2);
+
+-- CreateIndex
+CREATE INDEX "Affiliate_email_idx" ON "Affiliate"("email");
+CREATE INDEX "Affiliate_status_idx" ON "Affiliate"("status");
+CREATE INDEX "AffiliateCode_code_idx" ON "AffiliateCode"("code");
+CREATE INDEX "AffiliateCode_affiliateId_idx" ON "AffiliateCode"("affiliateId");
+CREATE INDEX "AffiliateCode_status_idx" ON "AffiliateCode"("status");
+CREATE INDEX "AffiliateCode_expiresAt_idx" ON "AffiliateCode"("expiresAt");
+CREATE INDEX "Commission_affiliateId_idx" ON "Commission"("affiliateId");
+CREATE INDEX "Commission_codeId_idx" ON "Commission"("codeId");
+CREATE INDEX "Commission_userId_idx" ON "Commission"("userId");
+CREATE INDEX "Commission_status_idx" ON "Commission"("status");
+CREATE INDEX "Commission_createdAt_idx" ON "Commission"("createdAt");
+CREATE INDEX "Commission_paidAt_idx" ON "Commission"("paidAt");
+```
+
+### 4.4 Database Relationships Diagram
+
+```
+┌─────────────┐         ┌──────────────┐         ┌────────────┐
+│   User      │         │  Affiliate   │         │Subscription│
+│  (End User) │         │ (Marketer)   │         │            │
+├─────────────┤         ├──────────────┤         ├────────────┤
+│ id          │◄────┐   │ id           │◄────┐   │ id         │
+│ email       │     │   │ email        │     │   │ userId     │
+│ tier        │     │   │ fullName     │     │   │ codeId     │◄──┐
+│ role        │     │   │ country      │     │   │ stripeId   │   │
+└─────────────┘     │   │ paymentMethod│     │   └────────────┘   │
+                    │   └──────────────┘     │                    │
+                    │          │             │                    │
+                    │          │ 1:N         │                    │
+                    │          ▼             │                    │
+                    │   ┌──────────────┐     │                    │
+                    │   │AffiliateCode │     │                    │
+                    │   ├──────────────┤     │                    │
+                    │   │ id           │─────┘                    │
+                    └───│ affiliateId  │                          │
+                        │ code         │◄─────────────────────────┘
+                        │ status       │
+                        │ usedBy       │
+                        │ expiresAt    │
+                        └──────┬───────┘
+                               │ 1:N
+                               ▼
+                        ┌──────────────┐
+                        │ Commission   │
+                        ├──────────────┤
+                        │ id           │
+                        │ affiliateId  │──┐
+                        │ codeId       │  │
+                        │ userId       │  │
+                        │ amount       │  │
+                        │ status       │  │
+                        └──────────────┘  │
+                               │          │
+                               └──────────┘
+                               (all link back to entities above)
 ```
 
 ---
 
 ## 5. API ENDPOINTS
 
-### 5.1 Admin Endpoints
+### 5.1 Affiliate Authentication Endpoints
 
-**POST /api/admin/affiliate/codes** - Create Discount Code
+**POST /api/affiliate/register** - Affiliate Self-Registration
 ```typescript
 Request:
 {
-  "code": "SAVE20PRO",           // Admin-provided or auto-generated
-  "discountPercent": 20,         // 0-50
-  "commissionPercent": 30,       // 0-50
-  "affiliateEmail": "affiliate@example.com",
-  "expiresAt": "2025-12-31T23:59:59Z"
+  "email": "john@example.com",
+  "password": "SecurePassword123!",
+  "fullName": "John Doe",
+  "country": "US",                           // ISO code
+  "facebookUrl": "https://facebook.com/john", // Optional
+  "instagramUrl": "...",                     // Optional
+  "paymentMethod": "CRYPTO",                 // BANK_TRANSFER | CRYPTO | GLOBAL_WALLET | LOCAL_WALLET
+
+  // Payment details based on method (CRYPTO example):
+  "cryptoWalletAddress": "TXa1b2c3...",
+  "cryptoNetwork": "TRC20"
 }
 
 Response (201):
 {
-  "id": "clx...",
-  "code": "SAVE20PRO",
-  "discountPercent": 20,
-  "commissionPercent": 30,
-  "affiliateEmail": "affiliate@example.com",
-  "expiresAt": "2025-12-31T23:59:59Z",
-  "isActive": true,
-  "createdAt": "2025-11-14T10:00:00Z"
+  "success": true,
+  "message": "Registration successful. Please check your email to verify your account.",
+  "affiliateId": "clx...",
+  "email": "john@example.com"
+}
+
+// System automatically:
+// 1. Sends email verification link
+// 2. Creates affiliate record with status: PENDING_VERIFICATION
+// 3. Does NOT generate codes yet (wait for email verification)
+```
+
+**POST /api/affiliate/verify-email** - Email Verification
+```typescript
+Request:
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  // From email link
+}
+
+Response (200):
+{
+  "success": true,
+  "message": "Email verified successfully. 15 codes have been generated for you.",
+  "affiliateId": "clx...",
+  "codesGenerated": 15
+}
+
+// System automatically:
+// 1. Updates status: PENDING_VERIFICATION → ACTIVE
+// 2. Generates 15 discount codes
+// 3. Sends welcome email with dashboard link
+```
+
+**POST /api/affiliate/login** - Affiliate Login
+```typescript
+Request:
+{
+  "email": "john@example.com",
+  "password": "SecurePassword123!"
+}
+
+Response (200):
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",  // JWT token
+  "affiliate": {
+    "id": "clx...",
+    "email": "john@example.com",
+    "fullName": "John Doe",
+    "status": "ACTIVE"
+  }
+}
+
+Response (401) - Invalid Credentials:
+{
+  "error": "Invalid email or password"
+}
+
+Response (403) - Email Not Verified:
+{
+  "error": "Please verify your email before logging in",
+  "emailVerified": false
 }
 ```
 
-**GET /api/admin/affiliate/codes** - List All Codes
+**POST /api/affiliate/forgot-password** - Password Reset Request
 ```typescript
+Request:
+{
+  "email": "john@example.com"
+}
+
+Response (200):
+{
+  "success": true,
+  "message": "Password reset link sent to your email"
+}
+```
+
+**POST /api/affiliate/reset-password** - Reset Password
+```typescript
+Request:
+{
+  "token": "reset_token_from_email",
+  "newPassword": "NewSecurePassword123!"
+}
+
+Response (200):
+{
+  "success": true,
+  "message": "Password reset successfully"
+}
+```
+
+### 5.2 Affiliate Dashboard Endpoints
+
+**GET /api/affiliate/dashboard** - Dashboard Overview
+```typescript
+Headers:
+  Authorization: Bearer <affiliate_token>
+
+Response (200):
+{
+  "affiliate": {
+    "id": "clx...",
+    "fullName": "John Doe",
+    "email": "john@example.com",
+    "country": "US"
+  },
+  "summary": {
+    "activeCodes": 12,
+    "usedCodes": 3,
+    "expiredCodes": 5,
+    "pendingCommission": 20.88,
+    "paidCommission": 69.60,
+    "totalEarnings": 90.48,
+    "thisMonthConversions": 3
+  },
+  "recentActivity": [
+    {
+      "type": "CODE_USED",
+      "code": "SxTYo25#1dpgiNguD",
+      "user": "user@example.com",
+      "amount": 6.96,
+      "date": "2025-11-14T10:00:00Z"
+    }
+  ]
+}
+```
+
+**GET /api/affiliate/codes/inventory** - Code Inventory Report
+```typescript
+Headers:
+  Authorization: Bearer <affiliate_token>
+
 Query Params:
-- status: "active" | "disabled" | "all"
+- month: "2025-11"  // Specific month, or current month if not provided
+
+Response (200):
+{
+  "month": "2025-11",
+  "report": {
+    "openingBalance": 10,
+    "received": 15,
+    "used": 3,
+    "expired": 5,
+    "cancelled": 2,
+    "closingBalance": 15
+  },
+  "drillDown": {
+    "receivedCodes": [
+      {
+        "code": "SxTYo25#1dpgiNguD",
+        "receivedAt": "2025-11-01T00:00:00Z",
+        "expiresAt": "2025-11-30T23:59:59Z",
+        "status": "ACTIVE"
+      }
+      // ... 14 more
+    ],
+    "usedCodes": [
+      {
+        "code": "ABC123DEF456GHI",
+        "usedBy": "user@example.com",
+        "usedAt": "2025-11-05T14:30:00Z",
+        "commission": 6.96
+      }
+      // ... 2 more
+    ],
+    "expiredCodes": [
+      // ... 5 expired codes
+    ],
+    "cancelledCodes": [
+      {
+        "code": "XYZ789...",
+        "cancelledBy": "admin@platform.com",
+        "cancelledAt": "2025-11-15T09:00:00Z",
+        "reason": "Suspected fraudulent use"
+      }
+      // ... 1 more
+    ]
+  }
+}
+```
+
+**GET /api/affiliate/commissions/receivable** - Commission Receivable Report
+```typescript
+Headers:
+  Authorization: Bearer <affiliate_token>
+
+Query Params:
+- month: "2025-11"
+
+Response (200):
+{
+  "month": "2025-11",
+  "report": {
+    "openingBalance": 15.50,
+    "earned": 20.88,
+    "paid": 15.50,
+    "closingBalance": 20.88
+  },
+  "drillDown": {
+    "earnedCommissions": [
+      {
+        "id": "clx1...",
+        "code": "SxTYo25#1dpgiNguD",
+        "user": "user@example.com",
+        "amount": 6.96,
+        "earnedAt": "2025-11-05T14:30:00Z",
+        "status": "PENDING"
+      },
+      {
+        "id": "clx2...",
+        "code": "ABC123DEF456GHI",
+        "user": "user2@example.com",
+        "amount": 6.96,
+        "earnedAt": "2025-11-12T09:15:00Z",
+        "status": "PENDING"
+      },
+      {
+        "id": "clx3...",
+        "code": "XYZ789GHI012JKL",
+        "user": "user3@example.com",
+        "amount": 6.96,
+        "earnedAt": "2025-11-20T16:45:00Z",
+        "status": "PENDING"
+      }
+    ],
+    "paidCommissions": [
+      {
+        "id": "clx_old1...",
+        "amount": 15.50,
+        "paidAt": "2025-11-05T10:00:00Z",
+        "paymentReference": "PayPal: TXN123456789",
+        "paymentMethod": "CRYPTO",
+        "month": "2025-10"
+      }
+    ]
+  }
+}
+```
+
+**GET /api/affiliate/profile** - Get Affiliate Profile
+```typescript
+Headers:
+  Authorization: Bearer <affiliate_token>
+
+Response (200):
+{
+  "id": "clx...",
+  "email": "john@example.com",
+  "fullName": "John Doe",
+  "country": "US",
+  "socialMedia": {
+    "facebook": "https://facebook.com/john",
+    "instagram": "https://instagram.com/john",
+    "twitter": null,
+    "youtube": null,
+    "tiktok": null
+  },
+  "paymentMethod": "CRYPTO",
+  "paymentDetails": {
+    "cryptoWalletAddress": "TXa1b2c3...",
+    "cryptoNetwork": "TRC20"
+  },
+  "taxInfo": {
+    "taxId": "US123456789",
+    "vatNumber": null
+  },
+  "status": "ACTIVE",
+  "createdAt": "2025-10-01T00:00:00Z"
+}
+```
+
+**PATCH /api/affiliate/profile** - Update Profile
+```typescript
+Headers:
+  Authorization: Bearer <affiliate_token>
+
+Request:
+{
+  "fullName": "John Updated Doe",  // Optional
+  "country": "GB",                 // Optional
+  "facebookUrl": "...",            // Optional
+  "paymentMethod": "GLOBAL_WALLET",// If changing payment method
+  "paypalEmail": "john@paypal.com" // New payment details
+}
+
+Response (200):
+{
+  "success": true,
+  "message": "Profile updated successfully",
+  "affiliate": { /* updated profile */ }
+}
+```
+
+### 5.3 Admin Affiliate Management Endpoints
+
+**GET /api/admin/affiliates** - List All Affiliates
+```typescript
+Headers:
+  Authorization: Bearer <admin_token>
+
+Query Params:
+- status: "ACTIVE" | "PENDING_VERIFICATION" | "SUSPENDED" | "TERMINATED" | "all"
 - page: 1
 - limit: 50
+- search: "john@example.com" | "John Doe"
+
+Response (200):
+{
+  "affiliates": [
+    {
+      "id": "clx...",
+      "email": "john@example.com",
+      "fullName": "John Doe",
+      "country": "US",
+      "status": "ACTIVE",
+      "activeCodes": 12,
+      "totalConversions": 25,
+      "totalEarnings": 174.00,
+      "pendingCommission": 20.88,
+      "createdAt": "2025-10-01T00:00:00Z"
+    }
+    // ... more affiliates
+  ],
+  "total": 150,
+  "page": 1,
+  "pages": 3
+}
+```
+
+**GET /api/admin/affiliates/:id** - Get Affiliate Details
+```typescript
+Headers:
+  Authorization: Bearer <admin_token>
+
+Response (200):
+{
+  "affiliate": {
+    "id": "clx...",
+    "email": "john@example.com",
+    "fullName": "John Doe",
+    "country": "US",
+    "socialMedia": { /* ... */ },
+    "paymentMethod": "CRYPTO",
+    "paymentDetails": { /* ... */ },
+    "status": "ACTIVE",
+    "createdAt": "2025-10-01T00:00:00Z"
+  },
+  "stats": {
+    "activeCodes": 12,
+    "usedCodes": 25,
+    "expiredCodes": 48,
+    "cancelledCodes": 2,
+    "totalConversions": 25,
+    "totalEarnings": 174.00,
+    "pendingCommission": 20.88,
+    "paidCommission": 153.12
+  },
+  "recentConversions": [
+    {
+      "code": "SxTYo25#1dpgiNguD",
+      "user": "user@example.com",
+      "amount": 6.96,
+      "date": "2025-11-14T10:00:00Z"
+    }
+    // ... last 10 conversions
+  ]
+}
+```
+
+**POST /api/admin/affiliates/:id/distribute-codes** - Manual Code Distribution
+```typescript
+Headers:
+  Authorization: Bearer <admin_token>
+
+Request:
+{
+  "count": 15,                    // Number of codes to generate
+  "discountPercent": 20,          // Discount %
+  "commissionPercent": 30         // Commission %
+}
+
+Response (201):
+{
+  "success": true,
+  "codesGenerated": 15,
+  "codes": [
+    "SxTYo25#1dpgiNguD",
+    "ABC123DEF456GHI",
+    // ... 13 more
+  ],
+  "affiliateEmail": "john@example.com",
+  "emailSent": true
+}
+```
+
+**PATCH /api/admin/affiliates/:id/status** - Update Affiliate Status
+```typescript
+Headers:
+  Authorization: Bearer <admin_token>
+
+Request:
+{
+  "status": "SUSPENDED",  // ACTIVE | SUSPENDED | TERMINATED
+  "reason": "Suspected fraudulent activity"
+}
+
+Response (200):
+{
+  "success": true,
+  "affiliate": {
+    "id": "clx...",
+    "status": "SUSPENDED",
+    "updatedAt": "2025-11-14T10:00:00Z"
+  }
+}
+```
+
+**POST /api/admin/affiliates/codes/:id/cancel** - Cancel Specific Code
+```typescript
+Headers:
+  Authorization: Bearer <admin_token>
+
+Request:
+{
+  "reason": "Code leaked publicly"
+}
+
+Response (200):
+{
+  "success": true,
+  "code": {
+    "id": "clx...",
+    "code": "SxTYo25#1dpgiNguD",
+    "status": "CANCELLED",
+    "cancelledBy": "admin_id",
+    "cancelledAt": "2025-11-14T10:00:00Z",
+    "cancellationReason": "Code leaked publicly"
+  }
+}
+```
+
+### 5.4 Admin Reporting Endpoints (Business Intelligence)
+
+**GET /api/admin/reports/profit-loss** - Profit & Loss Report (3 Months)
+```typescript
+Headers:
+  Authorization: Bearer <admin_token>
+
+Query Params:
+- months: 3  // Number of months to include (default 3)
+
+Response (200):
+{
+  "reportPeriod": "September 2025 - November 2025",
+  "monthlyData": [
+    {
+      "month": "2025-09",
+      "revenue": 2900.00,        // Total PRO subscriptions sold (100 × $29)
+      "discounts": 580.00,       // Total discounts given (20 codes × 20% × $29)
+      "netRevenue": 2320.00,     // revenue - discounts
+      "commissions": 696.00,     // Total commissions owed (20 × $6.96)
+      "profit": 1624.00,         // netRevenue - commissions
+      "profitMargin": 70.0       // (profit / netRevenue) × 100
+    },
+    {
+      "month": "2025-10",
+      "revenue": 3480.00,
+      "discounts": 696.00,
+      "netRevenue": 2784.00,
+      "commissions": 835.20,
+      "profit": 1948.80,
+      "profitMargin": 70.0
+    },
+    {
+      "month": "2025-11",
+      "revenue": 4060.00,
+      "discounts": 812.00,
+      "netRevenue": 3248.00,
+      "commissions": 974.40,
+      "profit": 2273.60,
+      "profitMargin": 70.0
+    }
+  ],
+  "summary": {
+    "totalRevenue": 10440.00,
+    "totalDiscounts": 2088.00,
+    "totalNetRevenue": 8352.00,
+    "totalCommissions": 2505.60,
+    "totalProfit": 5846.40,
+    "avgProfitMargin": 70.0,
+    "totalConversions": 360,
+    "avgRevenuePerConversion": 29.00
+  },
+  "chartData": {
+    "labels": ["Sep", "Oct", "Nov"],
+    "revenue": [2900, 3480, 4060],
+    "profit": [1624, 1949, 2274]
+  }
+}
+```
+
+**GET /api/admin/reports/sales-performance** - Sales Performance by Affiliate
+```typescript
+Headers:
+  Authorization: Bearer <admin_token>
+
+Query Params:
+- month: "2025-11"  // Specific month, or current month if not provided
+- sortBy: "revenue" | "conversions" | "commission"  // Default: revenue DESC
+- page: 1
+- limit: 50
+
+Response (200):
+{
+  "month": "2025-11",
+  "affiliates": [
+    {
+      "affiliateId": "clx1...",
+      "affiliateName": "John Doe",
+      "affiliateEmail": "john@example.com",
+      "conversions": 25,
+      "totalRevenue": 580.00,       // Sum of discountedPrice from conversions
+      "totalDiscount": 145.00,      // Sum of discount amounts given
+      "totalCommission": 174.00,    // Sum of commission earned
+      "avgDiscount": 20.0,          // Average discount %
+      "avgCommission": 30.0,        // Average commission %
+      "conversionValue": 23.20      // Avg revenue per conversion
+    },
+    {
+      "affiliateId": "clx2...",
+      "affiliateName": "Jane Smith",
+      "affiliateEmail": "jane@example.com",
+      "conversions": 18,
+      "totalRevenue": 417.60,
+      "totalDiscount": 104.40,
+      "totalCommission": 125.28,
+      "avgDiscount": 20.0,
+      "avgCommission": 30.0,
+      "conversionValue": 23.20
+    }
+    // ... more affiliates
+  ],
+  "totals": {
+    "totalConversions": 140,
+    "totalRevenue": 3248.00,
+    "totalDiscount": 812.00,
+    "totalCommission": 974.40,
+    "avgConversionsPerAffiliate": 9.3
+  },
+  "drillDown": {
+    "availableFor": ["clx1...", "clx2...", ...]  // Affiliate IDs with detail views
+  }
+}
+```
+
+**GET /api/admin/reports/sales-performance/:affiliateId** - Drill-down: Affiliate Detail
+```typescript
+Headers:
+  Authorization: Bearer <admin_token>
+
+Path Params:
+- affiliateId: "clx1..."
+
+Query Params:
+- month: "2025-11"
+
+Response (200):
+{
+  "affiliate": {
+    "id": "clx1...",
+    "name": "John Doe",
+    "email": "john@example.com"
+  },
+  "month": "2025-11",
+  "conversions": [
+    {
+      "date": "2025-11-05T14:30:00Z",
+      "code": "SxTYo25#1dpgiNguD",
+      "user": "user1@example.com",
+      "regularPrice": 29.00,
+      "discountPercent": 20,
+      "discountedPrice": 23.20,
+      "commissionPercent": 30,
+      "commissionAmount": 6.96
+    },
+    {
+      "date": "2025-11-12T09:15:00Z",
+      "code": "ABC123DEF456GHI",
+      "user": "user2@example.com",
+      "regularPrice": 29.00,
+      "discountPercent": 20,
+      "discountedPrice": 23.20,
+      "commissionPercent": 30,
+      "commissionAmount": 6.96
+    }
+    // ... 23 more conversions
+  ],
+  "summary": {
+    "totalConversions": 25,
+    "totalRevenue": 580.00,
+    "totalCommission": 174.00
+  }
+}
+```
+
+**GET /api/admin/reports/commission-owings** - Commission Owings Report
+```typescript
+Headers:
+  Authorization: Bearer <admin_token>
+
+Query Params:
+- status: "PENDING" | "all"  // Default: PENDING only
+- sortBy: "amount" | "affiliate" | "date"  // Default: amount DESC
+
+Response (200):
+{
+  "reportDate": "2025-11-14T10:00:00Z",
+  "affiliates": [
+    {
+      "affiliateId": "clx1...",
+      "affiliateName": "John Doe",
+      "affiliateEmail": "john@example.com",
+      "pendingAmount": 174.00,
+      "oldestUnpaidDate": "2025-10-05T14:30:00Z",  // Oldest PENDING commission
+      "pendingCount": 25,
+      "paymentMethod": "CRYPTO",
+      "paymentDetails": {
+        "cryptoWalletAddress": "TXa1b2c3...",
+        "cryptoNetwork": "TRC20"
+      }
+    },
+    {
+      "affiliateId": "clx2...",
+      "affiliateName": "Jane Smith",
+      "affiliateEmail": "jane@example.com",
+      "pendingAmount": 125.28,
+      "oldestUnpaidDate": "2025-10-12T11:20:00Z",
+      "pendingCount": 18,
+      "paymentMethod": "GLOBAL_WALLET",
+      "paymentDetails": {
+        "paypalEmail": "jane@paypal.com"
+      }
+    }
+    // ... more affiliates
+  ],
+  "totals": {
+    "totalOwed": 1248.00,
+    "totalAffiliates": 15,
+    "totalCommissions": 180,
+    "byPaymentMethod": {
+      "BANK_TRANSFER": 350.00,
+      "CRYPTO": 450.00,
+      "GLOBAL_WALLET": 348.00,
+      "LOCAL_WALLET": 100.00
+    }
+  },
+  "actions": {
+    "bulkPayUrl": "/api/admin/reports/commission-owings/bulk-pay"
+  }
+}
+```
+
+**POST /api/admin/reports/commission-owings/bulk-pay** - Bulk Pay Commissions
+```typescript
+Headers:
+  Authorization: Bearer <admin_token>
+
+Request:
+{
+  "commissionIds": ["clx1...", "clx2...", "clx3..."],  // IDs to mark as paid
+  "paymentReference": "PayPal Batch: BATCH123456",      // External reference
+  "paymentNotes": "Paid via PayPal on 2025-12-05"      // Optional notes
+}
+
+Response (200):
+{
+  "success": true,
+  "paidCount": 43,
+  "totalAmount": 299.28,
+  "paidAt": "2025-12-05T10:00:00Z",
+  "affiliatesNotified": 3,  // Number of emails sent
+  "details": [
+    {
+      "affiliateId": "clx1...",
+      "affiliateName": "John Doe",
+      "amount": 174.00,
+      "commissionsCount": 25
+    },
+    {
+      "affiliateId": "clx2...",
+      "affiliateName": "Jane Smith",
+      "amount": 125.28,
+      "commissionsCount": 18
+    }
+  ]
+}
+```
+
+**GET /api/admin/reports/aggregate-code-inventory** - Aggregate Code Inventory (All Affiliates)
+```typescript
+Headers:
+  Authorization: Bearer <admin_token>
+
+Query Params:
+- month: "2025-11"  // Specific month, or current month if not provided
+
+Response (200):
+{
+  "month": "2025-11",
+  "aggregateReport": {
+    "totalAffiliates": 15,
+    "openingBalance": 150,    // All affiliates at start of month
+    "distributed": 225,       // 15 affiliates × 15 codes
+    "used": 140,
+    "expired": 80,
+    "cancelled": 5,
+    "closingBalance": 150     // Active codes at end of month
+  },
+  "byStatus": {
+    "ACTIVE": 150,
+    "USED": 140,
+    "EXPIRED": 80,
+    "CANCELLED": 5
+  },
+  "topPerformingAffiliates": [
+    {
+      "affiliateId": "clx1...",
+      "affiliateName": "John Doe",
+      "usedCodes": 25,
+      "conversionRate": 55.5    // (used / (received - expired - cancelled)) × 100
+    },
+    {
+      "affiliateId": "clx2...",
+      "affiliateName": "Jane Smith",
+      "usedCodes": 18,
+      "conversionRate": 42.9
+    }
+    // ... top 10
+  ],
+  "chartData": {
+    "labels": ["Active", "Used", "Expired", "Cancelled"],
+    "values": [150, 140, 80, 5]
+  },
+  "trendData": {
+    "labels": ["Sep", "Oct", "Nov"],
+    "distributed": [180, 210, 225],
+    "used": [95, 110, 140],
+    "conversionRate": [38.5, 40.7, 46.7]
+  }
+}
+```
+
+### 5.5 Public Endpoints (Code Validation for Checkout)
+
+**POST /api/public/validate-code** - Validate Discount Code (for checkout)
+```typescript
+Headers:
+  Authorization: Bearer <user_token>  // Regular user token (FREE tier)
+
+Request:
+{
+  "code": "SxTYo25#1dpgiNguD"
+}
+
+Response (200) - Valid:
+{
+  "valid": true,
+  "code": "SxTYo25#1dpgiNguD",
+  "discountPercent": 20,
+  "originalPrice": 29.00,
+  "discountedPrice": 23.20,
+  "savings": 5.80,
+  "expiresAt": "2025-11-30T23:59:59Z",
+  "affiliateName": "John Doe"  // Optional: show who shared the code
+}
+
+Response (400) - Invalid (Code doesn't exist):
+{
+  "valid": false,
+  "error": "INVALID_CODE",
+  "message": "Invalid discount code"
+}
+
+Response (400) - Expired:
+{
+  "valid": false,
+  "error": "CODE_EXPIRED",
+  "message": "This code expired on 2025-10-31"
+}
+
+Response (400) - Already Used:
+{
+  "valid": false,
+  "error": "CODE_USED",
+  "message": "This code has already been used"
+}
+
+Response (400) - Cancelled:
+{
+  "valid": false,
+  "error": "CODE_CANCELLED",
+  "message": "This code is no longer active"
+}
+
+Response (403) - User Not Eligible:
+{
+  "valid": false,
+  "error": "NOT_ELIGIBLE",
+  "message": "Discount codes are only available for FREE tier users upgrading to PRO for the first time"
+}
 
 Response (200):
 {
@@ -1732,34 +3134,105 @@ Create database schema, admin dashboard, checkout integration, commission tracki
 
 ### What We're Building
 
-An affiliate marketing system that allows:
-1. **Admins** to generate discount codes with configurable discounts and commissions
-2. **Affiliates** to distribute codes and earn commissions
-3. **Users** to apply codes during checkout for discounts
-4. **Automated** commission tracking and monthly payout process
+A **comprehensive 2-sided marketplace platform** that operates as both SaaS provider AND distributor:
+
+**Side 1 - Affiliate Marketers (Independent Distributors):**
+1. Self-service registration with email verification
+2. Personal dashboard with code inventory and commission reports (accounting-style)
+3. Profile management with 4 payment preference options
+4. Real-time tracking of conversions and earnings
+5. Monthly automated code distribution (15 codes)
+
+**Side 2 - End Users (FREE/PRO tiers):**
+1. Apply affiliate discount codes at checkout
+2. Upgrade from FREE to PRO tier with discounts
+3. One-time use per user
+
+**Platform Operator - Admin:**
+1. Manage all affiliates (list, view, suspend, terminate)
+2. Manual code distribution when needed
+3. Cancel specific codes
+4. View comprehensive reports:
+   - P&L Report (3 months)
+   - Sales Performance by Affiliate (with drill-downs)
+   - Commission Owings Report
+   - Aggregate Code Inventory across all affiliates
+5. Process monthly commission payouts (bulk operations)
 
 ### Key Features
-- ✅ Flexible discount (0-50%) and commission (0-50%) percentages
-- ✅ Secure code validation with fraud prevention
-- ✅ Automated commission calculation on payment success
-- ✅ Admin dashboard for code and commission management
-- ✅ Monthly payout workflow with email notifications
+- ✅ **Affiliate Self-Service Portal** - Complete registration, authentication, and dashboard
+- ✅ **Automated Monthly Code Distribution** - 15 codes per affiliate at month start
+- ✅ **Automatic Code Expiry** - All codes expire at end of month
+- ✅ **Code Format** - Cryptographically secure >12 characters
+- ✅ **Accounting-Style Reports** - Opening/closing balances with drill-downs
+- ✅ **4 Payment Options** - Bank transfer, Crypto (USDT), Global wallets, Local wallets
+- ✅ **Business Intelligence** - P&L, Sales Performance, Commission Owings, Aggregate Inventory
+- ✅ **Secure Code Validation** - Comprehensive fraud prevention
+- ✅ **Stripe Integration** - Custom pricing with metadata tracking
 
 ### Technical Highlights
-- **2 new database tables** (AffiliateCode, Commission)
-- **8 new API endpoints** (admin CRUD, validation, reporting)
-- **15+ new files** (components, utilities, tests)
+- **3 new database tables** (Affiliate, AffiliateCode, Commission)
+- **4 new enums** (PaymentMethod, AffiliateStatus, CodeStatus, CommissionStatus)
+- **30+ new API endpoints** (auth, dashboard, admin management, reporting, validation)
+- **60+ new files** (components, utilities, cron jobs, tests)
+- **NextAuth.js** with 3 roles (Admin, Affiliate, User)
+- **Vercel Cron** for monthly automation
 - **Stripe integration** via custom pricing and metadata
-- **Email notifications** for affiliates
+- **Transactional emails** for verification, notifications, reports
+- **Report generation** with drill-down capabilities
 
 ### Time Estimate
-**Total:** ~44 hours across 6 phases
-- Phase 1: Infrastructure (8h)
-- Phase 2: Admin Dashboard (12h)
-- Phase 3: Checkout Integration (10h)
-- Phase 4: Webhook & Tracking (6h)
-- Phase 5: Testing & Docs (8h)
-- Phase 6: Optional Enhancements (16h) - Future
+**Total:** ~120 hours across 8 phases
+
+**Phase 1: Database & Core Infrastructure (16h)**
+- Prisma schema with 3 models + 4 enums
+- Code generator utility (>12 chars random)
+- Commission calculator
+- Report generator utilities
+
+**Phase 2: Affiliate Authentication (16h)**
+- Registration with email verification
+- Login/logout
+- Password reset flow
+- JWT token management
+
+**Phase 3: Affiliate Dashboard (24h)**
+- Dashboard overview page
+- Code inventory report (with drill-downs)
+- Commission receivable report (with drill-downs)
+- Profile management (4 payment options)
+
+**Phase 4: Admin Affiliate Management (20h)**
+- Affiliate list and details
+- Manual code distribution
+- Status management (suspend/terminate)
+- Code cancellation
+
+**Phase 5: Admin Business Intelligence Reports (24h)**
+- P&L Report (3 months)
+- Sales Performance by Affiliate (with drill-down)
+- Commission Owings Report
+- Aggregate Code Inventory
+- Chart generation
+
+**Phase 6: Checkout Integration (12h)**
+- Code validation API
+- Checkout page integration
+- Price preview
+- Stripe custom pricing
+
+**Phase 7: Webhook & Automation (16h)**
+- Stripe webhook updates
+- Commission creation
+- Code status updates
+- Monthly cron jobs (distribution, expiry)
+- Monthly report emails
+
+**Phase 8: Testing & Documentation (12h)**
+- Unit tests
+- Integration tests
+- API documentation
+- User guides
 
 ### Your Current Status
 **Milestone 1.6** - Phase 1 (Documentation & Policies)
@@ -1793,34 +3266,88 @@ An affiliate marketing system that allows:
 
 ---
 
-## 15. OPEN QUESTIONS & DECISIONS NEEDED
+## 15. DESIGN DECISIONS MADE & OPEN QUESTIONS
 
-Before implementation, please decide:
+### ✅ Decisions Made (Per Business Plan)
 
-1. **Code Format Preference:**
-   - Option A: Auto-generated (e.g., TRADE8A3B2C1D)
-   - Option B: Admin-provided custom (e.g., SAVE20PRO)
-   - Option C: Hybrid (prefix + random, e.g., AFFILIATE-8A3B2C1D)
+1. **Code Format:** ✅ DECIDED
+   - Cryptographically random >12 characters
+   - Example: `SxTYo25#1dpgiNguD`
+   - Auto-generated using `crypto.randomBytes`
 
-2. **Maximum Discount:**
-   - Current design: 50% max
-   - Adjust if needed (e.g., 30% max for safety)
+2. **Affiliate Self-Service:** ✅ DECIDED
+   - Full self-service portal (not optional, core requirement)
+   - Affiliate registration and authentication
+   - Dashboard with code inventory and commission reports
+   - Profile management with payment preferences
 
-3. **Commission Payment Method:**
-   - Current design: Manual (PayPal/Bank Transfer)
-   - Future: Automated Stripe payouts?
+3. **Code Distribution:** ✅ DECIDED
+   - 15 codes at account creation (after email verification)
+   - 15 new codes monthly (automated via cron)
+   - Codes expire at end of month automatically
 
-4. **Affiliate Self-Service:**
-   - MVP: Admin manages everything
-   - Future: Let affiliates log in to view earnings?
+4. **Code Usage:** ✅ DECIDED
+   - One-time use per code (status: ACTIVE → USED)
+   - One code per user (no multiple discount codes)
+   - Admin can cancel codes manually
 
-5. **Code Usage Limits:**
-   - Current design: Unlimited uses per code
-   - Future: Max uses per code? (e.g., first 100 users)
+5. **Payment Options:** ✅ DECIDED
+   - 4 payment methods:
+     1. Local bank transfers (local currency)
+     2. Crypto (USDT with TRC20/ERC20/BEP20)
+     3. Global wallets (PayPal, Apple Pay, Google Pay, Stripe)
+     4. Local/regional wallets
+   - Manual payout process (admin marks as paid)
 
-6. **Recurring Commissions:**
-   - Current design: One-time commission on signup
-   - Future: Recurring commissions on renewals?
+6. **Reporting:** ✅ DECIDED
+   - Accounting-style reports (opening/closing balances)
+   - Drill-down capabilities
+   - 4 admin reports: P&L, Sales Performance, Commission Owings, Aggregate Inventory
+
+### ❓ Open Questions for Future Discussion
+
+1. **Discount and Commission Percentages:**
+   - Current design: Admin sets per code batch
+   - Question: Should there be platform-wide defaults? (e.g., always 20% discount, 30% commission)
+   - Question: Should affiliates have different commission tiers based on performance?
+
+2. **Automated Payout Integration:**
+   - Current design: Manual external payments
+   - Question: Future integration with Stripe Connect for automated payouts?
+   - Question: Crypto payment automation via smart contracts?
+
+3. **Recurring Commissions:**
+   - Current design: One-time commission on initial upgrade
+   - Question: Should affiliates earn recurring commissions on renewals?
+   - Question: If yes, what percentage? (e.g., 10% recurring vs 30% initial)
+
+4. **Affiliate Tiers/Levels:**
+   - Current design: All affiliates equal
+   - Question: Should there be Bronze/Silver/Gold tiers with different benefits?
+   - Question: Benefits could include: higher commission %, more codes, priority support
+
+5. **Code Customization:**
+   - Current design: Auto-generated random codes only
+   - Question: Should affiliates request vanity codes? (e.g., "JOHNDOE2025")
+   - Risk: Vanity codes are less secure, easier to guess
+
+6. **Multi-Currency Support:**
+   - Current design: All prices in USD
+   - Question: Should we support pricing in local currencies?
+   - Question: How to handle commission calculations with exchange rates?
+
+7. **Affiliate Marketing Assets:**
+   - Question: Should platform provide marketing materials? (banners, landing pages, email templates)
+   - Question: Affiliate referral links vs just discount codes?
+
+8. **Performance Bonuses:**
+   - Question: Should high-performing affiliates get bonuses? (e.g., 50+ conversions/month)
+   - Question: Structure: flat bonus or increased commission %?
+
+9. **Code Sharing Restrictions:**
+   - Current design: Affiliates can share codes anywhere
+   - Question: Should codes be restricted to specific channels? (e.g., this code only for Instagram)
+   - Question: How to enforce? (User reports channel during checkout)
 
 ---
 
