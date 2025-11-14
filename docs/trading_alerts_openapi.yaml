@@ -46,6 +46,10 @@ tags:
     description: Subscription plans and payments (2-tier system)
   - name: Notifications
     description: System and user notifications
+  - name: Affiliate
+    description: Affiliate marketing operations (affiliate portal)
+  - name: Affiliate Admin
+    description: Affiliate management and reporting (admin only)
   - name: System
     description: System health and monitoring
 
@@ -1060,6 +1064,833 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
+
+  # ============================================
+  # AFFILIATE ENDPOINTS (Affiliate Portal)
+  # ============================================
+  /api/affiliate/auth/register:
+    post:
+      tags:
+        - Affiliate
+      summary: Register as new affiliate
+      description: Creates affiliate account with payment preferences
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, fullName, country, paymentMethod]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                fullName:
+                  type: string
+                country:
+                  type: string
+                  description: ISO country code
+                facebookUrl:
+                  type: string
+                  nullable: true
+                instagramUrl:
+                  type: string
+                  nullable: true
+                twitterUrl:
+                  type: string
+                  nullable: true
+                youtubeUrl:
+                  type: string
+                  nullable: true
+                tiktokUrl:
+                  type: string
+                  nullable: true
+                paymentMethod:
+                  type: string
+                  enum: [BANK_TRANSFER, CRYPTO, GLOBAL_WALLET, LOCAL_WALLET]
+                bankName:
+                  type: string
+                  nullable: true
+                bankAccountNumber:
+                  type: string
+                  nullable: true
+                bankAccountHolderName:
+                  type: string
+                  nullable: true
+                cryptoWalletAddress:
+                  type: string
+                  nullable: true
+                preferredCryptocurrency:
+                  type: string
+                  enum: [BTC, ETH, USDT]
+                  nullable: true
+                globalWalletType:
+                  type: string
+                  enum: [PayPal, Payoneer, Wise]
+                  nullable: true
+                globalWalletIdentifier:
+                  type: string
+                  nullable: true
+                localWalletType:
+                  type: string
+                  nullable: true
+                localWalletIdentifier:
+                  type: string
+                  nullable: true
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  affiliateId:
+                    type: string
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          description: Email already registered
+
+  /api/affiliate/auth/verify-email:
+    post:
+      tags:
+        - Affiliate
+      summary: Verify affiliate email
+      description: Verifies email with token, activates account, distributes 15 codes
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '400':
+          description: Invalid or expired token
+
+  /api/affiliate/auth/login:
+    post:
+      tags:
+        - Affiliate
+      summary: Affiliate login
+      description: Authenticates affiliate and returns JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  token:
+                    type: string
+                  affiliate:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      email:
+                        type: string
+                      fullName:
+                        type: string
+                      status:
+                        type: string
+                        enum: [PENDING_VERIFICATION, ACTIVE, SUSPENDED]
+        '401':
+          description: Invalid credentials
+
+  /api/affiliate/dashboard/stats:
+    get:
+      tags:
+        - Affiliate
+      summary: Get affiliate dashboard statistics
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalCodes:
+                    type: integer
+                  activeCodes:
+                    type: integer
+                  usedCodes:
+                    type: integer
+                  expiredCodes:
+                    type: integer
+                  totalEarnings:
+                    type: number
+                    format: float
+                  pendingCommissions:
+                    type: number
+                    format: float
+
+  /api/affiliate/dashboard/code-inventory:
+    get:
+      tags:
+        - Affiliate
+      summary: Get code inventory report
+      description: Accounting-style report with opening/closing balances
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: query
+          schema:
+            type: string
+            format: YYYY-MM
+      responses:
+        '200':
+          description: Code inventory report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reportMonth:
+                    type: string
+                  openingBalance:
+                    type: integer
+                  received:
+                    type: integer
+                  used:
+                    type: integer
+                  expired:
+                    type: integer
+                  cancelled:
+                    type: integer
+                  closingBalance:
+                    type: integer
+                  movements:
+                    type: object
+                    properties:
+                      received:
+                        type: array
+                        items:
+                          type: object
+                      used:
+                        type: array
+                        items:
+                          type: object
+                  activeCodes:
+                    type: array
+                    items:
+                      type: object
+
+  /api/affiliate/dashboard/commission-report:
+    get:
+      tags:
+        - Affiliate
+      summary: Get commission receivable report
+      description: Accounting-style report with drill-down capability
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: query
+          schema:
+            type: string
+            format: YYYY-MM
+      responses:
+        '200':
+          description: Commission report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reportMonth:
+                    type: string
+                  openingBalance:
+                    type: number
+                    format: float
+                  earned:
+                    type: number
+                    format: float
+                  paid:
+                    type: number
+                    format: float
+                  closingBalance:
+                    type: number
+                    format: float
+                  commissions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        date:
+                          type: string
+                          format: date-time
+                        code:
+                          type: string
+                        tier:
+                          type: string
+                        regularPrice:
+                          type: number
+                        discount:
+                          type: number
+                        netRevenue:
+                          type: number
+                        commissionPercent:
+                          type: number
+                        commissionAmount:
+                          type: number
+                        status:
+                          type: string
+
+  /api/affiliate/profile/payment:
+    put:
+      tags:
+        - Affiliate
+      summary: Update payment preferences
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                paymentMethod:
+                  type: string
+                  enum: [BANK_TRANSFER, CRYPTO, GLOBAL_WALLET, LOCAL_WALLET]
+                # ... payment details fields (same as registration)
+      responses:
+        '200':
+          description: Payment method updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /api/checkout/validate-code:
+    post:
+      tags:
+        - E-commerce
+      summary: Validate affiliate discount code
+      description: Validates code before checkout, returns discount percentage
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code:
+                  type: string
+      responses:
+        '200':
+          description: Code valid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  discountPercent:
+                    type: number
+                  message:
+                    type: string
+        '400':
+          description: Code invalid, expired, or already used
+
+  # ============================================
+  # AFFILIATE ADMIN ENDPOINTS (Admin Portal)
+  # ============================================
+  /api/admin/affiliates:
+    get:
+      tags:
+        - Affiliate Admin
+      summary: List all affiliates
+      description: Get paginated list with filters (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [all, PENDING_VERIFICATION, ACTIVE, SUSPENDED]
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [earnings, name, createdAt]
+      responses:
+        '200':
+          description: Affiliate list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  affiliates:
+                    type: array
+                    items:
+                      type: object
+                  pagination:
+                    type: object
+                  summary:
+                    type: object
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/affiliates/{affiliateId}:
+    get:
+      tags:
+        - Affiliate Admin
+      summary: Get affiliate details
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: affiliateId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Affiliate details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  affiliate:
+                    type: object
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/admin/affiliates/{affiliateId}/distribute-codes:
+    post:
+      tags:
+        - Affiliate Admin
+      summary: Manually distribute codes to affiliate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: affiliateId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+                  maximum: 50
+                discountPercent:
+                  type: number
+                  default: 10.0
+                commissionPercent:
+                  type: number
+                  default: 30.0
+                expiresAt:
+                  type: string
+                  format: date-time
+                reason:
+                  type: string
+                sendEmail:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Codes distributed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  codes:
+                    type: array
+                    items:
+                      type: object
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/affiliates/{affiliateId}/suspend:
+    post:
+      tags:
+        - Affiliate Admin
+      summary: Suspend affiliate account
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: affiliateId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+                  enum: [FRAUDULENT_ACTIVITY, TERMS_VIOLATION, OTHER]
+                details:
+                  type: string
+                deactivateCodes:
+                  type: boolean
+                  default: true
+                holdCommissions:
+                  type: boolean
+                  default: true
+                sendEmail:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Account suspended
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/codes/{codeId}/cancel:
+    post:
+      tags:
+        - Affiliate Admin
+      summary: Cancel specific affiliate code
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: codeId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+                notes:
+                  type: string
+                notifyAffiliate:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Code cancelled
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/reports/profit-loss:
+    get:
+      tags:
+        - Affiliate Admin
+      summary: Get P&L report
+      description: Profit & Loss report for last N months
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: months
+          in: query
+          schema:
+            type: integer
+            default: 3
+      responses:
+        '200':
+          description: P&L report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reportPeriod:
+                    type: string
+                  summary:
+                    type: object
+                    properties:
+                      totalRevenue:
+                        type: number
+                      totalDiscounts:
+                        type: number
+                      netRevenue:
+                        type: number
+                      totalCommissions:
+                        type: number
+                      totalProfit:
+                        type: number
+                      profitMargin:
+                        type: number
+                  monthlyData:
+                    type: array
+                    items:
+                      type: object
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/reports/sales-performance:
+    get:
+      tags:
+        - Affiliate Admin
+      summary: Get sales performance by affiliate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: query
+          schema:
+            type: string
+            format: YYYY-MM
+      responses:
+        '200':
+          description: Sales performance report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reportMonth:
+                    type: string
+                  topPerformers:
+                    type: array
+                    items:
+                      type: object
+                  aggregate:
+                    type: object
+                  conversionDistribution:
+                    type: object
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/reports/commission-owings:
+    get:
+      tags:
+        - Affiliate Admin
+      summary: Get commission owings report
+      description: All affiliates with pending commissions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Commission owings report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  asOfDate:
+                    type: string
+                  totalOwings:
+                    type: number
+                  affiliatesWithPending:
+                    type: integer
+                  affiliates:
+                    type: array
+                    items:
+                      type: object
+                  paymentMethodBreakdown:
+                    type: object
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/reports/code-inventory:
+    get:
+      tags:
+        - Affiliate Admin
+      summary: Get aggregate code inventory report
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: month
+          in: query
+          schema:
+            type: string
+            format: YYYY-MM
+      responses:
+        '200':
+          description: Aggregate inventory report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reportMonth:
+                    type: string
+                  inventorySummary:
+                    type: object
+                  statusBreakdown:
+                    type: object
+                  metrics:
+                    type: object
+                  monthlyHistory:
+                    type: array
+                    items:
+                      type: object
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/commissions/pay:
+    post:
+      tags:
+        - Affiliate Admin
+      summary: Mark commission as paid
+      description: Records payment for affiliate's pending commissions
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [affiliateId, paymentDate]
+              properties:
+                affiliateId:
+                  type: string
+                paymentDate:
+                  type: string
+                  format: date
+                paymentReference:
+                  type: string
+                sendEmail:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Payment recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  summary:
+                    type: object
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/commissions/bulk-pay:
+    post:
+      tags:
+        - Affiliate Admin
+      summary: Bulk mark multiple commissions as paid
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [affiliateIds, paymentDate]
+              properties:
+                affiliateIds:
+                  type: array
+                  items:
+                    type: string
+                paymentDate:
+                  type: string
+                  format: date
+                sendEmails:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Bulk payment recorded
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   # ============================================
   # SYSTEM ENDPOINTS
