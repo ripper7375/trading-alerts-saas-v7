@@ -1013,6 +1013,287 @@ Existing Seed (3):
 
 ---
 
+## PART 17: Affiliate Marketing Platform (2-Sided Marketplace)
+
+**Purpose:** Complete 2-sided marketplace for affiliate-driven growth with self-service portal, automated code distribution, accounting-style reports, and admin BI dashboard.
+
+**Priority:** ⭐⭐ (Post-MVP, implement before scaling) **Estimated Time:** 120 hours
+
+### 17.1 Affiliate Portal Frontend
+
+```
+app/
+├── affiliate/
+│   ├── layout.tsx                    # Affiliate-specific layout
+│   ├── register/
+│   │   └── page.tsx                  # Registration with payment prefs
+│   ├── verify/
+│   │   └── page.tsx                  # Email verification page
+│   ├── login/
+│   │   └── page.tsx                  # Affiliate login
+│   ├── dashboard/
+│   │   ├── page.tsx                  # Main dashboard (stats, codes, commissions)
+│   │   ├── commissions/
+│   │   │   └── page.tsx              # Detailed commission report
+│   │   ├── codes/
+│   │   │   └── page.tsx              # Code inventory report
+│   │   └── profile/
+│   │       ├── page.tsx              # Profile overview
+│   │       └── payment/
+│   │           └── page.tsx          # Payment preferences
+```
+
+### 17.2 Affiliate API Routes
+
+```
+app/api/affiliate/
+├── auth/
+│   ├── register/
+│   │   └── route.ts                  # POST - Create affiliate account
+│   ├── verify-email/
+│   │   └── route.ts                  # POST - Verify email, distribute codes
+│   ├── login/
+│   │   └── route.ts                  # POST - Authenticate affiliate
+│   └── logout/
+│       └── route.ts                  # POST - Invalidate token
+├── dashboard/
+│   ├── stats/
+│   │   └── route.ts                  # GET - Quick stats (codes, earnings)
+│   ├── code-inventory/
+│   │   └── route.ts                  # GET - Accounting-style report
+│   ├── commission-report/
+│   │   └── route.ts                  # GET - Accounting-style report
+│   └── codes/
+│       └── route.ts                  # GET - List active codes
+└── profile/
+    ├── route.ts                      # GET, PATCH - Profile data
+    └── payment/
+        └── route.ts                  # PUT - Update payment preferences
+```
+
+### 17.3 Admin Affiliate Management
+
+```
+app/
+├── admin/
+│   └── affiliates/
+│       ├── page.tsx                  # List all affiliates (paginated)
+│       ├── [id]/
+│       │   └── page.tsx              # Individual affiliate details
+│       └── reports/
+│           ├── profit-loss/
+│           │   └── page.tsx          # P&L Report (3 months)
+│           ├── sales-performance/
+│           │   └── page.tsx          # Sales by affiliate
+│           ├── commission-owings/
+│           │   └── page.tsx          # Pending commissions
+│           └── code-inventory/
+│               └── page.tsx          # Aggregate inventory
+
+app/api/admin/
+├── affiliates/
+│   ├── route.ts                      # GET - List all, POST - Manual create
+│   ├── [id]/
+│   │   ├── route.ts                  # GET, PATCH, DELETE
+│   │   ├── distribute-codes/
+│   │   │   └── route.ts              # POST - Manual distribution
+│   │   └── suspend/
+│   │       └── route.ts              # POST - Suspend account
+│   └── reports/
+│       ├── profit-loss/
+│       │   └── route.ts              # GET - P&L report
+│       ├── sales-performance/
+│       │   └── route.ts              # GET - Sales by affiliate
+│       ├── commission-owings/
+│       │   └── route.ts              # GET - Pending commissions
+│       └── code-inventory/
+│           └── route.ts              # GET - Aggregate inventory
+├── codes/
+│   └── [id]/
+│       └── cancel/
+│           └── route.ts              # POST - Cancel specific code
+└── commissions/
+    ├── pay/
+    │   └── route.ts                  # POST - Mark individual paid
+    └── bulk-pay/
+        └── route.ts                  # POST - Mark multiple paid
+```
+
+### 17.4 User Checkout Integration
+
+```
+app/api/checkout/
+├── validate-code/
+│   └── route.ts                      # POST - Validate affiliate code
+└── create-session/
+    └── route.ts                      # Modified: Include discount code
+
+app/api/webhooks/stripe/
+└── route.ts                          # Modified: Create commission on checkout
+```
+
+### 17.5 Automated Processes (Cron Jobs)
+
+```
+app/api/cron/
+├── distribute-codes/
+│   └── route.ts                      # Monthly distribution (1st, 00:00 UTC)
+├── expire-codes/
+│   └── route.ts                      # Monthly expiry (last day, 23:59 UTC)
+└── send-monthly-reports/
+    └── route.ts                      # Email reports to affiliates
+```
+
+**Vercel Cron Configuration:**
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/distribute-codes",
+      "schedule": "0 0 1 * *"
+    },
+    {
+      "path": "/api/cron/expire-codes",
+      "schedule": "59 23 28-31 * *"
+    }
+  ]
+}
+```
+
+### 17.6 Business Logic & Utilities
+
+```
+lib/
+├── affiliate/
+│   ├── code-generator.ts             # Crypto-secure code generation
+│   ├── commission-calculator.ts      # Commission formula
+│   ├── report-builder.ts             # Accounting-style reports
+│   └── validators.ts                 # Code validation logic
+├── auth/
+│   └── affiliate-auth.ts             # Separate JWT for affiliates
+└── email/
+    └── templates/
+        └── affiliate/
+            ├── welcome.tsx           # Welcome email template
+            ├── code-distributed.tsx  # Monthly codes template
+            ├── code-used.tsx         # Commission earned template
+            └── payment-processed.tsx # Payment confirmation
+```
+
+### 17.7 Components
+
+```
+components/
+├── affiliate/
+│   ├── dashboard/
+│   │   ├── stats-card.tsx            # Quick stats display
+│   │   ├── code-inventory-table.tsx  # Inventory report table
+│   │   └── commission-table.tsx      # Commission report table
+│   ├── forms/
+│   │   ├── register-form.tsx         # Registration with payment prefs
+│   │   └── payment-preferences-form.tsx
+│   └── reports/
+│       ├── code-inventory-report.tsx
+│       └── commission-report.tsx
+└── admin/
+    └── affiliate/
+        ├── affiliate-list.tsx        # Paginated list with filters
+        ├── affiliate-details-card.tsx
+        ├── distribute-codes-modal.tsx
+        ├── suspend-account-modal.tsx
+        └── reports/
+            ├── profit-loss-report.tsx
+            ├── sales-performance-report.tsx
+            ├── commission-owings-table.tsx
+            └── code-inventory-chart.tsx
+```
+
+### 17.8 Database Schema
+
+```
+prisma/
+└── schema.prisma                     # Add 3 new models:
+                                      # - Affiliate
+                                      # - AffiliateCode
+                                      # - Commission
+                                      # + Update Subscription (affiliateCodeId)
+```
+
+**Migration Files:**
+```
+prisma/migrations/
+└── 20251114_add_affiliate_marketing/
+    └── migration.sql                 # CREATE TABLE statements
+```
+
+### 17.9 Key Features
+
+**Affiliate Portal:**
+- ✅ Self-service registration with payment preferences (Bank, Crypto, Wallets)
+- ✅ Email verification → Auto-distribute 15 codes
+- ✅ Separate JWT authentication system
+- ✅ Real-time dashboard with code inventory and commissions
+- ✅ Accounting-style reports (opening/closing balances)
+- ✅ Profile management with payment method updates
+
+**Admin Portal:**
+- ✅ Affiliate list with search, filter, pagination
+- ✅ Individual affiliate details with performance metrics
+- ✅ Manual code distribution (bonus codes)
+- ✅ Account suspension/reactivation
+- ✅ 4 Business Intelligence reports:
+  1. P&L Report (3-month view)
+  2. Sales Performance by Affiliate (ranked)
+  3. Commission Owings (payment processing)
+  4. Aggregate Code Inventory (system-wide)
+
+**Automation:**
+- ✅ Monthly code distribution (15 codes per active affiliate)
+- ✅ Monthly code expiry (end of month)
+- ✅ Email notifications (8 types)
+- ✅ Commission calculation at checkout (via Stripe webhook)
+
+**Security:**
+- ✅ Separate authentication system (no shared sessions)
+- ✅ Cryptographically secure code generation (crypto.randomBytes)
+- ✅ Code validation (ACTIVE, not expired, not used)
+- ✅ Commission creation only via webhook (prevents fraud)
+- ✅ Payment data encryption at rest
+
+### 17.10 File Count
+
+| Category | Files | Description |
+|----------|-------|-------------|
+| Affiliate Portal Pages | 8 | Registration, login, dashboard, reports, profile |
+| Affiliate API Routes | 11 | Auth, dashboard stats, reports |
+| Admin Portal Pages | 5 | List, details, 4 BI reports |
+| Admin API Routes | 14 | CRUD, reports, commission payment |
+| Cron Jobs | 3 | Distribution, expiry, reports |
+| Business Logic | 8 | Code gen, validation, reports |
+| Components | 15 | Forms, tables, reports, modals |
+| Database | 3 | Affiliate, AffiliateCode, Commission models |
+| **Total** | **67** | **Estimated 120 hours** |
+
+### 17.11 Integration Points
+
+**Modified Files (from existing parts):**
+```
+app/
+├── api/
+│   ├── checkout/create-session/route.ts  # Add discount code validation
+│   └── webhooks/stripe/route.ts          # Add commission creation
+└── dashboard/settings/billing/page.tsx    # Add discount code input
+
+prisma/schema.prisma                       # Add 3 new models + enum
+```
+
+**Dependencies (no new packages required):**
+- Uses existing: bcrypt, jsonwebtoken, @prisma/client
+- Uses existing: stripe, resend (for emails)
+- Uses existing: vercel/cron
+
+---
+
 ## 📊 Updated Summary Statistics
 
 | Part | Name | Files | Priority | Complexity |
@@ -1033,6 +1314,7 @@ Existing Seed (3):
 | 14 | Admin | ~9 | ⭐ | Medium |
 | 15 | Notifications | ~9 | ⭐⭐ | Medium |
 | 16 | Utilities | ~25 | ⭐⭐ | Low |
+| 17 | Affiliate Marketing | ~67 | ⭐⭐ | High |
 | **Seed** | **V0 Components** | **~50** | **⭐⭐⭐** | **Reference** |
 
 **Total: ~170 production files + ~50 seed reference files (20 components)**
