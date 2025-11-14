@@ -4,7 +4,7 @@
 
 **What the Project Does:**
 
-Trading Alerts SaaS is a web application that enables traders to monitor multiple financial markets (Forex, Crypto, Indices, Commodities) and set automated alerts based on fractal-based support and resistance levels. The system integrates with MetaTrader 5 (MT5) to fetch real-time market data and provides a tiered subscription model (FREE and PRO) with varying levels of access.
+Trading Alerts SaaS is a web application that enables traders to monitor multiple financial markets (Forex, Crypto, Indices, Commodities) and set automated alerts based on fractal-based support and resistance levels. The system integrates with MetaTrader 5 (MT5) to fetch real-time market data and provides a tiered subscription model (FREE and PRO) with varying levels of access. Additionally, it operates as a **2-sided marketplace** with an affiliate marketing program that allows partners to promote the platform and earn commissions.
 
 **Key Features:**
 - Real-time market data visualization from MT5
@@ -14,6 +14,11 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 - Tiered access control (FREE: 5 symbols × 3 timeframes, PRO: 15 symbols × 9 timeframes)
 - Subscription management with Stripe integration
 - Responsive dashboard built with Next.js 15 and shadcn/ui
+- **Affiliate Marketing Program** (2-sided marketplace)
+  * Affiliates can register and generate unique referral codes
+  * Earn 20% commission on referred PRO subscriptions
+  * Dedicated affiliate portal with analytics and payment tracking
+  * Admin dashboard for managing affiliates and commission approvals
 
 **Technical Indicators:**
 - **Fractal Horizontal Lines V5** (Peak-to-Peak and Bottom-to-Bottom trendlines)
@@ -70,8 +75,8 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         USERS (Browsers)                         │
-│                    FREE Tier  |  PRO Tier                        │
+│                      USERS (Browsers)                            │
+│    FREE Tier  |  PRO Tier  |  AFFILIATES  |  ADMINS            │
 └───────────────────────────────┬─────────────────────────────────┘
                                 │ HTTPS
                                 ▼
@@ -85,7 +90,9 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 │  │  ├─ Client Components         ├─ /api/fractals           │ │
 │  │  ├─ Dashboard UI              ├─ /api/users              │ │
 │  │  ├─ Charts                    ├─ /api/watchlist          │ │
-│  │  └─ Forms                     ├─ /api/auth (NextAuth)    │ │
+│  │  ├─ Forms                     ├─ /api/auth (NextAuth)    │ │
+│  │  ├─ Affiliate Portal          ├─ /api/affiliate/*        │ │
+│  │  └─ Admin Dashboard           ├─ /api/admin/affiliates/* │ │
 │  │                               └─ /api/webhooks (Stripe)  │ │
 │  └───────────────────────────────────────────────────────────┘ │
 └────────────┬──────────────────────────┬───────────────────────────┘
@@ -99,10 +106,10 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
     │ - Alerts         │      │ - Fractal Detection │
     │ - Watchlists     │      │ - Trendline Calc    │
     │ - Subscriptions  │      │ - Tier Validation   │
-    └──────────────────┘      └─────────┬───────────┘
-                                        │
-                                        │ MT5 API
-                                        ▼
+    │ - Affiliates     │      └─────────┬───────────┘
+    │ - AffiliateCodes │                │
+    │ - Commissions    │                │ MT5 API
+    └──────────────────┘                ▼
                               ┌─────────────────────┐
                               │   MT5 Terminal      │
                               │   (VPS/Local)       │
@@ -113,13 +120,15 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
                               └─────────────────────┘
 
     External Services:
-    ├─ Stripe (Payments) ───────────┐
-    └─ Resend (Email) ──────────┐  │
-                                │  │
-                            ┌───▼──▼──────┐
-                            │  Webhooks    │
-                            │  (Vercel)    │
-                            └──────────────┘
+    ├─ Stripe (Payments + Commissions) ─┐
+    └─ Resend (Email) ──────────────┐  │
+                                    │  │
+                                ┌───▼──▼──────┐
+                                │  Webhooks    │
+                                │  (Vercel)    │
+                                │  - Track refs│
+                                │  - Calc comm.│
+                                └──────────────┘
 ```
 
 ---
@@ -181,6 +190,176 @@ components/
 - Use **Client Components** (`'use client'`) only when needed (state, events, hooks)
 - Data fetching: Server Components fetch directly, Client Components use `/api` routes
 - Real-time updates: Polling (not WebSocket for MVP)
+
+---
+
+### 4.1.1 Affiliate Portal & Admin Dashboard (Part 17)
+
+**Location:** `app/affiliate/` and `app/admin/` directories
+
+**Responsibilities:**
+- Affiliate registration, login, and code generation
+- Affiliate analytics dashboard (referred users, earnings, payment status)
+- Admin management of affiliates (approval, suspension)
+- Commission tracking and approval workflow
+- Separate authentication system for affiliates (not NextAuth)
+
+**Key Files:**
+```
+app/
+├── affiliate/
+│   ├── register/page.tsx          # Affiliate registration form
+│   ├── login/page.tsx              # Affiliate login (separate from user login)
+│   ├── dashboard/page.tsx          # Affiliate analytics dashboard
+│   ├── codes/page.tsx              # Generate and manage referral codes
+│   ├── earnings/page.tsx           # Commission tracking and payment requests
+│   └── layout.tsx                  # Affiliate portal layout
+├── admin/
+│   ├── affiliates/
+│   │   ├── page.tsx                # List all affiliates
+│   │   ├── [id]/page.tsx           # Affiliate detail and management
+│   │   ├── pending/page.tsx        # Pending affiliate approvals
+│   │   └── commissions/page.tsx    # Commission approval workflow
+│   └── layout.tsx                  # Admin layout
+└── api/
+    ├── affiliate/
+    │   ├── auth/
+    │   │   ├── register/route.ts   # Affiliate registration endpoint
+    │   │   └── login/route.ts      # Affiliate JWT login
+    │   ├── codes/
+    │   │   ├── route.ts            # Generate/list affiliate codes
+    │   │   └── [code]/route.ts     # Code validation and usage
+    │   ├── dashboard/route.ts      # Affiliate analytics data
+    │   └── earnings/route.ts       # Commission history
+    └── admin/
+        └── affiliates/
+            ├── route.ts            # List/create affiliates
+            ├── [id]/route.ts       # Update/delete affiliate
+            ├── [id]/approve/route.ts    # Approve affiliate
+            ├── [id]/suspend/route.ts    # Suspend affiliate
+            └── commissions/
+                ├── route.ts        # List commissions
+                └── [id]/approve/route.ts # Approve commission payout
+
+components/
+├── affiliate/
+│   ├── affiliate-code-generator.tsx  # Crypto-secure code generation UI
+│   ├── affiliate-stats-cards.tsx     # Analytics cards (referrals, earnings)
+│   ├── earnings-table.tsx            # Commission history table
+│   └── payment-request-form.tsx      # Request payout form
+└── admin/
+    ├── affiliate-approval-card.tsx   # Approve/reject affiliate
+    ├── affiliate-list-table.tsx      # Admin affiliate management table
+    ├── commission-approval-queue.tsx # Commission approval UI
+    └── affiliate-accounting-report.tsx # Accounting-style reports
+```
+
+**Authentication Pattern (Separate from User Auth):**
+```typescript
+// Affiliate authentication uses separate JWT (not NextAuth)
+// Pattern 7: Separate JWT for affiliates
+
+// lib/auth/affiliate-jwt.ts
+import jwt from 'jsonwebtoken';
+
+const AFFILIATE_JWT_SECRET = process.env.AFFILIATE_JWT_SECRET!; // Separate secret
+
+export function generateAffiliateToken(affiliateId: string, email: string) {
+  return jwt.sign(
+    { affiliateId, email, type: 'affiliate' },
+    AFFILIATE_JWT_SECRET,
+    { expiresIn: '30d' }
+  );
+}
+
+export function verifyAffiliateToken(token: string) {
+  try {
+    return jwt.verify(token, AFFILIATE_JWT_SECRET) as AffiliateJWTPayload;
+  } catch (error) {
+    throw new UnauthorizedError('Invalid affiliate token');
+  }
+}
+
+// Middleware for affiliate routes
+export async function affiliateAuthMiddleware(req: Request) {
+  const token = req.headers.get('Authorization')?.replace('Bearer ', '');
+  if (!token) throw new UnauthorizedError('No token provided');
+
+  const payload = verifyAffiliateToken(token);
+  return payload;
+}
+```
+
+**Affiliate Code Generation (Crypto-Secure):**
+```typescript
+// Pattern 8: Crypto-secure affiliate code generation
+import crypto from 'crypto';
+
+export function generateAffiliateCode(prefix: string = 'REF'): string {
+  // Crypto-secure random bytes (not Math.random)
+  const randomBytes = crypto.randomBytes(8);
+  const code = randomBytes.toString('base64url').toUpperCase().slice(0, 12);
+  return `${prefix}-${code}`;
+}
+```
+
+**Commission Calculation (Webhook-Only):**
+```typescript
+// Pattern 9: Commission calculation only in Stripe webhook
+// app/api/webhooks/stripe/route.ts
+
+export async function POST(req: Request) {
+  const event = await stripe.webhooks.constructEvent(/* ... */);
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+
+    // Check for affiliate referral in metadata
+    const affiliateCode = session.metadata?.affiliate_code;
+
+    if (affiliateCode) {
+      // Find affiliate code in database
+      const code = await prisma.affiliateCode.findUnique({
+        where: { code: affiliateCode },
+        include: { affiliate: true }
+      });
+
+      if (code && code.affiliate.status === 'APPROVED') {
+        // Calculate 20% commission
+        const subscriptionAmount = session.amount_total / 100; // cents to dollars
+        const commissionAmount = subscriptionAmount * 0.20;
+
+        // Create commission record (pending approval)
+        await prisma.commission.create({
+          data: {
+            affiliateId: code.affiliateId,
+            userId: session.client_reference_id,
+            subscriptionId: session.subscription,
+            amount: commissionAmount,
+            status: 'PENDING',
+            stripeChargeId: session.payment_intent
+          }
+        });
+
+        // Increment affiliate code usage count
+        await prisma.affiliateCode.update({
+          where: { id: code.id },
+          data: { usageCount: { increment: 1 } }
+        });
+      }
+    }
+  }
+
+  return Response.json({ received: true });
+}
+```
+
+**Tech Notes:**
+- Separate authentication system for affiliates (JWT, not NextAuth)
+- Crypto-secure code generation (`crypto.randomBytes`, not `Math.random`)
+- Commission calculation ONLY in Stripe webhook (single source of truth)
+- Accounting-style reports for admin (Pattern 10)
+- All commission payouts require admin approval
 
 ---
 
@@ -345,6 +524,67 @@ model Subscription {
   updatedAt         DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commissions Commission[]
+}
+
+// Affiliate Marketing Models (Part 17)
+
+model Affiliate {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  password        String   // Hashed with bcrypt
+  companyName     String?
+  contactName     String
+  status          String   @default("PENDING")  // "PENDING", "APPROVED", "SUSPENDED", "REJECTED"
+  totalEarnings   Float    @default(0.0)
+  totalReferrals  Int      @default(0)
+  paymentEmail    String?  // PayPal or bank email for payouts
+  taxId           String?  // Tax ID for 1099 reporting
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  affiliateCodes  AffiliateCode[]
+  commissions     Commission[]
+
+  @@index([status])
+  @@index([email])
+}
+
+model AffiliateCode {
+  id          String   @id @default(cuid())
+  affiliateId String
+  code        String   @unique  // Crypto-secure generated code (e.g., "REF-ABC123XYZ")
+  usageCount  Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  affiliate   Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  commissions Commission[]
+
+  @@index([affiliateId])
+  @@index([code])
+}
+
+model Commission {
+  id              String   @id @default(cuid())
+  affiliateId     String
+  userId          String?  // User who subscribed (optional if subscription deleted)
+  subscriptionId  String?  // Stripe subscription ID
+  codeId          String   // Which affiliate code was used
+  amount          Float    // Commission amount (20% of subscription)
+  status          String   @default("PENDING")  // "PENDING", "APPROVED", "PAID", "REJECTED"
+  stripeChargeId  String?  // Stripe payment intent ID for audit trail
+  paidAt          DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  affiliate       Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  affiliateCode   AffiliateCode @relation(fields: [codeId], references: [id])
+  subscription    Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  @@index([affiliateId])
+  @@index([status])
+  @@index([createdAt])
 }
 ```
 
@@ -583,6 +823,70 @@ def get_fractals(symbol: str, timeframe: str):
 
 ---
 
+### 5.3 Affiliate Referral and Commission Flow
+
+```
+1. AFFILIATE registers and generates unique code
+   │
+   ▼
+2. AFFILIATE shares referral link: yourapp.com/register?ref=REF-ABC123XYZ
+   │
+   ▼
+3. NEW USER clicks referral link
+   - Referral code stored in session/cookie
+   - User proceeds to registration
+   │
+   ▼
+4. NEW USER subscribes to PRO tier
+   - Proceeds to Stripe checkout
+   - Affiliate code attached to Stripe session metadata
+   │
+   ▼
+5. STRIPE processes payment successfully
+   - Sends webhook to /api/webhooks/stripe
+   │
+   ▼
+6. WEBHOOK HANDLER (app/api/webhooks/stripe/route.ts)
+   - Verifies Stripe signature
+   - Extracts affiliate_code from session.metadata
+   - Validates affiliate code exists and affiliate is APPROVED
+   │
+   ▼
+7. COMMISSION CALCULATION (ONLY in webhook)
+   - Calculate 20% of subscription amount
+   - Create Commission record (status: PENDING)
+   - Link to: affiliateId, userId, subscriptionId, codeId
+   - Increment affiliateCode.usageCount
+   - Update affiliate.totalReferrals
+   │
+   ▼
+8. ADMIN reviews commission in /admin/affiliates/commissions
+   - Verifies subscription is legitimate
+   - Checks for fraud patterns
+   - Approves or rejects commission
+   │
+   ▼
+9. COMMISSION APPROVED
+   - Update commission.status = "APPROVED"
+   - Update affiliate.totalEarnings += commission.amount
+   - Send email notification to affiliate
+   │
+   ▼
+10. AFFILIATE requests payout via /affiliate/earnings
+    - Admin processes payment (external to system)
+    - Update commission.status = "PAID"
+    - Record commission.paidAt timestamp
+```
+
+**Key Security Notes:**
+- Commission calculation ONLY happens in Stripe webhook (single source of truth)
+- Affiliate code stored in Stripe metadata (tamper-proof)
+- All commissions require admin approval before payout
+- Separate JWT authentication for affiliates (not NextAuth)
+- Crypto-secure code generation prevents guessing
+
+---
+
 ## 6. Authentication Flow
 
 ### 6.1 User Registration
@@ -674,6 +978,81 @@ export async function middleware(request: NextRequest) {
 
   if (request.nextUrl.pathname.startsWith('/dashboard')) {
     if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
+  return NextResponse.next();
+}
+```
+
+---
+
+### 6.4 Affiliate Authentication Flow (Separate from Users)
+
+**Why Separate:** Affiliates are NOT users of the platform; they are partners who promote it. They need different authentication, permissions, and data access.
+
+```
+1. Affiliate registers at /affiliate/register
+   ↓
+2. POST /api/affiliate/auth/register
+   ↓
+3. Create Affiliate record (status: PENDING)
+   ↓
+4. Admin approves affiliate at /admin/affiliates/[id]/approve
+   ↓
+5. Affiliate.status = "APPROVED"
+   ↓
+6. Affiliate logs in at /affiliate/login
+   ↓
+7. POST /api/affiliate/auth/login
+   ↓
+8. Validate email + password (bcrypt)
+   ↓
+9. Generate JWT token (separate secret: AFFILIATE_JWT_SECRET)
+   ↓
+10. Return { token, affiliate: { id, email, status, totalEarnings } }
+   ↓
+11. Client stores token in localStorage
+   ↓
+12. All affiliate API requests include: Authorization: Bearer <token>
+   ↓
+13. Server validates with verifyAffiliateToken(token)
+```
+
+**Key Differences from User Auth:**
+- **Separate JWT secret:** `AFFILIATE_JWT_SECRET` (not NextAuth)
+- **Separate session storage:** Token in localStorage (not httpOnly cookie)
+- **No NextAuth:** Manual JWT implementation
+- **Different permissions:** Affiliates can ONLY access `/api/affiliate/*` routes
+- **Approval required:** Affiliates must be approved by admin before login works
+
+**Middleware Protection:**
+```typescript
+// middleware.ts
+export async function middleware(request: NextRequest) {
+  // User dashboard routes (NextAuth)
+  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    const session = await getServerSession();
+    if (!session) return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  // Affiliate portal routes (JWT)
+  if (request.nextUrl.pathname.startsWith('/affiliate')) {
+    const token = request.cookies.get('affiliate_token')?.value;
+    if (!token) return NextResponse.redirect(new URL('/affiliate/login', request.url));
+
+    try {
+      verifyAffiliateToken(token);
+    } catch {
+      return NextResponse.redirect(new URL('/affiliate/login', request.url));
+    }
+  }
+
+  // Admin routes (NextAuth with role check)
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    const session = await getServerSession();
+    if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }
@@ -980,17 +1359,18 @@ FLASK_API_KEY=[same as Next.js]
 
 **2. nextjs/saas-starter (Backend/Auth Reference):**
 - **What:** Next.js SaaS template with auth, database, payments
-- **Used for:** Parts 5 (Auth), 7 (API Routes), 12 (E-commerce)
+- **Used for:** Parts 5 (Auth), 7 (API Routes), 12 (E-commerce), **Part 17 (Affiliate Marketing)**
 - **Reference patterns:**
   * NextAuth.js configuration
   * Prisma database patterns
   * Stripe payment integration
   * API route structure
   * Middleware patterns
+  * **Stripe webhook handling (critical for commission calculation)**
 
 **3. next-shadcn-dashboard-starter (Frontend/UI Reference):**
 - **What:** Next.js dashboard with shadcn/ui components
-- **Used for:** Parts 8-14 (All UI components)
+- **Used for:** Parts 8-14 (All UI components), **Part 17 (Affiliate Portal & Admin Dashboard)**
 - **Reference patterns:**
   * Dashboard layout structure
   * shadcn/ui component usage
@@ -998,6 +1378,8 @@ FLASK_API_KEY=[same as Next.js]
   * Form patterns (React Hook Form)
   * Navigation structure
   * Responsive design
+  * **Analytics dashboards (for affiliate earnings tracking)**
+  * **Admin management interfaces (for affiliate approval workflow)**
 
 ### 11.2 How Aider Uses Seed Code
 
@@ -1051,11 +1433,15 @@ FLASK_API_KEY=[same as Next.js]
 
 This architecture enables:
 - ✅ **Scalability:** Serverless Next.js, independent Flask service
-- ✅ **Security:** Multi-layer validation, NextAuth.js, Prisma
+- ✅ **Security:** Multi-layer validation, NextAuth.js + separate affiliate JWT, Prisma
 - ✅ **Performance:** Server Components, edge runtime, polling, optimized indicators
 - ✅ **Maintainability:** TypeScript, OpenAPI contracts, Prisma
 - ✅ **Cost-Effectiveness:** Vercel free tier, Railway affordable, MiniMax M2 AI
 - ✅ **Developer Experience:** Policy-driven AI development, 80% autonomous building
 - ✅ **Trading Accuracy:** Advanced fractal detection with multi-point trendlines
+- ✅ **2-Sided Marketplace:** Affiliate marketing program with commission tracking
+- ✅ **Revenue Growth:** 20% commission model incentivizes partner promotion
+
+**Project Scale:** 17 Parts, **237 files total** (170 core + **67 affiliate/admin**)
 
 **Next Steps:** Proceed to Phase 2 (CI/CD & Database Foundation) or Phase 3 (Autonomous Building with Aider + MiniMax M2).
