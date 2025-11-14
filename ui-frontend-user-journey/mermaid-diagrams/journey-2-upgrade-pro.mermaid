@@ -25,8 +25,8 @@ graph TB
     
     subgraph "Payment Processing"
         P10_Submit[Click Start 7-Day Trial]
-        P10_Backend[Backend Process:<br/>POST /api/webhooks/stripe<br/>Create Stripe Customer<br/>Create Subscription<br/>Update User Tier to PRO<br/>Store Subscription Record]
-        P10_Confirm[Payment Confirmed<br/>Trial Started]
+        P10_Backend[Backend Process:<br/>POST /api/webhooks/stripe<br/>Create Stripe Customer<br/>Create Subscription<br/>If Discount Code Used:<br/>- Mark Code as USED<br/>- Create Commission Record<br/>- Notify Affiliate +$7.83<br/>Update User Tier to PRO<br/>Store Subscription Record]
+        P10_Confirm[Payment Confirmed<br/>Trial Started<br/>Discount Applied if Used]
     end
     
     subgraph "Welcome to PRO"
@@ -72,7 +72,11 @@ graph TB
     P10 --> P10_View
     P10_View --> P10_Pricing
     P10_Pricing --> P10_Trial
-    P10_Trial --> P10_Form
+    P10_Trial --> P10_Discount[Optional Discount Code<br/>Enter Code from Affiliate<br/>Apply & Validate]
+    P10_Discount --> P10_DiscountApplied{Code Valid?}
+    P10_DiscountApplied -->|Yes| P10_DiscountSuccess[✅ Discount Applied!<br/>$29 → $26.10<br/>Save $2.90/month]
+    P10_DiscountApplied -->|No/Skip| P10_Form
+    P10_DiscountSuccess --> P10_Form
     
     P10_Form --> P10_Card
     P10_Card --> P10_Billing
@@ -106,6 +110,9 @@ graph TB
     P12_Actions --> P12_Usage
     
     style Start fill:#F59E0B,color:#000
+    style P10_Discount fill:#FEF3C7,color:#000
+    style P10_DiscountApplied fill:#FCD34D,color:#000
+    style P10_DiscountSuccess fill:#10B981,color:#fff
     style P10_Confirm fill:#10B981,color:#fff
     style P11 fill:#F59E0B,color:#000
     style P11_Welcome fill:#10B981,color:#fff

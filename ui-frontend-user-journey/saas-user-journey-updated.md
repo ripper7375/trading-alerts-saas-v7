@@ -823,6 +823,19 @@ When I visit `/dashboard/alerts` again:
 │  Your card won't be charged until Jan 22, 2025.       │
 │                                                        │
 │  ┌────────────────────────────────────────────┐      │
+│  │ 🎫 Discount Code (Optional)                │      │
+│  │                                            │      │
+│  │ Have a discount code from an affiliate?    │      │
+│  │ [________________] [Apply]                 │      │
+│  │                                            │      │
+│  │ <!-- After applying valid code: -->        │      │
+│  │ ✅ Code SMITH-A7K9P2M5 applied!            │      │
+│  │    Regular Price: $29.00                   │      │
+│  │    Discount (10%): -$2.90                  │      │
+│  │    Your Price: $26.10/month                │      │
+│  └────────────────────────────────────────────┘      │
+│                                                        │
+│  ┌────────────────────────────────────────────┐      │
 │  │ 💳 Payment Information                     │      │
 │  │                                            │      │
 │  │ Card Number:                               │      │
@@ -853,19 +866,38 @@ When I visit `/dashboard/alerts` again:
 ```
 
 **My Experience:**
-1. I enter my payment details (Stripe embedded form)
-2. Card validation happens in real-time
-3. I click **"Start 7-Day Trial"**
+1. *(Optional)* I enter discount code from affiliate (e.g., SMITH-A7K9P2M5)
+2. I click **"Apply"** and see discount applied ($29 → $26.10)
+3. I enter my payment details (Stripe embedded form)
+4. Card validation happens in real-time
+5. I click **"Start 7-Day Trial"**
 
-**Backend Process:**
+**Backend Process (Discount Code Flow):**
+1. User enters code and clicks "Apply"
+2. POST `/api/checkout/validate-code`
+   - Validates code exists and is ACTIVE
+   - Checks code not expired
+   - Checks code not already used
+   - Returns discount percentage (10%)
+3. Frontend calculates discounted price: $29.00 × 0.9 = $26.10
+4. Code stored in session for use during payment
+
+**Backend Process (Payment Flow):**
 - POST `/api/webhooks/stripe`
 - Creates Stripe customer
-- Creates subscription with trial period
+- Creates subscription with trial period (price: $26.10 if discount applied)
+- If discount code used:
+  - Marks AffiliateCode as USED
+  - Calculates commission: $26.10 × 30% = $7.83
+  - Creates Commission record (status: PENDING)
+  - Links commission to affiliate
+  - Sends email notification to affiliate
 - Updates user tier to "PRO" immediately
-- Creates subscription record in PostgreSQL
+- Creates subscription record in PostgreSQL with discount code in metadata
 
 **Result:**
 ✅ "Welcome to PRO! Your trial starts now."
+*(If discount used)* ✅ "Discount code applied! You saved $2.90/month."
 
 ---
 
