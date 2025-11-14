@@ -738,110 +738,278 @@ Parts 13, 14, 15, 16
 
 ## SEED CODE: V0.dev Component References
 
-**Scope:** Visual references and seed code for UI frontend components
+**Scope:** Visual references and seed code for UI frontend components (20 total components)
 
-**Purpose:** These files serve as visual prototypes and coding patterns for Aider to build production-ready components.
+**Purpose:** These files serve as visual prototypes and coding patterns for Aider to build production-ready components for the complete Trading Alerts SaaS V7 UI.
 
-**Folders & Files:**
+**Complete Folder Structure:**
 ```
 seed-code/v0-components/
-├── README.md                          # Mapping guide: seed → production
-├── layouts/
-│   ├── dashboard-layout.tsx          # → app/(dashboard)/layout.tsx
-│   ├── dashboard-page.tsx            # Reference implementation
-│   ├── dashboard-package.json        # Dependencies needed
-│   ├── dashboard-globals.css         # Global styles reference
-│   └── professional-trader-avatar.png # Asset example
-├── charts/
-│   ├── trading-chart.tsx             # → components/charts/trading-chart.tsx
-│   ├── trading-chart-page.tsx        # Full page example
-│   └── trading-chart-package.json    # TradingView dependencies
-└── alerts/
-    ├── alert-card.tsx                # → components/alerts/alert-card.tsx
-    ├── alert-card-page.tsx           # Usage example
-    └── alert-card-package.json       # Component dependencies
+├── README.md                          # Complete mapping guide (20 components)
+│
+├── public-pages/                      # 3 marketing/public components
+│   ├── homepage.tsx                   # → app/(marketing)/page.tsx
+│   ├── homepage-package.json
+│   ├── pricing-page.tsx               # → app/(marketing)/pricing/page.tsx
+│   ├── pricing-package.json
+│   ├── registration-page.tsx          # → app/(auth)/register/page.tsx
+│   └── registration-package.json
+│
+├── auth/                              # 2 authentication components
+│   ├── login-page.tsx                 # → app/(auth)/login/page.tsx
+│   ├── login-package.json
+│   ├── forgot-password-page.tsx       # → app/(auth)/forgot-password/page.tsx
+│   └── forgot-password-package.json
+│
+├── dashboard/                         # 8 dashboard page components
+│   ├── dashboard-overview.tsx         # → app/(dashboard)/dashboard/page.tsx
+│   ├── dashboard-package.json
+│   ├── watchlist-page.tsx             # → app/(dashboard)/watchlist/page.tsx
+│   ├── watchlist-package.json
+│   ├── alert-creation-modal.tsx       # → components/alerts/alert-modal.tsx
+│   ├── alert-modal-package.json
+│   ├── alerts-list.tsx                # → app/(dashboard)/alerts/page.tsx
+│   ├── alerts-package.json
+│   ├── billing-page.tsx               # → app/(dashboard)/settings/billing/page.tsx
+│   ├── billing-package.json
+│   ├── settings-layout.tsx            # → app/(dashboard)/settings/layout.tsx
+│   ├── settings-package.json
+│   ├── profile-settings.tsx           # → app/(dashboard)/settings/profile/page.tsx
+│   └── profile-package.json
+│
+├── components/                        # 4 reusable UI components
+│   ├── chart-controls.tsx             # → components/charts/chart-controls.tsx
+│   ├── chart-controls-package.json
+│   ├── empty-states.tsx               # → components/ui/empty-state.tsx
+│   ├── empty-states-package.json
+│   ├── notification-bell.tsx          # → components/layout/notification-bell.tsx
+│   ├── notification-package.json
+│   ├── user-menu.tsx                  # → components/layout/user-menu.tsx
+│   ├── user-menu-package.json
+│   ├── footer.tsx                     # → components/layout/footer.tsx
+│   └── footer-package.json
+│
+├── layouts/                           # 3 existing seed components (REFERENCE ONLY)
+│   ├── dashboard-layout.tsx           # → app/(dashboard)/layout.tsx
+│   ├── dashboard-page.tsx
+│   ├── dashboard-package.json
+│   ├── dashboard-globals.css
+│   └── professional-trader-avatar.png
+│
+├── charts/                            # Existing chart seed component
+│   ├── trading-chart.tsx              # → components/charts/trading-chart.tsx
+│   ├── trading-chart-page.tsx
+│   └── trading-chart-package.json
+│
+└── alerts/                            # Existing alert seed component
+    ├── alert-card.tsx                 # → components/alerts/alert-card.tsx
+    ├── alert-card-page.tsx
+    └── alert-card-package.json
 ```
+
+**Component Categories:**
+
+| Category | Components | Purpose |
+|----------|------------|---------|
+| Public Pages | 3 | Marketing, pricing, registration |
+| Authentication | 2 | Login, password reset |
+| Dashboard Pages | 8 | Main app pages (dashboard, watchlist, alerts, settings) |
+| Reusable Components | 4 | UI components (controls, empty states, notifications, menus) |
+| Existing Seed | 3 | Original seed components (layouts, charts, alerts) |
+| **Total** | **20** | **Complete UI frontend coverage** |
 
 **How Aider Uses These Files:**
 
-1. **Pattern 1: Direct Adaptation**
-   - Read seed component structure
-   - Adapt for Next.js 15 App Router
-   - Replace mock data with API calls
+1. **Pattern 1: Direct Page Adaptation**
+   - Read v0 page component structure
+   - Adapt for Next.js 15 App Router (app directory)
+   - Replace mock data with real API calls
    - Add tier validation logic
+   - Add authentication checks (session management)
+   - Example: `public-pages/homepage.tsx` → `app/(marketing)/page.tsx`
 
 2. **Pattern 2: Component Extraction**
-   - Extract sub-components from seed files
-   - Create separate files (e.g., timeframe-selector.tsx)
-   - Add tier-based filtering
+   - Extract reusable components from seed files
+   - Create standalone component files
+   - Add tier-based filtering and validation
+   - Connect to real-time data sources
+   - Example: `components/chart-controls.tsx` → `components/charts/chart-controls.tsx`
 
-3. **Pattern 3: Layout Reference**
-   - Use as visual template
-   - Add authentication handling
-   - Integrate with NextAuth session
+3. **Pattern 3: Modal/Dialog Components**
+   - Adapt modal UI from seed files
+   - Add form validation (React Hook Form + Zod)
+   - Connect to API endpoints
+   - Add success/error handling
+   - Example: `dashboard/alert-creation-modal.tsx` → `components/alerts/alert-modal.tsx`
 
-**Key Features of Seed Components:**
+4. **Pattern 4: Layout Wrappers**
+   - Use as structural template
+   - Add NextAuth session handling
+   - Integrate tier badges and user menus
+   - Add responsive navigation
+   - Example: `dashboard/settings-layout.tsx` → `app/(dashboard)/settings/layout.tsx`
+
+**Key Features of All Seed Components:**
 
 - **TradingView Lightweight Charts Integration**
-  - Professional-grade charting
+  - Professional-grade charting for financial data
   - Interactive crosshair and tooltips
   - Zoom and pan functionality
   - Mobile-optimized touch gestures
 
-- **Modern UI Components (shadcn/ui)**
-  - Consistent design system
-  - Accessible components
+- **Modern UI Components (shadcn/ui + Radix UI)**
+  - 14 Radix UI components integrated
+  - Consistent design system across all pages
+  - Fully accessible (ARIA compliant)
   - Dark mode support
-  - Responsive layouts
+  - Mobile-responsive layouts
+
+- **Form Handling with Validation**
+  - React Hook Form for all forms
+  - Zod schemas for validation
+  - Real-time error messages
+  - User-friendly feedback
+
+- **Tier-Based Access Control**
+  - FREE vs PRO feature differentiation
+  - Upgrade prompts for restricted features
+  - Symbol and timeframe filtering
+  - Alert count limits
 
 - **Mock Data → Real Data Transformation**
-  - Seed files use mock data
-  - Production files connect to:
+  - Seed files use hardcoded mock data
+  - Production files connect to live APIs:
     - `/api/indicators` (Flask MT5 service)
-    - `/api/alerts` (Trading Alerts API)
+    - `/api/alerts` (Alert management)
+    - `/api/watchlist` (Watchlist management)
     - `/api/tier` (Tier validation)
+    - `/api/subscription` (Billing/upgrades)
+    - `/api/user` (Profile management)
 
-**Integration Points:**
+**Complete Integration Workflow:**
 
 ```
-seed-code/v0-components/charts/trading-chart.tsx
+V0.dev Generation
     ↓
-(Aider adapts)
+seed-code/v0-components/{category}/{component-name}.tsx
     ↓
-components/charts/trading-chart.tsx (Production)
-    ├── Uses TradingView Lightweight Charts
-    ├── Fetches data from /api/indicators
-    ├── Validates tier access
-    ├── Adds real-time updates
-    └── Integrates with alert creation
+Aider Reads (via .aider.conf.yml)
+    ↓
+Aider Adapts with:
+    ├── API Integration (real endpoints)
+    ├── Tier Validation (FREE/PRO checks)
+    ├── Authentication (NextAuth sessions)
+    ├── TypeScript Types (OpenAPI-generated)
+    ├── Error Handling (try-catch, error states)
+    └── Loading States (Skeleton, Spinner)
+    ↓
+Claude Code Validates
+    ├── Type Safety Check
+    ├── Quality Standards Check
+    ├── Architecture Rules Check
+    └── Coding Patterns Check
+    ↓
+Production Files:
+    ├── app/(marketing)/* (public pages)
+    ├── app/(auth)/* (authentication)
+    ├── app/(dashboard)/* (main app)
+    └── components/* (reusable UI)
 ```
 
-**Dependencies to Install:**
+**Dependencies (All Installed in package.json ✅):**
 
-Based on seed-code package.json files:
-- `lightweight-charts` - TradingView charts
-- `@radix-ui/*` - shadcn/ui components
-- `lucide-react` - Icon library
-- `recharts` - Additional charting (optional)
+- `next@^15.0.0` - Next.js framework
+- `react@^19.0.0` + `react-dom@^19.0.0` - React library
+- `@radix-ui/react-*` (14 components) - UI primitives
+- `lucide-react@^0.303.0` - Icon library
+- `tailwind-merge@^2.2.0` + `clsx@^2.1.0` - Styling utilities
+- `lightweight-charts@^4.1.1` - TradingView charts
+- `react-hook-form@^7.49.0` + `zod@^3.22.4` - Form handling
+- `next-auth@^4.24.5` - Authentication
+- `@prisma/client@^5.7.0` - Database ORM
+- `stripe@^14.10.0` - Payment processing
+- `date-fns@^3.0.6` - Date formatting
+- `react-image-crop@^10.1.5` - Avatar cropping
 
-**File Count:** ~12 reference files
+**File Count:** ~50 seed component files (20 components × ~2.5 files each)
 
 **Usage in .aider.conf.yml:**
 
-These files are marked as `read-only` in Aider configuration to serve as reference material without modification. Aider reads these to understand:
-- UI patterns and structure
-- Component composition
-- Styling conventions
-- Interactive behaviors
+All seed component files are configured as `read-only` references in Aider's configuration. Aider reads these files to understand:
+- UI layout patterns and structure
+- Component composition and nesting
+- Styling conventions (Tailwind CSS classes)
+- Interactive behaviors (onClick, onChange events)
+- Form structure and validation patterns
+- Responsive design breakpoints
+
+**API Endpoints Required (from all 17 new components):**
+
+| Endpoint | Method | Used By | Purpose |
+|----------|--------|---------|---------|
+| `/api/auth/register` | POST | Registration | Create user account |
+| `/api/auth/forgot-password` | POST | Forgot Password | Send reset email |
+| `/api/dashboard/stats` | GET | Dashboard Overview | Get user stats |
+| `/api/watchlist` | GET, POST, DELETE | Watchlist Page | Manage watchlist |
+| `/api/alerts` | GET, POST, PATCH, DELETE | Alert Modal, Alerts List | Manage alerts |
+| `/api/tier/symbols` | GET | Chart Controls | Get allowed symbols |
+| `/api/subscription` | GET, POST | Billing Page | Manage subscription |
+| `/api/user/profile` | GET, PATCH | Profile Settings | Update profile |
+| `/api/notifications` | GET, PATCH | Notification Bell | Manage notifications |
+
+**Production File Mapping (Complete):**
+
+```
+17 New Components → Production Locations:
+
+Public Pages:
+  1. homepage.tsx          → app/(marketing)/page.tsx
+  2. pricing-page.tsx      → app/(marketing)/pricing/page.tsx
+  3. registration-page.tsx → app/(auth)/register/page.tsx
+
+Auth:
+  4. login-page.tsx              → app/(auth)/login/page.tsx
+  5. forgot-password-page.tsx    → app/(auth)/forgot-password/page.tsx
+
+Dashboard:
+  6. dashboard-overview.tsx      → app/(dashboard)/dashboard/page.tsx
+  7. watchlist-page.tsx          → app/(dashboard)/watchlist/page.tsx
+  8. alert-creation-modal.tsx    → components/alerts/alert-modal.tsx
+  9. alerts-list.tsx             → app/(dashboard)/alerts/page.tsx
+  10. billing-page.tsx           → app/(dashboard)/settings/billing/page.tsx
+  11. settings-layout.tsx        → app/(dashboard)/settings/layout.tsx
+  12. profile-settings.tsx       → app/(dashboard)/settings/profile/page.tsx
+
+Components:
+  13. chart-controls.tsx         → components/charts/chart-controls.tsx
+  14. empty-states.tsx           → components/ui/empty-state.tsx
+  15. notification-bell.tsx      → components/layout/notification-bell.tsx
+  16. user-menu.tsx              → components/layout/user-menu.tsx
+  17. footer.tsx                 → components/layout/footer.tsx
+
+Existing Seed (3):
+  ✅ dashboard-layout.tsx  → app/(dashboard)/layout.tsx
+  ✅ trading-chart.tsx     → components/charts/trading-chart.tsx
+  ✅ alert-card.tsx        → components/alerts/alert-card.tsx
+```
 
 **Important Notes:**
 
-- ⚠️ These are **reference implementations** only
-- ⚠️ Do NOT copy directly to production without adaptation
-- ✅ Use as visual guide and pattern reference
-- ✅ Extract reusable patterns and components
-- ✅ Adapt for tier validation and API integration
-- ✅ Ensure type safety with OpenAPI-generated types
+- ⚠️ These are **reference implementations** with mock data only
+- ⚠️ Do NOT copy seed files directly to production without adaptation
+- ✅ Use as visual guide and structural pattern reference
+- ✅ Aider must adapt with real API integration, tier validation, auth checks
+- ✅ All production files must include TypeScript types (no `any`)
+- ✅ All production files must include error handling and loading states
+- ✅ Follow coding patterns from `docs/policies/05-coding-patterns.md`
+- ✅ Validate with Claude Code before committing
+
+**Related Documentation:**
+
+- **Complete Mapping:** `docs/ui-components-map.md` - Detailed component-by-component guide
+- **Seed Component README:** `seed-code/v0-components/README.md` - Full structure and usage guide
+- **Coding Patterns:** `docs/policies/05-coding-patterns.md` - Code standards
+- **Quality Standards:** `docs/policies/02-quality-standards.md` - Quality requirements
 
 ---
 
@@ -865,6 +1033,6 @@ These files are marked as `read-only` in Aider configuration to serve as referen
 | 14 | Admin | ~9 | ⭐ | Medium |
 | 15 | Notifications | ~9 | ⭐⭐ | Medium |
 | 16 | Utilities | ~25 | ⭐⭐ | Low |
-| **Seed** | **V0 Components** | **~12** | **⭐⭐⭐** | **Reference** |
+| **Seed** | **V0 Components** | **~50** | **⭐⭐⭐** | **Reference** |
 
-**Total: ~170 production files + ~12 seed reference files**
+**Total: ~170 production files + ~50 seed reference files (20 components)**
