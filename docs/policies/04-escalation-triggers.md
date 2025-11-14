@@ -1971,6 +1971,435 @@ More Autonomous Work
 
 ---
 
+## 11. AFFILIATE MARKETING SPECIFIC ESCALATIONS
+
+**Applies to:** Part 17 (Affiliate Marketing Platform) - 67 files
+
+The affiliate marketing platform introduces unique escalation scenarios that don't fit cleanly into the above 10 categories but are critical for this feature.
+
+---
+
+### 11.1 Commission Fraud Detection
+
+**Escalate when:**
+- Manual commission creation attempted (bypassing Stripe webhook)
+- Commission calculation doesn't match formula
+- Duplicate commissions detected for same subscription
+- Commission created for non-existent affiliate code
+- Commission amount manually modified after creation
+
+**Why escalate:** Commission fraud directly impacts business revenue. Human review required for any suspicious activity.
+
+**Example escalation:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  ESCALATION: Commission Fraud Detection ⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Issue Type: Critical Security - Commission Fraud
+File: app/api/admin/commissions/create/route.ts
+Severity: Critical
+
+Problem:
+Code attempts to create commission manually via admin endpoint, bypassing
+Stripe webhook validation. This enables commission fraud.
+
+Vulnerable Code:
+export async function POST(req: NextRequest) {
+  const { affiliateId, amount } = await req.json();
+
+  // ❌ NO VALIDATION - Direct commission creation
+  await prisma.commission.create({
+    data: {
+      affiliateId,
+      commissionAmount: amount,
+      status: 'PENDING'
+    }
+  });
+}
+
+Security Concerns:
+1. Bypasses Stripe webhook validation (no proof of payment)
+2. No verification of affiliate code usage
+3. No validation of amount calculation
+4. Enables admin to create arbitrary commissions
+5. No audit trail of why commission was created
+
+Policy Violated:
+01-approval-policies.md Section 7.3: "MUST create commissions ONLY via
+Stripe webhook (not manual creation)"
+
+Recommendation:
+REMOVE this endpoint entirely. Commissions should ONLY be created via:
+- Stripe webhook: POST /api/webhooks/stripe
+
+If manual commission adjustment needed (for refunds, corrections):
+- Create separate endpoint: POST /api/admin/commissions/adjust
+- Require reason field (string, min 20 chars)
+- Store adjustment in CommissionAdjustment table
+- Send notification to affiliate explaining adjustment
+- Log action in audit trail
+
+Awaiting human decision on commission creation security policy.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+### 11.2 Affiliate Code Distribution Timing
+
+**Escalate when:**
+- Unclear when codes should be distributed (registration? verification? approval?)
+- Unclear code expiry policy (end of month? fixed duration?)
+- Unclear what happens to expired unused codes
+- Code distribution frequency not specified
+
+**Why escalate:** Code distribution timing affects affiliate cash flow and business model.
+
+**Example escalation:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  ESCALATION: Unclear Requirement ⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Issue Type: Unclear Requirement
+File: app/api/cron/distribute-codes/route.ts
+Severity: Medium
+Requirement Source: AFFILIATE-MARKETING-DESIGN.md
+
+Problem:
+Requirements state affiliates get "15 codes per month" but don't specify:
+1. When codes are distributed (1st of month? Registration anniversary?)
+2. What happens if affiliate registers mid-month (15 codes or pro-rata?)
+3. Whether codes expire at month-end or have fixed 30-day duration
+4. What happens to unused codes (carry over? expire?)
+
+What the Specs Say:
+"Affiliates receive 15 discount codes per month. Codes are cryptographically
+random and expire at end of month."
+
+Ambiguities:
+- "End of month" = Last day of calendar month OR 30 days from distribution?
+- "15 codes per month" = Always 15, or pro-rata if registered mid-month?
+- If affiliate registers January 20, do they get:
+  - 15 codes valid for 11 days (Jan 20-31)?
+  - 15 codes valid for 30 days (Jan 20 - Feb 18)?
+  - Pro-rata codes (5 codes for remaining 11 days)?
+
+Options:
+
+1. Calendar Month Distribution (Simplest)
+   - All affiliates get codes on 1st of month
+   - Codes expire on last day of month
+   - Mid-month registrations get full 15 codes (partial month)
+   Pros: Simple to implement, predictable schedule
+   Cons: Mid-month affiliates only have partial month to use codes
+
+2. Rolling 30-Day Distribution
+   - Affiliates get codes on registration + 1st of each month thereafter
+   - Codes expire 30 days from creation
+   - Mid-month registrations get full 30 days
+   Pros: Fair for mid-month affiliates
+   Cons: More complex tracking, staggered expirations
+
+3. Pro-Rata Distribution
+   - Mid-month affiliates get proportional codes (e.g., 5 codes for 10 days)
+   - Codes expire end of calendar month
+   - Next month they get full 15
+   Pros: Fair allocation based on days available
+   Cons: Complex calculation, may frustrate affiliates
+
+Impact on Business:
+- Option 1: Simplest, but may discourage mid-month sign-ups
+- Option 2: Most fair, but complex code management
+- Option 3: Fair but may seem stingy to new affiliates
+
+Questions for Human:
+1. Which option aligns with business goals?
+2. Do we want to encourage sign-ups at any time (Option 2)?
+3. Or prioritize simplicity (Option 1)?
+4. Should unused codes carry over or expire?
+
+Recommendation: Option 1 (Calendar Month)
+
+Reasoning:
+- Matches "end of month" language in specs
+- Simple to implement and explain
+- Vercel Cron runs on 1st of month
+- Mid-month affiliates still get full 15 codes (slight bonus)
+- Clear messaging: "Your 15 codes for [Month] expire on [Last Day]"
+
+Awaiting human clarification on code distribution timing.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+### 11.3 Affiliate Payment Processing Security
+
+**Escalate when:**
+- Implementing bulk payment functionality
+- Processing large commission payments
+- Payment method requires manual intervention
+- Affiliate requests payment method change after commission earned
+- Cryptocurrency payment price volatility during payment
+
+**Why escalate:** Payment processing involves real money and potential fraud.
+
+**Example escalation:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  ESCALATION: Architectural Decision ⚠━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Issue Type: Architectural Decision
+File: app/api/admin/commissions/pay/route.ts
+Severity: High
+Decision Area: Payment Processing Security
+
+Problem:
+Need to implement commission payment processing. Requirements don't specify:
+1. Should payments be automated or manual approval?
+2. What happens if payment fails (bank reject, crypto address invalid)?
+3. Should there be payment limits requiring extra approval?
+4. What audit trail is needed for payments?
+
+Context:
+- Commissions range from $7.83 to potentially hundreds per affiliate
+- Payment methods vary (bank transfer, crypto, e-wallets)
+- Multiple affiliates may request payment simultaneously
+- Need to prevent double-payment or fraud
+
+Options:
+
+1. Fully Manual Payment (Highest Security, Slowest)
+   - Admin reviews each commission
+   - Admin initiates payment externally (bank portal, crypto wallet)
+   - Admin marks as paid manually with reference number
+   Pros:
+     - Maximum fraud prevention
+     - Manual verification of each payment
+     - Admin can verify affiliate identity
+   Cons:
+     - Time-consuming (not scalable)
+     - Affiliates wait for admin availability
+     - Human error risk (wrong amount, wrong recipient)
+
+2. Semi-Automated with Approval (Balanced)
+   - System generates payment batch
+   - Admin reviews batch (verify amounts, recipients)
+   - Admin approves batch
+   - System executes payments via API (if supported)
+   - System marks as paid automatically
+   Pros:
+     - Scalable (batch processing)
+     - Admin oversight (approval required)
+     - Audit trail (who approved, when)
+   Cons:
+     - Requires payment API integration
+     - Some payment methods (crypto) may still be manual
+
+3. Fully Automated (Fastest, Highest Risk)
+   - Cron job processes pending commissions automatically
+   - Payments sent via API without approval
+   - Only mark as paid after API confirms
+   Pros:
+     - Fast (affiliates get paid immediately)
+     - No admin work required
+     - Fully scalable
+   Cons:
+     - High fraud risk (no human verification)
+     - API failures may cause issues
+     - Harder to reverse if mistakes made
+
+Security Considerations:
+- Payment limits: Should payments >$100 require extra approval?
+- Two-factor authentication for payment approval?
+- Cooling-off period (commissions must be >7 days old)?
+- Affiliate verification before first payment?
+
+Recommendation: Option 2 (Semi-Automated with Approval)
+
+Reasoning:
+1. Balances security and efficiency
+2. Admin approves but doesn't manually execute
+3. Audit trail: who approved, when, why
+4. Payment limits can be implemented:
+   - <$50: Auto-approved
+   - $50-$200: Admin approval required
+   - >$200: Manual review + approval
+5. Supports phased rollout:
+   - Phase 1: All manual (Option 1)
+   - Phase 2: Semi-automated (Option 2)
+   - Phase 3: Increase auto-approval limits over time
+
+Implementation:
+- Create CommissionPaymentBatch table
+- Admin creates batch (selects commissions to pay)
+- System calculates total, validates payment methods
+- Admin reviews and approves
+- System processes payments (via API where possible)
+- System marks commissions as PAID with paymentReference
+
+Awaiting human decision on payment processing architecture.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+### 11.4 Affiliate Dashboard BI Report Performance
+
+**Escalate when:**
+- Report queries taking >5 seconds
+- Large number of commissions causing pagination issues
+- Complex accounting calculations causing timeouts
+- Report aggregations causing database load
+
+**Why escalate:** Performance issues affect both affiliate UX and system stability.
+
+**Example escalation:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  ESCALATION: Architectural Decision ⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Issue Type: Architectural Decision
+File: app/api/affiliate/dashboard/commission-report/route.ts
+Severity: Medium
+Decision Area: Report Performance Optimization
+
+Problem:
+Commission report requires accounting-style aggregations:
+- Opening balance (sum all previous months)
+- Earned this month (sum commissions)
+- Paid this month (sum payments)
+- Closing balance (calculation)
+- Drill-down to individual commissions
+
+For affiliates with 100+ commissions, query takes 8 seconds.
+
+Current Implementation:
+- Calculate opening balance by summing ALL commissions before this month
+- Fetch all commissions for this month (no pagination)
+- Calculate aggregates in Node.js (not database)
+
+Performance Issues:
+- Opening balance requires scanning all historical commissions
+- No caching (recalculated every request)
+- No pagination (loads all month's commissions)
+- Calculations in Node.js (not optimized)
+
+Options:
+
+1. Materialized Monthly Balance Table
+   - Create AffiliateMonthlyBalance table
+   - Store: affiliateId, month, openingBalance, earned, paid, closingBalance
+   - Update via trigger/cron when commissions created/paid
+   - Report reads from this table (instant)
+   Pros: Fast (O(1) lookup), accurate, supports time-travel queries
+   Cons: Additional table, data duplication, requires sync logic
+
+2. Cached Calculations with TTL
+   - Cache opening balance in Redis (1 hour TTL)
+   - Calculate earned/paid from DB
+   - Combine for report
+   Pros: Simple, no schema changes
+   Cons: May show stale data, cache invalidation complexity
+
+3. Database View with Aggregates
+   - Create PostgreSQL view with window functions
+   - View calculates running balances
+   - Report queries view directly
+   Pros: No data duplication, always current
+   Cons: View may still be slow, complex SQL
+
+4. Hybrid: Monthly Balance + Current Month Live
+   - Store monthly balances for closed months
+   - Calculate current month live
+   - Combine for report
+   Pros: Fast for history, current for this month, simple
+   Cons: Need to close months (cron job)
+
+Recommendation: Option 4 (Hybrid)
+
+Reasoning:
+- Historical months don't change (safe to store)
+- Current month changes frequently (calculate live)
+- Cron job runs monthly to close previous month
+- Simple to implement and understand
+- Fast performance (only calculates current month)
+
+Implementation:
+1. Create AffiliateMonthlyBalance table
+2. Cron job (1st of month):
+   - Calculate last month's final balances
+   - Store in AffiliateMonthlyBalance
+   - Mark month as CLOSED
+3. Report endpoint:
+   - Fetch last closed month's closing balance (opening)
+   - Calculate current month earned/paid (live query)
+   - Combine and return
+
+Performance:
+- Historical: O(1) lookup
+- Current month: O(n) where n = this month's commissions (<100)
+- Total query time: <200ms (fast enough)
+
+Awaiting human decision on report performance optimization.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+### 11.5 Affiliate Email Notification Strategy
+
+**Escalate when:**
+- Unclear email frequency (immediate? daily digest? weekly?)
+- Unclear which events trigger emails
+- Email provider rate limits (Resend, SendGrid)
+- Concern about email spam complaints
+
+**Why escalate:** Email strategy affects affiliate engagement and system costs.
+
+---
+
+### 11.6 Affiliate Verification Process
+
+**Escalate when:**
+- Unclear what verification means (email only? identity? business license?)
+- Unclear who can verify (any admin? specific role?)
+- Unclear verification criteria (what makes affiliate legitimate?)
+- Unclear what happens to codes if affiliate suspended
+
+**Why escalate:** Verification affects platform trust and fraud prevention.
+
+---
+
+## SUMMARY: AFFILIATE ESCALATION QUICK REFERENCE
+
+| Escalation Type | Trigger | Category | Severity |
+|----------------|---------|----------|----------|
+| Commission Fraud | Manual commission creation, wrong calculation | Security (1) | Critical |
+| Code Distribution Timing | When/how often codes distributed | Unclear Req (9) | Medium |
+| Payment Processing | Payment automation level, security | Architecture (4) | High |
+| Report Performance | Queries >5s, complex aggregations | Architecture (4) | Medium |
+| Email Notifications | Frequency, triggers, spam concerns | Architecture (4) | Medium |
+| Affiliate Verification | Verification criteria, who can verify | Policy Gap (3) | Medium |
+| Payment Method Change | Affiliate changes payment method after earning | Architecture (4) | Medium |
+| Cryptocurrency Volatility | Price changes during payment | Architecture (4) | Medium |
+| Bulk Payment Errors | Multiple payments fail simultaneously | Architecture (4) | High |
+| Code Expiry Disputes | Affiliate disputes code expiration | Policy Gap (3) | Low |
+
+**Affiliate-specific escalations should reference:**
+- AFFILIATE-MARKETING-DESIGN.md (business requirements)
+- 03-architecture-rules.md Section 13 (affiliate architecture)
+- trading_alerts_openapi.yaml (affiliate/admin API contracts)
+
+---
+
+**Goal:** Each escalation makes the system smarter. Over time, escalations decrease as policies become more comprehensive.
+
+---
+
 **End of Escalation Triggers**
 
 These triggers enable Aider with MiniMax M2 to work autonomously while seeking human guidance for exceptions. Update this document as you learn from escalations!
