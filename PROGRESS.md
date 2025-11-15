@@ -29,11 +29,11 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 
 | Metric | Status | Notes |
 |--------|--------|-------|
-| **Current Phase** | Phase 1 | Documentation & Policy Creation |
-| **Total Files** | 0 / 170 (0%) | Will increase in Phase 3 |
-| **Parts Completed** | 0 / 16 (0%) | 16 parts to build |
+| **Current Phase** | Phase 1 | Documentation & Policy Creation + Affiliate Marketing Design |
+| **Total Files** | 0 / 237 (0%) | Will increase in Phase 3 (170 base + 67 affiliate) |
+| **Parts Completed** | 0 / 17 (0%) | 17 parts to build (Part 17: Affiliate Marketing added) |
 | **Milestones Done** | 9 / 9 Phase 1 | Milestones 1.0-1.9 complete ✅ |
-| **Estimated Time Remaining** | ~53 hours | Phase 2-4 (~10h saved with UI seed) |
+| **Estimated Time Remaining** | ~173 hours | Phase 2-4 (~10h saved) + Part 17 (120h) |
 | **Ready for Phase 2?** | ⚠️ Pending | Complete readiness check first |
 
 ---
@@ -620,13 +620,202 @@ All required dependencies already in package.json ✅:
 
 ---
 
+### MILESTONE 1.10: Affiliate Marketing Platform Documentation (6 hours) ✅ COMPLETE
+
+**What:** Comprehensive 2-sided marketplace platform design with self-service affiliate portal, admin BI reports, and automated monthly processes.
+
+**Why:** Establishes complete architecture for affiliate-driven growth channel before building phase, ensuring all 67 affiliate files integrate seamlessly with existing 170 files.
+
+#### Files Updated/Created:
+
+**1. docs/AFFILIATE-MARKETING-DESIGN.md (NEW FILE - 3,354 lines)**
+- [x] Executive summary for 2-sided marketplace platform
+- [x] 8 business requirement sections (registration, codes, inventory, commissions, payments)
+- [x] Complete system architecture (3 sections: affiliate portal, admin panel, automation)
+- [x] Full database schema (3 new models: Affiliate, AffiliateCode, Commission + 4 enums)
+- [x] 30+ API endpoints across 5 groups (auth, dashboard, admin, reports, public)
+- [x] Accounting-style report formulas (code inventory, commission receivable)
+- [x] 4 payment preference options (Bank, Crypto, Global Wallets, Local Wallets)
+- [x] 8 email notification templates
+- [x] Security & validation rules
+- [x] 8 implementation phases (120 hours estimated)
+
+**2. docs/AFFILIATE-MARKETING-INTEGRATION-CHECKLIST.md (NEW FILE)**
+- [x] 10 documents requiring updates listed
+- [x] User journey documentation requirements (3 new sections)
+- [x] 3 new mermaid diagrams specifications
+- [x] Phased workflow recommendations (Option A vs Option B)
+- [x] Comprehensive testing checklist
+- [x] 27.5 hours total integration effort documented
+
+**3. docs/AFFILIATE-ADMIN-JOURNEY.md (NEW FILE - 1,500+ lines)**
+- [x] Complete affiliate registration & onboarding flow
+- [x] Email verification process documentation
+- [x] First login & dashboard walkthrough
+- [x] Daily workflow documentation (commissions, codes, profile)
+- [x] Admin affiliate management workflows
+- [x] 4 Business Intelligence reports detailed (P&L, Sales Performance, Commission Owings, Code Inventory)
+- [x] Manual code distribution & cancellation procedures
+- [x] Commission payment processing (individual & bulk)
+- [x] Affiliate-admin interaction scenarios (3 documented)
+- [x] Automated monthly processes (Vercel Cron jobs)
+- [x] 8 email notification templates with full content
+- [x] 8 error scenario handlers with resolutions
+
+**4. ui-frontend-user-journey/journey-4-affiliate-registration.mermaid (NEW FILE)**
+- [x] Complete registration flow diagram
+- [x] Email verification process
+- [x] Automated 15-code distribution
+- [x] First login to dashboard
+
+**5. ui-frontend-user-journey/journey-5-affiliate-dashboard.mermaid (NEW FILE)**
+- [x] Dashboard login and authentication
+- [x] Commission report viewing with drill-downs
+- [x] Code inventory tracking workflow
+- [x] Code copying and social media sharing
+- [x] Payment preferences updates
+- [x] Monthly automated code distribution visualization
+
+**6. ui-frontend-user-journey/journey-6-admin-affiliate-management.mermaid (NEW FILE)**
+- [x] Affiliate list and details workflow
+- [x] Manual code distribution process
+- [x] Account suspension workflow
+- [x] Code cancellation process
+- [x] All 4 BI reports workflows (P&L, Sales, Commissions, Inventory)
+- [x] Bulk payment processing visualization
+- [x] Monthly automation (cron jobs) depicted
+
+**7. ui-frontend-user-journey/saas-user-journey-updated.md (UPDATED)**
+- [x] Added discount code section to checkout page
+- [x] Optional discount code input field documented
+- [x] Apply button with validation flow
+- [x] Success message showing savings ($29 → $26.10)
+- [x] Backend process for code validation documented
+- [x] Commission creation and affiliate notification flow
+
+**8. ui-frontend-user-journey/mermaid-diagrams/journey-2-upgrade-pro.mermaid (UPDATED)**
+- [x] Added discount code flow to upgrade journey
+- [x] Discount code entry node (optional path)
+- [x] Validation decision (Valid? Yes/No)
+- [x] Success message with savings visualization
+- [x] Updated backend to include commission creation
+- [x] Affiliate email notification trigger included
+
+**9. docs/diagrams/diagram-06-db-schema.mermaid (UPDATED)**
+- [x] Added Affiliate model (27 fields including payment preferences)
+- [x] Added AffiliateCode model (with status lifecycle tracking)
+- [x] Added Commission model (with affiliate relationship)
+- [x] Added 4 new enums (PaymentMethod, AffiliateStatus, CodeStatus, CommissionStatus)
+- [x] Updated Subscription model (added affiliateCodeId foreign key)
+- [x] All relationships documented (1:M, M:1)
+
+**10. docs/trading_alerts_openapi.yaml (UPDATED - added 800+ lines)**
+- [x] Added 2 new tags (Affiliate, Affiliate Admin)
+- [x] Added 5 affiliate authentication endpoints
+- [x] Added 5 affiliate dashboard endpoints (stats, inventory, commissions, codes, profile)
+- [x] Added 1 checkout validation endpoint
+- [x] Added 6 admin affiliate management endpoints
+- [x] Added 4 admin business intelligence report endpoints
+- [x] Added 3 admin commission processing endpoints
+- [x] All endpoints with complete request/response schemas
+- [x] Security definitions (bearerAuth for protected routes)
+
+**11. docs/policies/03-architecture-rules.md (UPDATED - Section 13 added)**
+- [x] 2-sided marketplace structure documented
+- [x] Database schema relationships defined
+- [x] Separate authentication systems explained
+- [x] Code distribution strategy (monthly cron)
+- [x] Commission calculation flow with code examples
+- [x] Accounting-style report patterns
+- [x] Admin BI reports requirements
+- [x] 8 email notification rules
+- [x] Security considerations (10 critical rules)
+- [x] Integration with existing checkout flow
+- [x] Updated summary with affiliate DO/DON'T rules
+
+**12. docs/v5-structure-division.md (UPDATED - Part 17 added)**
+- [x] Complete Part 17: Affiliate Marketing Platform (2-Sided Marketplace)
+- [x] Affiliate portal frontend structure (8 pages)
+- [x] Affiliate API routes (11 endpoints)
+- [x] Admin affiliate management structure (5 pages + 14 API routes)
+- [x] User checkout integration points
+- [x] Automated processes (3 cron jobs)
+- [x] Business logic & utilities (8 files)
+- [x] Components structure (15 components)
+- [x] Database schema (3 models + migrations)
+- [x] Key features checklist (affiliate portal, admin portal, automation, security)
+- [x] File count breakdown (67 total files, 120 hours estimated)
+- [x] Integration points with existing parts documented
+- [x] Updated summary table (17 parts total, 237 total files)
+
+**13. PROGRESS.md (UPDATED)**
+- [x] Updated overall progress table (17 parts, 237 files, 173 hours remaining)
+- [x] Added Milestone 1.10 documentation
+- [x] Updated Phase 1 final status
+
+#### Architecture Decision: Start Integrated, Extract Later
+
+**Decision Made:** Option A - Build affiliate platform integrated within main SaaS codebase
+
+**Rationale:**
+- Faster time to market (3 months vs 5-6 months for separate systems)
+- Validate both product and affiliate model before architectural commitment
+- Learn real requirements from usage patterns
+- Extraction is proven pattern (Amazon, Netflix, Uber all did this)
+- Reduces complexity during MVP phase
+
+**Future Consideration:** If affiliate platform scales significantly (>1000 affiliates), consider extraction to separate service using established patterns and real usage data.
+
+#### Key Implementation Details:
+
+**Scope:** 2-sided marketplace platform with three distinct user types
+- **Side 1:** Affiliates (self-service portal with registration, dashboard, reports)
+- **Side 2:** End Users (checkout with optional discount codes)
+- **Platform Operator:** Admin (affiliate management + 4 BI reports)
+
+**Database Changes:**
+- 3 new models: Affiliate (27 fields), AffiliateCode (13 fields), Commission (12 fields)
+- 4 new enums: PaymentMethod, AffiliateStatus, CodeStatus, CommissionStatus
+- 1 modified model: Subscription (added affiliateCodeId nullable foreign key)
+
+**API Surface:**
+- 30+ new endpoints across affiliate portal, admin panel, and checkout integration
+- Separate authentication system using AFFILIATE_JWT_SECRET
+- All endpoints documented in OpenAPI spec
+
+**Automation:**
+- Monthly code distribution (1st of month, 00:00 UTC via Vercel Cron)
+- Monthly code expiry (last day of month, 23:59 UTC)
+- 8 email notification types (registration, welcome, code used, payment, etc.)
+
+**Security:**
+- Cryptographically secure code generation (crypto.randomBytes)
+- Separate JWT authentication (no shared sessions)
+- Code validation (ACTIVE, not expired, not used)
+- Commission creation only via Stripe webhook (prevents fraud)
+- Payment data encryption at rest
+
+**Time Investment:**
+- Documentation & Design: ~6 hours (Phase 1)
+- Implementation: ~120 hours (Part 17 in Phase 3)
+- Total: ~126 hours for complete affiliate platform
+
+**Status:** ✅ **COMPLETE** (Design & Documentation Phase)
+
+**Next Steps:**
+- Implement Part 17 after completing Parts 1-16 (recommended before scaling)
+- Week 10 timeline: Just before Part 18 begins
+- Can be implemented earlier if affiliate marketing is prioritized
+
+---
+
 ## 📊 PHASE 1 FINAL STATUS
 
-**Total Time Invested:** ~16 hours
+**Total Time Invested:** ~22 hours (includes 6 hours for affiliate marketing documentation)
 
-**Milestones Completed:** 9/9 ✅
+**Milestones Completed:** 10/10 ✅
 
-**Files Created in Phase 1:** 13+ documentation files (including UI components mapping)
+**Files Created in Phase 1:** 16 documentation files (including UI components mapping + affiliate marketing platform)
 
 **Ready for Phase 2:** ⚠️ **After user completes:**
 1. Aider comprehension tests (Milestone 1.6)

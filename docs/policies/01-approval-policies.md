@@ -971,6 +971,391 @@ Validate with Claude Code
 
 ---
 
+## 7. AFFILIATE MARKETING SPECIFIC POLICIES
+
+**Applies to:** Part 17 (Affiliate Marketing Platform) - 67 files
+
+The affiliate marketing 2-sided marketplace introduces unique validation requirements beyond the core user-facing features.
+
+---
+
+### 7.1 Affiliate Authentication Requirements
+
+✅ **Separate JWT Secret:**
+- Affiliate routes MUST use `AFFILIATE_JWT_SECRET` (NOT user JWT secret)
+- Token payload MUST include `type: 'AFFILIATE'` discriminator
+- Token validation MUST check type field
+- No shared authentication between affiliates and users
+
+**Why this matters:** Affiliate and user authentication must be completely separate to prevent privilege escalation and maintain clear security boundaries.
+
+**Example - Good:**
+```typescript
+// lib/auth/affiliate-auth.ts
+export function generateAffiliateToken(affiliate: Affiliate): string {
+  return jwt.sign(
+    {
+      id: affiliate.id,
+      email: affiliate.email,
+      type: 'AFFILIATE',  // ✅ Type discriminator
+      status: affiliate.status
+    },
+    process.env.AFFILIATE_JWT_SECRET!,  // ✅ Separate secret
+    { expiresIn: '7d' }
+  );
+}
+
+// Middleware validates token type
+export function validateAffiliateToken(token: string) {
+  const decoded = jwt.verify(token, process.env.AFFILIATE_JWT_SECRET!);
+  if (decoded.type !== 'AFFILIATE') {
+    throw new Error('Invalid token type');
+  }
+  return decoded;
+}
+```
+
+**Example - Bad:**
+```typescript
+// ❌ Using same secret as users
+const token = jwt.sign(affiliate, process.env.JWT_SECRET);
+
+// ❌ No type discriminator
+const token = jwt.sign({ id: affiliate.id }, process.env.JWT_SECRET);
+```
+
+---
+
+### 7.2 Affiliate Code Generation
+
+✅ **Cryptographically Secure Code Generation:**
+- MUST use `crypto.randomBytes(16).toString('hex')` or equivalent
+- Code length MUST be ≥12 characters
+- MUST check uniqueness before saving
+- NEVER use predictable patterns (sequential numbers, affiliate name, etc.)
+
+**Why this matters:** Predictable codes allow attackers to guess valid codes and abuse discounts.
+
+**Example - Good:**
+```typescript
+import crypto from 'crypto';
+
+function generateAffiliateCode(affiliateName: string): string {
+  // Random component (cryptographically secure)
+  const random = crypto.randomBytes(16).toString('hex');
+
+  // Optional: Prefix with sanitized affiliate name (first 4 chars, uppercase)
+  const prefix = affiliateName.slice(0, 4).toUpperCase().replace(/[^A-Z]/g, '');
+
+  // Combine: SMIT-a7f3e9d1c2b4a1f6 (total length >12)
+  return `${prefix}-${random.slice(0, 12)}`;
+}
+
+// Ensure uniqueness
+async function createUniqueCode(affiliateName: string): Promise<string> {
+  let attempts = 0;
+  while (attempts < 10) {
+    const code = generateAffiliateCode(affiliateName);
+    const existing = await prisma.affiliateCode.findUnique({ where: { code } });
+    if (!existing) return code;
+    attempts++;
+  }
+  throw new Error('Failed to generate unique code after 10 attempts');
+}
+```
+
+**Example - Bad:**
+```typescript
+// ❌ Predictable pattern
+function generateCode(affiliate: Affiliate) {
+  return `${affiliate.name}-${affiliate.id}`;  // Easy to guess
+}
+
+// ❌ Sequential
+let codeCounter = 1000;
+function generateCode() {
+  return `CODE-${codeCounter++}`;  // Attacker can enumerate
+}
+
+// ❌ Not cryptographically secure
+function generateCode() {
+  return Math.random().toString(36).substring(7);  // Math.random() is NOT secure
+}
+```
+
+---
+
+### 7.3 Commission Calculation Validation
+
+✅ **Commission Calculation Requirements:**
+- MUST create commissions ONLY via Stripe webhook (not manual creation)
+- MUST validate affiliate code before creating commission
+- MUST use exact formula: `netRevenue × (commissionPercent / 100)`
+- MUST store all intermediate values (regularPrice, discountAmount, netRevenue)
+- MUST set status to 'PENDING' initially (NOT 'PAID')
+
+**Why this matters:** Commission calculations involve money. Incorrect calculations or manual commission creation enables fraud.
+
+**Example - Good:**
+```typescript
+// app/api/webhooks/stripe/route.ts
+export async function POST(req: NextRequest) {
+  const event = await stripe.webhooks.constructEvent(/* ... */);
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const affiliateCodeValue = session.metadata?.affiliateCode;
+
+    if (affiliateCodeValue) {
+      // 1. Validate code exists and is ACTIVE
+      const code = await prisma.affiliateCode.findUnique({
+        where: { code: affiliateCodeValue }
+      });
+
+      if (!code || code.status !== 'ACTIVE') {
+        console.error('Invalid affiliate code:', affiliateCodeValue);
+        return NextResponse.json({ error: 'Invalid code' }, { status: 400 });
+      }
+
+      // 2. Extract values from Stripe session
+      const regularPrice = parseFloat(session.metadata.regularPrice); // 29.00
+      const discountPercent = code.discountPercent; // 10.0
+      const commissionPercent = code.commissionPercent; // 30.0
+
+      // 3. Calculate (with exact formula)
+      const discountAmount = regularPrice * (discountPercent / 100); // 2.90
+      const netRevenue = regularPrice - discountAmount; // 26.10
+      const commissionAmount = netRevenue * (commissionPercent / 100); // 7.83
+
+      // 4. Create commission record (status: PENDING)
+      await prisma.commission.create({
+        data: {
+          affiliateId: code.affiliateId,
+          affiliateCodeId: code.id,
+          userId: session.metadata.userId,
+          subscriptionId: session.subscription,
+          regularPrice,
+          discountAmount,
+          netRevenue,
+          commissionPercent,
+          commissionAmount,
+          status: 'PENDING',  // ✅ Awaits admin payment
+        }
+      });
+
+      // 5. Mark code as USED
+      await prisma.affiliateCode.update({
+        where: { id: code.id },
+        data: {
+          status: 'USED',
+          usedAt: new Date(),
+          usedByUserId: session.metadata.userId
+        }
+      });
+    }
+  }
+
+  return NextResponse.json({ received: true });
+}
+```
+
+**Example - Bad:**
+```typescript
+// ❌ Manual commission creation (bypasses Stripe)
+export async function POST(req: NextRequest) {
+  const { affiliateId, amount } = await req.json();
+
+  // NO VALIDATION - FRAUD RISK!
+  await prisma.commission.create({
+    data: {
+      affiliateId,
+      commissionAmount: amount,
+      status: 'PENDING'
+    }
+  });
+}
+
+// ❌ Wrong calculation
+const commission = regularPrice * 0.30;  // Should be netRevenue × 0.30
+
+// ❌ Creating as PAID immediately
+status: 'PAID'  // Should start as PENDING
+```
+
+---
+
+### 7.4 Affiliate Payment Method Validation
+
+✅ **Payment Method Field Validation:**
+- MUST validate payment method is one of: `BANK_TRANSFER | CRYPTO | GLOBAL_WALLET | LOCAL_WALLET`
+- MUST validate required fields based on payment method
+- MUST validate optional fields are null when not applicable
+
+**Required field combinations:**
+```typescript
+// BANK_TRANSFER requires:
+- bankName (string, min 1)
+- bankAccountNumber (string, min 5)
+- bankAccountHolderName (string, min 1)
+
+// CRYPTO requires:
+- cryptoWalletAddress (string, min 20, max 100)
+- preferredCryptocurrency (enum: BTC, ETH, USDT)
+
+// GLOBAL_WALLET requires:
+- globalWalletType (enum: PayPal, Payoneer, Wise)
+- globalWalletIdentifier (string, email format)
+
+// LOCAL_WALLET requires:
+- localWalletType (enum: GCash, Maya, TrueMoney)
+- localWalletIdentifier (string, min 10)
+```
+
+**Example - Good:**
+```typescript
+const paymentMethodSchemas = {
+  BANK_TRANSFER: z.object({
+    paymentMethod: z.literal('BANK_TRANSFER'),
+    bankName: z.string().min(1),
+    bankAccountNumber: z.string().min(5),
+    bankAccountHolderName: z.string().min(1),
+    // Other fields must be null
+    cryptoWalletAddress: z.null(),
+    preferredCryptocurrency: z.null(),
+    globalWalletType: z.null(),
+    globalWalletIdentifier: z.null(),
+    localWalletType: z.null(),
+    localWalletIdentifier: z.null(),
+  }),
+  CRYPTO: z.object({
+    paymentMethod: z.literal('CRYPTO'),
+    cryptoWalletAddress: z.string().min(20).max(100),
+    preferredCryptocurrency: z.enum(['BTC', 'ETH', 'USDT']),
+    // Other fields must be null
+    bankName: z.null(),
+    bankAccountNumber: z.null(),
+    bankAccountHolderName: z.null(),
+    globalWalletType: z.null(),
+    globalWalletIdentifier: z.null(),
+    localWalletType: z.null(),
+    localWalletIdentifier: z.null(),
+  }),
+  // ... GLOBAL_WALLET and LOCAL_WALLET schemas
+};
+
+// Validate based on payment method
+const schema = paymentMethodSchemas[data.paymentMethod];
+const validated = schema.parse(data);
+```
+
+---
+
+### 7.5 Accounting-Style Report Validation
+
+✅ **Report Structure Requirements:**
+- MUST follow accounting format: Opening Balance → Activity → Closing Balance
+- MUST match opening balance = previous closing balance
+- MUST include drill-down capability (summary → detail)
+- MUST aggregate correctly
+
+**Example - Commission Report:**
+```typescript
+// Good structure
+{
+  reportMonth: "2024-01",
+  openingBalance: 0.00,     // From previous month's closing
+  earned: 15.66,            // Sum of commissions this month
+  paid: 7.83,               // Sum of payments this month
+  closingBalance: 7.83,     // openingBalance + earned - paid
+  commissions: [
+    {
+      id: "comm_1",
+      userId: "user_1",
+      subscriptionId: "sub_1",
+      affiliateCode: "SMITH-A7K9P2M5",
+      createdAt: "2024-01-05T10:30:00Z",
+      regularPrice: 29.00,
+      discountAmount: 2.90,
+      netRevenue: 26.10,
+      commissionPercent: 30.0,
+      commissionAmount: 7.83,
+      status: "PAID",
+      paidAt: "2024-01-10T14:20:00Z"
+    },
+    {
+      id: "comm_2",
+      userId: "user_2",
+      subscriptionId: "sub_2",
+      affiliateCode: "SMITH-B1C2D3E4",
+      createdAt: "2024-01-15T16:45:00Z",
+      regularPrice: 29.00,
+      discountAmount: 2.90,
+      netRevenue: 26.10,
+      commissionPercent: 30.0,
+      commissionAmount: 7.83,
+      status: "PENDING",
+      paidAt: null
+    }
+  ]
+}
+```
+
+**Validation:**
+```typescript
+// Validate accounting balance
+const calculated = openingBalance + earned - paid;
+if (Math.abs(calculated - closingBalance) > 0.01) {
+  throw new Error('Accounting mismatch: balance does not reconcile');
+}
+
+// Validate earned matches sum of commissions
+const totalEarned = commissions.reduce((sum, c) => sum + c.commissionAmount, 0);
+if (Math.abs(totalEarned - earned) > 0.01) {
+  throw new Error('Commission total mismatch');
+}
+```
+
+---
+
+### 7.6 Affiliate-Specific Approval Checklist
+
+When validating affiliate marketing files, ensure:
+
+- [ ] Affiliate authentication uses AFFILIATE_JWT_SECRET
+- [ ] Token includes type: 'AFFILIATE' discriminator
+- [ ] Code generation uses crypto.randomBytes() (NOT Math.random)
+- [ ] Code length ≥12 characters
+- [ ] Code uniqueness checked before creation
+- [ ] Commissions created ONLY via Stripe webhook
+- [ ] Commission calculation uses correct formula
+- [ ] All commission intermediate values stored
+- [ ] Commission status starts as PENDING
+- [ ] Payment method validation matches required fields
+- [ ] Accounting reports include opening/closing balances
+- [ ] Report balances reconcile (opening + earned - paid = closing)
+- [ ] No privilege escalation between affiliate/user auth
+
+**If ANY of these conditions violated → ESCALATE**
+
+---
+
+### 7.7 Affiliate-Specific Quick Reference
+
+| Requirement | Check | Severity if Violated |
+|-------------|-------|---------------------|
+| Separate JWT secret | Uses AFFILIATE_JWT_SECRET | Critical |
+| Token type discriminator | Includes type: 'AFFILIATE' | Critical |
+| Crypto-secure code generation | Uses crypto.randomBytes() | Critical |
+| Commission via webhook only | Created in Stripe webhook handler | Critical |
+| Correct commission formula | netRevenue × commissionPercent | High |
+| Payment method validation | Required fields present | High |
+| Accounting balance reconciliation | opening + earned - paid = closing | High |
+| Code uniqueness check | Checks existing before creating | Medium |
+
+**If ANY Critical violated → ESCALATE immediately**
+
+---
+
 **End of Approval Policies**
 
 These policies enable Aider with MiniMax M2 to work autonomously while maintaining high quality and security standards. Update this document as you learn from escalations!

@@ -124,18 +124,19 @@ Before creating policies, understand what seed code you have and when to use eac
 
 **2. nextjs/saas-starter (Backend/API Foundation)**
    - **What:** Next.js SaaS template with auth, database, payments
-   - **When Aider uses it:** Parts 5 (Auth), 7 (API Routes), 12 (E-commerce)
-   - **Reference for:** 
+   - **When Aider uses it:** Parts 5 (Auth), 7 (API Routes), 12 (E-commerce), **Part 17 (Affiliate Marketing)**
+   - **Reference for:**
      - NextAuth.js configuration
      - Prisma database patterns
      - Stripe payment integration
      - API route structure
      - Middleware patterns
+     - **Stripe webhook handling (critical for commission calculation)**
    - **Location:** seed-code/saas-starter/
 
 **3. next-shadcn-dashboard-starter (Frontend/UI Foundation)**
    - **What:** Next.js dashboard with shadcn/ui components
-   - **When Aider uses it:** Parts 8-14 (All UI components)
+   - **When Aider uses it:** Parts 8-14 (All UI components), **Part 17 (Affiliate Portal & Admin Dashboard)**
    - **Reference for:**
      - Dashboard layouts
      - shadcn/ui component usage
@@ -143,6 +144,8 @@ Before creating policies, understand what seed code you have and when to use eac
      - Form patterns
      - Navigation structure
      - Responsive design
+     - **Analytics dashboards (for affiliate earnings tracking)**
+     - **Admin management interfaces (for affiliate approval)**
    - **Location:** seed-code/next-shadcn-dashboard-starter/
 
 💡 **How Aider Uses Seed Code:**
@@ -167,20 +170,24 @@ Seed code = inspiration and patterns, NOT copy/paste!
 2. Copy and paste this prompt:
 
 ```
-I'm creating approval-policies.md for my Aider AI system using MiniMax M2. 
-I'm a complete beginner building a Trading Alerts SaaS.
+I'm creating approval-policies.md for my Aider AI system using MiniMax M2.
+I'm a complete beginner building a Trading Alerts SaaS with Affiliate Marketing.
 
 My project context:
 - Trading Alerts SaaS with 2 tiers: FREE (5 symbols), PRO (15 symbols)
 - FREE: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1)
 - PRO: 15 symbols × 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
+- **2-sided marketplace:** Affiliate marketing program (Part 17, 67 files)
+  * Affiliates earn 20% commission on referred PRO subscriptions
+  * Separate JWT authentication for affiliates (not NextAuth)
+  * Admin approval workflow for affiliates and commissions
 - Next.js 15 frontend + Flask backend + MT5 integration
 - PostgreSQL database on Railway
 - Using MiniMax M2 API for cost-effective autonomous development
 - 3 seed code repositories for reference:
   * market_ai_engine.py (Flask/MT5)
-  * nextjs/saas-starter (Backend/Auth/Payments)
-  * next-shadcn-dashboard-starter (Frontend/UI)
+  * nextjs/saas-starter (Backend/Auth/Payments/Affiliate)
+  * next-shadcn-dashboard-starter (Frontend/UI/Affiliate Portal/Admin)
 
 Create a comprehensive approval-policies.md that defines:
 
@@ -346,10 +353,12 @@ Define:
    - Why this matters (contract-driven development)
 
 5. AUTHENTICATION & AUTHORIZATION
-   - NextAuth.js for authentication
+   - NextAuth.js for user authentication
+   - **Separate JWT authentication for affiliates (not NextAuth)**
    - Tier validation pattern: FREE → 5 symbols × 3 timeframes, PRO → 15 symbols × 9 timeframes
    - Where to check auth (middleware, API routes)
-   - Include code example
+   - **Admin role checks for /admin/* routes**
+   - Include code examples for both user and affiliate auth
 
 6. DATABASE PATTERNS
    - Prisma only (no raw SQL unless absolutely necessary)
@@ -560,10 +569,51 @@ Include:
 - Access control mapping
 Complete with TypeScript types!
 
+PATTERN 7: AFFILIATE JWT AUTHENTICATION (Part 17)
+File: lib/auth/affiliate-jwt.ts
+Include:
+- Separate JWT secret (AFFILIATE_JWT_SECRET environment variable)
+- generateAffiliateToken(affiliateId, email): string
+- verifyAffiliateToken(token): AffiliateJWTPayload
+- affiliateAuthMiddleware(req): Promise<AffiliateJWTPayload>
+Complete implementation with error handling!
+
+PATTERN 8: CRYPTO-SECURE AFFILIATE CODE GENERATION (Part 17)
+File: lib/affiliate/code-generator.ts
+Include:
+- Use crypto.randomBytes (NOT Math.random)
+- generateAffiliateCode(prefix = 'REF'): string
+- Returns format: "REF-ABC123XYZ" (12 chars after prefix)
+- Must be URL-safe and unique
+Complete implementation with validation!
+
+PATTERN 9: COMMISSION CALCULATION IN STRIPE WEBHOOK (Part 17)
+File: app/api/webhooks/stripe/route.ts
+Include:
+- Extract affiliate_code from session.metadata
+- Validate affiliate code exists and affiliate is APPROVED
+- Calculate 20% commission on subscription amount
+- Create Commission record (status: PENDING)
+- Increment affiliateCode.usageCount
+- Update affiliate.totalReferrals
+- NEVER calculate commissions outside webhook (single source of truth!)
+Complete Stripe webhook handler with commission logic!
+
+PATTERN 10: ACCOUNTING-STYLE ADMIN REPORTS (Part 17)
+File: app/api/admin/affiliates/reports/route.ts
+Include:
+- Aggregate commissions by status (PENDING, APPROVED, PAID)
+- Total earnings per affiliate
+- Monthly commission trends
+- Fraud detection (unusual referral patterns)
+- Export to CSV capability
+Complete admin reporting endpoint!
+
 Each pattern should be:
 - Complete and working
 - Well-commented
 - Following our tier system (FREE: 5 symbols × 3 timeframes, PRO: 15 symbols × 9 timeframes)
+- Patterns 7-10: Following affiliate marketing security best practices
 - Ready to copy/paste
 - Explained with WHY, not just WHAT
 
@@ -605,22 +655,25 @@ Include:
    - Adapt, don't copy: Use as pattern reference, customize for our OpenAPI spec
    
    **seed-code/saas-starter/:**
-   - Use for: Parts 5 (Auth), 7 (API Routes), 12 (E-commerce)
-   - Reference: NextAuth config, Prisma patterns, Stripe integration, middleware
+   - Use for: Parts 5 (Auth), 7 (API Routes), 12 (E-commerce), **Part 17 (Affiliate Marketing)**
+   - Reference: NextAuth config, Prisma patterns, Stripe integration, middleware, **Stripe webhook handling**
    - Key files to check:
      * app/api/auth/[...nextauth]/route.ts
      * lib/stripe.ts
      * middleware.ts
      * prisma/schema.prisma
-   
+     * **app/api/webhooks/stripe/route.ts (critical for commission calculation)**
+
    **seed-code/next-shadcn-dashboard-starter/:**
-   - Use for: Parts 8-14 (All UI/Frontend)
-   - Reference: Dashboard layout, shadcn/ui components, charts, forms
+   - Use for: Parts 8-14 (All UI/Frontend), **Part 17 (Affiliate Portal & Admin Dashboard)**
+   - Reference: Dashboard layout, shadcn/ui components, charts, forms, **analytics dashboards, admin interfaces**
    - Key files to check:
      * app/dashboard/layout.tsx
      * components/ui/* (shadcn components)
      * components/charts/*
      * lib/utils.ts
+     * **Dashboard analytics patterns (for affiliate earnings)**
+     * **Admin management table patterns (for affiliate approval)**
    
    **Important:** Seed code is REFERENCE only. Always:
    - Adapt to our OpenAPI contracts

@@ -1136,6 +1136,659 @@ export type UserTier = keyof typeof TIER_CONFIG;
 
 ---
 
+## PATTERN 7: AFFILIATE AUTHENTICATION (SEPARATE JWT)
+
+**File:** `lib/auth/affiliate-auth.ts`
+
+**Purpose:** Separate authentication system for affiliates using different JWT secret
+
+**Full Implementation:**
+
+```typescript
+// lib/auth/affiliate-auth.ts
+
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { prisma } from '@/lib/db/prisma';
+import type { Affiliate } from '@prisma/client';
+
+/**
+ * Affiliate JWT Token Payload
+ * CRITICAL: Separate from user JWT (uses AFFILIATE_JWT_SECRET)
+ */
+export interface AffiliateTokenPayload {
+  id: string;
+  email: string;
+  type: 'AFFILIATE';  // Type discriminator (CRITICAL)
+  status: 'PENDING_VERIFICATION' | 'ACTIVE' | 'SUSPENDED';
+  iat?: number;
+  exp?: number;
+}
+
+/**
+ * Generate JWT token for affiliate
+ * Uses AFFILIATE_JWT_SECRET (NOT regular JWT_SECRET)
+ */
+export function generateAffiliateToken(affiliate: Affiliate): string {
+  const payload: AffiliateTokenPayload = {
+    id: affiliate.id,
+    email: affiliate.email,
+    type: 'AFFILIATE',  // ✅ Type discriminator prevents privilege escalation
+    status: affiliate.status,
+  };
+
+  return jwt.sign(
+    payload,
+    process.env.AFFILIATE_JWT_SECRET!,  // ✅ Separate secret
+    { expiresIn: '7d' }
+  );
+}
+
+/**
+ * Verify affiliate JWT token
+ * CRITICAL: Checks token type to prevent user tokens from being used
+ */
+export function verifyAffiliateToken(token: string): AffiliateTokenPayload {
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.AFFILIATE_JWT_SECRET!
+    ) as AffiliateTokenPayload;
+
+    // ✅ Verify type discriminator
+    if (decoded.type !== 'AFFILIATE') {
+      throw new Error('Invalid token type');
+    }
+
+    return decoded;
+  } catch (error) {
+    throw new Error('Invalid or expired token');
+  }
+}
+
+/**
+ * Hash affiliate password (bcrypt, 10 rounds)
+ */
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 10);
+}
+
+/**
+ * Verify affiliate password
+ */
+export async function verifyPassword(
+  password: string,
+  hash: string
+): Promise<boolean> {
+  return bcrypt.compare(password, hash);
+}
+
+/**
+ * Middleware: Extract affiliate from token
+ * Use this in affiliate API routes
+ */
+export async function getAffiliateFromToken(token: string): Promise<Affiliate | null> {
+  try {
+    const decoded = verifyAffiliateToken(token);
+
+    const affiliate = await prisma.affiliate.findUnique({
+      where: { id: decoded.id }
+    });
+
+    return affiliate;
+  } catch (error) {
+    return null;
+  }
+}
+```
+
+**Usage in API Route:**
+```typescript
+// app/api/affiliate/dashboard/stats/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { getAffiliateFromToken } from '@/lib/auth/affiliate-auth';
+
+export async function GET(req: NextRequest) {
+  // 1. Extract token from header
+  const token = req.headers.get('authorization')?.replace('Bearer ', '');
+
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // 2. Verify affiliate token
+  const affiliate = await getAffiliateFromToken(token);
+
+  if (!affiliate) {
+    return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+  }
+
+  // 3. Check affiliate status
+  if (affiliate.status !== 'ACTIVE') {
+    return NextResponse.json(
+      { error: 'Account not active' },
+      { status: 403 }
+    );
+  }
+
+  // 4. Business logic
+  const stats = await getAffiliateStats(affiliate.id);
+
+  return NextResponse.json(stats);
+}
+```
+
+---
+
+## PATTERN 8: CRYPTOGRAPHICALLY SECURE CODE GENERATION
+
+**File:** `lib/affiliates/code-generator.ts`
+
+**Purpose:** Generate affiliate discount codes securely (not guessable)
+
+**Full Implementation:**
+
+```typescript
+// lib/affiliates/code-generator.ts
+
+import crypto from 'crypto';
+import { prisma } from '@/lib/db/prisma';
+
+/**
+ * Generate cryptographically secure affiliate code
+ *
+ * Format: PREFIX-RANDOMHEX
+ * Example: SMIT-a7f3e9d1c2b4
+ *
+ * CRITICAL: Uses crypto.randomBytes (NOT Math.random)
+ */
+export function generateAffiliateCode(affiliateName: string): string {
+  // 1. Create prefix from affiliate name (optional, for readability)
+  const prefix = affiliateName
+    .slice(0, 4)
+    .toUpperCase()
+    .replace(/[^A-Z]/g, '')  // Remove non-letters
+    .padEnd(4, 'X');  // Pad if < 4 chars
+
+  // 2. Generate cryptographically secure random component
+  const randomHex = crypto.randomBytes(16).toString('hex');
+
+  // 3. Combine (total length >12 characters)
+  const code = `${prefix}-${randomHex.slice(0, 12)}`;
+
+  return code;
+}
+
+/**
+ * Generate unique affiliate code (check database for collisions)
+ *
+ * Attempts up to 10 times to generate unique code.
+ * Collision probability is extremely low with crypto.randomBytes.
+ */
+export async function generateUniqueAffiliateCode(
+  affiliateName: string
+): Promise<string> {
+  const MAX_ATTEMPTS = 10;
+
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+    const code = generateAffiliateCode(affiliateName);
+
+    // Check if code already exists
+    const existing = await prisma.affiliateCode.findUnique({
+      where: { code }
+    });
+
+    if (!existing) {
+      return code;  // ✅ Unique code found
+    }
+
+    // Collision detected (extremely rare), try again
+    console.warn(`Code collision on attempt ${attempt + 1}: ${code}`);
+  }
+
+  throw new Error(`Failed to generate unique code after ${MAX_ATTEMPTS} attempts`);
+}
+
+/**
+ * Generate multiple codes in batch
+ * Used during monthly code distribution
+ */
+export async function generateAffiliateCodeBatch(
+  affiliateId: string,
+  affiliateName: string,
+  count: number
+): Promise<Array<{ code: string; affiliateId: string; status: string; expiresAt: Date }>> {
+  const codes: Array<{
+    code: string;
+    affiliateId: string;
+    status: string;
+    discountPercent: number;
+    commissionPercent: number;
+    expiresAt: Date;
+  }> = [];
+
+  // Calculate end of current month
+  const now = new Date();
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+  for (let i = 0; i < count; i++) {
+    const code = await generateUniqueAffiliateCode(affiliateName);
+
+    codes.push({
+      code,
+      affiliateId,
+      status: 'ACTIVE',
+      discountPercent: 10.0,   // 10% discount for customers
+      commissionPercent: 30.0, // 30% commission for affiliate
+      expiresAt: endOfMonth
+    });
+  }
+
+  return codes;
+}
+```
+
+**Example - Bad (DO NOT USE):**
+```typescript
+// ❌ WRONG - Predictable pattern
+function badCodeGenerator(affiliate: Affiliate) {
+  return `${affiliate.name}-${affiliate.id}`;  // Easy to guess
+}
+
+// ❌ WRONG - Math.random is NOT cryptographically secure
+function badCodeGenerator2() {
+  return Math.random().toString(36).substring(7);  // Predictable
+}
+
+// ❌ WRONG - Sequential codes
+let counter = 1000;
+function badCodeGenerator3() {
+  return `CODE-${counter++}`;  // Attacker can enumerate
+}
+```
+
+---
+
+## PATTERN 9: COMMISSION CALCULATION IN STRIPE WEBHOOK
+
+**File:** `app/api/webhooks/stripe/route.ts`
+
+**Purpose:** Create commissions when Stripe payment succeeds (ONLY via webhook)
+
+**Full Implementation:**
+
+```typescript
+// app/api/webhooks/stripe/route.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { prisma } from '@/lib/db/prisma';
+import { sendEmail } from '@/lib/email/sendEmail';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2023-10-16',
+});
+
+/**
+ * Stripe Webhook Handler
+ *
+ * CRITICAL: Commissions MUST ONLY be created here (not via manual API)
+ * This ensures commission tied to actual payment
+ */
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  try {
+    // 1. Verify webhook signature (security)
+    const body = await req.text();
+    const sig = req.headers.get('stripe-signature')!;
+
+    let event: Stripe.Event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET!
+      );
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err);
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+    }
+
+    // 2. Handle checkout.session.completed event
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session;
+
+      await handleCheckoutComplete(session);
+    }
+
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error('Webhook processing error:', error);
+    return NextResponse.json(
+      { error: 'Webhook processing failed' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * Handle checkout completion
+ * Creates subscription AND commission (if affiliate code used)
+ */
+async function handleCheckoutComplete(
+  session: Stripe.Checkout.Session
+): Promise<void> {
+  const userId = session.metadata?.userId;
+  const affiliateCodeValue = session.metadata?.affiliateCode;
+
+  if (!userId) {
+    console.error('Missing userId in session metadata');
+    return;
+  }
+
+  // 1. Update user's subscription
+  await prisma.subscription.create({
+    data: {
+      userId,
+      stripeCustomerId: session.customer as string,
+      stripeSubscriptionId: session.subscription as string,
+      stripePriceId: session.metadata!.priceId,
+      stripeCurrentPeriodEnd: new Date(/* ... */),
+      status: 'active',
+      plan: 'PRO',
+      metadata: affiliateCodeValue
+        ? { affiliateCode: affiliateCodeValue }
+        : null
+    }
+  });
+
+  // 2. Update user tier
+  await prisma.user.update({
+    where: { id: userId },
+    data: { tier: 'PRO' }
+  });
+
+  // 3. If affiliate code used, create commission
+  if (affiliateCodeValue) {
+    await createCommissionFromCode(
+      affiliateCodeValue,
+      userId,
+      session.subscription as string,
+      parseFloat(session.metadata!.regularPrice)
+    );
+  }
+}
+
+/**
+ * Create commission from affiliate code
+ *
+ * CRITICAL FORMULA:
+ * - Regular Price: e.g., $29.00
+ * - Discount Amount: regularPrice × (discountPercent / 100)
+ * - Net Revenue: regularPrice - discountAmount
+ * - Commission Amount: netRevenue × (commissionPercent / 100)
+ */
+async function createCommissionFromCode(
+  codeValue: string,
+  userId: string,
+  subscriptionId: string,
+  regularPrice: number
+): Promise<void> {
+  // 1. Fetch affiliate code
+  const code = await prisma.affiliateCode.findUnique({
+    where: { code: codeValue },
+    include: { affiliate: true }
+  });
+
+  if (!code) {
+    console.error('Affiliate code not found:', codeValue);
+    return;
+  }
+
+  if (code.status !== 'ACTIVE') {
+    console.error('Affiliate code not active:', codeValue, code.status);
+    return;
+  }
+
+  // 2. Calculate commission (EXACT FORMULA)
+  const discountPercent = code.discountPercent;  // 10.0
+  const commissionPercent = code.commissionPercent;  // 30.0
+
+  const discountAmount = regularPrice * (discountPercent / 100);  // 29.00 × 0.10 = 2.90
+  const netRevenue = regularPrice - discountAmount;  // 29.00 - 2.90 = 26.10
+  const commissionAmount = netRevenue * (commissionPercent / 100);  // 26.10 × 0.30 = 7.83
+
+  // 3. Create commission record (status: PENDING)
+  const commission = await prisma.commission.create({
+    data: {
+      affiliateId: code.affiliateId,
+      affiliateCodeId: code.id,
+      userId,
+      subscriptionId,
+      regularPrice,
+      discountAmount,
+      netRevenue,
+      commissionPercent,
+      commissionAmount,
+      status: 'PENDING',  // ✅ Awaits admin payment
+    }
+  });
+
+  // 4. Mark code as USED
+  await prisma.affiliateCode.update({
+    where: { id: code.id },
+    data: {
+      status: 'USED',
+      usedAt: new Date(),
+      usedByUserId: userId
+    }
+  });
+
+  // 5. Update affiliate stats
+  await prisma.affiliate.update({
+    where: { id: code.affiliateId },
+    data: {
+      codesDistributed: { increment: 0 },  // No change
+      totalEarnings: { increment: commissionAmount }
+    }
+  });
+
+  // 6. Send email notification to affiliate
+  await sendEmail({
+    to: code.affiliate.email,
+    subject: 'Commission Earned! 🎉',
+    html: `
+      <h1>You earned a commission!</h1>
+      <p>Your code <strong>${codeValue}</strong> was used.</p>
+      <p><strong>Commission: $${commissionAmount.toFixed(2)}</strong></p>
+      <p>View details in your <a href="https://yourdomain.com/affiliate/dashboard">dashboard</a>.</p>
+    `
+  });
+
+  console.log('Commission created:', {
+    commissionId: commission.id,
+    affiliateId: code.affiliateId,
+    amount: commissionAmount,
+    code: codeValue
+  });
+}
+```
+
+---
+
+## PATTERN 10: ACCOUNTING-STYLE REPORT GENERATION
+
+**File:** `app/api/affiliate/dashboard/commission-report/route.ts`
+
+**Purpose:** Generate commission report with accounting format (opening/closing balance)
+
+**Full Implementation:**
+
+```typescript
+// app/api/affiliate/dashboard/commission-report/route.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getAffiliateFromToken } from '@/lib/auth/affiliate-auth';
+import { prisma } from '@/lib/db/prisma';
+
+/**
+ * GET /api/affiliate/dashboard/commission-report
+ *
+ * Returns accounting-style commission report:
+ * - Opening Balance (from previous month)
+ * - Earned this month
+ * - Paid this month
+ * - Closing Balance (opening + earned - paid)
+ * - Drill-down: Individual commissions
+ */
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  try {
+    // 1. Authenticate affiliate
+    const token = req.headers.get('authorization')?.replace('Bearer ', '');
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const affiliate = await getAffiliateFromToken(token);
+    if (!affiliate || affiliate.status !== 'ACTIVE') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // 2. Parse query parameters
+    const { searchParams } = new URL(req.url);
+    const monthParam = searchParams.get('month');  // Format: "2024-01"
+
+    const reportMonth = monthParam
+      ? new Date(`${monthParam}-01`)
+      : new Date();  // Default: current month
+
+    // 3. Calculate date range for this month
+    const startOfMonth = new Date(
+      reportMonth.getFullYear(),
+      reportMonth.getMonth(),
+      1
+    );
+    const endOfMonth = new Date(
+      reportMonth.getFullYear(),
+      reportMonth.getMonth() + 1,
+      0,
+      23,
+      59,
+      59
+    );
+
+    // 4. Fetch commissions for this month
+    const commissionsThisMonth = await prisma.commission.findMany({
+      where: {
+        affiliateId: affiliate.id,
+        createdAt: {
+          gte: startOfMonth,
+          lte: endOfMonth
+        }
+      },
+      include: {
+        affiliateCode: true,
+        user: {
+          select: { id: true, email: true, name: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // 5. Calculate opening balance (all commissions before this month)
+    const commissionsBeforeMonth = await prisma.commission.findMany({
+      where: {
+        affiliateId: affiliate.id,
+        createdAt: { lt: startOfMonth }
+      },
+      select: {
+        commissionAmount: true,
+        status: true
+      }
+    });
+
+    const openingBalance = commissionsBeforeMonth.reduce((sum, c) => {
+      // Opening = earned - paid (from previous months)
+      return sum + (c.status === 'PAID' ? 0 : c.commissionAmount);
+    }, 0);
+
+    // 6. Calculate this month's activity
+    const earned = commissionsThisMonth.reduce(
+      (sum, c) => sum + c.commissionAmount,
+      0
+    );
+
+    const paid = commissionsThisMonth
+      .filter(c => c.status === 'PAID')
+      .reduce((sum, c) => sum + c.commissionAmount, 0);
+
+    // 7. Calculate closing balance
+    const closingBalance = openingBalance + earned - paid;
+
+    // 8. Validate accounting (sanity check)
+    const calculated = openingBalance + earned - paid;
+    if (Math.abs(calculated - closingBalance) > 0.01) {
+      console.error('Accounting mismatch:', {
+        openingBalance,
+        earned,
+        paid,
+        closingBalance,
+        calculated
+      });
+    }
+
+    // 9. Build response
+    const report = {
+      reportMonth: reportMonth.toISOString().slice(0, 7),  // "2024-01"
+      openingBalance: parseFloat(openingBalance.toFixed(2)),
+      earned: parseFloat(earned.toFixed(2)),
+      paid: parseFloat(paid.toFixed(2)),
+      closingBalance: parseFloat(closingBalance.toFixed(2)),
+      commissions: commissionsThisMonth.map(c => ({
+        id: c.id,
+        userId: c.userId,
+        userName: c.user.name,
+        subscriptionId: c.subscriptionId,
+        affiliateCode: c.affiliateCode.code,
+        createdAt: c.createdAt.toISOString(),
+        regularPrice: c.regularPrice,
+        discountAmount: c.discountAmount,
+        netRevenue: c.netRevenue,
+        commissionPercent: c.commissionPercent,
+        commissionAmount: c.commissionAmount,
+        status: c.status,
+        paidAt: c.paidAt?.toISOString() || null
+      }))
+    };
+
+    return NextResponse.json(report);
+  } catch (error) {
+    console.error('Commission report error:', error);
+    return NextResponse.json(
+      { error: 'Failed to generate report' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+**Key Validation:**
+```typescript
+// Validate accounting balance reconciles
+const calculated = openingBalance + earned - paid;
+if (Math.abs(calculated - closingBalance) > 0.01) {
+  throw new Error('Accounting mismatch: balance does not reconcile');
+}
+
+// Validate earned matches sum of commissions
+const totalEarned = commissions.reduce((sum, c) => sum + c.commissionAmount, 0);
+if (Math.abs(totalEarned - earned) > 0.01) {
+  throw new Error('Commission total mismatch');
+}
+```
+
+---
+
 ## SUMMARY OF PATTERNS
 
 Use these patterns as templates:
@@ -1146,6 +1799,10 @@ Use these patterns as templates:
 4. **Database Pattern:** Prisma operations isolated in lib/db/*
 5. **Flask Pattern:** Python endpoint with tier validation middleware
 6. **Constants Pattern:** Centralized configuration
+7. **Affiliate Authentication Pattern:** Separate JWT secret with type discriminator (Pattern 7)
+8. **Code Generation Pattern:** Cryptographically secure code generation (Pattern 8)
+9. **Commission Calculation Pattern:** Stripe webhook with exact formula (Pattern 9)
+10. **Accounting Report Pattern:** Opening/closing balance with reconciliation (Pattern 10)
 
 **Remember:** Adapt these patterns to your specific requirements and ensure they match OpenAPI contracts.
 

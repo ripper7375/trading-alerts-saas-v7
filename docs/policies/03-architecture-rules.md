@@ -1265,6 +1265,401 @@ export function TradingChart({ symbol, timeframe }: TradingChartProps) {
 
 ---
 
+## 13. AFFILIATE MARKETING ARCHITECTURE
+
+### 13.1 2-Sided Marketplace Structure
+
+**Rule:** Affiliate marketing is implemented as a **2-sided marketplace** with three distinct user types: Affiliates, End Users, and Admin.
+
+**Why this matters:** Clear separation ensures secure authentication, appropriate permissions, and maintainable code isolation.
+
+**Architecture:**
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                  Trading Alerts SaaS                     │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  SIDE 1: AFFILIATE PORTAL                                │
+│  ├─ /affiliate/register      (Public)                    │
+│  ├─ /affiliate/verify        (Public)                    │
+│  ├─ /affiliate/login         (Public)                    │
+│  ├─ /affiliate/dashboard     (Protected: Affiliate JWT)  │
+│  ├─ /affiliate/profile       (Protected: Affiliate JWT)  │
+│  └─ API: /api/affiliate/*    (Affiliate authentication)  │
+│                                                          │
+│  SIDE 2: END USER PORTAL                                 │
+│  ├─ /auth/register           (Public)                    │
+│  ├─ /auth/login              (Public)                    │
+│  ├─ /dashboard               (Protected: User JWT)       │
+│  ├─ /dashboard/settings/billing (Checkout + Discount)    │
+│  └─ API: /api/user/*         (User authentication)       │
+│                                                          │
+│  PLATFORM OPERATOR: ADMIN PANEL                          │
+│  ├─ /admin/affiliates        (Protected: Admin role)     │
+│  ├─ /admin/reports           (Protected: Admin role)     │
+│  └─ API: /api/admin/*        (Admin authentication)      │
+│                                                          │
+│  CONNECTION POINT:                                       │
+│  └─ User applies affiliate code at checkout →            │
+│      Commission created → Affiliate notified             │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
+```
+
+### 13.2 Database Schema for Affiliates
+
+**Rule:** Three new tables must be added: `Affiliate`, `AffiliateCode`, and `Commission`.
+
+**Location:** `prisma/schema.prisma`
+
+**Key Relationships:**
+```
+Affiliate (1) ─┬─── (M) AffiliateCode
+               └─── (M) Commission
+
+AffiliateCode (1) ───── (1) Commission
+
+User (1) ─────────────── (M) Commission (as customer)
+
+Subscription (1) ───── (0..1) AffiliateCode (nullable)
+```
+
+**Critical Fields:**
+- `AffiliateCode.status`: Enum `[ACTIVE, USED, EXPIRED, CANCELLED]` - lifecycle management
+- `AffiliateCode.code`: Unique, cryptographically random (>12 chars) using `crypto.randomBytes`
+- `Commission.status`: Enum `[PENDING, PAID]` - payment tracking
+- `Affiliate.paymentMethod`: Enum `[BANK_TRANSFER, CRYPTO, GLOBAL_WALLET, LOCAL_WALLET]`
+
+### 13.3 Separate Authentication Systems
+
+**Rule:** Affiliates use separate JWT tokens from end users. No shared sessions.
+
+**Why this matters:** Security isolation prevents affiliates from accessing user dashboards and vice versa.
+
+**Implementation:**
+```typescript
+// lib/auth/affiliate-auth.ts
+export async function generateAffiliateToken(affiliate: Affiliate): Promise<string> {
+  return jwt.sign(
+    {
+      id: affiliate.id,
+      email: affiliate.email,
+      type: 'AFFILIATE', // Critical: type discriminator
+      status: affiliate.status
+    },
+    process.env.AFFILIATE_JWT_SECRET!, // Separate secret
+    { expiresIn: '7d' }
+  );
+}
+
+// Middleware validates token type
+export function validateAffiliateToken(token: string) {
+  const decoded = jwt.verify(token, process.env.AFFILIATE_JWT_SECRET!);
+  if (decoded.type !== 'AFFILIATE') {
+    throw new Error('Invalid token type');
+  }
+  return decoded;
+}
+```
+
+**DO NOT:**
+- ❌ Reuse user authentication for affiliates
+- ❌ Store both affiliate and user in same JWT
+- ❌ Allow affiliate tokens to access user endpoints
+
+### 13.4 Code Distribution Strategy
+
+**Rule:** All code distribution uses automated monthly cron jobs (1st of month). Manual distribution is admin-only exception.
+
+**Why this matters:** Consistent monthly rhythm ensures predictable inventory for affiliates and reduces administrative burden.
+
+**Implementation:**
+```typescript
+// app/api/cron/distribute-codes/route.ts
+export async function GET(req: NextRequest) {
+  // Verify Vercel Cron secret
+  if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const activeAffiliates = await prisma.affiliate.findMany({
+    where: { status: 'ACTIVE' }
+  });
+
+  for (const affiliate of activeAffiliates) {
+    // Generate 15 codes per affiliate
+    const codes = Array.from({ length: 15 }, () => ({
+      code: generateRandomCode(affiliate.fullName),
+      affiliateId: affiliate.id,
+      status: 'ACTIVE',
+      discountPercent: 10.0,
+      commissionPercent: 30.0,
+      expiresAt: endOfMonth(new Date())
+    }));
+
+    await prisma.affiliateCode.createMany({ data: codes });
+    await sendEmail(affiliate.email, 'Monthly Codes Distributed', codes);
+  }
+
+  return NextResponse.json({ success: true });
+}
+```
+
+**Vercel Configuration:**
+```json
+// vercel.json
+{
+  "crons": [
+    {
+      "path": "/api/cron/distribute-codes",
+      "schedule": "0 0 1 * *"  // 00:00 UTC on 1st of month
+    },
+    {
+      "path": "/api/cron/expire-codes",
+      "schedule": "59 23 28-31 * *"  // 23:59 UTC on last day of month
+    }
+  ]
+}
+```
+
+### 13.5 Commission Calculation Flow
+
+**Rule:** Commissions are calculated at checkout and stored immediately, but status remains `PENDING` until admin marks as paid.
+
+**Why this matters:** Ensures affiliate sees earned commissions in real-time while admin maintains payment control.
+
+**Flow:**
+```typescript
+// app/api/webhooks/stripe/route.ts
+export async function POST(req: NextRequest) {
+  const event = await stripe.webhooks.constructEvent(/* ... */);
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const affiliateCode = session.metadata?.affiliateCode;
+
+    if (affiliateCode) {
+      // 1. Mark code as USED
+      const code = await prisma.affiliateCode.update({
+        where: { code: affiliateCode },
+        data: {
+          status: 'USED',
+          usedAt: new Date(),
+          usedByUserId: session.metadata.userId
+        }
+      });
+
+      // 2. Calculate commission
+      const regularPrice = parseFloat(session.metadata.regularPrice);
+      const discountPercent = code.discountPercent;
+      const discount = regularPrice * (discountPercent / 100);
+      const netRevenue = regularPrice - discount;
+      const commission = netRevenue * (code.commissionPercent / 100);
+
+      // 3. Create Commission record (status: PENDING)
+      await prisma.commission.create({
+        data: {
+          affiliateId: code.affiliateId,
+          affiliateCodeId: code.id,
+          userId: session.metadata.userId,
+          subscriptionId: session.subscription,
+          regularPrice,
+          discountAmount: discount,
+          netRevenue,
+          commissionPercent: code.commissionPercent,
+          commissionAmount: commission,
+          status: 'PENDING'  // Awaits admin payment
+        }
+      });
+
+      // 4. Notify affiliate
+      await sendEmail(code.affiliate.email, 'Commission Earned', {
+        code: affiliateCode,
+        amount: commission
+      });
+    }
+  }
+
+  return NextResponse.json({ received: true });
+}
+```
+
+### 13.6 Accounting-Style Reports
+
+**Rule:** All affiliate and admin reports use accounting-style opening/closing balance format.
+
+**Why this matters:** Provides clear audit trail and matches affiliate's mental model of inventory/earnings.
+
+**Pattern:**
+```typescript
+// Example: Code Inventory Report
+interface CodeInventoryReport {
+  reportMonth: string;  // "2025-11"
+  openingBalance: number;  // (1.0) Codes at start of month
+  received: number;        // (1.1) + Codes distributed
+  used: number;            // (1.2) - Codes used by customers
+  expired: number;         // (1.3) - Codes expired
+  cancelled: number;       // (1.4) - Codes cancelled by admin
+  closingBalance: number;  // (1.5) = Codes remaining
+  movements: {
+    received: Array<{ date: string; quantity: number; notes: string }>;
+    used: Array<{ date: string; code: string; commission: number }>;
+  };
+}
+
+// Example: Commission Receivable Report
+interface CommissionReport {
+  reportMonth: string;
+  openingBalance: number;  // (2.0) Owed at start of month
+  earned: number;          // (2.1) + Earned this month
+  paid: number;            // (2.2) - Paid by admin
+  closingBalance: number;  // (2.3) = Still owed
+  commissions: Array<{
+    date: string;
+    code: string;
+    amount: number;
+    status: 'PENDING' | 'PAID';
+  }>;
+}
+```
+
+### 13.7 Admin Business Intelligence Reports
+
+**Rule:** Admin must have access to 4 key reports for business decision-making.
+
+**Required Reports:**
+
+1. **P&L Report** (`/api/admin/reports/profit-loss`)
+   - Monthly revenue, discounts, net revenue, commissions, profit
+   - 3-month default view
+   - Profit margin calculation
+
+2. **Sales Performance by Affiliate** (`/api/admin/reports/sales-performance`)
+   - Ranked list of affiliates by conversion rate
+   - Aggregate statistics (total codes, total revenue)
+   - Conversion distribution histogram
+
+3. **Commission Owings** (`/api/admin/reports/commission-owings`)
+   - All affiliates with pending commissions
+   - Grouped by payment method
+   - Bulk payment capability
+
+4. **Aggregate Code Inventory** (`/api/admin/reports/code-inventory`)
+   - System-wide code status breakdown
+   - Monthly distribution history
+   - Overall conversion metrics
+
+### 13.8 Email Notifications
+
+**Rule:** 8 email types must be triggered automatically by system events.
+
+**Required Email Templates:**
+1. Affiliate registration (verification required)
+2. Welcome email (after verification + 15 codes distributed)
+3. Code usage notification (real-time when code applied)
+4. Monthly code distribution (1st of month)
+5. Commission payment processed (admin marks paid)
+6. Account suspended (admin action)
+7. Admin: New affiliate registered
+8. Admin: Code request from affiliate
+
+**Implementation:**
+```typescript
+// lib/email/templates.ts
+export const EMAIL_TEMPLATES = {
+  AFFILIATE_WELCOME: (data: { fullName: string; codes: number }) => ({
+    subject: `Welcome to Trading Alerts Affiliate Program!`,
+    html: `
+      <h1>Welcome ${data.fullName}!</h1>
+      <p>Your affiliate account is now active. We've distributed ${data.codes} discount codes.</p>
+      <a href="https://trading-alerts.com/affiliate/dashboard">Login to Dashboard</a>
+    `
+  }),
+  CODE_USED: (data: { code: string; commission: number }) => ({
+    subject: `🎉 Your code was just used! You earned $${data.commission}`,
+    html: `
+      <h1>Great news!</h1>
+      <p>Code <strong>${data.code}</strong> was used. You earned $${data.commission}.</p>
+    `
+  })
+  // ... 6 more templates
+};
+```
+
+### 13.9 Security Considerations
+
+**Critical Rules:**
+1. ✅ Affiliates can only view their own codes and commissions
+2. ✅ Discount codes must be validated for:
+   - Exists in database
+   - Status = ACTIVE
+   - Not expired (expiresAt > now)
+   - Not already used (usedAt = null)
+3. ✅ Admin endpoints require role check: `user.role === 'ADMIN'`
+4. ✅ Commission creation only via Stripe webhook (prevents fraud)
+5. ✅ Code generation uses `crypto.randomBytes(16).toString('hex')` (not predictable)
+6. ✅ Payment preferences encrypted at rest (bank account numbers, crypto addresses)
+
+**DO NOT:**
+- ❌ Allow affiliates to generate their own codes
+- ❌ Allow manual commission creation by affiliates
+- ❌ Expose admin reports to non-admin users
+- ❌ Use sequential or predictable code formats
+
+### 13.10 Integration with Existing Checkout Flow
+
+**Rule:** Affiliate code validation happens BEFORE payment processing, discount applied to Stripe metadata.
+
+**Modified Checkout Flow:**
+```typescript
+// app/api/checkout/create-session/route.ts
+export async function POST(req: NextRequest) {
+  const { priceId, affiliateCode } = await req.json();
+
+  let discountPercent = 0;
+  let affiliateCodeId = null;
+
+  // Validate affiliate code if provided
+  if (affiliateCode) {
+    const code = await validateAffiliateCode(affiliateCode);
+    if (code.valid) {
+      discountPercent = code.discountPercent;
+      affiliateCodeId = code.id;
+    }
+  }
+
+  // Calculate prices
+  const regularPrice = PRICES[priceId];
+  const discountAmount = regularPrice * (discountPercent / 100);
+  const finalPrice = regularPrice - discountAmount;
+
+  // Create Stripe session with metadata
+  const session = await stripe.checkout.sessions.create({
+    line_items: [{
+      price_data: {
+        currency: 'usd',
+        product_data: { name: 'PRO Tier' },
+        unit_amount: Math.round(finalPrice * 100),
+        recurring: { interval: 'month' }
+      },
+      quantity: 1
+    }],
+    metadata: {
+      affiliateCode: affiliateCode || null,
+      affiliateCodeId: affiliateCodeId || null,
+      regularPrice: regularPrice.toString(),
+      discountPercent: discountPercent.toString(),
+      userId: session.user.id
+    }
+  });
+
+  return NextResponse.json({ url: session.url });
+}
+```
+
+---
+
 ## Summary of Architecture Rules
 
 ✅ **DO:**
@@ -1276,6 +1671,11 @@ export function TradingChart({ symbol, timeframe }: TradingChartProps) {
 - Keep business logic in lib/, separate from UI
 - Validate tiers on BOTH Next.js AND Flask services
 - Use pre-approved dependencies
+- Use separate JWT authentication for affiliates (AFFILIATE_JWT_SECRET)
+- Validate affiliate codes before checkout (ACTIVE, not expired, not used)
+- Create commissions via Stripe webhook only (prevents fraud)
+- Use accounting-style reports (opening/closing balances)
+- Generate codes with crypto.randomBytes (cryptographically secure)
 
 ❌ **DON'T:**
 - Manually define types that exist in OpenAPI
@@ -1285,5 +1685,9 @@ export function TradingChart({ symbol, timeframe }: TradingChartProps) {
 - Call database directly from frontend
 - Add new dependencies without approval
 - Use 'use client' unnecessarily
+- Reuse user authentication for affiliates
+- Allow affiliates to generate their own codes
+- Create commissions manually (only via webhook)
+- Use predictable/sequential code formats
 
 **Why these rules matter:** Consistent architecture makes the codebase navigable, maintainable, and secure. Following these patterns across all 170+ files ensures quality at scale.

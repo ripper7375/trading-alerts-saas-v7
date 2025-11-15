@@ -782,6 +782,360 @@ Proceeding to next file: app/api/alerts/[id]/route.ts
 
 ---
 
+## 12. BUILDING PART 17: AFFILIATE MARKETING PLATFORM
+
+**Special considerations for the 2-sided marketplace (67 files)**
+
+Part 17 introduces affiliate marketing functionality with unique requirements that differ from the core user-facing features.
+
+---
+
+### 12.1 Affiliate Marketing File Structure
+
+**Part 17 contains 3 distinct modules:**
+
+1. **Affiliate Portal (Frontend + API)** - 19 files
+   - Registration, login, verification
+   - Dashboard (stats, codes, commissions)
+   - Profile & payment method management
+
+2. **Admin Management (Frontend + API)** - 19 files
+   - Affiliate list, details, suspension
+   - Code distribution, cancellation
+   - Commission payment processing
+   - 4 BI reports (P&L, Sales, Commission, Code Inventory)
+
+3. **Business Logic & Automation** - 29 files
+   - Authentication (separate JWT)
+   - Code generation (crypto-secure)
+   - Commission calculation (webhook-only)
+   - Cron jobs (distribution, expiry, reports)
+   - Email notifications (8 types)
+
+---
+
+### 12.2 Critical Patterns for Part 17
+
+**When building Part 17 files, ALWAYS reference:**
+
+- **Pattern 7** (Affiliate Authentication): All affiliate routes MUST use separate JWT
+- **Pattern 8** (Code Generation): All code generation MUST use crypto.randomBytes
+- **Pattern 9** (Commission Calculation): Commissions ONLY created via Stripe webhook
+- **Pattern 10** (Accounting Reports): All reports MUST reconcile balances
+
+**Example - Affiliate Route:**
+```typescript
+// ✅ Good - Uses Pattern 7
+import { getAffiliateFromToken } from '@/lib/auth/affiliate-auth';
+
+export async function GET(req: NextRequest) {
+  const token = req.headers.get('authorization')?.replace('Bearer ', '');
+  const affiliate = await getAffiliateFromToken(token);  // ✅ Separate auth
+
+  if (!affiliate || affiliate.status !== 'ACTIVE') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Business logic
+}
+
+// ❌ Bad - Uses user authentication
+import { getServerSession } from 'next-auth';
+
+export async function GET(req: NextRequest) {
+  const session = await getServerSession();  // ❌ Wrong auth system
+  // ...
+}
+```
+
+---
+
+### 12.3 Affiliate-Specific Validation Rules
+
+**When validating Part 17 files, check:**
+
+1. **Authentication (Critical)**
+   - ✅ Uses AFFILIATE_JWT_SECRET (not JWT_SECRET)
+   - ✅ Token includes type: 'AFFILIATE' discriminator
+   - ✅ No shared sessions with users
+
+2. **Code Generation (Critical)**
+   - ✅ Uses crypto.randomBytes(16).toString('hex')
+   - ✅ Code length ≥12 characters
+   - ✅ Uniqueness check before creation
+   - ❌ NEVER Math.random() or sequential
+
+3. **Commission Creation (Critical)**
+   - ✅ ONLY in Stripe webhook handler
+   - ✅ Uses exact formula: netRevenue × commissionPercent
+   - ✅ Stores all intermediate values
+   - ✅ Status starts as 'PENDING'
+   - ❌ NEVER manual creation via API
+
+4. **Accounting Reports (High)**
+   - ✅ Opening balance = previous closing balance
+   - ✅ Balance reconciles: opening + earned - paid = closing
+   - ✅ Drill-down capability present
+
+**If ANY Critical rule violated → ESCALATE immediately**
+
+---
+
+### 12.4 Building Order for Part 17
+
+**Follow this sequence to minimize dependencies:**
+
+**Phase A: Foundation (10 files, ~6 hours)**
+1. lib/auth/affiliate-auth.ts (Pattern 7)
+2. lib/affiliates/code-generator.ts (Pattern 8)
+3. Database models (Affiliate, AffiliateCode, Commission)
+4. Database migrations
+
+**Phase B: Affiliate Portal (25 files, ~15 hours)**
+1. Affiliate registration & login
+2. Email verification
+3. Dashboard (stats, codes, commissions)
+4. Profile & payment method management
+5. All affiliate API routes
+
+**Phase C: Integration (12 files, ~8 hours)**
+1. Stripe webhook updates (Pattern 9)
+2. User checkout discount code flow
+3. Commission calculation
+4. Code validation
+
+**Phase D: Admin Portal (20 files, ~12 hours)**
+1. Affiliate list & details
+2. Code distribution & cancellation
+3. Commission payment processing
+4. 4 BI reports
+
+**Phase E: Automation (10 files, ~6 hours)**
+1. Monthly code distribution cron
+2. Code expiry cron
+3. Monthly report cron
+4. Email notifications
+
+**Total: 67 files, ~47 hours**
+
+---
+
+### 12.5 Common Affiliate Escalation Scenarios
+
+**Expect escalations in these areas:**
+
+1. **Code Distribution Timing**
+   - When to distribute (1st of month? Registration?)
+   - Mid-month registration handling
+   - Code expiry policy clarification
+
+2. **Payment Processing Security**
+   - Manual vs automated payment approval
+   - Payment method validation
+   - Cryptocurrency volatility handling
+
+3. **Report Performance**
+   - Opening balance calculation optimization
+   - Pagination for large datasets
+   - Caching strategies
+
+4. **Commission Fraud Prevention**
+   - Duplicate commission detection
+   - Code usage validation
+   - Manual commission adjustments
+
+**See 04-escalation-triggers.md Section 11 for detailed escalation formats.**
+
+---
+
+### 12.6 Testing Part 17 Features
+
+**Suggested testing approach:**
+
+**Affiliate Registration Flow:**
+```
+1. POST /api/affiliate/auth/register
+   - Body: { email, password, fullName, country, paymentMethod: "BANK_TRANSFER", ... }
+   - Expected: 201 Created with affiliate object
+   - Verify: Email verification sent
+
+2. GET /api/affiliate/verify-email?token=[token]
+   - Expected: Affiliate status changes to ACTIVE
+   - Verify: 15 codes distributed
+   - Verify: Welcome email sent
+```
+
+**Commission Creation Flow:**
+```
+1. User upgrades with affiliate code
+2. Stripe webhook triggered
+3. Commission created (status: PENDING)
+4. Code marked as USED
+5. Affiliate totalEarnings updated
+6. Email notification sent
+
+Verify:
+- Commission record created with correct calculation
+- No duplicate commissions
+- Affiliate notified
+```
+
+**Admin Payment Flow:**
+```
+1. Admin views commission owings report
+2. Admin selects commissions to pay
+3. Admin approves payment batch
+4. System marks commissions as PAID
+5. Affiliate receives payment confirmation email
+
+Verify:
+- Commissions marked as PAID
+- paidAt timestamp set
+- paymentReference stored
+```
+
+---
+
+### 12.7 Environment Variables for Part 17
+
+**Required environment variables:**
+
+```bash
+# Affiliate authentication (CRITICAL - different from user JWT)
+AFFILIATE_JWT_SECRET=your_separate_affiliate_jwt_secret_here
+
+# Stripe (for commission creation)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Vercel Cron (for code distribution)
+CRON_SECRET=your_cron_secret_here
+
+# Email (for notifications)
+RESEND_API_KEY=re_...
+```
+
+**Validation:**
+- AFFILIATE_JWT_SECRET MUST be different from JWT_SECRET
+- CRON_SECRET MUST be checked in cron route handlers
+- STRIPE_WEBHOOK_SECRET MUST be used to verify webhooks
+
+---
+
+### 12.8 Part 17 Progress Tracking
+
+**Update PROGRESS.md after each module:**
+
+```markdown
+### Part 17: Affiliate Marketing Platform - ⏳ In Progress
+- Started: 2024-XX-XX
+- Files: 25/67 (37%)
+- Escalations: 2 (code distribution timing, payment processing)
+- Status: Building affiliate dashboard
+
+**Phase A: Foundation** ✅ COMPLETE (10/10 files)
+- ✅ lib/auth/affiliate-auth.ts
+- ✅ lib/affiliates/code-generator.ts
+- ✅ Database models migrated
+- ✅ Environment variables configured
+
+**Phase B: Affiliate Portal** ⏳ IN PROGRESS (15/25 files)
+- ✅ app/api/affiliate/auth/register/route.ts
+- ✅ app/api/affiliate/auth/login/route.ts
+- ✅ app/api/affiliate/auth/verify-email/route.ts
+- ⏳ app/api/affiliate/dashboard/stats/route.ts (IN PROGRESS)
+- ⏳ app/api/affiliate/dashboard/commission-report/route.ts (PENDING)
+- ... (20 more files)
+
+**Phase C: Integration** ⏳ PENDING (0/12 files)
+**Phase D: Admin Portal** ⏳ PENDING (0/20 files)
+**Phase E: Automation** ⏳ PENDING (0/10 files)
+```
+
+---
+
+### 12.9 Example: Building Affiliate Registration Endpoint
+
+**Complete workflow demonstrating affiliate-specific patterns:**
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Aider - Building app/api/affiliate/auth/register/route.ts]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1: Reading requirements...
+✓ v5-structure-division.md Part 17: Affiliate Marketing
+  Location: app/api/affiliate/auth/register/route.ts
+
+✓ trading_alerts_openapi.yaml
+  POST /api/affiliate/auth/register
+  Request: { email, password, fullName, country, paymentMethod, ... }
+  Response: 201 Created with affiliate object
+
+✓ 05-coding-patterns.md
+  Using: Pattern 7 (Affiliate Authentication)
+
+✓ 01-approval-policies.md Section 7
+  Validation criteria: Separate JWT, crypto password hash, payment method validation
+
+STEP 2: Planning implementation...
+- Zod schema for input validation
+- Payment method validation (BANK_TRANSFER, CRYPTO, GLOBAL_WALLET, LOCAL_WALLET)
+- Required field combinations per payment method
+- Password hashing with bcrypt
+- Affiliate creation with status: PENDING_VERIFICATION
+- Generate email verification token
+- Send verification email
+- Return affiliate object (exclude password hash)
+
+STEP 3: Generating code...
+[Generates full route handler based on Pattern 7 + requirements]
+
+STEP 4: Validating...
+Running: claude code "validate app/api/affiliate/auth/register/route.ts"
+
+Validation results:
+- Critical: 0
+- High: 0
+- Medium: 0
+- Low: 0
+
+STEP 5: Checking affiliate-specific approval conditions...
+✓ Uses AFFILIATE_JWT_SECRET: N/A (registration, no token yet)
+✓ Password hashing: bcrypt with 10 rounds
+✓ Payment method validation: Zod schema with field combinations
+✓ TypeScript types: All parameters typed
+✓ Error handling: Comprehensive try/catch
+✓ Input validation: Zod schema present
+✓ OpenAPI compliance: Response matches spec
+
+Decision: ✅ APPROVE
+
+STEP 6: Committing...
+git add app/api/affiliate/auth/register/route.ts
+git commit -m "feat(affiliate): add affiliate registration endpoint
+
+- Validation: 0 Critical, 0 High, 0 Medium, 0 Low issues
+- All approval conditions met: yes
+- Pattern used: Affiliate Authentication (Pattern 7)
+- Model: MiniMax M2
+
+Implements affiliate registration with payment method validation.
+Supports 4 payment methods: BANK_TRANSFER, CRYPTO, GLOBAL_WALLET, LOCAL_WALLET.
+Validates required fields per payment method per 01-approval-policies.md Section 7.4.
+Creates affiliate with status PENDING_VERIFICATION, sends verification email."
+
+✓ Committed: b7e3a2f
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ File complete: app/api/affiliate/auth/register/route.ts
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Proceeding to next file: app/api/affiliate/auth/verify-email/route.ts
+```
+
+---
+
 ## SUMMARY OF KEY PRINCIPLES
 
 1. **Follow the 7-Step Workflow** (Read → Plan → Generate → Validate → Decide → Act → Update)
@@ -794,6 +1148,7 @@ Proceeding to next file: app/api/alerts/[id]/route.ts
 8. **Use MiniMax M2 Efficiently** (batch operations, minimize redundant calls)
 9. **Communicate Progress** (every 3 files, not every file)
 10. **Test Suggestions** (provide testing instructions for human)
+11. **Affiliate Marketing (Part 17):** Use Patterns 7-10, separate JWT, crypto-secure codes, webhook-only commissions
 
 **Remember:** You are Aider with MiniMax M2 - cost-effective, autonomous, policy-driven development. Your goal is to build quality code while minimizing human intervention for repetitive tasks. Escalate for exceptions, auto-fix for common issues, and always follow the policies.
 

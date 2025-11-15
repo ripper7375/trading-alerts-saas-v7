@@ -187,6 +187,7 @@ follow the same pattern!
 | Part 14 | Admin UI | seed-code/next-shadcn-dashboard-starter/ (dashboard) |
 | Part 15 | Notifications | seed-code/saas-starter/ (email patterns) |
 | Part 16 | Utilities | (helper functions) |
+| **Part 17** | **Affiliate Marketing (67 files)** | **seed-code/saas-starter/ (Stripe webhooks) + next-shadcn-dashboard-starter/ (analytics dashboards, admin tables)** |
 
 💡 **Important:** Aider uses these as **reference/inspiration**, not copy/paste!
 
@@ -661,8 +662,10 @@ you're using MiniMax M2 API which is cost-effective!
 | Part 14: Admin | 11 | 2.5h | 1 | Admin dashboard |
 | Part 15: Notifications | 8 | 2h | 1 | Email, in-app alerts |
 | Part 16: Utilities | 5 | 1.5h | 0 | Helper functions |
+| **Part 17: Affiliate Marketing** | **67** | **4h** | **2** | **2-sided marketplace, commissions** |
 
-**Total: 38 hours over 7 weeks**
+**Total: 42 hours over 8 weeks**
+**Total Files: 237 (170 core + 67 affiliate/admin)**
 **Model: MiniMax M2 for cost-effective autonomous building**
 
 ---
@@ -690,7 +693,7 @@ you're using MiniMax M2 API which is cost-effective!
    - Better autonomous decisions
 
 5. **Take Breaks**
-   - 38 hours over 7 weeks
+   - 42 hours over 8 weeks
    - ~5-6 hours per week
    - Don't rush!
 
@@ -766,7 +769,7 @@ Test subscription flow completely!
 
 ☐ Next.js 15 project initialized
 ☐ OpenAPI types generated (100% type-safe!)
-☐ All 16 parts built with MiniMax M2 (170+ files!)
+☐ All 17 parts built with MiniMax M2 (237 files total!)
 ☐ All 38 Next.js API endpoints implemented
 ☐ All 4 Flask MT5 endpoints implemented
 ☐ All UI components created
@@ -776,6 +779,8 @@ Test subscription flow completely!
 ☐ Stripe payments integrated
 ☐ Charts with live MT5 data
 ☐ Watchlists and alerts functional
+☐ **Affiliate marketing program with commission tracking**
+☐ **Admin dashboard for affiliate management**
 
 ### What You Learned:
 
@@ -795,19 +800,19 @@ Test subscription flow completely!
 ✓ **Cost-effective AI development with MiniMax M2**
 ✓ **Handling edge cases (escalations)**
 
-### Time Invested: 38 hours over 7 weeks
+### Time Invested: 42 hours over 8 weeks
 
-### Your Involvement: 
+### Your Involvement:
 - 20% (escalations + testing)
-- Handled ~20 escalations (10-15 min each)
-- Tested 16 parts (15-30 min each)
+- Handled ~22 escalations (10-15 min each)
+- Tested 17 parts (15-30 min each)
 - Learned through exceptions, not repetition!
 
 ### Aider's Work with MiniMax M2:
 - 80% (autonomous building + validation)
-- Generated 170+ files cost-effectively
-- Ran 170+ Claude Code validations
-- Applied 50+ auto-fixes
+- Generated 237 files cost-effectively (170 core + 67 affiliate/admin)
+- Ran 237 Claude Code validations
+- Applied 60+ auto-fixes
 - Made all repetitive decisions
 - Significant cost savings vs. Anthropic API
 
@@ -816,19 +821,20 @@ Test subscription flow completely!
 
 ### Readiness Check:
 
-☐ All 16 parts complete
+☐ All 17 parts complete (including affiliate marketing)
 ☐ All endpoints tested in Postman
 ☐ All features working in browser
 ☐ Database migrations on Railway successful
 ☐ No TypeScript errors
 ☐ All tests passing
+☐ **Affiliate portal and admin dashboard functional**
 ☐ Ready to deploy!
 
 If all checked ✅ → **READY FOR PHASE 4!** 🌐
 
-💡 BEGINNER VICTORY: You just built a professional SaaS in 38 hours using 
-MiniMax M2! What would take 140 hours manually took 38 hours with policy-driven 
-AI at a fraction of the API cost. AND you learned more by handling escalations 
-than by micromanaging every file!
+💡 BEGINNER VICTORY: You just built a professional SaaS with a 2-sided affiliate
+marketplace in 42 hours using MiniMax M2! What would take 160+ hours manually took
+42 hours with policy-driven AI at a fraction of the API cost. AND you learned more
+by handling escalations than by micromanaging every file!
 
 ---
