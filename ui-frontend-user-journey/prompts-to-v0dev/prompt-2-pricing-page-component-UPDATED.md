@@ -85,7 +85,7 @@ REQUIREMENTS:
    - Icon: 🤝 (text-3xl)
    - Content:
      * Heading: "Have an affiliate code?" (text-2xl, font-bold, mb-2)
-     * Text: "Get 20% off PRO tier forever when you sign up with a referral code from our partners." (text-gray-700, mb-4)
+     * Text: "Get 20% off your next PRO subscription payment with a referral code from our partners. New codes available monthly!" (text-gray-700, mb-4)
      * Link: "Learn about our Affiliate Program →" (text-blue-600, hover:underline, font-medium)
 
 4. DETAILED COMPARISON TABLE (Below cards):
@@ -125,7 +125,7 @@ REQUIREMENTS:
      A: "Yes, we offer a 30-day money-back guarantee for all Pro subscriptions. If you're not satisfied with the service, contact our support team within 30 days of your purchase for a full refund."
 
      Q4: "What is the affiliate discount?" (NEW)
-     A: "When you sign up using an affiliate referral code, you'll receive 20% off your PRO subscription permanently. This brings the monthly price from $29 to $23.20 ($290 to $232 yearly). The discount applies as long as you maintain your subscription. You can apply an affiliate code during registration."
+     A: "When you use an affiliate referral code during checkout, you'll receive 20% off that month's PRO subscription payment (price drops from $29 to $23.20). This is a one-time discount per code. To get the discount again next month, you'll need to find and apply a new code during renewal. Affiliates post fresh codes on social media monthly!"
 
 6. FINAL CTA:
    - Background: bg-blue-50, rounded-xl, p-12, text-center

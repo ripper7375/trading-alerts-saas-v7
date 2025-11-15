@@ -48,7 +48,7 @@ REQUIREMENTS:
    **Referral Code Input (OPTIONAL - NEW FIELD):**
    - Position: AFTER Confirm Password, BEFORE Terms Checkbox
    - Label: "Referral Code (Optional)" (font-medium, text-gray-700)
-   - Helper text: "Have an affiliate code? Get 20% off PRO forever!" (text-xs, text-blue-600, mb-1)
+   - Helper text: "Have an affiliate code? Get 20% off this month!" (text-xs, text-blue-600, mb-1)
    - Input section (flex items-center gap-2):
      * Text input:
        - placeholder="REF-ABC123XYZ"
@@ -299,7 +299,7 @@ export default function RegistrationForm() {
           <div>
             <Label htmlFor="referralCode">Referral Code (Optional)</Label>
             <p className="text-xs text-blue-600 mb-1">
-              Have an affiliate code? Get 20% off PRO forever!
+              Have an affiliate code? Get 20% off this month!
             </p>
             <div className="flex items-center gap-2 mt-1">
               <Input

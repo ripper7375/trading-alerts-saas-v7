@@ -116,14 +116,14 @@ CURRENT PLAN CARD (Enhanced):
   - Period: "/month"
   - Savings: "You save $5.80/month with referral code" (text-sm, text-green-600, mt-1)
   - Features list (same as without discount)
-  - Next billing: "January 15, 2025 (you'll be charged $23.20)"
+  - Next billing: "January 15, 2025 ($29.00 without new code, or $23.20 if you apply a new code at renewal)"
 
   - AFFILIATE DISCOUNT DETAILS (conditional box):
     * Container: bg-green-50, border-l-4 border-green-500, p-3, rounded-lg, mt-4
     * Icon: ℹ️
-    * Heading: "Lifetime Affiliate Discount" (font-semibold, text-green-800, text-sm)
+    * Heading: "Discount Applied This Month" (font-semibold, text-green-800, text-sm)
     * Details: "Applied with code: REF-ABC123XYZ" (text-green-700, text-xs, mt-1)
-    * Notice: "Your discount is permanent as long as you maintain your subscription" (text-green-600, text-xs, italic, mt-1)
+    * Notice: "Your code gave you 20% off this payment. Find new codes on social media monthly to keep saving!" (text-green-600, text-xs, italic, mt-1)
 
 AFFILIATE BENEFITS CARD (NEW - conditional section):
 - Position: AFTER Current Plan, BEFORE Payment Method
@@ -142,10 +142,10 @@ AFFILIATE BENEFITS CARD (NEW - conditional section):
   - Subtext: "20% off regular price" (text-xs, text-gray-500)
 
   Column 3 - Your Code:
-  - Label: "Your Referral Code" (text-sm, text-gray-600, mb-1)
+  - Label: "Code Used This Month" (text-sm, text-gray-600, mb-1)
   - Code: "REF-ABC123XYZ" (bg-white, px-3, py-2, rounded-lg, font-mono, text-sm, border border-gray-300)
   - Copy button icon next to code
-  - Subtext: "This code gave you the discount" (text-xs, text-gray-500, mt-1)
+  - Subtext: "Find new codes on social media for next month's discount" (text-xs, text-gray-500, mt-1)
 
 PAYMENT METHOD:
 - Card with payment details (same as original)
@@ -399,7 +399,7 @@ export default function SettingsPage({
 
                     <p className="text-sm text-gray-600 mt-4">
                       Next billing date: January 15, 2025
-                      {hasDiscount && ` (you'll be charged $${currentPrice.toFixed(2)})`}
+                      {hasDiscount && ` ($${basePrice.toFixed(2)} without new code, or $${currentPrice.toFixed(2)} if you apply a new code at renewal)`}
                     </p>
 
                     {/* Affiliate discount details */}
@@ -408,12 +408,12 @@ export default function SettingsPage({
                         <div className="flex items-start gap-2">
                           <span>ℹ️</span>
                           <div>
-                            <p className="font-semibold text-green-800 text-sm">Lifetime Affiliate Discount</p>
+                            <p className="font-semibold text-green-800 text-sm">Discount Applied This Month</p>
                             <p className="text-green-700 text-xs mt-1">
                               Applied with code: {affiliateDiscount!.code}
                             </p>
                             <p className="text-green-600 text-xs italic mt-1">
-                              Your discount is permanent as long as you maintain your subscription
+                              Your code gave you 20% off this payment. Find new codes on social media monthly to keep saving!
                             </p>
                           </div>
                         </div>
@@ -449,11 +449,11 @@ export default function SettingsPage({
 
                           {/* Stat 3 */}
                           <div>
-                            <p className="text-sm text-gray-600 mb-1">Your Referral Code</p>
+                            <p className="text-sm text-gray-600 mb-1">Code Used This Month</p>
                             <div className="bg-white px-3 py-2 rounded-lg font-mono text-sm border border-gray-300">
                               {affiliateDiscount!.code}
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">This code gave you the discount</p>
+                            <p className="text-xs text-gray-500 mt-1">Find new codes on social media for next month's discount</p>
                           </div>
                         </div>
                       </Card>
