@@ -623,7 +623,7 @@ model AffiliateCode {
   // Code Details
   code              String   @unique        // "SxTYo25#1dpgiNguD" (>12 chars random)
   discountPercent   Int                     // 20 (represents 20%)
-  commissionPercent Int                     // 30 (represents 30%)
+  commissionPercent Int                     // 20 (represents 20%)
 
   // Ownership
   affiliateId       String                  // Belongs to which affiliate
@@ -2794,16 +2794,16 @@ export async function sendPaymentConfirmation(
 // lib/affiliate/__tests__/commission.test.ts
 
 describe('calculateCommission', () => {
-  it('should calculate 20% discount, 30% commission correctly', () => {
-    const result = calculateCommission(29.00, 20, 30);
+  it('should calculate 20% discount, 20% commission correctly', () => {
+    const result = calculateCommission(29.00, 20, 20);
     expect(result.discountedPrice).toBe(23.20);
-    expect(result.commissionAmount).toBe(6.96);
+    expect(result.commissionAmount).toBe(4.64);
   });
 
   it('should handle 0% discount', () => {
-    const result = calculateCommission(29.00, 0, 30);
+    const result = calculateCommission(29.00, 0, 20);
     expect(result.discountedPrice).toBe(29.00);
-    expect(result.commissionAmount).toBe(8.70);
+    expect(result.commissionAmount).toBe(5.80);
   });
 
   it('should throw error for discount > 50%', () => {
@@ -3404,9 +3404,9 @@ A **comprehensive 2-sided marketplace platform** that operates as both SaaS prov
 ### ❓ Open Questions for Future Discussion
 
 1. **Discount and Commission Percentages:**
-   - Current design: Admin sets per code batch
-   - Question: Should there be platform-wide defaults? (e.g., always 20% discount, 30% commission)
-   - Question: Should affiliates have different commission tiers based on performance?
+   - ✅ DECIDED: Platform-wide defaults of 20% discount, 20% commission
+   - Current design: Admin can set per code batch (defaults to 20%/20%)
+   - Future consideration: Performance-based commission tiers for top affiliates
 
 2. **Automated Payout Integration:**
    - Current design: Manual external payments
