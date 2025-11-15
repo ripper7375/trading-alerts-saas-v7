@@ -248,16 +248,27 @@ Affiliate Notified (Email) + Balance Updated
 ### 2.8 User Restrictions
 
 **Who Can Use Codes:**
-- ✅ FREE tier users upgrading to PRO (first-time)
-- ❌ Existing PRO users (no renewal discounts for MVP)
-- ❌ Users who previously had PRO subscription
+- ✅ FREE tier users upgrading to PRO (first-time signup)
+- ✅ Existing PRO users at renewal (monthly discount application)
+- ✅ All users can apply NEW, UNUSED, UNEXPIRED codes each month
+
+**Competitive Monthly Model:**
+This design drives affiliate competition by requiring users to find NEW codes monthly:
+- User applies Affiliate B's code in Month 1 → Affiliate B earns commission
+- User applies Affiliate C's code in Month 2 → Affiliate C earns commission (Affiliate B gets nothing)
+- User applies Affiliate D's code in Month 3 → Affiliate D earns commission (B and C get nothing)
+- Result: Affiliates must continuously post codes on social media to earn
 
 **Code Validation:**
 - Code must exist in database
-- Code must be Active (not Used, Expired, or Cancelled)
+- Code must be ACTIVE (not Used, Expired, or Cancelled)
 - Code must not be expired (expiresAt > now)
-- User must be FREE tier
-- User must not have any active or past PRO subscription
+- Code must be UNUSED (usedBy = null)
+- Code must be NEW (generated current month, not expired from previous months)
+- User can apply code at:
+  * Initial signup: FREE → PRO with discount ($23.20)
+  * Monthly renewal: PRO → PRO with discount ($23.20 instead of $29.00)
+  * Without code at renewal: User pays full price ($29.00)
 
 ---
 
@@ -1739,12 +1750,11 @@ Response (400) - Cancelled:
   "message": "This code is no longer active"
 }
 
-Response (403) - User Not Eligible:
-{
-  "valid": false,
-  "error": "NOT_ELIGIBLE",
-  "message": "Discount codes are only available for FREE tier users upgrading to PRO for the first time"
-}
+Response (403) - User Not Eligible (REMOVED - All users can apply codes):
+// This error response is NO LONGER USED
+// Both FREE and PRO users can apply discount codes
+// FREE users: Apply at initial signup
+// PRO users: Apply at monthly renewal
 
 Response (200):
 {
@@ -1913,7 +1923,7 @@ Response (200):
 
 ## 6. USER FLOWS
 
-### 6.1 Free User Applies Discount Code
+### 6.1 FREE User Applies Discount Code at Signup
 
 ```
 1. User (FREE tier) navigates to /pricing
@@ -1924,16 +1934,16 @@ Response (200):
    - Regular price: $29.00/month
    - Input field: "Have a discount code?"
    ↓
-4. User enters: "SAVE20PRO"
+4. User enters: "SMITH-ABC123" (Affiliate B's code)
    ↓
 5. Client calls: POST /api/affiliate/validate-code
    ↓
 6. API validates:
    ✅ Code exists
-   ✅ Code is active (isActive = true)
+   ✅ Code status = ACTIVE
    ✅ Code not expired (expiresAt > now)
-   ✅ User is FREE tier
-   ✅ User has no active PRO subscription
+   ✅ Code not used (usedBy = null)
+   ✅ Code is NEW (generated current month)
    ↓
 7. If valid → Show discounted price:
    "Regular: $29.00
@@ -1979,7 +1989,79 @@ Response (200):
 16. Commission tracked for affiliate
 ```
 
-### 6.2 Invalid Code Scenarios
+### 6.2 PRO User Applies Discount Code at Renewal (MONTHLY COMPETITION)
+
+```
+SCENARIO: User A had Affiliate B's code in Month 1
+          Now it's Month 2, User A finds Affiliate C's code on Instagram
+          Affiliates B and C compete for this month's commission
+
+1. User A (PRO tier) receives renewal reminder email
+   "Your PRO subscription renews on Dec 5 at $29.00"
+   ↓
+2. User A follows Affiliate C on Instagram, finds new code: "JONES-XYZ789"
+   ↓
+3. User navigates to /billing or renewal checkout page
+   ↓
+4. Renewal checkout displays:
+   - Current plan: PRO
+   - Renewal price: $29.00/month
+   - Input field: "Have a discount code? Get 20% off this month!"
+   ↓
+5. User enters: "JONES-XYZ789" (Affiliate C's NEW code from Month 2)
+   ↓
+6. Client calls: POST /api/affiliate/validate-code
+   ↓
+7. API validates:
+   ✅ Code exists
+   ✅ Code status = ACTIVE
+   ✅ Code not expired (expiresAt = Dec 31)
+   ✅ Code not used (usedBy = null)
+   ✅ Code is NEW (generated Dec 1)
+   ↓
+8. If valid → Show discounted price:
+   "Regular renewal: $29.00
+    Discount (20%): -$5.80
+    You pay: $23.20/month"
+   ↓
+9. User clicks "Confirm Renewal with Discount"
+   ↓
+10. Stripe processes payment: $23.20
+    ↓
+11. Webhook: checkout.session.completed
+    ↓
+12. Update AffiliateCode:
+    - status: ACTIVE → USED
+    - usedBy: User A
+    - usedAt: current timestamp
+    ↓
+13. Create Commission for Affiliate C:
+    {
+      codeId: "clx...",
+      affiliateId: "affiliate_C_id",
+      userId: "user_A_id",
+      subscriptionId: "sub_...",
+      regularPrice: 29.00,
+      discountPercent: 20,
+      discountedPrice: 23.20,
+      commissionPercent: 20,
+      commissionAmount: 4.64,  // $23.20 × 20%
+      status: "PENDING"
+    }
+    ↓
+14. Affiliate B gets NOTHING this month (User switched to Affiliate C)
+    ↓
+15. Affiliate C receives email: "Code JONES-XYZ789 used! Commission earned: $4.64"
+    ↓
+16. Next month (Month 3):
+    - User A can apply Affiliate D's code, or Affiliate B's new code, or Affiliate C's new code
+    - Affiliates compete again for Month 3 commission
+    - This cycle repeats monthly
+
+RESULT: Monthly affiliate competition drives continuous social media engagement!
+```
+
+### 6.3 Invalid Code Scenarios
 
 **Scenario A: Code doesn't exist**
 ```
@@ -2004,15 +2086,20 @@ API Response (400):
 }
 ```
 
-**Scenario C: User already PRO**
+**Scenario C: PRO User at Renewal (NOW VALID)**
 ```
-User tier: PRO
-User enters: "SAVE20PRO"
-API Response (400):
+User tier: PRO (at renewal checkout)
+User enters: "SAVE20PRO" (NEW, UNUSED code from current month)
+API Response (200):
 {
-  "valid": false,
-  "error": "not_eligible",
-  "message": "Discount codes are only available for FREE tier users"
+  "valid": true,
+  "code": "SAVE20PRO",
+  "discountPercent": 20,
+  "originalPrice": 29.00,
+  "discountedPrice": 23.20,
+  "savings": 5.80,
+  "expiresAt": "2025-11-30T23:59:59Z",
+  "message": "Code applied! Your renewal will be $23.20 instead of $29.00"
 }
 ```
 
@@ -2326,23 +2413,33 @@ if (existingCommission) {
 }
 ```
 
-**Tier Restriction:**
+**User Eligibility (UPDATED - Supports Monthly Competition):**
 ```typescript
-// Only FREE users can use codes
-if (currentUser.tier !== 'FREE') {
-  throw new Error('Discount codes are only for FREE tier users');
+// Both FREE and PRO users can use codes
+// FREE users: Apply at signup
+// PRO users: Apply at renewal to get discount
+
+// User can apply code if:
+// 1. FREE tier (upgrading to PRO)
+// 2. PRO tier at renewal checkout (applying new monthly code)
+
+// No restrictions - all users eligible for codes
+// This enables monthly affiliate competition:
+// - Month 1: User uses Affiliate B's code
+// - Month 2: User uses Affiliate C's code
+// - Month 3: User uses Affiliate D's code
+
+// Validation focuses on CODE status, not user tier
+if (code.status !== 'ACTIVE') {
+  throw new Error('This code is not active');
 }
 
-// Check if user has any active PRO subscription
-const activeSubscription = await prisma.subscription.findFirst({
-  where: {
-    userId: currentUser.id,
-    status: 'active'
-  }
-});
+if (code.usedBy !== null) {
+  throw new Error('This code has already been used');
+}
 
-if (activeSubscription) {
-  throw new Error('You already have an active subscription');
+if (code.expiresAt < new Date()) {
+  throw new Error('This code has expired');
 }
 ```
 
