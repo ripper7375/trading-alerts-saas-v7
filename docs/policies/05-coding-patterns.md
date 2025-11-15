@@ -1378,8 +1378,8 @@ export async function generateAffiliateCodeBatch(
       code,
       affiliateId,
       status: 'ACTIVE',
-      discountPercent: 10.0,   // 10% discount for customers
-      commissionPercent: 30.0, // 30% commission for affiliate
+      discountPercent: 20.0,   // 20% discount for customers
+      commissionPercent: 20.0, // 20% commission for affiliate
       expiresAt: endOfMonth
     });
   }
@@ -1551,12 +1551,12 @@ async function createCommissionFromCode(
   }
 
   // 2. Calculate commission (EXACT FORMULA)
-  const discountPercent = code.discountPercent;  // 10.0
-  const commissionPercent = code.commissionPercent;  // 30.0
+  const discountPercent = code.discountPercent;  // 20.0
+  const commissionPercent = code.commissionPercent;  // 20.0
 
-  const discountAmount = regularPrice * (discountPercent / 100);  // 29.00 × 0.10 = 2.90
-  const netRevenue = regularPrice - discountAmount;  // 29.00 - 2.90 = 26.10
-  const commissionAmount = netRevenue * (commissionPercent / 100);  // 26.10 × 0.30 = 7.83
+  const discountAmount = regularPrice * (discountPercent / 100);  // 29.00 × 0.20 = 5.80
+  const netRevenue = regularPrice - discountAmount;  // 29.00 - 5.80 = 23.20
+  const commissionAmount = netRevenue * (commissionPercent / 100);  // 23.20 × 0.20 = 4.64
 
   // 3. Create commission record (status: PENDING)
   const commission = await prisma.commission.create({

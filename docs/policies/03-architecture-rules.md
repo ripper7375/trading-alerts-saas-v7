@@ -1393,8 +1393,8 @@ export async function GET(req: NextRequest) {
       code: generateRandomCode(affiliate.fullName),
       affiliateId: affiliate.id,
       status: 'ACTIVE',
-      discountPercent: 10.0,
-      commissionPercent: 30.0,
+      discountPercent: 20.0,
+      commissionPercent: 20.0,
       expiresAt: endOfMonth(new Date())
     }));
 

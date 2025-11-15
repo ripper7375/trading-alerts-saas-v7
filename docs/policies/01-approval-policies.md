@@ -1119,13 +1119,13 @@ export async function POST(req: NextRequest) {
 
       // 2. Extract values from Stripe session
       const regularPrice = parseFloat(session.metadata.regularPrice); // 29.00
-      const discountPercent = code.discountPercent; // 10.0
-      const commissionPercent = code.commissionPercent; // 30.0
+      const discountPercent = code.discountPercent; // 20.0
+      const commissionPercent = code.commissionPercent; // 20.0
 
       // 3. Calculate (with exact formula)
-      const discountAmount = regularPrice * (discountPercent / 100); // 2.90
-      const netRevenue = regularPrice - discountAmount; // 26.10
-      const commissionAmount = netRevenue * (commissionPercent / 100); // 7.83
+      const discountAmount = regularPrice * (discountPercent / 100); // 5.80
+      const netRevenue = regularPrice - discountAmount; // 23.20
+      const commissionAmount = netRevenue * (commissionPercent / 100); // 4.64
 
       // 4. Create commission record (status: PENDING)
       await prisma.commission.create({
@@ -1264,9 +1264,9 @@ const validated = schema.parse(data);
 {
   reportMonth: "2024-01",
   openingBalance: 0.00,     // From previous month's closing
-  earned: 15.66,            // Sum of commissions this month
-  paid: 7.83,               // Sum of payments this month
-  closingBalance: 7.83,     // openingBalance + earned - paid
+  earned: 9.28,             // Sum of commissions this month
+  paid: 4.64,               // Sum of payments this month
+  closingBalance: 4.64,     // openingBalance + earned - paid
   commissions: [
     {
       id: "comm_1",
@@ -1275,10 +1275,10 @@ const validated = schema.parse(data);
       affiliateCode: "SMITH-A7K9P2M5",
       createdAt: "2024-01-05T10:30:00Z",
       regularPrice: 29.00,
-      discountAmount: 2.90,
-      netRevenue: 26.10,
-      commissionPercent: 30.0,
-      commissionAmount: 7.83,
+      discountAmount: 5.80,
+      netRevenue: 23.20,
+      commissionPercent: 20.0,
+      commissionAmount: 4.64,
       status: "PAID",
       paidAt: "2024-01-10T14:20:00Z"
     },
@@ -1289,10 +1289,10 @@ const validated = schema.parse(data);
       affiliateCode: "SMITH-B1C2D3E4",
       createdAt: "2024-01-15T16:45:00Z",
       regularPrice: 29.00,
-      discountAmount: 2.90,
-      netRevenue: 26.10,
-      commissionPercent: 30.0,
-      commissionAmount: 7.83,
+      discountAmount: 5.80,
+      netRevenue: 23.20,
+      commissionPercent: 20.0,
+      commissionAmount: 4.64,
       status: "PENDING",
       paidAt: null
     }

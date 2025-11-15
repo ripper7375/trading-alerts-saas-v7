@@ -831,8 +831,8 @@ When I visit `/dashboard/alerts` again:
 │  │ <!-- After applying valid code: -->        │      │
 │  │ ✅ Code SMITH-A7K9P2M5 applied!            │      │
 │  │    Regular Price: $29.00                   │      │
-│  │    Discount (10%): -$2.90                  │      │
-│  │    Your Price: $26.10/month                │      │
+│  │    Discount (20%): -$5.80                  │      │
+│  │    Your Price: $23.20/month                │      │
 │  └────────────────────────────────────────────┘      │
 │                                                        │
 │  ┌────────────────────────────────────────────┐      │
@@ -878,17 +878,17 @@ When I visit `/dashboard/alerts` again:
    - Validates code exists and is ACTIVE
    - Checks code not expired
    - Checks code not already used
-   - Returns discount percentage (10%)
-3. Frontend calculates discounted price: $29.00 × 0.9 = $26.10
+   - Returns discount percentage (20%)
+3. Frontend calculates discounted price: $29.00 × 0.8 = $23.20
 4. Code stored in session for use during payment
 
 **Backend Process (Payment Flow):**
 - POST `/api/webhooks/stripe`
 - Creates Stripe customer
-- Creates subscription with trial period (price: $26.10 if discount applied)
+- Creates subscription with trial period (price: $23.20 if discount applied)
 - If discount code used:
   - Marks AffiliateCode as USED
-  - Calculates commission: $26.10 × 30% = $7.83
+  - Calculates commission: $23.20 × 20% = $4.64
   - Creates Commission record (status: PENDING)
   - Links commission to affiliate
   - Sends email notification to affiliate
@@ -897,7 +897,7 @@ When I visit `/dashboard/alerts` again:
 
 **Result:**
 ✅ "Welcome to PRO! Your trial starts now."
-*(If discount used)* ✅ "Discount code applied! You saved $2.90/month."
+*(If discount used)* ✅ "Discount code applied! You saved $5.80/month."
 
 ---
 

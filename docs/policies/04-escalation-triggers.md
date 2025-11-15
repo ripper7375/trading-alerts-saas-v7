@@ -2164,7 +2164,7 @@ Need to implement commission payment processing. Requirements don't specify:
 4. What audit trail is needed for payments?
 
 Context:
-- Commissions range from $7.83 to potentially hundreds per affiliate
+- Commissions range from $4.64 to potentially hundreds per affiliate
 - Payment methods vary (bank transfer, crypto, e-wallets)
 - Multiple affiliates may request payment simultaneously
 - Need to prevent double-payment or fraud
