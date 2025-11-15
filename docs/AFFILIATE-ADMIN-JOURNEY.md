@@ -304,8 +304,8 @@ Request Body:
    - Set affiliateId = verified affiliate
    - Set status = ACTIVE
    - Set expiresAt = end of current month
-   - Set discountPercent = 10% (default)
-   - Set commissionPercent = 30% (default)
+   - Set discountPercent = 20% (default)
+   - Set commissionPercent = 20% (default)
 3. Create 15 AffiliateCode records
 4. Update Affiliate.codesDistributed += 15
 5. Send welcome email with login instructions
@@ -318,8 +318,8 @@ AffiliateCode {
   code: "SMITH-A7K9P2M5",
   affiliateId: "clf1234567890",
   status: ACTIVE,
-  discountPercent: 10.0,
-  commissionPercent: 30.0,
+  discountPercent: 20.0,
+  commissionPercent: 20.0,
   createdAt: "2025-11-14T10:35:00Z",
   expiresAt: "2025-11-30T23:59:59Z",
   usedAt: null,
@@ -355,8 +355,8 @@ Dashboard Highlights:
 - Monthly automatic code distribution (15 codes/month)
 
 Commission Structure:
-- 10% discount for customers
-- 30% commission for you on net revenue
+- 20% discount for customers
+- 20% commission for you on net revenue
 
 Questions? Reply to this email or visit our Help Center.
 
@@ -568,7 +568,7 @@ Response:
     {
       "id": "code_001",
       "code": "SMITH-A7K9P2M5",
-      "discountPercent": 10.0,
+      "discountPercent": 20.0,
       "commissionPercent": 30.0,
       "status": "ACTIVE",
       "expiresAt": "2025-11-30T23:59:59Z",
@@ -613,16 +613,16 @@ Response:
 │  ┌────────┬──────────────┬─────────┬──────────┬────────────┐     │
 │  │ Date   │ Code Used    │ Tier    │ Price    │ Commission │     │
 │  ├────────┼──────────────┼─────────┼──────────┼────────────┤     │
-│  │ Nov 15 │ SMITH-A7K9P2M5│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 18 │ SMITH-B3N7Q8R2│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 20 │ SMITH-C9W4T6Y1│ PRO    │ $29.00   │ $7.83      │     │
+│  │ Nov 15 │ SMITH-A7K9P2M5│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 18 │ SMITH-B3N7Q8R2│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 20 │ SMITH-C9W4T6Y1│ PRO    │ $29.00   │ $4.64      │     │
 │  │ Nov 22 │ SMITH-A7K9P2M5│ PREMIUM│ $99.00   │ $26.73     │     │
-│  │ Nov 25 │ SMITH-D5X2Z8M4│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 28 │ SMITH-E8Y3W7N6│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 29 │ SMITH-F2K9L4P1│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 30 │ SMITH-G6M3Q8T5│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 30 │ SMITH-H9R4V2X7│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 30 │ SMITH-I3T7Y5Z1│ PRO    │ $29.00   │ $7.83      │     │
+│  │ Nov 25 │ SMITH-D5X2Z8M4│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 28 │ SMITH-E8Y3W7N6│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 29 │ SMITH-F2K9L4P1│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 30 │ SMITH-G6M3Q8T5│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 30 │ SMITH-H9R4V2X7│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 30 │ SMITH-I3T7Y5Z1│ PRO    │ $29.00   │ $4.64      │     │
 │  └────────┴──────────────┴─────────┴──────────┴────────────┘     │
 │                                                                     │
 │  📝 COMMISSION CALCULATION                                         │
@@ -654,10 +654,10 @@ Response:
       "code": "SMITH-A7K9P2M5",
       "tier": "PRO",
       "regularPrice": 29.00,
-      "discount": 2.90,
-      "netRevenue": 26.10,
-      "commissionPercent": 30.0,
-      "commissionAmount": 7.83,
+      "discount": 5.80,
+      "netRevenue": 23.20,
+      "commissionPercent": 20.0,
+      "commissionAmount": 4.64,
       "status": "PENDING"
     }
     // ... more commissions
@@ -748,7 +748,7 @@ Response:
         "date": "2025-11-15T14:30:00Z",
         "code": "SMITH-A7K9P2M5",
         "usedBy": "user_123",
-        "commission": 7.83
+        "commission": 4.64
       }
       // ... 9 more
     ]
@@ -756,7 +756,7 @@ Response:
   "activeCodes": [
     {
       "code": "SMITH-K4M9P7Q2",
-      "discountPercent": 10.0,
+      "discountPercent": 20.0,
       "expiresAt": "2025-11-30T23:59:59Z"
     }
     // ... 4 more
@@ -874,7 +874,7 @@ Response:
 
 **Email Template:**
 ```
-Subject: 🎉 Your code was just used! You earned $7.83
+Subject: 🎉 Your code was just used! You earned $4.64
 
 Hi John,
 
@@ -883,11 +883,11 @@ Great news! Someone just used your discount code to upgrade to PRO.
 CODE USED: SMITH-K4M9P7Q2
 CUSTOMER TIER: PRO (Monthly)
 REGULAR PRICE: $29.00
-DISCOUNT GIVEN: $2.90 (10%)
-NET REVENUE: $26.10
-YOUR COMMISSION: $7.83 (30%)
+DISCOUNT GIVEN: $5.80 (20%)
+NET REVENUE: $23.20
+YOUR COMMISSION: $4.64 (20%)
 
-Total Earnings This Month: $94.83
+Total Earnings This Month: $46.40
 
 [View Dashboard] to see detailed breakdown.
 
@@ -903,7 +903,7 @@ Trading Alerts Team
 │  🔔 Notifications (1 new)           │
 │                                     │
 │  • Your code SMITH-K4M9P7Q2 was     │
-│    used! +$7.83 commission earned   │
+│    used! +$4.64 commission earned   │
 │    (2 minutes ago)                  │
 └─────────────────────────────────────┘
 ```
@@ -912,7 +912,7 @@ Trading Alerts Team
 
 **SMS Format:**
 ```
-Trading Alerts: Your code SMITH-K4M9P7Q2 was used! +$7.83 commission. View details: https://ta.co/aff/cmm/xyz
+Trading Alerts: Your code SMITH-K4M9P7Q2 was used! +$4.64 commission. View details: https://ta.co/aff/cmm/xyz
 ```
 
 ---
@@ -1118,7 +1118,7 @@ Response:
         "status": "USED",
         "usedAt": "2025-11-14T14:30:00Z",
         "usedBy": "user_123",
-        "commission": 7.83
+        "commission": 4.64
       }
       // ... more codes
     ],
@@ -1571,7 +1571,7 @@ Response:
   "codes": [
     {
       "code": "SMITH-X7Y9Z2M5",
-      "discountPercent": 10.0,
+      "discountPercent": 20.0,
       "commissionPercent": 30.0,
       "expiresAt": "2025-12-31T23:59:59Z"
     }
@@ -2026,8 +2026,8 @@ export async function GET(req: NextRequest) {
         code: randomCode,
         affiliateId: affiliate.id,
         status: 'ACTIVE',
-        discountPercent: 10.0,
-        commissionPercent: 30.0,
+        discountPercent: 20.0,
+        commissionPercent: 20.0,
         expiresAt: endOfMonth(new Date())
       })
     }
@@ -2183,8 +2183,8 @@ Dashboard Highlights:
 - Monthly automatic code distribution (15 codes/month)
 
 Commission Structure:
-- 10% discount for customers
-- 30% commission for you on net revenue
+- 20% discount for customers
+- 20% commission for you on net revenue
 
 Questions? Reply to this email or visit our Help Center.
 
@@ -2209,9 +2209,9 @@ Great news! Someone just used your discount code to upgrade to [Tier].
 CODE USED: [Code]
 CUSTOMER TIER: [Tier]
 REGULAR PRICE: $[Price]
-DISCOUNT GIVEN: $[Discount] (10%)
+DISCOUNT GIVEN: $[Discount] (20%)
 NET REVENUE: $[Net]
-YOUR COMMISSION: $[Commission] (30%)
+YOUR COMMISSION: $[Commission] (20%)
 
 Total Earnings This Month: $[Total]
 
