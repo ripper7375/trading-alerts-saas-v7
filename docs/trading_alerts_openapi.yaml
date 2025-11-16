@@ -48,6 +48,10 @@ tags:
     description: System and user notifications
   - name: Affiliate
     description: Affiliate marketing operations (affiliate portal)
+  - name: Configuration
+    description: System-wide configuration (public endpoints)
+  - name: Admin Settings
+    description: Administrative settings management (admin only)
   - name: Affiliate Admin
     description: Affiliate management and reporting (admin only)
   - name: System
@@ -1889,6 +1893,287 @@ paths:
       responses:
         '200':
           description: Bulk payment recorded
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ============================================
+  # CONFIGURATION ENDPOINTS
+  # ============================================
+  /api/config/affiliate:
+    get:
+      tags:
+        - Configuration
+      summary: Get current affiliate configuration (public)
+      description: |
+        Returns current affiliate discount and commission percentages.
+        This endpoint is public (no authentication required) and is used by all pages
+        to display current pricing and commission rates.
+        Results are cached for 5 minutes to reduce database load.
+      security: []
+      responses:
+        '200':
+          description: Current affiliate configuration
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  discountPercent:
+                    type: number
+                    format: float
+                    example: 20.0
+                    description: Current discount percentage for affiliate codes
+                  commissionPercent:
+                    type: number
+                    format: float
+                    example: 20.0
+                    description: Current commission percentage for affiliates
+                  codesPerMonth:
+                    type: integer
+                    example: 15
+                    description: Number of codes distributed per affiliate monthly
+                  regularPrice:
+                    type: number
+                    format: float
+                    example: 29.00
+                    description: PRO subscription regular price (for calculation reference)
+                  lastUpdated:
+                    type: string
+                    format: date-time
+                    description: When these settings were last changed
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/admin/settings/affiliate:
+    get:
+      tags:
+        - Admin Settings
+      summary: Get affiliate settings (admin)
+      description: |
+        Returns current affiliate settings with metadata (who changed it, when, etc.)
+        Admin-only endpoint for viewing configuration details.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Affiliate settings retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  discountPercent:
+                    type: object
+                    properties:
+                      value:
+                        type: number
+                        format: float
+                        example: 20.0
+                      updatedBy:
+                        type: string
+                        nullable: true
+                        example: admin@tradingalerts.com
+                      updatedAt:
+                        type: string
+                        format: date-time
+                  commissionPercent:
+                    type: object
+                    properties:
+                      value:
+                        type: number
+                        format: float
+                        example: 20.0
+                      updatedBy:
+                        type: string
+                        nullable: true
+                      updatedAt:
+                        type: string
+                        format: date-time
+                  codesPerMonth:
+                    type: object
+                    properties:
+                      value:
+                        type: integer
+                        example: 15
+                      updatedBy:
+                        type: string
+                        nullable: true
+                      updatedAt:
+                        type: string
+                        format: date-time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    patch:
+      tags:
+        - Admin Settings
+      summary: Update affiliate settings (admin)
+      description: |
+        Updates affiliate discount and/or commission percentages.
+        Changes are logged to SystemConfigHistory for audit trail.
+        All pages will reflect new values within 1-5 minutes due to caching.
+
+        **IMPORTANT:** Existing AffiliateCode and Commission records retain their
+        original percentages. Only NEW codes generated after this change will use
+        the new percentages.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                discountPercent:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 100
+                  example: 25.0
+                  description: New discount percentage (0-100)
+                commissionPercent:
+                  type: number
+                  format: float
+                  minimum: 0
+                  maximum: 100
+                  example: 25.0
+                  description: New commission percentage (0-100)
+                codesPerMonth:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  example: 20
+                  description: New number of codes per affiliate monthly
+                reason:
+                  type: string
+                  maxLength: 500
+                  example: "Increasing commission to attract more affiliates for Q1 campaign"
+                  description: Optional reason for this change (logged to history)
+      responses:
+        '200':
+          description: Settings updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Affiliate settings updated. Changes will propagate across all pages within 5 minutes."
+                  changes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        setting:
+                          type: string
+                          example: "discountPercent"
+                        oldValue:
+                          type: string
+                          example: "20.0"
+                        newValue:
+                          type: string
+                          example: "25.0"
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "discountPercent must be between 0 and 100"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/settings/affiliate/history:
+    get:
+      tags:
+        - Admin Settings
+      summary: Get affiliate settings change history (admin)
+      description: |
+        Returns audit trail of all affiliate settings changes.
+        Shows who changed what, when, and why.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 200
+          description: Number of history entries to return
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+          description: Pagination offset
+        - name: configKey
+          in: query
+          schema:
+            type: string
+            enum: [affiliate_discount_percent, affiliate_commission_percent, affiliate_codes_per_month]
+          description: Filter by specific setting key
+      responses:
+        '200':
+          description: Settings change history retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "clh1abc123"
+                        configKey:
+                          type: string
+                          example: "affiliate_discount_percent"
+                        oldValue:
+                          type: string
+                          example: "20.0"
+                        newValue:
+                          type: string
+                          example: "25.0"
+                        changedBy:
+                          type: string
+                          example: "admin@tradingalerts.com"
+                        changedAt:
+                          type: string
+                          format: date-time
+                        reason:
+                          type: string
+                          nullable: true
+                          example: "Q1 marketing campaign"
+                  total:
+                    type: integer
+                    example: 42
+                    description: Total number of history entries
+                  limit:
+                    type: integer
+                    example: 50
+                  offset:
+                    type: integer
+                    example: 0
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
 

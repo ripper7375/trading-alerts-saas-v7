@@ -1358,6 +1358,17 @@ export async function generateAffiliateCodeBatch(
   affiliateName: string,
   count: number
 ): Promise<Array<{ code: string; affiliateId: string; status: string; expiresAt: Date }>> {
+  // Fetch current config from SystemConfig table
+  const discountConfig = await prisma.systemConfig.findUnique({
+    where: { key: 'affiliate_discount_percent' }
+  });
+  const commissionConfig = await prisma.systemConfig.findUnique({
+    where: { key: 'affiliate_commission_percent' }
+  });
+
+  const discountPercent = parseFloat(discountConfig?.value || '20.0');
+  const commissionPercent = parseFloat(commissionConfig?.value || '20.0');
+
   const codes: Array<{
     code: string;
     affiliateId: string;
@@ -1378,8 +1389,8 @@ export async function generateAffiliateCodeBatch(
       code,
       affiliateId,
       status: 'ACTIVE',
-      discountPercent: 20.0,   // 20% discount for customers
-      commissionPercent: 20.0, // 20% commission for affiliate
+      discountPercent,      // From SystemConfig (default 20%)
+      commissionPercent,    // From SystemConfig (default 20%)
       expiresAt: endOfMonth
     });
   }

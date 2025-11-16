@@ -239,6 +239,29 @@ erDiagram
         string paymentReference "nullable: bank txn ID, crypto hash, etc"
     }
 
+    %% SYSTEM CONFIGURATION (CENTRALIZED SETTINGS)
+    SystemConfig {
+        string id PK
+        string key UK "e.g., affiliate_discount_percent"
+        string value "stored as string, parsed as needed"
+        string valueType "number|boolean|string"
+        string description "nullable: human-readable description"
+        string category "affiliate|payment|general"
+        string updatedBy FK "nullable: admin user ID"
+        datetime updatedAt
+        datetime createdAt
+    }
+
+    SystemConfigHistory {
+        string id PK
+        string configKey "which setting was changed"
+        string oldValue "previous value"
+        string newValue "new value"
+        string changedBy "admin user ID or email"
+        datetime changedAt
+        string reason "nullable: why the change was made"
+    }
+
     %% SYSTEM LOGS
     SystemLog {
         string id PK

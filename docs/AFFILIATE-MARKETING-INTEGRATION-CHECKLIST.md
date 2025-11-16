@@ -34,20 +34,25 @@ This checklist outlines document updates needed to integrate the **comprehensive
 ### What's Being Added
 
 **Database:**
-- 3 new tables: `Affiliate`, `AffiliateCode`, `Commission`
+- 5 new tables: `Affiliate`, `AffiliateCode`, `Commission`, `SystemConfig`, `SystemConfigHistory`
 - 4 new enums: `PaymentMethod`, `AffiliateStatus`, `CodeStatus`, `CommissionStatus`
 - Updates to `User` table (role enum, relations)
 - Updates to `Subscription` table (code tracking)
 
 **API Endpoints:**
-- 30+ new endpoints across authentication, dashboard, management, reporting
+- 34+ new endpoints across authentication, dashboard, management, reporting, and configuration
+  - Configuration: GET /api/config/affiliate (public)
+  - Admin Settings: GET/PATCH /api/admin/settings/affiliate
+  - Settings History: GET /api/admin/settings/affiliate/history
 
 **Frontend:**
 - Affiliate registration pages
 - Affiliate login pages
 - Affiliate dashboard (3 main pages)
 - Admin affiliate management (5+ pages)
+- Admin settings page (affiliate configuration management)
 - Checkout integration (discount code input)
+- Frontend hook: useAffiliateConfig() for dynamic percentages
 
 **Background Jobs:**
 - Monthly code distribution (Vercel Cron)
@@ -237,6 +242,68 @@ Earnings tracking with payment status.
 - code → AffiliateCode
 - user → User
 - paidByUser → User (nullable)
+
+#### SystemConfig Table
+Centralized configuration for affiliate discount and commission percentages.
+
+**Fields:**
+- id
+- key (unique, e.g., "affiliate_discount_percent", "affiliate_commission_percent")
+- value (stored as string, parsed as needed)
+- valueType ("number" | "boolean" | "string")
+- description (human-readable explanation)
+- category ("affiliate" | "payment" | "general")
+- updatedBy (FK → User admin, nullable)
+- updatedAt, createdAt
+
+**Relations:**
+- None (standalone configuration table)
+
+**Purpose:** Allows admin to change affiliate percentages from dashboard. All pages automatically reflect new values within 1-5 minutes via SWR cache.
+
+#### SystemConfigHistory Table
+Audit trail for all configuration changes.
+
+**Fields:**
+- id
+- configKey (which setting was changed)
+- oldValue (previous value)
+- newValue (new value)
+- changedBy (admin user ID or email)
+- changedAt (timestamp)
+- reason (optional: why the change was made)
+
+**Relations:**
+- None (audit log table)
+
+**Purpose:** Provides complete audit trail of all configuration changes. Admins can review who changed what, when, and why.
+
+**Default Configuration Values:**
+```typescript
+const defaultConfig = [
+  {
+    key: 'affiliate_discount_percent',
+    value: '20.0',
+    valueType: 'number',
+    description: 'Default discount percentage for affiliate codes',
+    category: 'affiliate'
+  },
+  {
+    key: 'affiliate_commission_percent',
+    value: '20.0',
+    valueType: 'number',
+    description: 'Default commission percentage for affiliates',
+    category: 'affiliate'
+  },
+  {
+    key: 'affiliate_codes_per_month',
+    value: '15',
+    valueType: 'number',
+    description: 'Number of codes distributed to each affiliate monthly',
+    category: 'affiliate'
+  }
+];
+```
 
 ### Updated Tables
 

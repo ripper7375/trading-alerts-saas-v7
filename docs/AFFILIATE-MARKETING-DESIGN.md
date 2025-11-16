@@ -683,8 +683,8 @@ model Commission {
   regularPrice        Decimal  @db.Decimal(10, 2) // 29.00
   discountPercent     Int                         // 20
   discountedPrice     Decimal  @db.Decimal(10, 2) // 23.20
-  commissionPercent   Int                         // 30
-  commissionAmount    Decimal  @db.Decimal(10, 2) // 6.96
+  commissionPercent   Int                         // 20
+  commissionAmount    Decimal  @db.Decimal(10, 2) // 4.64
 
   // Payment Status
   status              CommissionStatus @default(PENDING)
@@ -718,6 +718,74 @@ enum CommissionStatus {
   CANCELLED  // Subscription refunded/cancelled
 }
 ```
+
+**Table: `SystemConfig`** (Centralized Settings Management)
+```prisma
+model SystemConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique  // "affiliate_discount_percent", "affiliate_commission_percent", etc.
+  value       String   // Stored as string, parsed as needed (e.g., "20.0", "15", "true")
+  valueType   String   // "number", "boolean", "string"
+  description String?  // Human-readable description of what this setting controls
+  category    String   // "affiliate", "payment", "general"
+  updatedBy   String?  // Admin user ID who made the last change
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  @@index([category])
+  @@index([key])
+}
+```
+
+**Purpose:** Allows admins to dynamically change affiliate discount and commission percentages from the admin dashboard without code changes. When admin updates these values, all pages (marketing site, user dashboard, affiliate dashboard, admin panels) automatically reflect the new percentages within 1-5 minutes via frontend caching and SWR auto-refresh.
+
+**Table: `SystemConfigHistory`** (Audit Trail for Settings Changes)
+```prisma
+model SystemConfigHistory {
+  id         String   @id @default(cuid())
+  configKey  String   // Which setting was changed (e.g., "affiliate_discount_percent")
+  oldValue   String   // Previous value before change
+  newValue   String   // New value after change
+  changedBy  String   // Admin user ID or email who made the change
+  changedAt  DateTime @default(now())
+  reason     String?  // Optional: why the change was made (admin can provide context)
+
+  @@index([configKey])
+  @@index([changedAt])
+}
+```
+
+**Purpose:** Provides complete audit trail of all configuration changes. Allows admins to review who changed what settings, when, and why. Essential for compliance and debugging.
+
+**Default Configuration Values:**
+```typescript
+// Initial seed data for SystemConfig table
+const defaultConfig = [
+  {
+    key: 'affiliate_discount_percent',
+    value: '20.0',
+    valueType: 'number',
+    description: 'Default discount percentage for affiliate codes',
+    category: 'affiliate'
+  },
+  {
+    key: 'affiliate_commission_percent',
+    value: '20.0',
+    valueType: 'number',
+    description: 'Default commission percentage for affiliates',
+    category: 'affiliate'
+  },
+  {
+    key: 'affiliate_codes_per_month',
+    value: '15',
+    valueType: 'number',
+    description: 'Number of codes distributed to each affiliate monthly',
+    category: 'affiliate'
+  }
+];
+```
+
+**Important Note:** When admin changes these default percentages, existing AffiliateCode and Commission records retain their original percentages (snapshot at creation time). Only NEW codes generated after the change will use the new percentages. This ensures historical accuracy and prevents retroactive changes to existing agreements.
 
 ### 4.2 Existing Table Updates
 
