@@ -895,8 +895,9 @@ paths:
                   enum: [PRO]
                 billingCycle:
                   type: string
-                  enum: [monthly, yearly]
+                  enum: [monthly]
                   default: monthly
+                  description: Only monthly subscriptions available during early stage (no annual plans yet)
               required:
                 - tier
       responses:
@@ -2780,7 +2781,7 @@ components:
           description: Monthly Recurring Revenue
         arr:
           type: number
-          description: Annual Recurring Revenue
+          description: Annual Recurring Revenue (projected from MRR × 12, not from annual subscriptions)
         period:
           type: object
           properties:
