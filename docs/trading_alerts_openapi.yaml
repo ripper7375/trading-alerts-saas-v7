@@ -3037,3 +3037,13 @@ components:
           example:
             error: Rate limit exceeded
             message: Too many requests. Please try again later.
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Internal Server Error
+            message: An unexpected error occurred
