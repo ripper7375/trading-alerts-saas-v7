@@ -270,6 +270,98 @@ This design drives affiliate competition by requiring users to find NEW codes mo
   * Monthly renewal: PRO → PRO with discount ($23.20 instead of $29.00)
   * Without code at renewal: User pays full price ($29.00)
 
+### 2.9 Subscription Model (Monthly-Only for Early Stage)
+
+**Subscription Type:**
+- ✅ **MONTHLY subscriptions ONLY** during early stage (no annual plans)
+- ❌ **NO annual subscriptions** until product is mature and stable
+
+**Subscription Behavior:**
+- **AUTO-RENEWAL:** Subscriptions automatically renew every month
+- **Continuous Access:** Users NEVER lose access (unless they cancel or payment fails)
+- **Optional Codes:** Users can OPTIONALLY enter affiliate codes to save 20%
+- **Code Application:** Users enter codes in billing dashboard BEFORE renewal date
+- **Code Effect:** Code applies to NEXT billing cycle only (one-time use)
+
+**Pricing Structure:**
+```
+PRO Plan (Monthly):
+- Regular Price: $29.00/month
+- With Affiliate Code: $23.20/month (20% discount)
+- Auto-renews monthly
+- Cancel anytime
+- No long-term commitment
+
+❌ Annual Plan: NOT AVAILABLE YET
+- Will be introduced later when product is mature
+- Likely pricing: ~$290/year (save ~17% vs monthly)
+- Requires long-term commitment (not suitable for early stage)
+```
+
+**Rationale for Monthly-Only:**
+
+1. **Development Flexibility**
+   - Still building features and functionalities
+   - Need flexibility to iterate quickly
+   - Easier to make changes without annual commitments
+   - Can adjust pricing or features based on feedback
+
+2. **Lower User Commitment Barrier**
+   - New users hesitant to commit for 12 months
+   - Monthly allows users to "try before they buy" long-term
+   - Easier to attract early adopters
+   - Lower psychological barrier to signup
+
+3. **Business Strategy**
+   - Build trust first with monthly subscriptions
+   - Prove product value month by month
+   - Add annual option later as upsell opportunity
+   - Annual plan can be launched with data on user retention
+
+**When to Introduce Annual:**
+- After 6-12 months of operation
+- When feature set is stable and mature
+- When monthly churn rate is <5%
+- When product-market fit is proven
+- As an upsell opportunity for existing satisfied users
+
+**Renewal Cycle Flow:**
+```
+Day -10: User receives first reminder email
+         "Your subscription renews in 10 days for $29.00"
+         "Enter a code to save 20%!"
+
+Day -7:  User receives second reminder email
+         "One week until renewal"
+
+Day -3:  User receives final reminder email + in-app notification
+         "Last chance to enter code!"
+
+User Action:
+- Option A: User enters code in billing dashboard
+  → Next billing: $23.20 (discounted)
+  → Affiliate earns commission
+
+- Option B: User doesn't enter code
+  → Next billing: $29.00 (full price)
+  → No affiliate earns commission
+  → User stays subscribed (auto-renewal continues)
+
+Day 0:   Stripe auto-charges user (with or without discount)
+         Subscription continues for another month
+
+Repeat:  Cycle repeats monthly
+         User always has option to enter code or skip
+```
+
+**Key Benefits:**
+- ✅ Users never lose access unexpectedly
+- ✅ Users can choose to save money by finding codes
+- ✅ Affiliates compete monthly for commissions
+- ✅ Low churn (auto-renewal)
+- ✅ Flexible for ongoing development
+- ✅ No annual commitment pressure on users
+
 ---
 
 ## 3. SYSTEM ARCHITECTURE
@@ -2057,76 +2149,176 @@ Response (200):
 16. Commission tracked for affiliate
 ```
 
-### 6.2 PRO User Applies Discount Code at Renewal (MONTHLY COMPETITION)
+### 6.2 PRO User Applies Discount Code Before Auto-Renewal (MONTHLY COMPETITION)
+
+**IMPORTANT:** Subscriptions AUTO-RENEW monthly. Users stay subscribed even without codes.
+Users can optionally enter codes in billing dashboard to save 20% on next renewal.
 
 ```
-SCENARIO: User A had Affiliate B's code in Month 1
+SCENARIO: User A used Affiliate B's code in Month 1
           Now it's Month 2, User A finds Affiliate C's code on Instagram
           Affiliates B and C compete for this month's commission
 
-1. User A (PRO tier) receives renewal reminder email
-   "Your PRO subscription renews on Dec 5 at $29.00"
+MONTH 2 RENEWAL CYCLE:
+
+Day -10 (10 days before renewal):
+1. User A (PRO tier) receives first reminder email:
+   "Your PRO subscription renews on Dec 5 for $29.00"
+   "💡 Save 20%! Enter an affiliate code in your billing settings"
+   [Enter Code Now] button → Links to /dashboard/billing
    ↓
-2. User A follows Affiliate C on Instagram, finds new code: "JONES-XYZ789"
+2. User A also sees in-app notification:
+   "💡 Renewal in 10 days - Save $5.80 with a code!"
    ↓
-3. User navigates to /billing or renewal checkout page
+
+Day -7 (7 days before renewal):
+3. User A receives second reminder email:
+   "One week until renewal - $29.00 scheduled"
+   "Find a code to pay only $23.20!"
    ↓
-4. Renewal checkout displays:
-   - Current plan: PRO
-   - Renewal price: $29.00/month
-   - Input field: "Have a discount code? Get 20% off this month!"
+
+Day -5:
+4. User A follows Affiliate C on Instagram
    ↓
-5. User enters: "JONES-XYZ789" (Affiliate C's NEW code from Month 2)
+5. Affiliate C posts: "Use code JONES-XYZ789 to save 20% this month!"
    ↓
-6. Client calls: POST /api/affiliate/validate-code
+6. User A copies code: "JONES-XYZ789"
    ↓
-7. API validates:
-   ✅ Code exists
-   ✅ Code status = ACTIVE
-   ✅ Code not expired (expiresAt = Dec 31)
-   ✅ Code not used (usedBy = null)
-   ✅ Code is NEW (generated Dec 1)
+7. User navigates to /dashboard/billing
    ↓
-8. If valid → Show discounted price:
-   "Regular renewal: $29.00
-    Discount (20%): -$5.80
-    You pay: $23.20/month"
+8. Billing dashboard displays:
+   ┌────────────────────────────────────────────┐
+   │ 💳 Your Subscription                       │
+   │                                             │
+   │ PRO Plan - Monthly                         │
+   │ Status: Active (Auto-renews)               │
+   │                                             │
+   │ Next Billing Date: Dec 5, 2025             │
+   │ Next Billing Amount: $29.00                │
+   │                                             │
+   │ 💡 Save 20% on Next Payment                │
+   │ [Enter code here____] [Apply Code]         │
+   └────────────────────────────────────────────┘
    ↓
-9. User clicks "Confirm Renewal with Discount"
+9. User enters "JONES-XYZ789" and clicks "Apply Code"
    ↓
-10. Stripe processes payment: $23.20
+10. Frontend calls: POST /api/user/billing/apply-code
+    Body: { "code": "JONES-XYZ789" }
     ↓
-11. Webhook: checkout.session.completed
+11. API validates code:
+    ✅ Code exists
+    ✅ Code status = ACTIVE
+    ✅ Code not expired (expiresAt = Dec 31)
+    ✅ Code not used (usedBy = null)
+    ✅ Code is NEW (generated Dec 1)
     ↓
-12. Update AffiliateCode:
-    - status: ACTIVE → USED
-    - usedBy: User A
-    - usedAt: current timestamp
+12. If valid → API saves code for next billing:
+    a. Update Stripe subscription metadata:
+       {
+         nextBillingCode: "JONES-XYZ789",
+         nextBillingCodeId: "clx...",
+         affiliateName: "John Jones"
+       }
+    b. Update Subscription record:
+       nextBillingCodeId: "clx..."
     ↓
-13. Create Commission for Affiliate C:
+13. API returns success:
     {
-      codeId: "clx...",
+      "success": true,
+      "message": "Code will be applied on Dec 5",
+      "nextBillingAmount": 23.20,
+      "savings": 5.80
+    }
+    ↓
+14. Dashboard updates to show:
+    ┌────────────────────────────────────────────┐
+    │ 💳 Your Subscription                       │
+    │                                             │
+    │ PRO Plan - Monthly                         │
+    │ Status: Active (Auto-renews)               │
+    │                                             │
+    │ Next Billing Date: Dec 5, 2025             │
+    │ Next Billing Amount: $23.20 (20% off!) 🎉 │
+    │ ↑ Was: $29.00 | You save: $5.80           │
+    │                                             │
+    │ ✅ Code Applied: JONES-XYZ789              │
+    │ Affiliate: John Jones                       │
+    │ [Remove Code]                               │
+    └────────────────────────────────────────────┘
+    ↓
+
+Day 0 (Renewal date - Dec 5):
+15. Stripe auto-renewal triggers (scheduled charge)
+    ↓
+16. Stripe webhook fires: invoice.payment_succeeded
+    ↓
+17. Webhook handler checks subscription metadata:
+    nextBillingCode = "JONES-XYZ789" (exists!)
+    ↓
+18. Webhook retrieves code from database:
+    code = await prisma.affiliateCode.findUnique({
+      where: { code: "JONES-XYZ789" }
+    })
+    ↓
+19. Webhook calculates commission:
+    regularPrice: 29.00
+    discountedPrice: 29.00 × 0.8 = 23.20
+    commissionAmount: 23.20 × 0.20 = 4.64
+    ↓
+20. Webhook creates Commission record:
+    {
       affiliateId: "affiliate_C_id",
+      codeId: "clx...",
       userId: "user_A_id",
       subscriptionId: "sub_...",
       regularPrice: 29.00,
       discountPercent: 20,
       discountedPrice: 23.20,
       commissionPercent: 20,
-      commissionAmount: 4.64,  // $23.20 × 20%
+      commissionAmount: 4.64,
       status: "PENDING"
     }
     ↓
-14. Affiliate B gets NOTHING this month (User switched to Affiliate C)
+21. Webhook marks code as USED:
+    - status: ACTIVE → USED
+    - usedBy: "user_A_id"
+    - usedAt: current timestamp
     ↓
-15. Affiliate C receives email: "Code JONES-XYZ789 used! Commission earned: $4.64"
+22. Webhook clears code from subscription metadata:
+    nextBillingCode: null
+    nextBillingCodeId: null
+    (Code is one-time use, user needs new code next month)
     ↓
-16. Next month (Month 3):
-    - User A can apply Affiliate D's code, or Affiliate B's new code, or Affiliate C's new code
-    - Affiliates compete again for Month 3 commission
-    - This cycle repeats monthly
+23. User is charged $23.20 (discounted price)
+    ↓
+24. Affiliate C receives email:
+    "🎉 Code JONES-XYZ789 used! Commission earned: $4.64"
+    ↓
+25. User receives email:
+    "✅ Subscription renewed for $23.20 (saved $5.80!)"
+    "Code used: JONES-XYZ789"
+    "💡 Want to save again next month? Find a new code!"
+    ↓
+26. Affiliate B gets NOTHING this month (User switched to Affiliate C)
+    ↓
 
-RESULT: Monthly affiliate competition drives continuous social media engagement!
+MONTH 3 (Next cycle):
+27. User A can:
+    - Enter Affiliate D's new code → Save $5.80
+    - Enter Affiliate B's new code → Save $5.80
+    - Enter Affiliate C's new code → Save $5.80
+    - Enter NO code → Pay $29.00 full price
+    ↓
+28. Affiliates compete again for Month 3 commission
+29. Cycle repeats monthly
+30. User NEVER loses access (auto-renewal continues regardless)
+
+RESULT:
+✅ Monthly affiliate competition drives social media engagement
+✅ Users incentivized to find codes (save money)
+✅ Users stay subscribed even if they skip finding codes
+✅ Low churn (auto-renewal)
+✅ Flexible for users (optional codes)
 ```
 
 ### 6.3 Invalid Code Scenarios
