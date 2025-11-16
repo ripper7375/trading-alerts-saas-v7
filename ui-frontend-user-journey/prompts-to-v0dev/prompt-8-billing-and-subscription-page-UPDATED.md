@@ -30,12 +30,12 @@ REQUIREMENTS:
      - Original price: "$29" (text-3xl, text-white/60, line-through)
      - Discounted price: "$23.20" (text-5xl, font-bold)
      - Period: "/month" (text-xl, text-white/90)
-     - Savings label: "Lifetime 20% off" (bg-green-400, text-green-900, px-2 py-1, rounded-full, text-xs, font-semibold, ml-2)
+     - Savings label: "20% off this month" (bg-green-400, text-green-900, px-2 py-1, rounded-full, text-xs, font-semibold, ml-2)
 
    - Renewal date (TWO VERSIONS):
      * WITHOUT: "Renews on Feb 15, 2025" (text-xl, text-white/90, mt-2)
-     * WITH: "Renews on Feb 15, 2025 at $23.20" (text-xl, text-white/90, mt-2)
-       + Sub-text: "Your 20% affiliate discount is permanent" (text-sm, text-white/80, mt-1)
+     * WITH: "Renews on Feb 15, 2025 at $29.00" (text-xl, text-white/90, mt-2)
+       + Sub-text: "Use a new affiliate code at renewal to get 20% off again!" (text-sm, text-white/80, mt-1)
 
    - Member since: "Member since Jan 15, 2025" (text-lg, text-white/80)
 
@@ -75,8 +75,8 @@ REQUIREMENTS:
 
    Left Column:
    - Icon: 🤝 (text-4xl, mb-3)
-   - Heading: "Lifetime 20% Discount" (text-2xl, font-bold, text-gray-900, mb-2)
-   - Description: "You're saving $5.80/month ($69.60/year) with your affiliate code." (text-gray-700, mb-4)
+   - Heading: "20% Discount This Month" (text-2xl, font-bold, text-gray-900, mb-2)
+   - Description: "You're saving $5.80 this month with your affiliate code. Find new codes monthly to keep saving!" (text-gray-700, mb-4)
    - Code display:
      * Label: "Your referral code:" (text-sm, text-gray-600)
      * Code: "REF-ABC123XYZ" (bg-white, px-4, py-2, rounded-lg, font-mono, text-lg, border-2 border-gray-300, mt-1)
@@ -92,7 +92,7 @@ REQUIREMENTS:
      * Subtext: "Over 12 months" (text-xs, text-gray-500)
 
    Important Notice (below card):
-   - Text: "ℹ️ Your discount is permanent and will continue as long as you maintain your subscription. If you cancel and re-subscribe, the discount will no longer apply." (text-sm, text-gray-600, italic, mt-4)
+   - Text: "ℹ️ Your discount code is valid for one payment only. At renewal, enter a new code to get 20% off again. Affiliates post fresh codes on social media monthly!" (text-sm, text-gray-600, italic, mt-4)
 
 5. USAGE STATISTICS:
    - Section heading: "📊 Usage This Month" (text-2xl, font-bold, mb-6, mt-12)
@@ -165,7 +165,7 @@ REQUIREMENTS:
      * ⚠️ Limited to 5 symbols (currently: 15) (text-orange-600)
      * ⚠️ Only 3 timeframes (currently: 9) (text-orange-600)
      * ⚠️ Only 5 alerts (currently: 20) (text-orange-600)
-     * ⚠️ You'll LOSE your 20% affiliate discount permanently (cannot be re-applied) (text-red-600, font-semibold, bg-red-50, p-2, rounded) - CONDITIONAL
+     * ⚠️ FREE tier is not eligible for affiliate discount codes (text-orange-600) - CONDITIONAL (show if currently has discount)
 
    - Buttons (flex, gap-3, mt-6):
      * "Keep PRO Plan" (bg-blue-600, text-white, px-6, py-3, rounded-lg, hover:bg-blue-700)
@@ -268,18 +268,18 @@ export default function BillingPage({
               <span className="text-xl text-white/90">/month</span>
               {affiliateDiscount?.active && (
                 <span className="bg-green-400 text-green-900 px-2 py-1 rounded-full text-xs font-semibold ml-2">
-                  Lifetime 20% off
+                  20% off this month
                 </span>
               )}
             </div>
 
             {/* Renewal date */}
             <div className="text-xl text-white/90 mt-2">
-              Renews on Feb 15, 2025{affiliateDiscount?.active && ` at $${monthlyPrice.toFixed(2)}`}
+              Renews on Feb 15, 2025 at $29.00
             </div>
             {affiliateDiscount?.active && (
               <div className="text-sm text-white/80 mt-1">
-                Your 20% affiliate discount is permanent
+                Use a new affiliate code at renewal to get 20% off again!
               </div>
             )}
 
@@ -315,8 +315,8 @@ export default function BillingPage({
               {/* ... stats and code display ... */}
             </Card>
             <p className="text-sm text-gray-600 italic mt-4">
-              ℹ️ Your discount is permanent and will continue as long as you maintain your subscription.
-              If you cancel and re-subscribe, the discount will no longer apply.
+              ℹ️ Your discount code is valid for one payment only. At renewal, enter a new code to get 20% off again.
+              Affiliates post fresh codes on social media monthly!
             </p>
           </section>
         )}

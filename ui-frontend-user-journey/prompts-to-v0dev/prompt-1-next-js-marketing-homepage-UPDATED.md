@@ -64,7 +64,7 @@ REQUIREMENTS:
      - Badge: "PRO TIER ⭐" (bg-blue-600, text-white, rounded-full, px-4, py-1, inline-block)
      - Discount hint banner (BEFORE price):
        * Container: bg-yellow-50, border-l-4 border-yellow-400, p-2, rounded-lg, mb-3
-       * Text: "💡 Have a referral code? Get 20% off!" (text-sm, font-medium, text-yellow-800)
+       * Text: "💡 Have a referral code? Get 20% off this month!" (text-sm, font-medium, text-yellow-800)
        * Link: "Apply code →" (text-yellow-600, text-xs, underline)
      - Pricing:
        * Label: "Starting at" (text-sm, text-gray-500, uppercase, font-semibold, mb-1)
@@ -149,11 +149,11 @@ REQUIREMENTS:
    - If URL contains ?ref=AFFILIATE_CODE parameter:
      * Show green banner at very top of page:
        - bg-green-500, text-white, py-3, px-4, text-center
-       - Text: "🎉 Special Offer! Sign up now with code [CODE] and get 20% off PRO forever!"
+       - Text: "🎉 Special Offer! Sign up now with code [CODE] and get 20% off your first month!"
        - Code shown in: bg-white/20, px-2, py-1, rounded, font-mono
      * Add pulsing badge to PRO card:
        - Position: absolute, top-left
-       - Badge: "20% OFF WITH YOUR CODE" (bg-green-500, text-white, px-3, py-1, rounded-full, text-xs, font-bold, shadow-lg, animate-pulse)
+       - Badge: "20% OFF FIRST MONTH" (bg-green-500, text-white, px-3, py-1, rounded-full, text-xs, font-bold, shadow-lg, animate-pulse)
      * Update pricing to show $23.20 instead of "from $23.20"
 
 8. RESPONSIVE:
@@ -191,7 +191,7 @@ export default function HomePage() {
           <p className="text-sm">
             🎉 <strong>Special Offer!</strong> Sign up now with code{" "}
             <code className="bg-white/20 px-2 py-1 rounded">{affiliateCode}</code>
-            {" "}and get <strong>20% off PRO</strong> forever!
+            {" "}and get <strong>20% off your first month!</strong>
           </p>
         </div>
       )}

@@ -586,6 +586,37 @@ model Commission {
   @@index([status])
   @@index([createdAt])
 }
+
+// System Configuration (Centralized Settings)
+// Allows admin to change affiliate percentages dynamically
+
+model SystemConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique  // "affiliate_discount_percent", "affiliate_commission_percent", etc.
+  value       String   // Stored as string, parsed as needed
+  valueType   String   // "number", "boolean", "string"
+  description String?  // Human-readable description
+  category    String   // "affiliate", "payment", "general"
+  updatedBy   String?  // Admin user ID who made the change
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  @@index([category])
+  @@index([key])
+}
+
+model SystemConfigHistory {
+  id         String   @id @default(cuid())
+  configKey  String   // Which setting was changed
+  oldValue   String   // Previous value
+  newValue   String   // New value
+  changedBy  String   // Admin user ID or email
+  changedAt  DateTime @default(now())
+  reason     String?  // Optional: why the change was made
+
+  @@index([configKey])
+  @@index([changedAt])
+}
 ```
 
 **Migration Workflow:**

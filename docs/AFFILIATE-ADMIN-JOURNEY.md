@@ -304,8 +304,8 @@ Request Body:
    - Set affiliateId = verified affiliate
    - Set status = ACTIVE
    - Set expiresAt = end of current month
-   - Set discountPercent = 10% (default)
-   - Set commissionPercent = 30% (default)
+   - Set discountPercent = 20% (default)
+   - Set commissionPercent = 20% (default)
 3. Create 15 AffiliateCode records
 4. Update Affiliate.codesDistributed += 15
 5. Send welcome email with login instructions
@@ -318,8 +318,8 @@ AffiliateCode {
   code: "SMITH-A7K9P2M5",
   affiliateId: "clf1234567890",
   status: ACTIVE,
-  discountPercent: 10.0,
-  commissionPercent: 30.0,
+  discountPercent: 20.0,
+  commissionPercent: 20.0,
   createdAt: "2025-11-14T10:35:00Z",
   expiresAt: "2025-11-30T23:59:59Z",
   usedAt: null,
@@ -355,8 +355,8 @@ Dashboard Highlights:
 - Monthly automatic code distribution (15 codes/month)
 
 Commission Structure:
-- 10% discount for customers
-- 30% commission for you on net revenue
+- 20% discount for customers
+- 20% commission for you on net revenue
 
 Questions? Reply to this email or visit our Help Center.
 
@@ -568,7 +568,7 @@ Response:
     {
       "id": "code_001",
       "code": "SMITH-A7K9P2M5",
-      "discountPercent": 10.0,
+      "discountPercent": 20.0,
       "commissionPercent": 30.0,
       "status": "ACTIVE",
       "expiresAt": "2025-11-30T23:59:59Z",
@@ -613,16 +613,16 @@ Response:
 │  ┌────────┬──────────────┬─────────┬──────────┬────────────┐     │
 │  │ Date   │ Code Used    │ Tier    │ Price    │ Commission │     │
 │  ├────────┼──────────────┼─────────┼──────────┼────────────┤     │
-│  │ Nov 15 │ SMITH-A7K9P2M5│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 18 │ SMITH-B3N7Q8R2│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 20 │ SMITH-C9W4T6Y1│ PRO    │ $29.00   │ $7.83      │     │
+│  │ Nov 15 │ SMITH-A7K9P2M5│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 18 │ SMITH-B3N7Q8R2│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 20 │ SMITH-C9W4T6Y1│ PRO    │ $29.00   │ $4.64      │     │
 │  │ Nov 22 │ SMITH-A7K9P2M5│ PREMIUM│ $99.00   │ $26.73     │     │
-│  │ Nov 25 │ SMITH-D5X2Z8M4│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 28 │ SMITH-E8Y3W7N6│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 29 │ SMITH-F2K9L4P1│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 30 │ SMITH-G6M3Q8T5│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 30 │ SMITH-H9R4V2X7│ PRO    │ $29.00   │ $7.83      │     │
-│  │ Nov 30 │ SMITH-I3T7Y5Z1│ PRO    │ $29.00   │ $7.83      │     │
+│  │ Nov 25 │ SMITH-D5X2Z8M4│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 28 │ SMITH-E8Y3W7N6│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 29 │ SMITH-F2K9L4P1│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 30 │ SMITH-G6M3Q8T5│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 30 │ SMITH-H9R4V2X7│ PRO    │ $29.00   │ $4.64      │     │
+│  │ Nov 30 │ SMITH-I3T7Y5Z1│ PRO    │ $29.00   │ $4.64      │     │
 │  └────────┴──────────────┴─────────┴──────────┴────────────┘     │
 │                                                                     │
 │  📝 COMMISSION CALCULATION                                         │
@@ -654,10 +654,10 @@ Response:
       "code": "SMITH-A7K9P2M5",
       "tier": "PRO",
       "regularPrice": 29.00,
-      "discount": 2.90,
-      "netRevenue": 26.10,
-      "commissionPercent": 30.0,
-      "commissionAmount": 7.83,
+      "discount": 5.80,
+      "netRevenue": 23.20,
+      "commissionPercent": 20.0,
+      "commissionAmount": 4.64,
       "status": "PENDING"
     }
     // ... more commissions
@@ -748,7 +748,7 @@ Response:
         "date": "2025-11-15T14:30:00Z",
         "code": "SMITH-A7K9P2M5",
         "usedBy": "user_123",
-        "commission": 7.83
+        "commission": 4.64
       }
       // ... 9 more
     ]
@@ -756,7 +756,7 @@ Response:
   "activeCodes": [
     {
       "code": "SMITH-K4M9P7Q2",
-      "discountPercent": 10.0,
+      "discountPercent": 20.0,
       "expiresAt": "2025-11-30T23:59:59Z"
     }
     // ... 4 more
@@ -874,7 +874,7 @@ Response:
 
 **Email Template:**
 ```
-Subject: 🎉 Your code was just used! You earned $7.83
+Subject: 🎉 Your code was just used! You earned $4.64
 
 Hi John,
 
@@ -883,11 +883,11 @@ Great news! Someone just used your discount code to upgrade to PRO.
 CODE USED: SMITH-K4M9P7Q2
 CUSTOMER TIER: PRO (Monthly)
 REGULAR PRICE: $29.00
-DISCOUNT GIVEN: $2.90 (10%)
-NET REVENUE: $26.10
-YOUR COMMISSION: $7.83 (30%)
+DISCOUNT GIVEN: $5.80 (20%)
+NET REVENUE: $23.20
+YOUR COMMISSION: $4.64 (20%)
 
-Total Earnings This Month: $94.83
+Total Earnings This Month: $46.40
 
 [View Dashboard] to see detailed breakdown.
 
@@ -903,7 +903,7 @@ Trading Alerts Team
 │  🔔 Notifications (1 new)           │
 │                                     │
 │  • Your code SMITH-K4M9P7Q2 was     │
-│    used! +$7.83 commission earned   │
+│    used! +$4.64 commission earned   │
 │    (2 minutes ago)                  │
 └─────────────────────────────────────┘
 ```
@@ -912,7 +912,7 @@ Trading Alerts Team
 
 **SMS Format:**
 ```
-Trading Alerts: Your code SMITH-K4M9P7Q2 was used! +$7.83 commission. View details: https://ta.co/aff/cmm/xyz
+Trading Alerts: Your code SMITH-K4M9P7Q2 was used! +$4.64 commission. View details: https://ta.co/aff/cmm/xyz
 ```
 
 ---
@@ -1118,7 +1118,7 @@ Response:
         "status": "USED",
         "usedAt": "2025-11-14T14:30:00Z",
         "usedBy": "user_123",
-        "commission": 7.83
+        "commission": 4.64
       }
       // ... more codes
     ],
@@ -1571,7 +1571,7 @@ Response:
   "codes": [
     {
       "code": "SMITH-X7Y9Z2M5",
-      "discountPercent": 10.0,
+      "discountPercent": 20.0,
       "commissionPercent": 30.0,
       "expiresAt": "2025-12-31T23:59:59Z"
     }
@@ -1842,6 +1842,357 @@ Trading Alerts Team
 
 ---
 
+## 3.6 Affiliate Settings Management
+
+**Purpose:** Admin can change system-wide affiliate discount and commission percentages from the dashboard. All pages automatically reflect new values within 1-5 minutes.
+
+**Access:** Admin Dashboard → Settings → Affiliate System
+
+**Scenario:** Admin wants to increase commission from 20% to 25% to attract more affiliates for Q1 marketing campaign.
+
+---
+
+### Step-by-Step Workflow:
+
+**1. Navigate to Settings**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Admin Dashboard                                            │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  📊 Analytics     👥 Users     💳 Affiliates     ⚙️ Settings  │
+│                                                   ^^^^       │
+│                                                  [CLICK]     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**2. View Current Settings**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Settings → Affiliate System Configuration                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Current Affiliate Settings                                 │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │ Customer Discount                                       │ │
+│  │ 20.0 %                                                  │ │
+│  │ Last updated: Nov 10, 2025 by admin@tradingalerts.com │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │ Affiliate Commission                                    │ │
+│  │ 20.0 %                                                  │ │
+│  │ Last updated: Nov 10, 2025 by admin@tradingalerts.com │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │ Codes Per Affiliate Monthly                             │ │
+│  │ 15 codes                                                │ │
+│  │ Last updated: Nov 10, 2025 by admin@tradingalerts.com │ │
+│  └────────────────────────────────────────────────────────┘ │
+│                                                              │
+│  [ Edit Settings ]     [ View Change History ]             │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**3. Click "Edit Settings"**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Update Affiliate Settings                                  │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Customer Discount Percentage                               │
+│  [20.0] %  (0 - 100)                                        │
+│                                                              │
+│  Affiliate Commission Percentage                            │
+│  [20.0] %  (0 - 100)                                        │
+│                                                              │
+│  Codes Per Affiliate Monthly                                │
+│  [15] codes  (1 - 100)                                      │
+│                                                              │
+│  Reason for Change (Optional)                               │
+│  [Increasing commission to attract more affiliates for Q1  │
+│   marketing campaign                                     ] │
+│                                                              │
+│  ⚠️  IMPORTANT NOTICE:                                       │
+│  • Existing codes and commissions keep original percentages│
+│  • Only NEW codes generated after this change will use new │
+│    percentages                                              │
+│  • All web pages will update within 1-5 minutes            │
+│  • Change will be logged to audit history                  │
+│                                                              │
+│  Live Preview:                                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │ Regular PRO Price: $29.00/month                       │  │
+│  │ Customer with code pays: $23.20/month                 │  │
+│  │ Platform revenue: $18.56                              │  │
+│  │ Affiliate earns: $4.64                                │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                                                              │
+│  [ Cancel ]                          [ Save Changes ]       │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**4. Admin Changes Commission to 25%**
+
+```
+  Affiliate Commission Percentage
+  [25.0] % ← Changed from 20.0 to 25.0
+```
+
+**5. Live Preview Updates Automatically**
+
+```
+  Live Preview:
+  ┌──────────────────────────────────────────────────────┐
+  │ Regular PRO Price: $29.00/month                       │
+  │ Customer with code pays: $23.20/month (20% discount) │
+  │ Platform revenue: $17.40  ← Updated                   │
+  │ Affiliate earns: $5.80    ← Updated (was $4.64)       │
+  └──────────────────────────────────────────────────────┘
+```
+
+**6. Admin Clicks "Save Changes"**
+
+**7. Confirmation Dialog**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ⚠️  Confirm Settings Update                                 │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  You are about to update:                                   │
+│                                                              │
+│  • Affiliate Commission: 20.0% → 25.0%                      │
+│                                                              │
+│  Impact:                                                    │
+│  • 523 existing codes: Keep 20% commission ✅               │
+│  • New codes: Will use 25% commission 🆕                    │
+│  • All web pages update within 5 minutes 🔄                 │
+│                                                              │
+│  This action will be logged to audit history.               │
+│                                                              │
+│  [ Go Back ]                           [ Confirm Update ]   │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**8. Success Notification**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  ✅ Settings Updated Successfully                            │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Affiliate commission changed from 20% to 25%               │
+│                                                              │
+│  Changes are now propagating across:                        │
+│  ✅ Marketing homepage                                       │
+│  ✅ Pricing page                                             │
+│  ✅ User dashboard                                           │
+│  ✅ Affiliate dashboard                                      │
+│  ✅ Admin panels                                             │
+│  ✅ Email templates                                          │
+│                                                              │
+│  All pages will reflect new values within 1-5 minutes.     │
+│                                                              │
+│  [ View Change History ]             [ Back to Dashboard ]  │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### View Change History
+
+**Admin clicks "View Change History"**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Affiliate Settings Change History                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Filter: [All Settings ▼]    Search: [                  ] │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │ Nov 15, 2025 3:45 PM - admin@tradingalerts.com       │  │
+│  │ Changed: Affiliate Commission                         │  │
+│  │ Old Value: 20.0%  →  New Value: 25.0%                 │  │
+│  │ Reason: Increasing commission to attract more         │  │
+│  │         affiliates for Q1 marketing campaign          │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │ Nov 10, 2025 10:00 AM - admin@tradingalerts.com      │  │
+│  │ Changed: Codes Per Affiliate Monthly                  │  │
+│  │ Old Value: 10  →  New Value: 15                       │  │
+│  │ Reason: Increasing code distribution for holiday      │  │
+│  │         season promotion                              │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │ Nov 1, 2025 12:00 AM - SYSTEM                         │  │
+│  │ Changed: Customer Discount                            │  │
+│  │ Old Value: 10.0%  →  New Value: 20.0%                 │  │
+│  │ Reason: Updated business model from 10%/30% to 20%/20%│  │
+│  └──────────────────────────────────────────────────────┘  │
+│                                                              │
+│  Showing 3 of 3 changes                                     │
+│                                                              │
+│  [ Export to CSV ]                      [ Back ]            │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### API Sequence Diagram
+
+```
+Admin                 Frontend                Backend              Database
+  │                      │                      │                    │
+  │  1. Navigate to Settings                   │                    │
+  ├─────────────────────>│                      │                    │
+  │                      │  GET /api/admin/settings/affiliate       │
+  │                      ├─────────────────────>│                    │
+  │                      │                      │  SELECT * FROM    │
+  │                      │                      │  SystemConfig     │
+  │                      │                      ├───────────────────>│
+  │                      │                      │<───────────────────┤
+  │                      │<─────────────────────┤                    │
+  │  2. Display current settings               │                    │
+  │<─────────────────────┤                      │                    │
+  │                      │                      │                    │
+  │  3. Change commission to 25%               │                    │
+  ├─────────────────────>│                      │                    │
+  │                      │  (Live preview updates locally)            │
+  │                      │                      │                    │
+  │  4. Click Save       │                      │                    │
+  ├─────────────────────>│                      │                    │
+  │                      │  PATCH /api/admin/settings/affiliate      │
+  │                      ├─────────────────────>│                    │
+  │                      │  {                   │                    │
+  │                      │    commissionPercent: 25.0,                │
+  │                      │    reason: "Q1 campaign"                   │
+  │                      │  }                   │                    │
+  │                      │                      │  BEGIN TRANSACTION │
+  │                      │                      ├───────────────────>│
+  │                      │                      │  UPDATE SystemConfig│
+  │                      │                      │  SET value='25.0'  │
+  │                      │                      ├───────────────────>│
+  │                      │                      │  INSERT INTO       │
+  │                      │                      │  SystemConfigHistory│
+  │                      │                      ├───────────────────>│
+  │                      │                      │  COMMIT            │
+  │                      │                      ├───────────────────>│
+  │                      │<─────────────────────┤                    │
+  │  5. Success notification                   │                    │
+  │<─────────────────────┤                      │                    │
+  │                      │                      │                    │
+  │  6. All pages auto-refresh within 5min (SWR cache)              │
+  │                      │                      │                    │
+```
+
+---
+
+### Database Changes
+
+**SystemConfig Table:**
+```sql
+-- Before
+UPDATE SystemConfig
+SET value = '25.0', updatedBy = 'admin_user_id', updatedAt = NOW()
+WHERE key = 'affiliate_commission_percent';
+
+-- After
+key: 'affiliate_commission_percent'
+value: '25.0'  (was '20.0')
+updatedBy: 'clxyz123admin'
+updatedAt: '2025-11-15 15:45:00'
+```
+
+**SystemConfigHistory Table (Audit Trail):**
+```sql
+INSERT INTO SystemConfigHistory (
+  id, configKey, oldValue, newValue, changedBy, changedAt, reason
+) VALUES (
+  'clhist789',
+  'affiliate_commission_percent',
+  '20.0',
+  '25.0',
+  'admin@tradingalerts.com',
+  '2025-11-15 15:45:00',
+  'Increasing commission to attract more affiliates for Q1 marketing campaign'
+);
+```
+
+---
+
+### Impact on Existing Data
+
+**Existing Codes (DO NOT CHANGE):**
+```sql
+-- 523 existing codes keep original 20% commission
+SELECT id, code, discountPercent, commissionPercent
+FROM AffiliateCode
+WHERE createdAt < '2025-11-15 15:45:00';
+
+Result:
+- All 523 codes still have commissionPercent = 20.0 ✅
+- No retroactive changes to preserve historical accuracy
+```
+
+**New Codes (USE NEW VALUES):**
+```sql
+-- Next monthly distribution (Dec 1) generates codes with 25% commission
+-- Code distribution cron job fetches from SystemConfig:
+const commissionConfig = await prisma.systemConfig.findUnique({
+  where: { key: 'affiliate_commission_percent' }
+});
+const commissionPercent = parseFloat(commissionConfig.value); // 25.0
+
+-- Generates codes with new percentage
+INSERT INTO AffiliateCode (commissionPercent, ...)
+VALUES (25.0, ...);  -- Uses updated value
+```
+
+---
+
+### Frontend Pages Auto-Update
+
+**Pages that automatically reflect new 25% commission:**
+
+1. **Marketing Homepage** (`/`)
+   - "Affiliates earn 25% commission" (was 20%)
+   - useAffiliateConfig() hook fetches from /api/config/affiliate
+
+2. **Pricing Page** (`/pricing`)
+   - Calculator shows "$5.80 commission" (was $4.64)
+
+3. **Affiliate Dashboard** (`/affiliate/dashboard`)
+   - Earnings preview shows new percentages
+   - "You'll earn $5.80 per sale" (was $4.64)
+
+4. **Admin Panels** (`/admin/affiliates/*`)
+   - Commission calculation preview shows 25%
+
+5. **Email Templates**
+   - Welcome emails show "25% commission on every sale"
+   - Code distribution emails reference current percentages
+
+**Update Mechanism:**
+- SWR refreshes /api/config/affiliate every 5 minutes
+- Admin can force immediate refresh by reloading page
+- Cache invalidation ensures consistency
+
+---
+
 ## 4. AFFILIATE-ADMIN INTERACTIONS
 
 ### Interaction 1: Affiliate Requests Additional Codes
@@ -2026,8 +2377,8 @@ export async function GET(req: NextRequest) {
         code: randomCode,
         affiliateId: affiliate.id,
         status: 'ACTIVE',
-        discountPercent: 10.0,
-        commissionPercent: 30.0,
+        discountPercent: 20.0,
+        commissionPercent: 20.0,
         expiresAt: endOfMonth(new Date())
       })
     }
@@ -2183,8 +2534,8 @@ Dashboard Highlights:
 - Monthly automatic code distribution (15 codes/month)
 
 Commission Structure:
-- 10% discount for customers
-- 30% commission for you on net revenue
+- 20% discount for customers
+- 20% commission for you on net revenue
 
 Questions? Reply to this email or visit our Help Center.
 
@@ -2209,9 +2560,9 @@ Great news! Someone just used your discount code to upgrade to [Tier].
 CODE USED: [Code]
 CUSTOMER TIER: [Tier]
 REGULAR PRICE: $[Price]
-DISCOUNT GIVEN: $[Discount] (10%)
+DISCOUNT GIVEN: $[Discount] (20%)
 NET REVENUE: $[Net]
-YOUR COMMISSION: $[Commission] (30%)
+YOUR COMMISSION: $[Commission] (20%)
 
 Total Earnings This Month: $[Total]
 

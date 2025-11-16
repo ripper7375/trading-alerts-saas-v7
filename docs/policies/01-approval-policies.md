@@ -1119,13 +1119,13 @@ export async function POST(req: NextRequest) {
 
       // 2. Extract values from Stripe session
       const regularPrice = parseFloat(session.metadata.regularPrice); // 29.00
-      const discountPercent = code.discountPercent; // 10.0
-      const commissionPercent = code.commissionPercent; // 30.0
+      const discountPercent = code.discountPercent; // 20.0
+      const commissionPercent = code.commissionPercent; // 20.0
 
       // 3. Calculate (with exact formula)
-      const discountAmount = regularPrice * (discountPercent / 100); // 2.90
-      const netRevenue = regularPrice - discountAmount; // 26.10
-      const commissionAmount = netRevenue * (commissionPercent / 100); // 7.83
+      const discountAmount = regularPrice * (discountPercent / 100); // 5.80
+      const netRevenue = regularPrice - discountAmount; // 23.20
+      const commissionAmount = netRevenue * (commissionPercent / 100); // 4.64
 
       // 4. Create commission record (status: PENDING)
       await prisma.commission.create({
@@ -1264,9 +1264,9 @@ const validated = schema.parse(data);
 {
   reportMonth: "2024-01",
   openingBalance: 0.00,     // From previous month's closing
-  earned: 15.66,            // Sum of commissions this month
-  paid: 7.83,               // Sum of payments this month
-  closingBalance: 7.83,     // openingBalance + earned - paid
+  earned: 9.28,             // Sum of commissions this month
+  paid: 4.64,               // Sum of payments this month
+  closingBalance: 4.64,     // openingBalance + earned - paid
   commissions: [
     {
       id: "comm_1",
@@ -1275,10 +1275,10 @@ const validated = schema.parse(data);
       affiliateCode: "SMITH-A7K9P2M5",
       createdAt: "2024-01-05T10:30:00Z",
       regularPrice: 29.00,
-      discountAmount: 2.90,
-      netRevenue: 26.10,
-      commissionPercent: 30.0,
-      commissionAmount: 7.83,
+      discountAmount: 5.80,
+      netRevenue: 23.20,
+      commissionPercent: 20.0,
+      commissionAmount: 4.64,
       status: "PAID",
       paidAt: "2024-01-10T14:20:00Z"
     },
@@ -1289,10 +1289,10 @@ const validated = schema.parse(data);
       affiliateCode: "SMITH-B1C2D3E4",
       createdAt: "2024-01-15T16:45:00Z",
       regularPrice: 29.00,
-      discountAmount: 2.90,
-      netRevenue: 26.10,
-      commissionPercent: 30.0,
-      commissionAmount: 7.83,
+      discountAmount: 5.80,
+      netRevenue: 23.20,
+      commissionPercent: 20.0,
+      commissionAmount: 4.64,
       status: "PENDING",
       paidAt: null
     }
@@ -1351,6 +1351,193 @@ When validating affiliate marketing files, ensure:
 | Payment method validation | Required fields present | High |
 | Accounting balance reconciliation | opening + earned - paid = closing | High |
 | Code uniqueness check | Checks existing before creating | Medium |
+
+**If ANY Critical violated → ESCALATE immediately**
+
+---
+
+### 7.8 Dynamic Configuration System (SystemConfig)
+
+✅ **Centralized Settings Management:**
+- Frontend MUST use `useAffiliateConfig()` hook to fetch current percentages
+- NEVER hardcode discount or commission percentages (20%, 20%, etc.)
+- Code generation MUST read from SystemConfig table for default values
+- Admin UI MUST use SystemConfig for displaying and updating settings
+
+**Why this matters:** Admin can change affiliate discount and commission percentages from dashboard. All pages must reflect these changes automatically without code deployment.
+
+**Example - Good (Frontend):**
+```typescript
+// components/PricingCard.tsx
+import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
+
+export function PricingCard() {
+  const { discountPercent, calculateDiscountedPrice } = useAffiliateConfig();
+  const regularPrice = 29.00;
+  const discountedPrice = calculateDiscountedPrice(regularPrice);
+
+  return (
+    <div>
+      <p>Regular: ${regularPrice}/month</p>
+      <p>With code: ${discountedPrice}/month (Save {discountPercent}%!)</p>
+    </div>
+  );
+}
+```
+
+**Example - Good (Backend - Code Generation):**
+```typescript
+// app/api/admin/affiliates/[id]/distribute-codes/route.ts
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  // 1. Fetch current config from SystemConfig table
+  const discountConfig = await prisma.systemConfig.findUnique({
+    where: { key: 'affiliate_discount_percent' }
+  });
+  const commissionConfig = await prisma.systemConfig.findUnique({
+    where: { key: 'affiliate_commission_percent' }
+  });
+
+  const discountPercent = parseFloat(discountConfig?.value || '20.0');
+  const commissionPercent = parseFloat(commissionConfig?.value || '20.0');
+
+  // 2. Generate codes with current config values
+  const codes = await Promise.all(
+    Array(15).fill(null).map(() =>
+      prisma.affiliateCode.create({
+        data: {
+          code: generateSecureCode(),
+          affiliateId: params.id,
+          discountPercent,      // ✅ From SystemConfig
+          commissionPercent,    // ✅ From SystemConfig
+          expiresAt: endOfMonth(),
+          status: 'ACTIVE'
+        }
+      })
+    )
+  );
+
+  return NextResponse.json({ codesDistributed: codes.length });
+}
+```
+
+**Example - Bad:**
+```typescript
+// ❌ Hardcoded percentages
+const discountPercent = 20.0;  // Will break if admin changes settings
+const commissionPercent = 20.0;
+
+// ❌ Not using useAffiliateConfig hook
+export function PricingCard() {
+  return <p>Save 20% with affiliate code!</p>;  // Hardcoded!
+}
+```
+
+**Frontend Hook Pattern:**
+```typescript
+// lib/hooks/useAffiliateConfig.ts
+import useSWR from 'swr';
+
+export interface AffiliateConfig {
+  discountPercent: number;
+  commissionPercent: number;
+  codesPerMonth: number;
+  regularPrice: number;
+  lastUpdated: string;
+}
+
+export function useAffiliateConfig() {
+  const { data, error, isLoading } = useSWR<AffiliateConfig>(
+    '/api/config/affiliate',
+    {
+      refreshInterval: 300000,  // 5 minutes
+      dedupingInterval: 60000,  // 1 minute
+      revalidateOnFocus: true,
+    }
+  );
+
+  return {
+    config: data,
+    discountPercent: data?.discountPercent ?? 20,
+    commissionPercent: data?.commissionPercent ?? 20,
+    calculateDiscountedPrice: (regularPrice: number) => {
+      const discount = data?.discountPercent ?? 20;
+      return regularPrice * (1 - discount / 100);
+    },
+    isLoading,
+    error,
+  };
+}
+```
+
+**API Endpoint Pattern:**
+```typescript
+// app/api/config/affiliate/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+
+// Cache for 5 minutes
+export const revalidate = 300;
+
+export async function GET(req: NextRequest) {
+  try {
+    // Fetch all affiliate config keys
+    const configs = await prisma.systemConfig.findMany({
+      where: {
+        key: {
+          in: [
+            'affiliate_discount_percent',
+            'affiliate_commission_percent',
+            'affiliate_codes_per_month'
+          ]
+        }
+      }
+    });
+
+    // Parse and return
+    const configMap = Object.fromEntries(
+      configs.map(c => [c.key, c.value])
+    );
+
+    return NextResponse.json({
+      discountPercent: parseFloat(configMap.affiliate_discount_percent || '20.0'),
+      commissionPercent: parseFloat(configMap.affiliate_commission_percent || '20.0'),
+      codesPerMonth: parseInt(configMap.affiliate_codes_per_month || '15'),
+      regularPrice: 29.00,
+      lastUpdated: configs[0]?.updatedAt || new Date(),
+    });
+  } catch (error) {
+    console.error('Failed to fetch affiliate config:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch configuration' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+**Critical Rules:**
+1. ✅ ALWAYS use `useAffiliateConfig()` in frontend components
+2. ✅ ALWAYS fetch from SystemConfig table in backend code generation
+3. ✅ NEVER hardcode percentages (20%, 20%, 15 codes, etc.)
+4. ✅ Cache config endpoint for 5 minutes to reduce DB load
+5. ✅ Provide fallback values if SystemConfig query fails
+
+**Pages that MUST use useAffiliateConfig():**
+- Marketing homepage (pricing section)
+- Pricing page
+- Checkout page
+- Billing page
+- Affiliate dashboard (earnings calculator)
+- Admin affiliate management (commission preview)
+- All email templates (pricing references)
+
+**Update Propagation:**
+- Admin changes settings → SystemConfigHistory entry created
+- Frontend pages refresh within 1-5 minutes (SWR revalidation)
+- Existing codes keep original percentages (no retroactive changes)
+- New codes use updated percentages from SystemConfig
+
+---
 
 **If ANY Critical violated → ESCALATE immediately**
 

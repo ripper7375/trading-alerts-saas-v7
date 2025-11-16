@@ -212,8 +212,8 @@ erDiagram
         string code UK "cryptographically random >12 chars"
         string affiliateId FK
         string status "ACTIVE|USED|EXPIRED|CANCELLED"
-        float discountPercent "default 10.0"
-        float commissionPercent "default 30.0"
+        float discountPercent "default 20.0"
+        float commissionPercent "default 20.0"
         datetime createdAt
         datetime expiresAt "end of month"
         datetime usedAt "nullable"
@@ -229,14 +229,37 @@ erDiagram
         string userId FK "customer who upgraded"
         string subscriptionId FK "nullable"
         float regularPrice "e.g., 29.00"
-        float discountAmount "e.g., 2.90 (10%)"
-        float netRevenue "e.g., 26.10"
-        float commissionPercent "30.0"
-        float commissionAmount "e.g., 7.83"
+        float discountAmount "e.g., 5.80 (20%)"
+        float netRevenue "e.g., 23.20"
+        float commissionPercent "20.0"
+        float commissionAmount "e.g., 4.64"
         string status "PENDING|PAID"
         datetime createdAt
         datetime paidAt "nullable"
         string paymentReference "nullable: bank txn ID, crypto hash, etc"
+    }
+
+    %% SYSTEM CONFIGURATION (CENTRALIZED SETTINGS)
+    SystemConfig {
+        string id PK
+        string key UK "e.g., affiliate_discount_percent"
+        string value "stored as string, parsed as needed"
+        string valueType "number|boolean|string"
+        string description "nullable: human-readable description"
+        string category "affiliate|payment|general"
+        string updatedBy FK "nullable: admin user ID"
+        datetime updatedAt
+        datetime createdAt
+    }
+
+    SystemConfigHistory {
+        string id PK
+        string configKey "which setting was changed"
+        string oldValue "previous value"
+        string newValue "new value"
+        string changedBy "admin user ID or email"
+        datetime changedAt
+        string reason "nullable: why the change was made"
     }
 
     %% SYSTEM LOGS

@@ -1387,14 +1387,29 @@ export async function GET(req: NextRequest) {
     where: { status: 'ACTIVE' }
   });
 
+  // Fetch current config from SystemConfig table
+  const discountConfig = await prisma.systemConfig.findUnique({
+    where: { key: 'affiliate_discount_percent' }
+  });
+  const commissionConfig = await prisma.systemConfig.findUnique({
+    where: { key: 'affiliate_commission_percent' }
+  });
+  const codesConfig = await prisma.systemConfig.findUnique({
+    where: { key: 'affiliate_codes_per_month' }
+  });
+
+  const discountPercent = parseFloat(discountConfig?.value || '20.0');
+  const commissionPercent = parseFloat(commissionConfig?.value || '20.0');
+  const codesPerMonth = parseInt(codesConfig?.value || '15');
+
   for (const affiliate of activeAffiliates) {
-    // Generate 15 codes per affiliate
-    const codes = Array.from({ length: 15 }, () => ({
+    // Generate codes per affiliate (default 15, configurable via SystemConfig)
+    const codes = Array.from({ length: codesPerMonth }, () => ({
       code: generateRandomCode(affiliate.fullName),
       affiliateId: affiliate.id,
       status: 'ACTIVE',
-      discountPercent: 10.0,
-      commissionPercent: 30.0,
+      discountPercent,      // From SystemConfig
+      commissionPercent,    // From SystemConfig
       expiresAt: endOfMonth(new Date())
     }));
 
@@ -1657,6 +1672,103 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ url: session.url });
 }
 ```
+
+---
+
+### 13.11 Centralized Configuration System (SystemConfig)
+
+**Rule:** All affiliate discount and commission percentages MUST be fetched from SystemConfig table. Never hardcode these values.
+
+**Why this matters:** Admin can change affiliate percentages from dashboard. All pages must reflect changes automatically without code deployment.
+
+**Database Schema:**
+```prisma
+model SystemConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique  // "affiliate_discount_percent", "affiliate_commission_percent", etc.
+  value       String   // Stored as string, parsed as needed
+  valueType   String   // "number", "boolean", "string"
+  description String?
+  category    String   // "affiliate", "payment", "general"
+  updatedBy   String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+model SystemConfigHistory {
+  id         String   @id @default(cuid())
+  configKey  String
+  oldValue   String
+  newValue   String
+  changedBy  String
+  changedAt  DateTime @default(now())
+  reason     String?
+}
+```
+
+**Backend Pattern (Code Generation):**
+```typescript
+// ALWAYS fetch from SystemConfig when generating affiliate codes
+export async function POST(req: NextRequest) {
+  // Fetch current config
+  const configs = await prisma.systemConfig.findMany({
+    where: {
+      key: { in: ['affiliate_discount_percent', 'affiliate_commission_percent'] }
+    }
+  });
+
+  const configMap = Object.fromEntries(configs.map(c => [c.key, c.value]));
+  const discountPercent = parseFloat(configMap.affiliate_discount_percent || '20.0');
+  const commissionPercent = parseFloat(configMap.affiliate_commission_percent || '20.0');
+
+  // Use dynamic values
+  await prisma.affiliateCode.create({
+    data: {
+      // ...
+      discountPercent,      // ✅ From SystemConfig
+      commissionPercent,    // ✅ From SystemConfig
+    }
+  });
+}
+```
+
+**Frontend Pattern:**
+```typescript
+// ALWAYS use useAffiliateConfig() hook
+import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
+
+export function PricingCard() {
+  const { discountPercent, calculateDiscountedPrice } = useAffiliateConfig();
+
+  return (
+    <div>
+      <p>Regular: $29/month</p>
+      <p>With code: ${calculateDiscountedPrice(29)} (Save {discountPercent}%!)</p>
+    </div>
+  );
+}
+```
+
+**API Endpoints:**
+- `GET /api/config/affiliate` - Public endpoint (no auth) for fetching current config
+- `GET /api/admin/settings/affiliate` - Admin endpoint for viewing settings
+- `PATCH /api/admin/settings/affiliate` - Admin endpoint for updating settings
+- `GET /api/admin/settings/affiliate/history` - Admin endpoint for viewing change history
+
+**Update Propagation:**
+1. Admin changes percentages via dashboard
+2. Backend updates SystemConfig table
+3. Backend creates SystemConfigHistory entry
+4. Frontend pages refresh within 1-5 minutes (SWR cache)
+5. New codes generated use updated percentages
+6. Existing codes keep original percentages (no retroactive changes)
+
+**Critical Rules:**
+- ✅ NEVER hardcode percentages (20%, 20%, etc.)
+- ✅ ALWAYS fetch from SystemConfig in code generation
+- ✅ ALWAYS use useAffiliateConfig() hook in frontend
+- ✅ Cache config endpoint for 5 minutes to reduce DB load
+- ✅ Provide fallback values if config query fails
 
 ---
 
