@@ -1294,6 +1294,426 @@ prisma/schema.prisma                       # Add 3 new models + enum
 
 ---
 
+## PART 18: dLocal Payment Integration (Emerging Markets)
+
+**Scope:** Payment processing for users from emerging markets (India, Nigeria, Pakistan, Vietnam, Indonesia, Thailand, South Africa, Turkey) using local payment methods (UPI, Paytm, JazzCash, GoPay, etc.) without international credit cards.
+
+**Why this exists:** Stripe requires international credit/debit cards. Many users in emerging markets don't have these cards, limiting PRO subscriptions. dLocal bridges this gap by supporting 50+ local payment methods popular in each country.
+
+### 18.1 Core Features
+
+**Business Requirements:**
+- ✅ Support 8 emerging markets (IN, NG, PK, VN, ID, TH, ZA, TR)
+- ✅ 50+ local payment methods (UPI, Paytm, JazzCash, GoPay, etc.)
+- ✅ Unified checkout page (Stripe + dLocal together)
+- ✅ Country detection (IP geolocation + manual selector)
+- ✅ Real-time currency conversion (USD → local currency)
+- ✅ 3-day PRO plan ($1.99) - dLocal exclusive
+- ✅ Monthly PRO plan ($29) - both providers
+- ✅ Manual renewal (NO auto-renewal for dLocal)
+- ✅ Discount codes on monthly plans ONLY (NOT 3-day)
+
+**Technical Requirements:**
+- ✅ Webhook signature verification
+- ✅ Payment transaction logging
+- ✅ Cron jobs for renewal reminders & expiry
+- ✅ Email notifications (5 types)
+- ✅ Graceful fallback to Stripe if dLocal fails
+
+### 18.2 Key Differences from Stripe
+
+| Feature | Stripe | dLocal |
+|---------|--------|--------|
+| Auto-Renewal | ✅ Yes | ❌ NO - Manual renewal required |
+| Free Trial | ✅ 7 days | ❌ NO trial period |
+| Plans | Monthly only | **3-day** + Monthly |
+| Discount Codes | ✅ All plans | ❌ Monthly ONLY (not 3-day) |
+| Renewal Notifications | Stripe manages | **We send** 3 days before expiry |
+| Expiry Handling | Stripe auto-downgrades | **We downgrade** via cron job |
+| Payment Flow | Card authorization | Redirect to local payment page |
+
+### 18.3 Database Schema (Additions)
+
+**File:** `prisma/schema.prisma` (UPDATE EXISTING)
+
+```prisma
+model Subscription {
+  // ... existing fields ...
+
+  // NEW: Payment provider field
+  paymentProvider       PaymentProvider  @default(STRIPE)
+
+  // NEW: dLocal-specific fields (NULL for Stripe)
+  dlocalPaymentId       String?
+  dlocalPaymentMethod   String?          // 'UPI', 'PAYTM', 'GOPAY', etc.
+  dlocalCountry         String?          // 'IN', 'ID', 'PK', etc.
+  dlocalCurrency        String?          // 'INR', 'IDR', 'PKR', etc.
+
+  // NEW: Plan type
+  planType              PlanType         @default(MONTHLY)
+
+  // NEW: Amount tracking
+  amount                Decimal          // Local currency amount
+  amountUSD             Decimal          // USD equivalent
+  currency              String
+
+  // NEW: Manual renewal tracking (dLocal only)
+  expiresAt             DateTime?
+  renewalReminderSent   Boolean          @default(false)
+
+  // ... rest of existing fields ...
+}
+
+// NEW: Payment transaction log
+model Payment {
+  id                    String   @id @default(cuid())
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id])
+  subscriptionId        String?
+  subscription          Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  provider              PaymentProvider
+  providerPaymentId     String
+  providerStatus        String
+
+  amount                Decimal
+  amountUSD             Decimal
+  currency              String
+  country               String
+  paymentMethod         String
+
+  planType              PlanType
+  duration              Int              // 3 or 30 days
+
+  discountCode          String?
+  discountAmount        Decimal?
+
+  status                PaymentStatus
+  failureReason         String?
+
+  initiatedAt           DateTime   @default(now())
+  completedAt           DateTime?
+  failedAt              DateTime?
+  metadata              Json?
+
+  @@index([userId])
+  @@index([provider, providerPaymentId])
+  @@index([status])
+}
+
+// NEW: Enums
+enum PaymentProvider {
+  STRIPE
+  DLOCAL
+}
+
+enum PlanType {
+  THREE_DAY
+  MONTHLY
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+// UPDATED: Add new statuses
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED     // NEW - dLocal subscription expired
+  CANCELLED
+  PAYMENT_FAILED
+  PENDING     // NEW - awaiting payment confirmation
+}
+```
+
+### 18.4 File Structure
+
+```
+types/
+└── dlocal.ts                                        # NEW - dLocal types
+
+lib/
+├── dlocal/
+│   ├── constants.ts                                 # NEW - Country/currency mappings
+│   ├── currency-converter.service.ts                # NEW - USD → local currency
+│   ├── payment-methods.service.ts                   # NEW - Fetch payment methods
+│   └── dlocal-payment.service.ts                    # NEW - Create payments
+├── cron/
+│   ├── check-expiring-subscriptions.ts              # NEW - Renewal reminders
+│   └── downgrade-expired-subscriptions.ts           # NEW - Auto-downgrade
+└── geo/
+    └── detect-country.ts                            # NEW - IP geolocation
+
+app/
+├── api/
+│   ├── payments/
+│   │   └── dlocal/
+│   │       ├── methods/route.ts                     # NEW - Get payment methods
+│   │       ├── exchange-rate/route.ts               # NEW - Get exchange rate
+│   │       ├── convert/route.ts                     # NEW - Convert USD to local
+│   │       ├── create/route.ts                      # NEW - Create payment
+│   │       ├── validate-discount/route.ts           # NEW - Validate discount code
+│   │       └── [paymentId]/route.ts                 # NEW - Get payment status
+│   ├── webhooks/
+│   │   └── dlocal/route.ts                          # NEW - Payment webhooks
+│   └── cron/
+│       ├── check-expiring-subscriptions/route.ts    # NEW - Renewal cron
+│       └── downgrade-expired-subscriptions/route.ts # NEW - Expiry cron
+└── checkout/
+    └── page.tsx                                     # UPDATED - Unified checkout
+
+components/
+└── payments/
+    ├── CountrySelector.tsx                          # NEW - Country picker
+    ├── PlanSelector.tsx                             # NEW - 3-day vs Monthly
+    ├── PaymentMethodSelector.tsx                    # NEW - Payment method grid
+    ├── PriceDisplay.tsx                             # NEW - Local currency display
+    ├── DiscountCodeInput.tsx                        # NEW - Discount validation
+    └── PaymentButton.tsx                            # NEW - Pay button
+
+lib/emails/
+├── send-renewal-reminder.ts                         # NEW - 3-day reminder email
+├── send-expired-notification.ts                     # NEW - Expiry email
+├── send-payment-confirmation.ts                     # NEW - Success email
+└── send-payment-failure.ts                          # NEW - Failure email
+
+docs/
+├── policies/
+│   └── 07-dlocal-integration-rules.md               # NEW - Aider policy
+├── dlocal-openapi-endpoints.yaml                   # NEW - API spec
+├── implementation-guides/
+│   └── v5_part_r.md                                 # NEW - Implementation guide
+└── DLOCAL-INTEGRATION-SUMMARY.md                   # NEW - Summary doc
+
+vercel.json                                          # UPDATED - Add cron jobs
+```
+
+### 18.5 API Endpoints (7 new)
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/payments/dlocal/methods` | GET | Get available payment methods for country |
+| `/api/payments/dlocal/exchange-rate` | GET | Get USD to local currency rate |
+| `/api/payments/dlocal/convert` | GET | Convert USD amount to local currency |
+| `/api/payments/dlocal/create` | POST | Create dLocal payment |
+| `/api/payments/dlocal/validate-discount` | POST | Validate discount code |
+| `/api/payments/dlocal/[paymentId]` | GET | Get payment status |
+| `/api/webhooks/dlocal` | POST | Payment status webhooks |
+
+### 18.6 Cron Jobs (2 new)
+
+| Cron Job | Schedule | Purpose |
+|----------|----------|---------|
+| `check-expiring-subscriptions` | Daily 00:00 UTC | Send renewal reminders (3 days before expiry) |
+| `downgrade-expired-subscriptions` | Hourly | Downgrade PRO → FREE on expiry |
+
+**Vercel Cron Configuration:**
+
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/check-expiring-subscriptions",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/downgrade-expired-subscriptions",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
+```
+
+### 18.7 Email Notifications (5 types)
+
+1. **Payment Confirmed** - Immediate after webhook (status = PAID)
+2. **Renewal Reminder (3 days)** - 3 days before expiry
+3. **Renewal Reminder (1 day)** - 1 day before expiry
+4. **Subscription Expired** - After expiry date reached
+5. **Payment Failed** - If webhook status = FAILED
+
+### 18.8 Supported Countries & Payment Methods
+
+| Country | Currency | Popular Methods |
+|---------|----------|----------------|
+| India (IN) | INR (₹) | UPI, Paytm, PhonePe, Net Banking |
+| Nigeria (NG) | NGN (₦) | Bank Transfer, USSD, Paystack, Verve |
+| Pakistan (PK) | PKR (Rs) | JazzCash, Easypaisa |
+| Vietnam (VN) | VND (₫) | VNPay, MoMo, ZaloPay |
+| Indonesia (ID) | IDR (Rp) | GoPay, OVO, Dana, ShopeePay |
+| Thailand (TH) | THB (฿) | TrueMoney, Rabbit LINE Pay, Thai QR |
+| South Africa (ZA) | ZAR (R) | Instant EFT, EFT |
+| Turkey (TR) | TRY (₺) | Bank Transfer, Local Cards |
+
+### 18.9 Pricing
+
+| Plan | Duration | Price (USD) | Discount Codes | Auto-Renewal |
+|------|----------|-------------|----------------|--------------|
+| **3-Day** | 3 days | $1.99 | ❌ NO | ❌ NO |
+| **Monthly** | 30 days | $29.00 | ✅ YES | ❌ NO |
+
+**Local Currency Examples (India):**
+- 3-day: $1.99 = ₹165 (at ~83 INR/USD)
+- Monthly: $29.00 = ₹2,407 (at ~83 INR/USD)
+
+### 18.10 Payment Flow
+
+```
+User visits /checkout
+    ↓
+Country Detection (IP geolocation + manual selector)
+    ↓
+Load Payment Methods (dLocal + Stripe card)
+    ↓
+User Selects:
+    - Payment Method (UPI, Paytm, etc.)
+    - Plan (3-day or Monthly)
+    - Discount Code (if Monthly plan)
+    ↓
+Create Payment (POST /api/payments/dlocal/create)
+    ↓
+Redirect to dLocal Payment Page
+    ↓
+User Completes Payment
+    ↓
+Webhook Fires (status = PAID)
+    ↓
+Actions:
+    - Update Payment (status: COMPLETED)
+    - Create Subscription (ACTIVE)
+    - Upgrade User (FREE → PRO)
+    - Set Expiry (NOW + 3 or 30 days)
+    - Send Confirmation Email
+    ↓
+User Returns to SaaS (PRO access activated)
+```
+
+### 18.11 Renewal & Expiry Flow
+
+```
+Day -3: Renewal Reminder Email Sent
+    ↓
+Day 0: Subscription Expires
+    ↓
+Cron Job: Downgrade Expired Subscriptions
+    ↓
+Actions:
+    - Update Subscription (status: EXPIRED)
+    - Update User (tier: FREE)
+    - Send Expiry Email
+    ↓
+User Loses PRO Access:
+    - 15 symbols → 5 symbols
+    - 9 timeframes → 3 timeframes
+    - 20 alerts → 5 alerts
+```
+
+### 18.12 Environment Variables
+
+```bash
+# dLocal API Configuration
+DLOCAL_API_URL=https://api.dlocal.com
+DLOCAL_API_LOGIN=your_dlocal_login
+DLOCAL_API_KEY=your_dlocal_api_key
+DLOCAL_API_SECRET=your_dlocal_secret_key
+DLOCAL_WEBHOOK_SECRET=your_webhook_secret
+
+# dLocal Pricing (USD)
+DLOCAL_3DAY_PRICE_USD=1.99
+DLOCAL_MONTHLY_PRICE_USD=29.00
+
+# Feature Flags
+ENABLE_DLOCAL_PAYMENTS=true
+ENABLE_3DAY_PLAN=true
+
+# Cron Job Secret
+CRON_SECRET=your_cron_secret_here
+```
+
+### 18.13 File Count
+
+| Category | Files | Description |
+|----------|-------|-------------|
+| Type Definitions | 1 | dLocal types |
+| Services | 4 | Currency, payment methods, payments, country detection |
+| API Routes | 9 | Payment endpoints + webhooks + cron |
+| Cron Jobs | 2 | Renewal reminders + expiry |
+| Frontend Components | 6 | Country selector, plan selector, payment methods, etc. |
+| Email Templates | 4 | Confirmation, reminders, expiry, failure |
+| Database | 2 | Payment model + Subscription updates |
+| Documentation | 4 | Policy, OpenAPI, guide, summary |
+| Configuration | 2 | vercel.json + .env updates |
+| **Total** | **34 new** | **+ 11 updates = 45 files total** |
+
+**Estimated Time:** 120 hours (4 weeks)
+
+### 18.14 Integration Points
+
+**Modified Files (from existing parts):**
+
+```
+app/checkout/page.tsx                    # Add dLocal payment options
+prisma/schema.prisma                     # Add Payment model + Subscription fields
+vercel.json                              # Add cron jobs
+.env.local                               # Add dLocal variables
+docs/trading_alerts_openapi.yaml         # Add dLocal endpoints
+```
+
+**Dependencies (no new packages required):**
+- Uses existing: crypto (Node.js built-in)
+- Uses existing: @prisma/client, stripe
+- Uses existing: resend (for emails)
+- Uses existing: vercel/cron
+
+### 18.15 Testing Checklist
+
+**Unit Tests:**
+- [ ] Currency conversion (USD → INR, NGN, PKR, etc.)
+- [ ] Discount code validation (reject on 3-day plan)
+- [ ] Payment methods fetching
+- [ ] Webhook signature verification
+- [ ] Expiry date calculations
+
+**Integration Tests:**
+- [ ] Complete payment flow (mock dLocal API)
+- [ ] Webhook handling (PAID, REJECTED, CANCELLED)
+- [ ] Subscription creation
+- [ ] User tier upgrade/downgrade
+- [ ] Cron job execution
+
+**E2E Tests (Manual):**
+- [ ] India → UPI → Monthly → Discount code → Payment success
+- [ ] Pakistan → 3-day → No discount → Payment success
+- [ ] Renewal reminder sent 3 days before expiry
+- [ ] Subscription expires → User downgraded to FREE
+
+### 18.16 Success Criteria
+
+- ✅ Single checkout page shows both Stripe and dLocal
+- ✅ Country detection works with manual override
+- ✅ Payment methods load dynamically for 8 countries
+- ✅ Prices display in local currency
+- ✅ 3-day plan exclusive to dLocal
+- ✅ Discount codes work on monthly only
+- ✅ Payment processing works for all countries
+- ✅ Webhooks handle success/failure correctly
+- ✅ Renewal reminders sent 3 days before expiry
+- ✅ Expired subscriptions downgraded automatically
+
+### 18.17 Key Documentation
+
+- **Policy:** `docs/policies/07-dlocal-integration-rules.md`
+- **Implementation Guide:** `docs/implementation-guides/v5_part_r.md`
+- **OpenAPI Spec:** `docs/dlocal-openapi-endpoints.yaml`
+- **Summary:** `docs/DLOCAL-INTEGRATION-SUMMARY.md`
+- **Original Spec:** `dlocal/dlocal-integration-prompt.md`
+
+---
+
 ## 📊 Updated Summary Statistics
 
 | Part | Name | Files | Priority | Complexity |
@@ -1315,6 +1735,7 @@ prisma/schema.prisma                       # Add 3 new models + enum
 | 15 | Notifications | ~9 | ⭐⭐ | Medium |
 | 16 | Utilities | ~25 | ⭐⭐ | Low |
 | 17 | Affiliate Marketing | ~67 | ⭐⭐ | High |
+| 18 | dLocal Payments | ~45 | ⭐⭐ | High |
 | **Seed** | **V0 Components** | **~50** | **⭐⭐⭐** | **Reference** |
 
 **Total: ~170 production files + ~50 seed reference files (20 components)**
