@@ -1772,6 +1772,722 @@ export function PricingCard() {
 
 ---
 
+## 14. PAYMENT GATEWAY ARCHITECTURE (DUAL PROVIDERS)
+
+### 14.1 Single Subscription Model
+
+**Rule:** Use ONE `Subscription` model for both Stripe and dLocal. The `paymentProvider` field distinguishes behavior.
+
+**Why this matters:** Prevents data duplication, simplifies tier validation logic, and ensures consistent subscription status checks across the application.
+
+**Database Schema:**
+```prisma
+model Subscription {
+  id                     String   @id @default(cuid())
+  userId                 String   @unique  // One subscription per user
+
+  // Payment Provider (required)
+  paymentProvider        String   // "STRIPE" or "DLOCAL"
+
+  // Stripe fields (nullable for dLocal)
+  stripeCustomerId       String?  @unique
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
+
+  // dLocal fields (nullable for Stripe)
+  dLocalPaymentId        String?  @unique
+  dLocalCountry          String?
+  dLocalCurrency         String?
+  dLocalAmount           Float?
+
+  // Shared fields (both providers)
+  planType               String   // "MONTHLY" or "THREE_DAY"
+  amountUsd              Float    // USD amount (both providers)
+  status                 String   // "active", "canceled", "expired"
+  expiresAt              DateTime // Critical for dLocal
+
+  // ... other fields
+}
+```
+
+**Implementation Pattern:**
+```typescript
+// ✅ GOOD - Single unified function for both providers
+export async function getSubscriptionStatus(userId: string): Promise<SubscriptionStatus> {
+  const subscription = await prisma.subscription.findUnique({
+    where: { userId }
+  });
+
+  if (!subscription) {
+    return { tier: 'FREE', status: 'none' };
+  }
+
+  // Provider-specific logic based on paymentProvider field
+  if (subscription.paymentProvider === 'STRIPE') {
+    // Check Stripe API for real-time status
+    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
+    return {
+      tier: stripeSubscription.status === 'active' ? 'PRO' : 'FREE',
+      provider: 'STRIPE',
+      autoRenew: true
+    };
+  } else {
+    // dLocal: Check expiresAt field
+    const now = new Date();
+    return {
+      tier: now < subscription.expiresAt ? 'PRO' : 'FREE',
+      provider: 'DLOCAL',
+      autoRenew: false,
+      canRenew: true
+    };
+  }
+}
+
+// ❌ BAD - Separate models or tables for each provider
+// DON'T create StripeSubscription and DLocalSubscription models
+```
+
+---
+
+### 14.2 Provider-Specific Logic Isolation
+
+**Rule:** Isolate provider-specific logic in separate modules. Use strategy pattern for checkout, renewal, and cancellation.
+
+**Why this matters:** Keeps code maintainable. Adding a third payment provider (e.g., PayPal) only requires creating a new strategy, not modifying existing code.
+
+**Directory Structure:**
+```
+lib/
+├── payments/
+│   ├── stripe-client.ts       # Stripe SDK wrapper
+│   ├── dlocal-client.ts       # dLocal API wrapper
+│   ├── currency-converter.ts  # USD ↔ Local currency
+│   ├── fraud-detector.ts      # Fraud detection logic
+│   └── subscription-manager.ts # Unified subscription API
+```
+
+**Strategy Pattern:**
+```typescript
+// lib/payments/subscription-manager.ts
+
+interface PaymentProvider {
+  createCheckoutSession(userId: string, plan: PlanType): Promise<CheckoutSession>;
+  processPaymentCallback(data: unknown): Promise<Subscription>;
+  renewSubscription(subscriptionId: string): Promise<Subscription>;
+  cancelSubscription(subscriptionId: string): Promise<void>;
+}
+
+class StripeProvider implements PaymentProvider {
+  async createCheckoutSession(userId: string, plan: PlanType) {
+    // Stripe-specific logic
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      line_items: [{
+        price: STRIPE_PRICE_IDS[plan],
+        quantity: 1
+      }],
+      subscription_data: {
+        trial_period_days: 7  // Stripe has trial
+      }
+    });
+    return session;
+  }
+
+  // ... other methods
+}
+
+class DLocalProvider implements PaymentProvider {
+  async createCheckoutSession(userId: string, plan: PlanType) {
+    // dLocal-specific logic
+    const { country, currency } = await getUserCountry(userId);
+    const { amount, rate } = await convertUsdToLocal(PLANS[plan].usd, currency);
+
+    const payment = await dlocal.createPayment({
+      amount,
+      currency,
+      country,
+      // dLocal has NO trial period
+    });
+    return payment;
+  }
+
+  // ... other methods
+}
+
+// Factory function
+export function getPaymentProvider(provider: 'STRIPE' | 'DLOCAL'): PaymentProvider {
+  return provider === 'STRIPE' ? new StripeProvider() : new DLocalProvider();
+}
+
+// Usage in API routes
+export async function POST(req: NextRequest) {
+  const { provider, plan } = await req.json();
+  const paymentProvider = getPaymentProvider(provider);
+  const session = await paymentProvider.createCheckoutSession(userId, plan);
+  return NextResponse.json(session);
+}
+```
+
+**Critical:** NEVER mix provider-specific logic in shared functions.
+
+---
+
+### 14.3 Early Renewal Support (dLocal Only)
+
+**Rule:** dLocal monthly subscriptions support early renewal with day stacking. Stripe does NOT support this (auto-renews automatically).
+
+**Why this matters:** dLocal does NOT auto-renew. Users must manually renew before expiry. Early renewal allows users to renew without losing remaining days.
+
+**Implementation:**
+```typescript
+// app/api/payments/dlocal/renew/route.ts
+
+export async function POST(req: NextRequest) {
+  const session = await getServerSession();
+  const subscription = await prisma.subscription.findUnique({
+    where: { userId: session.user.id }
+  });
+
+  // ✅ Only allow early renewal for dLocal monthly subscriptions
+  if (subscription.paymentProvider !== 'DLOCAL') {
+    return NextResponse.json({
+      error: 'Stripe subscriptions auto-renew. No manual renewal needed.'
+    }, { status: 400 });
+  }
+
+  if (subscription.planType === 'THREE_DAY') {
+    return NextResponse.json({
+      error: '3-day plan cannot be renewed. Purchase monthly plan instead.'
+    }, { status: 400 });
+  }
+
+  // Calculate stacking
+  const now = new Date();
+  const expiresAt = new Date(subscription.expiresAt);
+  const remainingDays = Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+
+  // New expiry = current expiry + 30 days (stacks on top)
+  const newExpiresAt = new Date(expiresAt);
+  newExpiresAt.setDate(newExpiresAt.getDate() + 30);
+
+  // Process payment
+  const payment = await dlocal.createPayment({...});
+
+  if (payment.status === 'completed') {
+    await prisma.subscription.update({
+      where: { id: subscription.id },
+      data: {
+        expiresAt: newExpiresAt,
+        updatedAt: new Date()
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Renewed! ${remainingDays} remaining days + 30 new days = ${remainingDays + 30} total`,
+      expiresAt: newExpiresAt
+    });
+  }
+}
+```
+
+**Critical Rules:**
+- ✅ dLocal monthly: Early renewal allowed, stacks days
+- ✅ dLocal 3-day: NO renewal allowed (one-time use)
+- ❌ Stripe: NO manual renewal (auto-renews via Stripe)
+
+---
+
+### 14.4 Currency Conversion Rules
+
+**Rule:** Currency conversion ONLY applies to dLocal. Stripe always uses USD. Store both local currency amount AND USD equivalent.
+
+**Why this matters:** Reporting and analytics need USD values for consistency. Exchange rates fluctuate, so we store the rate used at time of payment.
+
+**Implementation:**
+```typescript
+// lib/payments/currency-converter.ts
+
+export async function convertUsdToLocal(
+  amountUsd: number,
+  targetCurrency: string
+): Promise<{ amount: number; rate: number }> {
+  // Fetch real-time rate from exchange rate API
+  const rate = await fetchExchangeRate('USD', targetCurrency);
+
+  // Convert and round
+  const localAmount = Math.round(amountUsd * rate * 100) / 100;
+
+  return { amount: localAmount, rate };
+}
+
+// Usage in checkout
+export async function POST(req: NextRequest) {
+  const { country, planType } = await req.json();
+
+  const usdPrice = planType === 'MONTHLY' ? 29.00 : 0.96;
+  const currency = COUNTRY_CURRENCIES[country]; // IN → INR
+
+  if (currency !== 'USD') {
+    const { amount, rate } = await convertUsdToLocal(usdPrice, currency);
+
+    // Store BOTH amounts
+    const payment = await prisma.payment.create({
+      data: {
+        provider: 'DLOCAL',
+        amount: amount,           // ✅ Local currency amount (e.g., 2407.00 INR)
+        currency: currency,       // ✅ Local currency code (e.g., "INR")
+        amountUsd: usdPrice,      // ✅ USD equivalent (e.g., 29.00)
+        exchangeRate: rate,       // ✅ Rate used (e.g., 83.00)
+        // ...
+      }
+    });
+  }
+}
+```
+
+**Critical Rules:**
+- ✅ Stripe: Always USD, no conversion needed
+- ✅ dLocal: Convert USD → local currency at checkout time
+- ✅ Store BOTH `amount` (local) and `amountUsd` (USD) for all payments
+- ✅ Store exchange rate used for audit trail
+- ❌ NEVER convert for Stripe payments
+- ❌ NEVER use hardcoded exchange rates (always fetch real-time)
+
+---
+
+### 14.5 3-Day Plan Anti-Abuse Protection
+
+**Rule:** 3-day plan (dLocal only) can be purchased ONCE per account. Enforce via database constraint and application logic.
+
+**Why this matters:** Prevents abuse where users create multiple accounts to repeatedly purchase cheap 3-day access.
+
+**Database Schema:**
+```prisma
+model User {
+  id                  String   @id @default(cuid())
+  email               String   @unique
+
+  // 3-day plan tracking
+  hasUsedThreeDayPlan Boolean  @default(false)
+  threeDayPlanUsedAt  DateTime?
+
+  // Fraud detection
+  lastLoginIP         String?
+  deviceFingerprint   String?
+}
+```
+
+**Implementation:**
+```typescript
+// app/api/payments/dlocal/checkout/route.ts
+
+export async function POST(req: NextRequest) {
+  const session = await getServerSession();
+  const { planType, country, currency } = await req.json();
+
+  if (planType === 'THREE_DAY') {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id }
+    });
+
+    // ✅ Check if already used
+    if (user.hasUsedThreeDayPlan) {
+      // Create fraud alert
+      await prisma.fraudAlert.create({
+        data: {
+          userId: user.id,
+          alertType: '3DAY_PLAN_REUSE',
+          severity: 'MEDIUM',
+          description: 'User attempted to purchase 3-day plan more than once',
+          ipAddress: req.headers.get('x-forwarded-for'),
+          deviceFingerprint: req.headers.get('x-device-fingerprint')
+        }
+      });
+
+      return NextResponse.json({
+        error: 'The 3-day plan can only be purchased once per account. Please upgrade to monthly plan.',
+        errorCode: '3DAY_PLAN_ALREADY_USED'
+      }, { status: 403 });
+    }
+
+    // ✅ Check for active subscription
+    const activeSubscription = await prisma.subscription.findFirst({
+      where: {
+        userId: user.id,
+        status: 'active',
+        expiresAt: { gte: new Date() }
+      }
+    });
+
+    if (activeSubscription) {
+      return NextResponse.json({
+        error: 'Cannot purchase 3-day plan while you have an active subscription',
+        errorCode: 'ACTIVE_SUBSCRIPTION_EXISTS'
+      }, { status: 403 });
+    }
+
+    // ✅ All checks passed, process payment
+    // After payment success:
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        hasUsedThreeDayPlan: true,
+        threeDayPlanUsedAt: new Date()
+      }
+    });
+  }
+}
+```
+
+**Critical Rules:**
+- ✅ Check `hasUsedThreeDayPlan` before allowing purchase
+- ✅ Create `FraudAlert` if reuse attempt detected
+- ✅ Block 3-day purchase if active subscription exists
+- ✅ Mark `hasUsedThreeDayPlan = true` after successful payment
+- ❌ NEVER allow multiple 3-day purchases per account
+- ❌ NEVER skip fraud alert creation on abuse attempts
+
+---
+
+### 14.6 Fraud Detection Integration
+
+**Rule:** All payment operations must trigger fraud detection checks. Create `FraudAlert` records for suspicious activity.
+
+**Why this matters:** dLocal 3-day plan is cheap ($0.96 USD), making it attractive for abuse. Fraud detection prevents revenue loss and chargebacks.
+
+**Fraud Patterns:**
+```typescript
+// lib/payments/fraud-detector.ts
+
+export async function detectFraud(userId: string, context: FraudContext): Promise<FraudAlert | null> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      payments: { orderBy: { createdAt: 'desc' }, take: 10 },
+      fraudAlerts: { where: { resolution: null } }
+    }
+  });
+
+  // Pattern 1: Multiple failed payments in short time
+  const recentFailedPayments = user.payments.filter(
+    p => p.status === 'failed' && p.createdAt > new Date(Date.now() - 60 * 60 * 1000)
+  );
+  if (recentFailedPayments.length >= 3) {
+    return createFraudAlert(userId, {
+      alertType: 'MULTIPLE_FAILED_PAYMENTS',
+      severity: 'HIGH',
+      description: `${recentFailedPayments.length} failed payments in last hour`
+    });
+  }
+
+  // Pattern 2: IP address + device fingerprint mismatch
+  if (user.lastLoginIP && user.lastLoginIP !== context.ipAddress) {
+    if (user.deviceFingerprint && user.deviceFingerprint !== context.deviceFingerprint) {
+      return createFraudAlert(userId, {
+        alertType: 'SUSPICIOUS_IP_CHANGE',
+        severity: 'MEDIUM',
+        description: 'IP and device fingerprint both changed'
+      });
+    }
+  }
+
+  // Pattern 3: 3-day plan reuse attempt (already handled in checkout)
+
+  // Pattern 4: Rapid account creation from same IP
+  // ... additional patterns
+
+  return null;
+}
+```
+
+**Admin Dashboard:**
+```typescript
+// app/admin/fraud-alerts/page.tsx
+export default async function FraudAlertsPage() {
+  const alerts = await prisma.fraudAlert.findMany({
+    where: { resolution: null },
+    include: {
+      user: {
+        select: {
+          email: true,
+          createdAt: true,
+          payments: { orderBy: { createdAt: 'desc' }, take: 5 }
+        }
+      }
+    },
+    orderBy: [
+      { severity: 'desc' },
+      { detectedAt: 'desc' }
+    ]
+  });
+
+  return (
+    <div>
+      <h1>Fraud Alerts</h1>
+      {alerts.map(alert => (
+        <FraudAlertCard
+          key={alert.id}
+          alert={alert}
+          onResolve={async (resolution, notes) => {
+            await fetch(`/api/admin/fraud-alerts/${alert.id}/resolve`, {
+              method: 'POST',
+              body: JSON.stringify({ resolution, notes })
+            });
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+**Critical Rules:**
+- ✅ Create `FraudAlert` for ALL suspicious activity
+- ✅ Include context: ipAddress, deviceFingerprint, additionalData
+- ✅ Admin must review and resolve ALL fraud alerts
+- ✅ Block user if fraud confirmed (`User.isActive = false`)
+- ❌ NEVER auto-block users (always require admin review)
+- ❌ NEVER delete fraud alerts (keep for audit trail)
+
+---
+
+### 14.7 Payment Provider Selection by Country
+
+**Rule:** Payment provider selection is based on user's country. dLocal countries get both options, others only Stripe.
+
+**Why this matters:** dLocal only supports 8 emerging market countries. International users MUST use Stripe.
+
+**Supported Countries:**
+```typescript
+// lib/payments/provider-selector.ts
+
+export const DLOCAL_COUNTRIES = [
+  'IN',  // India
+  'NG',  // Nigeria
+  'PK',  // Pakistan
+  'VN',  // Vietnam
+  'ID',  // Indonesia
+  'TH',  // Thailand
+  'ZA',  // South Africa
+  'TR',  // Turkey
+] as const;
+
+export const COUNTRY_CURRENCIES: Record<string, string> = {
+  'IN': 'INR',
+  'NG': 'NGN',
+  'PK': 'PKR',
+  'VN': 'VND',
+  'ID': 'IDR',
+  'TH': 'THB',
+  'ZA': 'ZAR',
+  'TR': 'TRY',
+  // All other countries default to USD (Stripe)
+};
+
+export function getAvailableProviders(countryCode: string): PaymentProvider[] {
+  if (DLOCAL_COUNTRIES.includes(countryCode as any)) {
+    return ['STRIPE', 'DLOCAL'];  // Both options
+  } else {
+    return ['STRIPE'];  // Only Stripe for international
+  }
+}
+
+export function getCurrency(countryCode: string): string {
+  return COUNTRY_CURRENCIES[countryCode] || 'USD';
+}
+
+export function getLocalizedPrice(
+  planType: 'MONTHLY' | 'THREE_DAY',
+  country: string
+): { amount: number; currency: string; display: string } {
+  const usdPrice = planType === 'MONTHLY' ? 29.00 : 0.96;
+  const currency = getCurrency(country);
+
+  if (currency === 'USD') {
+    return {
+      amount: usdPrice,
+      currency: 'USD',
+      display: `$${usdPrice}`
+    };
+  }
+
+  // Fetch real-time conversion for dLocal countries
+  const { amount, rate } = await convertUsdToLocal(usdPrice, currency);
+
+  const symbols: Record<string, string> = {
+    'INR': '₹',
+    'NGN': '₦',
+    'PKR': '₨',
+    'VND': '₫',
+    'IDR': 'Rp',
+    'THB': '฿',
+    'ZAR': 'R',
+    'TRY': '₺',
+  };
+
+  return {
+    amount,
+    currency,
+    display: `${symbols[currency] || ''}${amount.toLocaleString()}`
+  };
+}
+```
+
+**Frontend Usage:**
+```typescript
+// components/payments/payment-provider-selector.tsx
+'use client';
+
+import { useEffect, useState } from 'react';
+import { getAvailableProviders, getLocalizedPrice } from '@/lib/payments/provider-selector';
+
+export function PaymentProviderSelector({ country }: { country: string }) {
+  const providers = getAvailableProviders(country);
+  const [selectedProvider, setSelectedProvider] = useState<'STRIPE' | 'DLOCAL'>('STRIPE');
+
+  const monthlyPrice = getLocalizedPrice('MONTHLY', country);
+  const threeDayPrice = getLocalizedPrice('THREE_DAY', country);
+
+  return (
+    <div>
+      <h2>Choose Payment Method</h2>
+
+      {providers.includes('STRIPE') && (
+        <div onClick={() => setSelectedProvider('STRIPE')}>
+          <h3>International Cards (Stripe)</h3>
+          <p>Visa, Mastercard, Amex</p>
+          <p>Monthly: ${monthlyPrice.display} USD</p>
+          <p>✅ 7-day free trial</p>
+          <p>✅ Auto-renewal</p>
+        </div>
+      )}
+
+      {providers.includes('DLOCAL') && (
+        <div onClick={() => setSelectedProvider('DLOCAL')}>
+          <h3>Local Payment Methods (dLocal)</h3>
+          <p>UPI, NetBanking, Mobile Wallets</p>
+          <p>3-day trial: {threeDayPrice.display}</p>
+          <p>Monthly: {monthlyPrice.display}</p>
+          <p>❌ No auto-renewal (manual)</p>
+        </div>
+      )}
+
+      <button onClick={() => handleCheckout(selectedProvider)}>
+        Continue
+      </button>
+    </div>
+  );
+}
+```
+
+**Critical Rules:**
+- ✅ Detect user country via IP geolocation or registration form
+- ✅ Show dLocal option ONLY for supported countries
+- ✅ Show currency in local format (₹, ₦, ₨, etc.)
+- ✅ Allow country change if geolocation wrong
+- ❌ NEVER show dLocal for unsupported countries
+- ❌ NEVER assume USD for all users
+
+---
+
+### 14.8 Subscription Expiry Handling
+
+**Rule:** dLocal subscriptions require explicit expiry handling. Stripe handles this automatically via webhooks.
+
+**Why this matters:** dLocal subscriptions do NOT auto-renew. System must check expiry daily and downgrade users to FREE tier.
+
+**Implementation:**
+```typescript
+// Cron job: Runs daily at midnight UTC
+// app/api/cron/check-expirations/route.ts
+
+export async function GET(req: NextRequest) {
+  // Verify Vercel Cron secret
+  if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const now = new Date();
+
+  // Find dLocal subscriptions expiring soon or expired
+  const expiringSubscriptions = await prisma.subscription.findMany({
+    where: {
+      paymentProvider: 'DLOCAL',
+      status: 'active',
+      OR: [
+        { expiresAt: { lt: now } },  // Already expired
+        {
+          expiresAt: { lt: addDays(now, 3) },  // Expires within 3 days
+          renewalReminderSent: false
+        }
+      ]
+    },
+    include: { user: true }
+  });
+
+  for (const subscription of expiringSubscriptions) {
+    const daysUntilExpiry = Math.ceil((subscription.expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (daysUntilExpiry <= 0) {
+      // ✅ Expired - downgrade to FREE
+      await prisma.$transaction([
+        prisma.subscription.update({
+          where: { id: subscription.id },
+          data: { status: 'expired' }
+        }),
+        prisma.user.update({
+          where: { id: subscription.userId },
+          data: { tier: 'FREE' }
+        })
+      ]);
+
+      await sendEmail(subscription.user.email, 'Subscription Expired', {
+        message: 'Your PRO subscription has expired. Renew now to regain access.',
+        renewUrl: 'https://app.com/dashboard/billing'
+      });
+
+    } else if (daysUntilExpiry <= 3 && !subscription.renewalReminderSent) {
+      // ✅ Expiring soon - send reminder
+      await prisma.subscription.update({
+        where: { id: subscription.id },
+        data: { renewalReminderSent: true }
+      });
+
+      await sendEmail(subscription.user.email, 'Subscription Expiring Soon', {
+        message: `Your PRO subscription expires in ${daysUntilExpiry} days. Renew now to avoid interruption.`,
+        renewUrl: 'https://app.com/dashboard/billing'
+      });
+    }
+  }
+
+  return NextResponse.json({ checked: expiringSubscriptions.length });
+}
+```
+
+**Vercel Cron Configuration:**
+```json
+// vercel.json
+{
+  "crons": [
+    {
+      "path": "/api/cron/check-expirations",
+      "schedule": "0 0 * * *"  // Daily at midnight UTC
+    }
+  ]
+}
+```
+
+**Critical Rules:**
+- ✅ Run expiry check daily (midnight UTC)
+- ✅ Send reminder 3 days before expiry
+- ✅ Downgrade to FREE tier immediately when expired
+- ✅ Mark `renewalReminderSent = true` after sending
+- ❌ Stripe subscriptions: DO NOT check manually (webhooks handle it)
+- ❌ NEVER downgrade active Stripe subscriptions
+
+---
+
 ## Summary of Architecture Rules
 
 ✅ **DO:**
@@ -1788,6 +2504,14 @@ export function PricingCard() {
 - Create commissions via Stripe webhook only (prevents fraud)
 - Use accounting-style reports (opening/closing balances)
 - Generate codes with crypto.randomBytes (cryptographically secure)
+- **Payment Providers:** Use single Subscription model with paymentProvider field
+- **dLocal:** Store BOTH local currency amount AND USD equivalent
+- **dLocal:** Convert USD to local currency at checkout time with real-time rates
+- **dLocal:** Enforce 3-day plan one-time use with hasUsedThreeDayPlan flag
+- **dLocal:** Create FraudAlert for all suspicious payment activity
+- **dLocal:** Check subscription expiry daily (cron job at midnight UTC)
+- **dLocal:** Support early renewal with day stacking for monthly plans
+- **Stripe:** Allow Stripe to handle auto-renewal (do NOT manually check expiry)
 
 ❌ **DON'T:**
 - Manually define types that exist in OpenAPI
@@ -1801,5 +2525,13 @@ export function PricingCard() {
 - Allow affiliates to generate their own codes
 - Create commissions manually (only via webhook)
 - Use predictable/sequential code formats
+- **Payment Providers:** Create separate models for Stripe and dLocal subscriptions
+- **dLocal:** Show dLocal option for unsupported countries
+- **dLocal:** Use hardcoded exchange rates (always fetch real-time)
+- **dLocal:** Allow multiple 3-day plan purchases per account
+- **dLocal:** Skip fraud alert creation on abuse attempts
+- **dLocal:** Auto-block users (always require admin review)
+- **Stripe:** Implement manual renewal for Stripe subscriptions
+- **Stripe:** Manually check Stripe subscription expiry (webhooks handle it)
 
-**Why these rules matter:** Consistent architecture makes the codebase navigable, maintainable, and secure. Following these patterns across all 170+ files ensures quality at scale.
+**Why these rules matter:** Consistent architecture makes the codebase navigable, maintainable, and secure. Following these patterns across all 289 files (including dual payment providers and affiliate system) ensures quality at scale.
