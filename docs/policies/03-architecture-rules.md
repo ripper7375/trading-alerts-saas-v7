@@ -323,30 +323,50 @@ interface Alert {  // Don't do this! Use auto-generated type
 
 ### 4.1 NextAuth.js for Authentication
 
-**Setup:**
+**Version:** NextAuth.js v4.24.5
+**Providers:** Email/Password (CredentialsProvider) + Google OAuth (GoogleProvider)
+**Session Strategy:** JWT (serverless-friendly, no database Session model)
+
+> **📖 For Complete OAuth Implementation:** See `docs/policies/08-google-oauth-implementation-rules.md` for:
+> - Google OAuth provider configuration
+> - Verified-only account linking (security)
+> - Account model setup
+> - Nullable password handling for OAuth-only users
+
+**Basic Setup (Email/Password):**
 ```typescript
 // app/api/auth/[...nextauth]/route.ts
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import GoogleProvider from 'next-auth/providers/google'; // NEW: OAuth support
 import { prisma } from '@/lib/db/prisma';
 
 const handler = NextAuth({
-  adapter: PrismaAdapter(prisma),
   providers: [
+    // Provider 1: Google OAuth (see Policy 08 for full config)
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+
+    // Provider 2: Email/Password
     CredentialsProvider({
-      name: 'Email',
+      name: 'credentials',
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        // Validate credentials
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
-        if (!user || !await bcrypt.compare(credentials.password, user.password)) {
+        // Handle OAuth-only users (null password)
+        if (!user || !user.password) {
+          return null;
+        }
+
+        if (!await bcrypt.compare(credentials.password, user.password)) {
           return null;  // Invalid credentials
         }
 
@@ -361,8 +381,10 @@ const handler = NextAuth({
   ],
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
+    // See Policy 08 for complete signIn callback with verified-only linking
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
@@ -383,7 +405,7 @@ const handler = NextAuth({
 export { handler as GET, handler as POST };
 ```
 
-**Why NextAuth:** Industry-standard, handles session management, CSRF protection, secure cookies, supports multiple providers.
+**Why NextAuth:** Industry-standard, handles session management, CSRF protection, secure cookies, supports multiple providers (Email + OAuth).
 
 ---
 
