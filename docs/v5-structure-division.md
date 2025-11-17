@@ -196,20 +196,27 @@ lib/config/
 
 ## PART 5: Authentication System
 
-**Scope:** Complete auth system
+**Scope:** Complete auth system with Google OAuth + Email/Password
+
+**Authentication Stack:**
+- NextAuth.js v4.24.5 (already installed)
+- Google OAuth 2.0 provider
+- Email/Password credentials provider
+- JWT sessions (serverless-friendly)
+- Verified-only account linking (security-first)
 
 **Folders & Files:**
 ```
 app/(auth)/
 ├── layout.tsx
-├── login/page.tsx
+├── login/page.tsx              # Updated: "Sign in with Google" button
 ├── register/page.tsx
 ├── verify-email/page.tsx
 ├── forgot-password/page.tsx
 └── reset-password/page.tsx
 
 app/api/auth/
-├── [...nextauth]/route.ts
+├── [...nextauth]/route.ts      # Updated: Google OAuth + Credentials providers
 ├── register/route.ts
 ├── verify-email/route.ts
 ├── forgot-password/route.ts
@@ -219,22 +226,37 @@ components/auth/
 ├── register-form.tsx
 ├── login-form.tsx
 ├── forgot-password-form.tsx
-└── social-auth-buttons.tsx
+└── social-auth-buttons.tsx     # Updated: Google OAuth button
 
 lib/auth/
-├── auth-options.ts      # Updated: tier in JWT
-├── session.ts           # Updated: tier in session
-└── permissions.ts       # NEW: Tier permissions
+├── auth-options.ts             # Updated: Google OAuth provider, verified-only linking
+├── session.ts                  # Updated: tier in session, OAuth user support
+├── permissions.ts              # NEW: Tier permissions
+└── errors.ts                   # NEW: OAuth error messages
 
-middleware.ts            # NextAuth + tier checks
+types/
+└── next-auth.d.ts              # NEW: Extend NextAuth types for tier, authMethod
+
+prisma/schema.prisma            # Updated: User.password nullable, Account model added
 ```
 
 **Key Changes from V4:**
-- ✅ Default new users to FREE tier
+- ✅ Default new users to FREE tier (both OAuth and email/password)
 - ✅ Add tier to JWT and session
 - ✅ NEW: `permissions.ts` for tier-based access
+- ✅ **NEW: Google OAuth integration with verified-only linking**
+- ✅ **NEW: Account model for OAuth provider linking**
+- ✅ **NEW: User.password nullable (OAuth-only users)**
+- ✅ **NEW: User.emailVerified auto-set for OAuth users**
+- ✅ **NEW: Profile picture from Google OAuth (fallback strategy)**
 
-**File Count:** ~17 files
+**OAuth Security Features:**
+- 🔒 Verified-only account linking (prevents account takeover)
+- 🔒 Auto-verified email for Google OAuth users
+- 🔒 Separate auth method tracking (credentials/google/both)
+- 🔒 JWT session strategy (no database Session model)
+
+**File Count:** ~19 files (+2 from V4: errors.ts, next-auth.d.ts)
 
 ---
 
