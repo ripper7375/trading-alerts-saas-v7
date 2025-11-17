@@ -767,7 +767,22 @@ export async function detectUserCountry(): Promise<string | null> {
 
 ### 5.2 Currency Conversion
 
-**Rule:** All pricing is in USD. Convert to local currency for display only. Store BOTH amounts in database.
+**Rule:** Currency conversion ONLY applies to dLocal. Stripe always uses USD.
+
+**Stripe Pricing:**
+- ✅ Display: USD only ($29/month)
+- ❌ NO currency conversion
+- ❌ NO local currency display
+- ✅ User pays in USD
+
+**dLocal Pricing:**
+- ✅ Display: Local currency (₹2,407/month)
+- ✅ WITH currency conversion (USD → local)
+- ✅ Show USD as secondary reference ("Approximately $29 USD")
+- ✅ User pays in local currency
+- ✅ Exchange rates from dLocal API
+
+**Rule:** All pricing is BASE in USD. Convert to local currency for dLocal display only. Store BOTH amounts in database.
 
 ```typescript
 // lib/payments/currency-converter.ts
@@ -809,14 +824,28 @@ const monthlyPrice = await convertUSDToLocal(29.00, 'INR');
 
 ```tsx
 // components/PriceDisplay.tsx
-<div className="price-display">
-  <div className="local-price">
-    ₹2,490<span className="frequency">/month</span>
+
+// STRIPE: USD only
+{provider === 'stripe' && (
+  <div className="price-display stripe">
+    <div className="price-usd">
+      $29.00<span className="frequency">/month</span>
+    </div>
+    {/* NO local currency conversion */}
   </div>
-  <div className="usd-equivalent">
-    Approximately $29 USD
+)}
+
+// DLOCAL: Local currency with USD reference
+{provider === 'dlocal' && (
+  <div className="price-display dlocal">
+    <div className="local-price">
+      ₹2,407<span className="frequency">/month</span>
+    </div>
+    <div className="usd-equivalent">
+      Approximately $29 USD
+    </div>
   </div>
-</div>
+)}
 ```
 
 ---
