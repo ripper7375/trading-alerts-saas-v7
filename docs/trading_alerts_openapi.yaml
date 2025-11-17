@@ -1,15 +1,25 @@
 openapi: 3.0.3
 info:
   title: Trading Alerts SaaS API
-  version: 5.0.0
+  version: 7.0.0
   description: |
     Commercial SaaS platform for trading alerts and signal generation with real-time chart visualization.
-    
-    **Architecture:** Next.js 15 + Flask MT5 Microservice
-    
+
+    **Architecture:** Next.js 15 + Flask MT5 Microservice + Dual Payment Providers
+
     **Tier System:**
     - FREE: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1) = 15 combinations
     - PRO: 15 symbols × 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1) = 135 combinations
+
+    **Payment Providers:**
+    - Stripe: International cards (auto-renewal, 7-day trial, monthly only)
+    - dLocal: Local payment methods for 8 emerging markets (manual renewal, 3-day + monthly plans)
+
+    **dLocal Supported Countries:** India (INR), Nigeria (NGN), Pakistan (PKR), Vietnam (VND), Indonesia (IDR), Thailand (THB), South Africa (ZAR), Turkey (TRY)
+
+    **Additional API Specifications:**
+    - Flask MT5 API: See `docs/flask_mt5_openapi.yaml`
+    - dLocal Payment API: See `docs/dlocal-openapi-endpoints.yaml` (7 endpoints)
 
     **Data Source:** Centralized MT5 terminal (users cannot connect their own MT5)
 
