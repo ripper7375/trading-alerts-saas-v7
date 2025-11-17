@@ -21,8 +21,11 @@ erDiagram
         string tier "FREE or PRO"
         boolean hasUsedThreeDayPlan "default false"
         datetime threeDayPlanUsedAt "nullable"
-        string lastLoginIP "nullable"
-        string deviceFingerprint "nullable"
+        boolean hasUsedStripeTrial "default false: Stripe trial tracking"
+        datetime stripeTrialStartedAt "nullable: when Stripe trial started"
+        string signupIP "nullable: IP at registration for fraud detection"
+        string lastLoginIP "nullable: most recent login IP"
+        string deviceFingerprint "nullable: browser fingerprint for fraud detection"
         datetime createdAt
         datetime updatedAt
         datetime lastLogin

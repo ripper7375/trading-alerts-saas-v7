@@ -1793,7 +1793,589 @@ return ['STRIPE', 'DLOCAL'];  // Missing country check
 
 ---
 
-**Critical Rules for dLocal Integration:**
+### 8.8 Stripe Trial Abuse Detection
+
+✅ **Auto-Approve if:**
+- MUST check for fraud patterns BEFORE creating user account
+- MUST capture `signupIP` and `deviceFingerprint` at registration
+- MUST implement all 4 fraud detection patterns (IP, device, email, velocity)
+- MUST block HIGH severity attempts immediately
+- MUST create FraudAlert for all suspicious activity
+- MUST allow MEDIUM severity but flag for admin review
+- MUST check `hasUsedStripeTrial` before allowing trial start
+- NO credit card required for trial start (maximizes conversion)
+
+```typescript
+// ✅ Auto-approve: Registration with multi-signal fraud detection
+import { detectTrialAbuse } from '@/lib/fraud-detection'
+
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  const { email, password, name } = await req.json()
+
+  // Extract fraud signals
+  const signupIP = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.ip || null
+  const deviceFingerprint = req.headers.get('x-device-fingerprint') || null
+
+  // ✅ Check fraud BEFORE creating account
+  const fraudCheck = await detectTrialAbuse({
+    email,
+    signupIP,
+    deviceFingerprint
+  })
+
+  if (fraudCheck) {
+    // Create FraudAlert for admin review
+    await prisma.fraudAlert.create({
+      data: {
+        userId: null,
+        alertType: fraudCheck.type,
+        severity: fraudCheck.severity,
+        description: fraudCheck.description,
+        ipAddress: signupIP,
+        deviceFingerprint,
+        additionalData: { email, blockedAtRegistration: fraudCheck.severity === 'HIGH' }
+      }
+    })
+
+    // Block HIGH severity
+    if (fraudCheck.severity === 'HIGH') {
+      return NextResponse.json({ error: 'Registration blocked' }, { status: 403 })
+    }
+  }
+
+  // Create user with fraud tracking fields
+  const user = await prisma.user.create({
+    data: {
+      email,
+      password: hashedPassword,
+      name,
+      tier: 'FREE',
+      hasUsedStripeTrial: false,
+      signupIP,
+      lastLoginIP: signupIP,
+      deviceFingerprint
+    }
+  })
+
+  return NextResponse.json(user, { status: 201 })
+}
+```
+
+**Fraud Detection Implementation:**
+```typescript
+// ✅ Auto-approve: lib/fraud-detection.ts with all 4 patterns
+export async function detectTrialAbuse(
+  context: { email: string; signupIP: string | null; deviceFingerprint: string | null }
+): Promise<FraudCheckResult | null> {
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+
+  // Pattern 1: IP-based abuse (≥3 trials from same IP in 30 days)
+  if (context.signupIP) {
+    const recentTrialsFromIP = await prisma.user.count({
+      where: {
+        signupIP: context.signupIP,
+        hasUsedStripeTrial: true,
+        stripeTrialStartedAt: { gte: thirtyDaysAgo }
+      }
+    })
+
+    if (recentTrialsFromIP >= 3) {
+      return {
+        type: 'STRIPE_TRIAL_IP_ABUSE',
+        severity: 'HIGH',
+        description: `IP ${context.signupIP} used for ${recentTrialsFromIP} trials in 30 days`
+      }
+    }
+  }
+
+  // Pattern 2: Device fingerprint abuse (≥2 trials from same device in 30 days)
+  if (context.deviceFingerprint) {
+    const recentTrialsFromDevice = await prisma.user.count({
+      where: {
+        deviceFingerprint: context.deviceFingerprint,
+        hasUsedStripeTrial: true,
+        stripeTrialStartedAt: { gte: thirtyDaysAgo }
+      }
+    })
+
+    if (recentTrialsFromDevice >= 2) {
+      return {
+        type: 'STRIPE_TRIAL_DEVICE_ABUSE',
+        severity: 'HIGH',
+        description: `Device used for ${recentTrialsFromDevice} trials in 30 days`
+      }
+    }
+  }
+
+  // Pattern 3: Disposable email domain (MEDIUM severity)
+  const emailDomain = context.email.split('@')[1].toLowerCase()
+  const disposableDomains = ['mailinator.com', '10minutemail.com', 'guerrillamail.com']
+
+  if (disposableDomains.includes(emailDomain)) {
+    return {
+      type: 'DISPOSABLE_EMAIL_DETECTED',
+      severity: 'MEDIUM',
+      description: `Disposable email domain: ${emailDomain}`
+    }
+  }
+
+  // Pattern 4: Rapid signup velocity (≥5 accounts from same IP in 1 hour)
+  if (context.signupIP) {
+    const rapidSignups = await prisma.user.count({
+      where: {
+        signupIP: context.signupIP,
+        createdAt: { gte: oneHourAgo }
+      }
+    })
+
+    if (rapidSignups >= 5) {
+      return {
+        type: 'RAPID_SIGNUP_VELOCITY',
+        severity: 'HIGH',
+        description: `${rapidSignups} accounts from ${context.signupIP} in 1 hour (bot attack)`
+      }
+    }
+  }
+
+  return null  // No fraud detected
+}
+```
+
+**Trial Start Endpoint:**
+```typescript
+// ✅ Auto-approve: Trial start WITHOUT card requirement
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  const session = await getServerSession()
+
+  // Check if user already used trial
+  if (session.user.hasUsedStripeTrial) {
+    return NextResponse.json({
+      error: 'You have already used your free trial',
+      errorCode: 'TRIAL_ALREADY_USED'
+    }, { status: 403 })
+  }
+
+  const trialEndDate = new Date()
+  trialEndDate.setDate(trialEndDate.getDate() + 7)
+
+  // Grant PRO for 7 days WITHOUT payment method
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        tier: 'PRO',
+        hasUsedStripeTrial: true,
+        stripeTrialStartedAt: new Date()
+      }
+    }),
+    prisma.subscription.create({
+      data: {
+        userId: session.user.id,
+        paymentProvider: 'STRIPE',
+        planType: 'MONTHLY',
+        status: 'trialing',
+        expiresAt: trialEndDate,
+        amountUsd: 0
+      }
+    })
+  ])
+
+  return NextResponse.json({
+    message: 'Trial started',
+    trialEndsAt: trialEndDate,
+    tier: 'PRO'
+  })
+}
+```
+
+**Client-Side Device Fingerprinting:**
+```typescript
+// ✅ Auto-approve: Browser fingerprinting for fraud detection
+// lib/fingerprint.ts (Client-side)
+export async function generateDeviceFingerprint(): Promise<string> {
+  const components = [
+    navigator.userAgent,
+    navigator.language,
+    screen.width,
+    screen.height,
+    screen.colorDepth,
+    new Date().getTimezoneOffset(),
+    !!window.sessionStorage,
+    !!window.localStorage
+  ]
+
+  const fingerprint = components.join('|')
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(fingerprint))
+
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+// Usage in registration form
+const fingerprint = await generateDeviceFingerprint()
+
+fetch('/api/auth/register', {
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Device-Fingerprint': fingerprint  // Send to server
+  },
+  body: JSON.stringify({ email, password, name })
+})
+```
+
+**Trial Expiry Cron Job:**
+```typescript
+// ✅ Auto-approve: Trial expiry check (every 6 hours)
+// app/api/cron/stripe-trial-expiry/route.ts
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  // Verify cron secret
+  if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const expiredTrials = await prisma.subscription.findMany({
+    where: {
+      paymentProvider: 'STRIPE',
+      status: 'trialing',
+      expiresAt: { lt: new Date() }
+    },
+    include: { user: true }
+  })
+
+  for (const subscription of expiredTrials) {
+    // Check if user converted to paid
+    const paidSubscription = await prisma.subscription.findFirst({
+      where: {
+        userId: subscription.userId,
+        paymentProvider: 'STRIPE',
+        status: 'active',
+        stripeSubscriptionId: { not: null }
+      }
+    })
+
+    if (paidSubscription) {
+      // Delete trial subscription (user converted)
+      await prisma.subscription.delete({ where: { id: subscription.id } })
+    } else {
+      // Downgrade to FREE (user did NOT convert)
+      await prisma.$transaction([
+        prisma.subscription.update({
+          where: { id: subscription.id },
+          data: { status: 'expired' }
+        }),
+        prisma.user.update({
+          where: { id: subscription.userId },
+          data: { tier: 'FREE' }
+        })
+      ])
+
+      await sendEmail(subscription.user.email, 'Trial Expired', {
+        message: 'Subscribe now to regain PRO features',
+        ctaUrl: 'https://app.com/dashboard/billing'
+      })
+    }
+  }
+
+  return NextResponse.json({ checked: expiredTrials.length })
+}
+
+// vercel.json
+{
+  "crons": [
+    {
+      "path": "/api/cron/stripe-trial-expiry",
+      "schedule": "0 */6 * * *"  // Every 6 hours
+    }
+  ]
+}
+```
+
+🚨 **ESCALATE if:**
+- Fraud detection skipped at registration
+- Single-signal detection used (e.g., email-only checks)
+- Credit card required for trial start
+- No FraudAlert created for suspicious activity
+- User can start trial multiple times (missing hasUsedStripeTrial check)
+- Trial expiry check missing or incorrect schedule
+- Device fingerprint not captured
+- HIGH severity attempts not blocked immediately
+
+❌ **REJECT if:**
+```typescript
+// ❌ Reject: No fraud detection
+const user = await prisma.user.create({ data: { email, password } })
+
+// ❌ Reject: Requires card for trial
+await stripe.checkout.sessions.create({
+  mode: 'subscription',
+  payment_method_types: ['card']  // Should NOT require card for trial
+})
+
+// ❌ Reject: Single-signal detection (insufficient)
+const existingEmail = await prisma.user.findUnique({ where: { email } })
+if (existingEmail?.hasUsedStripeTrial) { /* ... */ }  // Only checks email
+
+// ❌ Reject: Missing hasUsedStripeTrial check
+const user = await prisma.user.update({
+  data: { tier: 'PRO' }  // No check if trial already used
+})
+
+// ❌ Reject: No FraudAlert creation
+if (fraudCheck?.severity === 'HIGH') {
+  return NextResponse.json({ error: 'Blocked' }, { status: 403 })
+  // Missing: FraudAlert creation for admin review
+}
+```
+
+**Expected Metrics:**
+- **Conversion Rate:** 40-60% (vs 5-10% with card requirement)
+- **Fraud Detection:** 4 independent signals (IP, device, email, velocity)
+- **False Positive Rate:** <5% (admin review workflow)
+- **Admin Overhead:** 2-5 fraud alerts per day
+
+---
+
+### 8.9 Admin Fraud Management Actions
+
+✅ **Auto-Approve if:**
+- MUST verify admin role before ANY enforcement action (`session.user.role === 'ADMIN'`)
+- MUST update FraudAlert.resolution field for ALL actions
+- MUST log admin identity (reviewedBy + reviewedAt)
+- MUST send email notification for warnings, blocks, and unblocks
+- MUST require admin notes for audit trail (notes field)
+- BLOCK_ACCOUNT must downgrade user to FREE tier
+- BLOCK_ACCOUNT must cancel active subscriptions
+- BLOCK_ACCOUNT requires confirmation dialog in UI
+
+```typescript
+// ✅ Auto-approve: Admin enforcement with role check + email + audit trail
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
+  // ✅ Verify admin role
+  const session = await getServerSession();
+  if (!session || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const { action, notes, blockDuration } = await req.json();
+
+  const alert = await prisma.fraudAlert.findUnique({
+    where: { id: params.id },
+    include: { user: true }
+  });
+
+  switch (action) {
+    case 'BLOCK_ACCOUNT':
+      // ✅ Block user + downgrade + cancel subscriptions + email
+      await prisma.$transaction([
+        prisma.user.update({
+          where: { id: alert.userId },
+          data: { isActive: false, tier: 'FREE' }
+        }),
+        prisma.subscription.updateMany({
+          where: { userId: alert.userId, status: 'active' },
+          data: { status: 'canceled' }
+        }),
+        prisma.fraudAlert.update({
+          where: { id: params.id },
+          data: {
+            resolution: blockDuration === 'PERMANENT' ? 'BLOCKED_PERMANENT' : 'BLOCKED_TEMPORARY',
+            reviewedBy: session.user.id,
+            reviewedAt: new Date(),
+            notes: `${blockDuration} block. Reason: ${notes}`
+          }
+        })
+      ]);
+
+      // ✅ Send email notification
+      await sendEmail(alert.user.email, 'Account Suspended', {
+        subject: '🚫 Your account has been suspended',
+        html: `<h2>Account Suspended</h2>
+               <p>Reason: ${notes}</p>
+               <p>Duration: ${blockDuration}</p>`
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `Account blocked (${blockDuration})`
+      });
+
+    case 'SEND_WARNING':
+      // ✅ Email warning + update fraud alert
+      await prisma.fraudAlert.update({
+        where: { id: params.id },
+        data: {
+          resolution: 'WARNING_SENT',
+          reviewedBy: session.user.id,
+          reviewedAt: new Date(),
+          notes
+        }
+      });
+
+      await sendEmail(alert.user.email, 'Security Alert', {
+        subject: '⚠️ Suspicious activity detected',
+        html: `<p>${alert.description}</p><p>${notes}</p>`
+      });
+
+      return NextResponse.json({ success: true });
+
+    case 'DISMISS':
+      await prisma.fraudAlert.update({
+        where: { id: params.id },
+        data: {
+          resolution: 'FALSE_POSITIVE',
+          reviewedBy: session.user.id,
+          reviewedAt: new Date(),
+          notes
+        }
+      });
+
+      return NextResponse.json({ success: true });
+
+    case 'UNBLOCK_ACCOUNT':
+      await prisma.$transaction([
+        prisma.user.update({
+          where: { id: alert.userId },
+          data: { isActive: true }
+        }),
+        prisma.fraudAlert.update({
+          where: { id: params.id },
+          data: {
+            resolution: 'UNBLOCKED',
+            reviewedBy: session.user.id,
+            reviewedAt: new Date(),
+            notes
+          }
+        })
+      ]);
+
+      await sendEmail(alert.user.email, 'Account Restored', {
+        subject: '✅ Your account has been restored',
+        html: `<p>Your account has been restored. ${notes}</p>`
+      });
+
+      return NextResponse.json({ success: true });
+  }
+}
+```
+
+**Admin Dashboard UI:**
+```typescript
+// ✅ Auto-approve: Filters, action buttons, confirmation dialogs, notes required
+export default function FraudAlertsDashboard() {
+  const { data: session } = useSession();
+
+  // ✅ Redirect if not admin
+  if (session?.user?.role !== 'ADMIN') {
+    redirect('/dashboard');
+  }
+
+  const handleAction = async (alertId: string, action: string, blockDuration?: string) => {
+    // ✅ Require notes for non-dismiss actions
+    if (!actionNotes.trim() && action !== 'DISMISS') {
+      alert('Please add notes explaining your decision');
+      return;
+    }
+
+    // ✅ Confirmation for destructive actions
+    if (action === 'BLOCK_ACCOUNT') {
+      if (!confirm(`Are you sure you want to BLOCK this user's account?`)) {
+        return;
+      }
+    }
+
+    const response = await fetch(`/api/admin/fraud-alerts/${alertId}/actions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, notes: actionNotes, blockDuration })
+    });
+
+    if (response.ok) {
+      alert('Action completed successfully');
+      fetchAlerts();  // Refresh list
+    }
+  };
+
+  return (
+    <div>
+      {/* Filters: status, severity, date */}
+      {/* Alert list with details */}
+      {/* Action modal with buttons and notes field */}
+    </div>
+  );
+}
+```
+
+🚨 **ESCALATE if:**
+- Admin role check missing or incorrect
+- Email notification skipped for warnings/blocks/unblocks
+- Admin notes not required for actions
+- FraudAlert.resolution not updated
+- Block action doesn't downgrade user to FREE
+- Block action doesn't cancel subscriptions
+- No confirmation dialog for BLOCK_ACCOUNT
+- reviewedBy or reviewedAt not logged
+
+❌ **REJECT if:**
+```typescript
+// ❌ Reject: Missing admin role check
+export async function POST(req: NextRequest) {
+  const { action } = await req.json();
+  // No admin verification!
+  await prisma.fraudAlert.update({ /* ... */ });
+}
+
+// ❌ Reject: No email notification for block
+case 'BLOCK_ACCOUNT':
+  await prisma.user.update({ data: { isActive: false } });
+  // Missing: sendEmail()
+  return NextResponse.json({ success: true });
+
+// ❌ Reject: Block doesn't cancel subscriptions
+case 'BLOCK_ACCOUNT':
+  await prisma.user.update({
+    where: { id: userId },
+    data: { isActive: false }
+  });
+  // Missing: cancel subscriptions
+  return NextResponse.json({ success: true });
+
+// ❌ Reject: No notes required
+const handleAction = async (alertId, action) => {
+  // Missing: notes validation
+  await fetch(`/api/admin/fraud-alerts/${alertId}/actions`, {
+    body: JSON.stringify({ action })  // No notes!
+  });
+};
+
+// ❌ Reject: No confirmation dialog for block
+<button onClick={() => handleAction(alert.id, 'BLOCK_ACCOUNT')}>
+  Block Account
+</button>
+// Missing: confirm() dialog before blocking
+```
+
+**Expected Admin Workflow:**
+1. Admin sees fraud alert notification (email or dashboard badge)
+2. Admin opens fraud alert dashboard
+3. Admin filters by severity (HIGH priority first)
+4. Admin clicks "Take Action" on alert
+5. Admin reviews user details, IP data, trial usage history
+6. Admin enters notes explaining decision
+7. Admin selects action (Dismiss/Warning/Block/Unblock/Whitelist)
+8. System shows confirmation dialog (for destructive actions)
+9. System executes action (database updates + email notification)
+10. Alert marked as resolved with admin identity logged
+
+---
+
+**Critical Rules for Payment Integration:**
+
+**dLocal Integration:**
 1. ✅ Single Subscription model (both providers)
 2. ✅ Real-time currency conversion (no hardcoded rates)
 3. ✅ 3-day plan one-time use (with fraud detection)
@@ -1802,6 +2384,24 @@ return ['STRIPE', 'DLOCAL'];  // Missing country check
 6. ✅ Fraud detection on all payment operations
 7. ✅ Country-based provider selection (8 dLocal countries)
 8. ✅ Store both local currency and USD for reporting
+
+**Stripe Trial Anti-Abuse:**
+9. ✅ NO card required for trial start (maximizes conversion ~40-60%)
+10. ✅ Multi-signal fraud detection (IP, device, email, velocity)
+11. ✅ Check fraud BEFORE creating user account
+12. ✅ Block HIGH severity, flag MEDIUM for admin review
+13. ✅ Trial expiry check every 6 hours (via cron)
+14. ✅ One trial per user (hasUsedStripeTrial flag)
+15. ✅ Capture signupIP + deviceFingerprint at registration
+16. ✅ Create FraudAlert for all suspicious activity
+
+**Admin Fraud Management:**
+17. ✅ Verify admin role before enforcement actions
+18. ✅ Block action = downgrade to FREE + cancel subscriptions + send email
+19. ✅ Require admin notes for all actions (audit trail)
+20. ✅ Send email notifications for warnings/blocks/unblocks
+21. ✅ Confirmation dialog required for BLOCK_ACCOUNT
+22. ✅ Log admin identity (reviewedBy + reviewedAt)
 
 ---
 
