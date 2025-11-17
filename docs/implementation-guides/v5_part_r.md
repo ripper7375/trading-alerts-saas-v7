@@ -68,6 +68,21 @@ const DLOCAL_PRICING = {
 **File:** `prisma/schema.prisma` (UPDATE EXISTING)
 
 ```prisma
+// ADD these fields to existing User model
+model User {
+  // ... existing fields ...
+
+  // NEW: 3-day plan anti-abuse tracking
+  hasUsedThreeDayPlan   Boolean   @default(false)
+  threeDayPlanUsedAt    DateTime?
+
+  // NEW: Fraud detection
+  lastLoginIP           String?
+  deviceFingerprint     String?
+
+  // ... rest of existing fields ...
+}
+
 // ADD these fields to existing Subscription model
 model Subscription {
   // ... existing fields ...
@@ -113,6 +128,7 @@ model Payment {
   amount                Decimal
   amountUSD             Decimal
   currency              String
+  exchangeRate          Decimal?        // NEW: For audit trail
   country               String
   paymentMethod         String
 
@@ -128,6 +144,12 @@ model Payment {
   status                PaymentStatus
   failureReason         String?
 
+  // NEW: Anti-abuse tracking (for 3-day plan)
+  paymentMethodHash     String?         // SHA256(email + payment_method_id)
+  purchaseIP            String?
+  deviceFingerprint     String?
+  accountAgeAtPurchase  Int?            // Account age in hours
+
   // Timestamps
   initiatedAt           DateTime   @default(now())
   completedAt           DateTime?
@@ -139,6 +161,34 @@ model Payment {
   @@index([userId])
   @@index([provider, providerPaymentId])
   @@index([status])
+  @@index([planType])               // NEW: For 3-day plan queries
+  @@index([paymentMethodHash])      // NEW: For abuse detection
+}
+
+// NEW: Fraud monitoring
+model FraudAlert {
+  id                    String   @id @default(cuid())
+  userId                String
+  user                  User     @relation(fields: [userId], references: [id])
+
+  // Alert details
+  pattern               String   // 'MULTIPLE_ACCOUNTS_SAME_IP', 'SAME_PAYMENT_METHOD', etc.
+  metadata              Json     // Stores detection details
+  severity              String   // 'LOW' | 'MEDIUM' | 'HIGH'
+
+  // Review tracking
+  status                String   @default("PENDING_REVIEW")  // 'PENDING_REVIEW' | 'CONFIRMED' | 'FALSE_POSITIVE'
+  reviewedAt            DateTime?
+  reviewedBy            String?
+  reviewNotes           String?
+
+  // Timestamps
+  createdAt             DateTime @default(now())
+
+  @@index([userId])
+  @@index([status])
+  @@index([severity])
+  @@index([createdAt])
 }
 
 // NEW: Enums
@@ -546,6 +596,275 @@ class DLocalPaymentService {
 }
 
 export const dlocalPaymentService = new DLocalPaymentService();
+```
+
+#### 4.4 Three-Day Plan Validator Service (ANTI-ABUSE)
+
+**File:** `lib/dlocal/three-day-validator.service.ts` (NEW)
+
+```typescript
+import { createHash } from 'crypto';
+import { prisma } from '@/lib/prisma';
+
+interface ThreeDayValidationResult {
+  allowed: boolean;
+  reason?: string;
+  usedAt?: Date;
+}
+
+interface AbuseCheckResult {
+  isAbuse: boolean;
+  pattern?: string;
+  metadata?: Record<string, any>;
+}
+
+class ThreeDayValidatorService {
+  /**
+   * PRIMARY DEFENSE: Check if user has already used 3-day plan
+   */
+  async canPurchaseThreeDayPlan(userId: string): Promise<ThreeDayValidationResult> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        hasUsedThreeDayPlan: true,
+        threeDayPlanUsedAt: true
+      }
+    });
+
+    if (!user) {
+      return {
+        allowed: false,
+        reason: 'User not found'
+      };
+    }
+
+    if (user.hasUsedThreeDayPlan) {
+      return {
+        allowed: false,
+        reason: '3-day plan is a one-time introductory offer. Please select monthly plan.',
+        usedAt: user.threeDayPlanUsedAt || undefined
+      };
+    }
+
+    return { allowed: true };
+  }
+
+  /**
+   * SECONDARY DEFENSE: Detect multi-account abuse via payment method
+   */
+  async detectMultiAccountAbuse(
+    email: string,
+    paymentMethodId: string
+  ): Promise<AbuseCheckResult> {
+    const hash = this.createPaymentMethodHash(email, paymentMethodId);
+
+    const existingPurchase = await prisma.payment.findFirst({
+      where: {
+        planType: 'THREE_DAY',
+        paymentMethodHash: hash,
+        status: 'COMPLETED'
+      },
+      include: {
+        user: {
+          select: {
+            email: true
+          }
+        }
+      }
+    });
+
+    if (existingPurchase && existingPurchase.user.email !== email) {
+      return {
+        isAbuse: true,
+        pattern: 'SAME_PAYMENT_METHOD_DIFFERENT_EMAIL',
+        metadata: {
+          previousEmail: existingPurchase.user.email,
+          previousPurchaseDate: existingPurchase.completedAt
+        }
+      };
+    }
+
+    return { isAbuse: false };
+  }
+
+  /**
+   * TERTIARY DEFENSE: Detect suspicious patterns
+   */
+  async detectSuspiciousPatterns(
+    userId: string,
+    purchaseIP: string,
+    deviceFingerprint?: string
+  ): Promise<AbuseCheckResult[]> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        createdAt: true,
+        email: true
+      }
+    });
+
+    if (!user) {
+      return [];
+    }
+
+    const patterns: AbuseCheckResult[] = [];
+
+    // Pattern 1: Account created very recently (< 1 hour)
+    const accountAge = Date.now() - user.createdAt.getTime();
+    const accountAgeHours = accountAge / (1000 * 60 * 60);
+
+    if (accountAgeHours < 1) {
+      patterns.push({
+        isAbuse: true,
+        pattern: 'FRESH_ACCOUNT_PURCHASE',
+        metadata: {
+          accountAgeMinutes: Math.floor(accountAge / (1000 * 60)),
+          email: user.email
+        }
+      });
+    }
+
+    // Pattern 2: Multiple 3-day purchases from same IP within 30 days
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const recentPurchasesFromIP = await prisma.payment.count({
+      where: {
+        planType: 'THREE_DAY',
+        purchaseIP: purchaseIP,
+        status: 'COMPLETED',
+        completedAt: {
+          gte: thirtyDaysAgo
+        },
+        userId: {
+          not: userId
+        }
+      }
+    });
+
+    if (recentPurchasesFromIP >= 2) {
+      patterns.push({
+        isAbuse: true,
+        pattern: 'MULTIPLE_ACCOUNTS_SAME_IP',
+        metadata: {
+          ip: purchaseIP,
+          count: recentPurchasesFromIP + 1,
+          window: '30 days'
+        }
+      });
+    }
+
+    // Pattern 3: Same device fingerprint (if provided)
+    if (deviceFingerprint) {
+      const sameDevicePurchases = await prisma.payment.count({
+        where: {
+          planType: 'THREE_DAY',
+          deviceFingerprint: deviceFingerprint,
+          status: 'COMPLETED',
+          completedAt: {
+            gte: thirtyDaysAgo
+          },
+          userId: {
+            not: userId
+          }
+        }
+      });
+
+      if (sameDevicePurchases >= 2) {
+        patterns.push({
+          isAbuse: true,
+          pattern: 'MULTIPLE_ACCOUNTS_SAME_DEVICE',
+          metadata: {
+            deviceFingerprint,
+            count: sameDevicePurchases + 1,
+            window: '30 days'
+          }
+        });
+      }
+    }
+
+    return patterns;
+  }
+
+  /**
+   * Log fraud alert for manual review
+   */
+  async logFraudAlert(
+    userId: string,
+    pattern: string,
+    metadata: Record<string, any>,
+    severity: 'LOW' | 'MEDIUM' | 'HIGH' = 'MEDIUM'
+  ): Promise<void> {
+    await prisma.fraudAlert.create({
+      data: {
+        userId,
+        pattern,
+        metadata,
+        severity,
+        status: 'PENDING_REVIEW'
+      }
+    });
+
+    // Send email notification for HIGH severity
+    if (severity === 'HIGH') {
+      await this.notifyAdminOfFraud(userId, pattern, metadata);
+    }
+  }
+
+  /**
+   * Mark user as having used 3-day plan
+   */
+  async markThreeDayPlanUsed(userId: string): Promise<void> {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        hasUsedThreeDayPlan: true,
+        threeDayPlanUsedAt: new Date()
+      }
+    });
+  }
+
+  /**
+   * Create hash for payment method tracking
+   */
+  createPaymentMethodHash(email: string, paymentMethodId: string): string {
+    return createHash('sha256')
+      .update(`${email}:${paymentMethodId}`)
+      .digest('hex');
+  }
+
+  /**
+   * Get account age at time of purchase
+   */
+  async getAccountAge(userId: string): Promise<number> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { createdAt: true }
+    });
+
+    if (!user) return 0;
+
+    const ageMs = Date.now() - user.createdAt.getTime();
+    return Math.floor(ageMs / (1000 * 60 * 60)); // Convert to hours
+  }
+
+  /**
+   * Send admin notification for high-severity fraud
+   */
+  private async notifyAdminOfFraud(
+    userId: string,
+    pattern: string,
+    metadata: Record<string, any>
+  ): Promise<void> {
+    // TODO: Implement email notification to admin
+    console.error('HIGH SEVERITY FRAUD ALERT:', {
+      userId,
+      pattern,
+      metadata,
+      timestamp: new Date().toISOString()
+    });
+  }
+}
+
+export const threeDayValidator = new ThreeDayValidatorService();
 ```
 
 ---

@@ -105,6 +105,284 @@ function canApplyDiscountCode(plan: string, paymentProvider: 'stripe' | 'dlocal'
 
 ---
 
+### 1.4 Currency Settlement (USD Only)
+
+**Rule:** Regardless of what local currency users pay with, you receive USD only.
+
+**dLocal FX@Transfer Model:**
+- ✅ Users pay in **local currency** (INR, PKR, NGN, VND, IDR, THB, ZAR, TRY)
+- ✅ dLocal converts to **USD** using their exchange rate
+- ✅ You receive **USD only** in your dLocal account
+- ✅ dLocal absorbs FX fluctuation risk (you get fixed USD amount)
+
+**Database Storage:**
+```typescript
+// Always store both amounts
+model Payment {
+  // Amount user paid in local currency
+  amount          Decimal  // e.g., 2407.00 (INR)
+  currency        String   // e.g., 'INR'
+
+  // Amount YOU receive in USD
+  amountUSD       Decimal  // e.g., 29.00 (USD)
+
+  // Exchange rate used (for audit trail)
+  exchangeRate    Decimal? // e.g., 83.00 (INR per USD)
+}
+```
+
+**Accounting:**
+- ✅ Revenue calculations: Use `amountUSD` field only
+- ✅ Financial reports: USD amounts only
+- ✅ Tax calculations: Based on USD received
+- ❌ Never calculate revenue from local currency amounts
+
+---
+
+### 1.5 3-Day Plan Anti-Abuse Rules
+
+**SECURITY RISK IDENTIFIED:**
+
+User could exploit 3-day plan pricing:
+- 3-day plan: $1.99 ÷ 3 = **$0.663/day**
+- Monthly (20% discount): $23.20 ÷ 30 = **$0.773/day**
+- **Abuse scenario:** User buys 3-day plan repeatedly instead of monthly to save $3.30/month
+
+**MANDATORY ANTI-ABUSE RULES:**
+
+#### Rule 1: One-Time Use Per Account (PRIMARY DEFENSE)
+
+**Rule:** 3-day plan can ONLY be purchased ONCE per user account, ever.
+
+```typescript
+// lib/dlocal/three-day-validator.ts
+async function canPurchaseThreeDayPlan(userId: string): Promise<{
+  allowed: boolean;
+  reason?: string;
+}> {
+  // Check if user has EVER purchased 3-day plan before
+  const existingThreeDayPurchase = await prisma.payment.findFirst({
+    where: {
+      userId: userId,
+      provider: 'DLOCAL',
+      planType: 'THREE_DAY'
+    }
+  });
+
+  if (existingThreeDayPurchase) {
+    return {
+      allowed: false,
+      reason: '3-day plan is a one-time introductory offer. Please select monthly plan.'
+    };
+  }
+
+  return { allowed: true };
+}
+```
+
+#### Rule 2: Email + Payment Method Tracking (SECONDARY DEFENSE)
+
+**Rule:** Track 3-day plan purchases by email AND payment method hash to prevent multi-account abuse.
+
+```typescript
+// Store payment method fingerprint
+model Payment {
+  // Hash of payment details (NOT full details for privacy)
+  paymentMethodHash  String?  // SHA256(email + payment_method_id)
+}
+
+// Check for duplicate payment methods
+async function detectMultiAccountAbuse(
+  email: string,
+  paymentMethodId: string
+): Promise<boolean> {
+  const hash = createHash('sha256')
+    .update(`${email}:${paymentMethodId}`)
+    .digest('hex');
+
+  const existingPurchase = await prisma.payment.findFirst({
+    where: {
+      planType: 'THREE_DAY',
+      paymentMethodHash: hash
+    }
+  });
+
+  return existingPurchase !== null; // true = abuse detected
+}
+```
+
+#### Rule 3: Monitoring & Alerts (TERTIARY DEFENSE)
+
+**Rule:** Flag suspicious patterns for manual review.
+
+```typescript
+// Flag patterns indicating abuse attempts
+const SUSPICIOUS_PATTERNS = {
+  // Same IP purchasing 3-day plans on multiple accounts within 30 days
+  MULTIPLE_ACCOUNTS_SAME_IP: {
+    threshold: 2,    // Max 2 accounts from same IP
+    window: 30       // Within 30 days
+  },
+
+  // Same device fingerprint
+  MULTIPLE_ACCOUNTS_SAME_DEVICE: {
+    threshold: 2,
+    window: 30
+  },
+
+  // Account created immediately before 3-day purchase
+  FRESH_ACCOUNT_PURCHASE: {
+    accountAge: 1    // Account < 1 hour old
+  }
+};
+
+// Log for manual review
+async function logSuspiciousActivity(
+  userId: string,
+  pattern: string,
+  metadata: Record<string, any>
+) {
+  await prisma.fraudAlert.create({
+    data: {
+      userId,
+      pattern,
+      metadata,
+      severity: 'MEDIUM',
+      status: 'PENDING_REVIEW'
+    }
+  });
+}
+```
+
+#### Rule 4: UI Messaging
+
+**Rule:** Clearly communicate 3-day plan restrictions upfront.
+
+```tsx
+// components/PlanSelector.tsx
+{provider === 'dlocal' && (
+  <div className="plan-option three-day">
+    <h3>3-Day PRO Plan</h3>
+    <p className="price">$1.99 (one-time)</p>
+
+    {/* Clear messaging about restrictions */}
+    <div className="restriction-notice">
+      <AlertIcon />
+      <p>
+        <strong>One-time offer:</strong> Available once per account.
+        After 3 days, upgrade to monthly plan to continue PRO access.
+      </p>
+    </div>
+
+    {hasUsedThreeDayPlan && (
+      <div className="restriction-blocked">
+        <p>
+          You've already used the 3-day trial offer.
+          Please select the monthly plan.
+        </p>
+      </div>
+    )}
+
+    <Button
+      disabled={hasUsedThreeDayPlan}
+      onClick={handleThreeDayPurchase}
+    >
+      {hasUsedThreeDayPlan ? 'Not Available' : 'Try 3 Days'}
+    </Button>
+  </div>
+)}
+```
+
+#### Database Schema Additions
+
+**Rule:** Track all 3-day plan usage for enforcement.
+
+```prisma
+model User {
+  id                      String   @id @default(cuid())
+  email                   String   @unique
+
+  // NEW: 3-day plan tracking
+  hasUsedThreeDayPlan     Boolean  @default(false)
+  threeDayPlanUsedAt      DateTime?
+
+  // NEW: Fraud detection
+  accountCreatedAt        DateTime @default(now())
+  lastLoginIP             String?
+  deviceFingerprint       String?
+}
+
+model Payment {
+  // ... existing fields ...
+
+  // NEW: Anti-abuse tracking
+  paymentMethodHash       String?
+  purchaseIP              String?
+  deviceFingerprint       String?
+  accountAgeAtPurchase    Int?     // Account age in hours
+}
+
+// NEW: Fraud monitoring
+model FraudAlert {
+  id                      String   @id @default(cuid())
+  userId                  String
+  pattern                 String   // 'MULTIPLE_ACCOUNTS_SAME_IP', etc.
+  metadata                Json
+  severity                String   // 'LOW' | 'MEDIUM' | 'HIGH'
+  status                  String   // 'PENDING_REVIEW' | 'CONFIRMED' | 'FALSE_POSITIVE'
+  createdAt               DateTime @default(now())
+  reviewedAt              DateTime?
+  reviewedBy              String?
+
+  user                    User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+```
+
+#### Implementation Checklist
+
+- [ ] Add `hasUsedThreeDayPlan` boolean to User model
+- [ ] Implement `canPurchaseThreeDayPlan()` validation function
+- [ ] Add validation to `/api/payments/dlocal/create` endpoint
+- [ ] Return 403 error if user already used 3-day plan
+- [ ] UI: Check eligibility before showing 3-day option
+- [ ] UI: Show "Not Available" message if already used
+- [ ] Store payment method hash for all 3-day purchases
+- [ ] Implement fraud detection monitoring (optional but recommended)
+- [ ] Add admin dashboard to review fraud alerts
+- [ ] Set up email alerts for high-severity fraud patterns
+
+#### Error Responses
+
+```typescript
+// API response when 3-day plan already used
+{
+  error: '3-day plan is a one-time offer per account',
+  code: 'THREE_DAY_PLAN_ALREADY_USED',
+  message: 'You have already purchased the 3-day plan on [date]. Please select the monthly plan to continue.',
+  usedAt: '2025-11-10T14:23:00Z',
+  alternativePlans: [
+    {
+      id: 'DLOCAL_MONTHLY',
+      name: 'Monthly PRO Plan',
+      price: 29.00,
+      discountEligible: true
+    }
+  ]
+}
+```
+
+**Summary of Anti-Abuse Strategy:**
+1. **Primary:** Enforce one-time use per account (hard block)
+2. **Secondary:** Track by email + payment method (detect multi-account abuse)
+3. **Tertiary:** Monitor suspicious patterns (manual review queue)
+4. **UI/UX:** Clear messaging upfront (transparency)
+
+---
+
 ## 2. ARCHITECTURE RULES
 
 ### 2.1 Unified Checkout Page
