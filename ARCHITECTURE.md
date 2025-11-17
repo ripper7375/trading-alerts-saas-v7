@@ -40,10 +40,10 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 
 ### Backend (Next.js)
 - **API Routes:** Next.js 15 serverless functions
-- **Authentication:** NextAuth.js v5
+- **Authentication:** NextAuth.js v4.24.5 (Google OAuth + Email/Password, JWT sessions)
 - **Database ORM:** Prisma 5
 - **Validation:** Zod
-- **API Contract:** OpenAPI 3.0 (trading_alerts_openapi.yaml)
+- **API Contract:** OpenAPI 3.0 (trading_alerts_openapi.yaml v7.1.0)
 
 ### Backend (Flask Microservice)
 - **Framework:** Flask 3.x
@@ -1618,7 +1618,7 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
 
 ## 6. Authentication Flow
 
-### 6.1 User Registration
+### 6.1 User Registration (Email/Password)
 
 ```
 1. User fills registration form (/register)
@@ -1629,17 +1629,19 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
    ↓
 4. Hash password with bcrypt
    ↓
-5. Create user in database (default tier: FREE, role: USER)
+5. Create user in database (default tier: FREE, role: USER, password: hashed, emailVerified: null)
    ↓
 6. Send verification email (Resend)
    ↓
-7. Return success (auto-login or redirect to /login)
+7. Return success (redirect to /verify-email)
 ```
 
-### 6.2 User Login (NextAuth.js)
+### 6.2 User Login (NextAuth.js - Dual Methods)
+
+**Method 1: Email/Password (CredentialsProvider)**
 
 ```
-1. User submits login form
+1. User submits login form with email/password
    ↓
 2. NextAuth.js CredentialsProvider
    ↓
@@ -1647,25 +1649,107 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
    ↓
 4. If valid: Create JWT session
    ↓
-5. Store session in secure cookie
+5. Store session in secure httpOnly cookie
    ↓
 6. Redirect to /dashboard
 ```
 
+**Method 2: Google OAuth (GoogleProvider)**
+
+```
+1. User clicks "Sign in with Google" button
+   ↓
+2. POST /api/auth/signin/google
+   ↓
+3. Redirect to Google OAuth consent screen
+   ↓
+4. User authorizes application (scopes: email, profile)
+   ↓
+5. Google redirects to /api/auth/callback/google with authorization code
+   ↓
+6. NextAuth exchanges code for access token + user profile
+   ↓
+7. Check if user exists in database (by email)
+   ↓
+8a. IF user exists AND emailVerified IS NOT NULL:
+    → Link Google account (create Account record)
+    → Update user.image from Google if null
+    → Create JWT session
+    → Redirect to /dashboard
+   ↓
+8b. IF user exists AND emailVerified IS NULL:
+    → REJECT (prevents account takeover attack)
+    → Return error: "Cannot link to unverified account"
+   ↓
+8c. IF user does NOT exist:
+    → Create new user (password: null, emailVerified: now(), tier: FREE, image: Google avatar)
+    → Create Account record (provider: google, providerAccountId: Google user ID)
+    → Create JWT session
+    → Redirect to /dashboard
+```
+
+**Security Feature: Verified-Only Account Linking**
+
+This prevents the #1 OAuth account takeover attack:
+```
+Attack Scenario (WITHOUT verified-only linking):
+1. Attacker registers victim@gmail.com with password (unverified)
+2. Real victim tries "Sign in with Google" with victim@gmail.com
+3. System auto-links accounts → Attacker now controls victim's OAuth account
+
+Defense (WITH verified-only linking):
+1. Attacker registers victim@gmail.com with password (emailVerified: null)
+2. Real victim tries "Sign in with Google" with victim@gmail.com
+3. System detects emailVerified IS NULL → REJECTS linking
+4. Victim's Google account remains secure
+```
+
 ### 6.3 Session Management
 
-**NextAuth.js Configuration:**
+**NextAuth.js Configuration (Updated for OAuth):**
 ```typescript
 // app/api/auth/[...nextauth]/route.ts
-export const authOptions = {
+import GoogleProvider from 'next-auth/providers/google';
+import CredentialsProvider from 'next-auth/providers/credentials';
+
+export const authOptions: NextAuthOptions = {
   providers: [
+    // Provider 1: Google OAuth
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code',
+        },
+      },
+    }),
+
+    // Provider 2: Email/Password
     CredentialsProvider({
+      name: 'credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' }
+      },
       async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
         const user = await prisma.user.findUnique({
           where: { email: credentials.email }
         });
 
-        if (!user || !await bcrypt.compare(credentials.password, user.password)) {
+        // Check password (handle OAuth-only users with null password)
+        if (!user || !user.password) {
+          return null;
+        }
+
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isPasswordValid) {
           return null;
         }
 
@@ -1673,30 +1757,176 @@ export const authOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
-          tier: user.tier,  // Include tier in session
+          tier: user.tier,
           role: user.role,
+          image: user.image,
         };
       }
     })
   ],
-  session: { strategy: 'jwt' },
+
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+
   callbacks: {
-    async jwt({ token, user }) {
+    // CRITICAL: Verified-only account linking
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google') {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email! }
+        });
+
+        // SECURITY: Prevent account takeover via OAuth
+        if (existingUser && !existingUser.emailVerified) {
+          console.error('Prevented account takeover attempt:', user.email);
+          return false; // REJECT linking to unverified account
+        }
+
+        // If new user: Create with FREE tier
+        if (!existingUser) {
+          await prisma.user.create({
+            data: {
+              email: user.email!,
+              name: user.name,
+              image: user.image,
+              emailVerified: new Date(),
+              password: null, // OAuth-only user
+              tier: 'FREE',
+              role: 'USER',
+              accounts: {
+                create: {
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  access_token: account.access_token,
+                  refresh_token: account.refresh_token,
+                  expires_at: account.expires_at,
+                  token_type: account.token_type,
+                  scope: account.scope,
+                  id_token: account.id_token,
+                }
+              }
+            }
+          });
+        } else {
+          // Existing verified user: Link Google account if not already linked
+          const existingAccount = await prisma.account.findUnique({
+            where: {
+              provider_providerAccountId: {
+                provider: 'google',
+                providerAccountId: account.providerAccountId
+              }
+            }
+          });
+
+          if (!existingAccount) {
+            await prisma.account.create({
+              data: {
+                userId: existingUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token,
+                refresh_token: account.refresh_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+              }
+            });
+          }
+
+          // Update profile picture from Google if user doesn't have one
+          if (!existingUser.image && user.image) {
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: { image: user.image }
+            });
+          }
+        }
+      }
+
+      return true;
+    },
+
+    async jwt({ token, user, account, trigger, session }) {
+      // Initial sign-in
       if (user) {
         token.id = user.id;
         token.tier = user.tier;
         token.role = user.role;
       }
+
+      // Session update (tier changed via subscription)
+      if (trigger === 'update' && session?.tier) {
+        token.tier = session.tier;
+      }
+
       return token;
     },
+
     async session({ session, token }) {
-      session.user.id = token.id;
-      session.user.tier = token.tier;
-      session.user.role = token.role;
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.tier = token.tier as 'FREE' | 'PRO';
+        session.user.role = token.role as 'USER' | 'ADMIN';
+      }
       return session;
     }
-  }
+  },
+
+  pages: {
+    signIn: '/login',
+    error: '/login', // OAuth errors redirect to login page
+  },
 };
+```
+
+**Database Models (Prisma):**
+```prisma
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String?   // Nullable for OAuth-only users
+  name          String?
+  image         String?   // Profile picture (from Google or upload)
+  emailVerified DateTime? // CRITICAL for verified-only linking
+  tier          Tier      @default(FREE)
+  role          Role      @default(USER)
+  isActive      Boolean   @default(true)
+
+  accounts      Account[] // OAuth provider accounts
+  alerts        Alert[]
+  watchlists    Watchlist[]
+  subscription  Subscription?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastLogin     DateTime?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String  // "oauth"
+  provider          String  // "google"
+  providerAccountId String  // Google user ID
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+// NO Session model (using JWT sessions)
 ```
 
 **Protected Routes (Middleware):**
