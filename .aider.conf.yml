@@ -2,9 +2,9 @@
 # Trading Alerts SaaS V7 - Aider Configuration
 # ============================================================================
 # This file configures Aider to work autonomously with MiniMax M2 API
-# following our 6 policy documents for consistent, high-quality code generation.
+# following our 8 policy documents for consistent, high-quality code generation.
 #
-# Last Updated: 2025-11-11
+# Last Updated: 2025-11-17 (Added Policy 08: Google OAuth Integration)
 # ============================================================================
 
 # ============================================================================
@@ -69,6 +69,13 @@ read:
 
   # Payment integration policies
   - docs/policies/07-dlocal-integration-rules.md
+
+  # Google OAuth integration policies (Part 5: Authentication)
+  - docs/policies/08-google-oauth-implementation-rules.md
+
+  # OAuth implementation decisions and guides
+  - docs/decisions/google-oauth-decisions.md
+  - docs/OAUTH_IMPLEMENTATION_READY.md
 
   # Architecture and structure documentation
   - ARCHITECTURE.md
