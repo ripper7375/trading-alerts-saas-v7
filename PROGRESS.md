@@ -1,9 +1,9 @@
 # Trading Alerts SaaS V7 - Development Progress & Roadmap
 
-**Last Updated:** 2025-11-14
+**Last Updated:** 2025-11-17
 **Project Start:** 2025-11-09
 **Target Completion:** Week 12 (from start)
-**Current Phase:** Phase 1 - Documentation & Policies (Milestone 1.9 Complete)
+**Current Phase:** Phase 1 - Documentation & Policies (Milestone 1.10 Complete - Google OAuth Integration)
 
 ---
 
@@ -617,6 +617,145 @@ All required dependencies already in package.json ✅:
 - Without seed components: Guessing UI structure (~10 hours)
 - With seed components: Visual reference + patterns (~0 hours)
 - **Total time saved:** ~10 hours ⚡
+
+---
+
+### MILESTONE 1.10: Google OAuth Integration Documentation (3 hours) ✅ COMPLETE
+
+**What:** Comprehensive Google OAuth 2.0 integration planning and documentation with NextAuth.js v4.
+
+**Why:** Enables users to sign in with Google, improving UX and reducing friction while implementing industry-standard security practices (verified-only account linking).
+
+#### Decision Document Created:
+
+**docs/decisions/google-oauth-decisions.md** (1,487 lines)
+- [x] 12 critical OAuth decisions with full reasoning
+- [x] Decision #1: NextAuth v4 (already installed)
+- [x] Decision #2: JWT Sessions (serverless-friendly, 27% faster)
+- [x] Decision #3: Verified-Only Account Linking (CRITICAL - prevents account takeover)
+- [x] Decision #4: Password Nullable (OAuth-only users)
+- [x] Decision #5: Auto-Verify OAuth Users
+- [x] Decision #6: Profile Picture Fallback Strategy
+- [x] Decision #7-12: Production setup, error handling, testing, etc.
+
+#### Documentation Files Created (4 new files):
+
+**1. docs/setup/google-oauth-setup.md** (498 lines)
+- [x] Step-by-step Google Cloud Console setup
+- [x] OAuth client creation guide
+- [x] Environment variables configuration
+- [x] Production deployment checklist
+
+**2. docs/policies/08-google-oauth-implementation-rules.md** (572 lines)
+- [x] Aider Policy 08 for OAuth implementation
+- [x] Verified-only linking security rule
+- [x] Prisma schema templates
+- [x] NextAuth configuration examples
+
+**3. docs/OAUTH_IMPLEMENTATION_READY.md** (494 lines)
+- [x] Handoff document for Aider implementation
+- [x] 126-point testing checklist
+- [x] Complete implementation roadmap
+
+**4. docs/google-oauth-integration-summary.md** (660 lines)
+- [x] Executive summary
+- [x] All 12 decisions in table format
+- [x] Security analysis
+
+#### System Files Updated (6 files):
+
+**1. docs/trading_alerts_openapi.yaml** (v7.0.0 → v7.1.0)
+- [x] Added 3 OAuth endpoints (signin, callback, providers)
+- [x] Updated User schema (authMethod field)
+- [x] Added Account schema for OAuth linking
+- [x] Updated UserAdmin schema (nullable passwordHash)
+
+**2. ARCHITECTURE.md** (Section 6 - Authentication Flow)
+- [x] Added Google OAuth login flow
+- [x] Documented verified-only account linking
+- [x] Complete NextAuth v4 configuration
+- [x] Attack scenario prevention examples
+
+**3. docs/v5-structure-division.md** (Part 5)
+- [x] Updated authentication scope
+- [x] Added OAuth-specific files
+- [x] File count: 17 → 19 files
+
+**4. .aider.conf.yml**
+- [x] Added Policy 08 to read section
+- [x] Added OAuth decision documents
+
+**5-6. Policy Files** (03, 06)
+- [x] Updated architecture rules with OAuth
+- [x] Updated Aider instructions (9 total policies)
+
+#### Key Security Feature:
+
+🔒 **Verified-Only Account Linking** (Decision #3)
+
+Prevents the #1 OAuth attack:
+```
+Attack Prevented:
+1. Attacker registers victim@gmail.com (unverified)
+2. Real victim uses "Sign in with Google"
+3. WITHOUT protection → auto-link → attacker hijacks account ❌
+4. WITH protection → REJECT unverified link → account safe ✅
+```
+
+Implementation:
+```typescript
+if (existingUser && !existingUser.emailVerified) {
+  return false; // REJECT linking
+}
+```
+
+#### Database Schema Changes:
+
+```prisma
+model User {
+  password      String?   // Nullable for OAuth-only users
+  emailVerified DateTime? // CRITICAL for security
+  image         String?   // Google profile picture
+  accounts      Account[] // OAuth provider linkings
+}
+
+model Account {
+  provider          String  // "google"
+  providerAccountId String  // Google user ID
+  // ... OAuth tokens
+}
+
+// NO Session model (JWT sessions)
+```
+
+#### Documentation Stats:
+
+- **Total Lines:** 3,711 lines of documentation
+- **New Files:** 4 comprehensive guides
+- **Updated Files:** 6 system files
+- **Decisions Made:** 12 critical architecture decisions
+- **Test Points:** 126 complete test scenarios
+- **Commits:** 10 documentation commits
+
+**Commits:**
+- docs: add comprehensive Google OAuth integration decision document
+- docs: add Aider Policy 08 - Google OAuth implementation rules
+- docs: add comprehensive Google Cloud Console setup guide
+- docs: add comprehensive Google OAuth implementation handoff document
+- docs: add Google OAuth integration summary for human review
+- config: update .aider.conf.yml to include Google OAuth policy
+- docs: update OpenAPI spec v7.1.0 with OAuth endpoints
+- docs: update v5-structure-division.md Part 5 with OAuth
+- docs: update ARCHITECTURE.md with OAuth Section 6
+- docs: update policies 03 and 06 to reference OAuth
+
+**Status:** ✅ **COMPLETE**
+
+**Next Steps:**
+1. User completes Google Cloud Console setup (10-15 min)
+2. Phase 3: Aider implements OAuth following Policy 08
+3. Test with 126-point checklist
+4. Deploy to production
 
 ---
 
