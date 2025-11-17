@@ -1023,20 +1023,25 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = createPaymentSchema.parse(body);
 
-    // 3. Check if user already has active subscription
-    const existingSubscription = await prisma.subscription.findFirst({
-      where: {
-        userId: session.user.id,
-        status: 'ACTIVE'
-      }
-    });
+    // 3. Validate 3-day plan eligibility (using anti-abuse validator)
+    if (validated.planType === 'THREE_DAY') {
+      const { threeDayValidator } = await import('@/lib/dlocal/three-day-validator.service');
+      const validation = await threeDayValidator.canPurchaseThreeDayPlan(session.user.id);
 
-    if (existingSubscription) {
-      return NextResponse.json(
-        { error: 'You already have an active subscription' },
-        { status: 409 }
-      );
+      if (!validation.allowed) {
+        return NextResponse.json(
+          {
+            error: validation.reason,
+            code: 'THREE_DAY_PLAN_NOT_ALLOWED',
+            usedAt: validation.usedAt
+          },
+          { status: 403 }
+        );
+      }
     }
+
+    // Monthly plans ALLOW early renewal (no restriction on active subscription)
+    // System will extend expiry date in webhook handler
 
     // 4. Validate discount code
     if (validated.discountCode) {
@@ -1185,7 +1190,25 @@ export async function POST(request: NextRequest) {
 }
 
 async function handlePaymentSuccess(payment: any, webhookData: any) {
-  const expiryDate = addDays(new Date(), payment.duration);
+  // Check for existing active subscription (for early renewal calculation)
+  const existingSubscription = await prisma.subscription.findUnique({
+    where: { userId: payment.userId }
+  });
+
+  let expiryDate: Date;
+  const now = new Date();
+
+  // EARLY RENEWAL LOGIC: Extend from current expiry if still active
+  if (existingSubscription &&
+      existingSubscription.expiresAt &&
+      existingSubscription.expiresAt > now) {
+    // User has active subscription - extend from current expiry
+    // Example: 10 days remaining + 30 days new = 40 days total
+    expiryDate = addDays(existingSubscription.expiresAt, payment.duration);
+  } else {
+    // No active subscription or expired - start from now
+    expiryDate = addDays(now, payment.duration);
+  }
 
   await prisma.$transaction([
     // Update payment record
@@ -1193,7 +1216,7 @@ async function handlePaymentSuccess(payment: any, webhookData: any) {
       where: { id: payment.id },
       data: {
         status: 'COMPLETED',
-        completedAt: new Date(),
+        completedAt: now,
         providerStatus: 'PAID'
       }
     }),
@@ -1211,7 +1234,7 @@ async function handlePaymentSuccess(payment: any, webhookData: any) {
         status: 'ACTIVE',
         tier: 'PRO',
         planType: payment.planType,
-        currentPeriodStart: new Date(),
+        currentPeriodStart: now,
         currentPeriodEnd: expiryDate,
         expiresAt: expiryDate,
         amount: payment.amount,
@@ -1224,22 +1247,27 @@ async function handlePaymentSuccess(payment: any, webhookData: any) {
         dlocalPaymentId: payment.providerPaymentId,
         status: 'ACTIVE',
         tier: 'PRO',
-        currentPeriodStart: new Date(),
-        currentPeriodEnd: expiryDate,
-        expiresAt: expiryDate,
-        renewalReminderSent: false
+        expiresAt: expiryDate,  // Extended date (early renewal support)
+        renewalReminderSent: false  // Reset reminder flag
       }
     }),
 
     // Upgrade user tier
     prisma.user.update({
       where: { id: payment.userId },
-      data: { tier: 'PRO' }
+      data: {
+        tier: 'PRO',
+        // Mark 3-day plan as used if this was a 3-day purchase
+        ...(payment.planType === 'THREE_DAY' && {
+          hasUsedThreeDayPlan: true,
+          threeDayPlanUsedAt: now
+        })
+      }
     })
   ]);
 
-  // Send confirmation email
-  await sendPaymentConfirmationEmail(payment.user, payment);
+  // Send confirmation email with new expiry date
+  await sendPaymentConfirmationEmail(payment.user, payment, expiryDate);
 }
 
 async function handlePaymentFailure(payment: any, webhookData: any) {

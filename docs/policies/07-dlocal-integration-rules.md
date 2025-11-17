@@ -105,7 +105,224 @@ function canApplyDiscountCode(plan: string, paymentProvider: 'stripe' | 'dlocal'
 
 ---
 
-### 1.4 Currency Settlement (USD Only)
+### 1.4 Early Renewal & Subscription Stacking
+
+**Rule:** dLocal users can renew BEFORE expiry. The system extends their PRO access by adding new period to remaining time.
+
+#### Monthly Plan Early Renewal (ALLOWED)
+
+**Business Logic:**
+- ✅ User can pay for monthly subscription before current subscription expires
+- ✅ System calculates: `remaining_days + 30_days = total_PRO_period`
+- ✅ No limit on how early (can renew with 29 days remaining)
+- ✅ Discount codes apply to renewal payments
+
+**Example:**
+```typescript
+// User's current subscription
+const currentSubscription = {
+  expiresAt: new Date('2025-12-01'),  // 10 days from now
+  tier: 'PRO'
+};
+
+// User pays for monthly renewal today (Nov 21)
+const renewalPayment = {
+  planType: 'MONTHLY',
+  duration: 30,
+  paidAt: new Date('2025-11-21')
+};
+
+// System calculation
+const remainingDays = 10;  // Days until Dec 1
+const addedDays = 30;      // New monthly period
+const newExpiryDate = new Date('2025-12-31');  // 10 + 30 = 40 days from now
+
+// Result: User gets 40 days of PRO access total
+```
+
+**Implementation:**
+```typescript
+async function processEarlyRenewal(userId: string, planType: 'MONTHLY'): Promise<Date> {
+  const currentSub = await prisma.subscription.findUnique({
+    where: { userId }
+  });
+
+  let newExpiryDate: Date;
+
+  if (currentSub && currentSub.expiresAt && currentSub.expiresAt > new Date()) {
+    // User has active subscription - extend from current expiry
+    const remainingMs = currentSub.expiresAt.getTime() - Date.now();
+    const addedMs = 30 * 24 * 60 * 60 * 1000; // 30 days
+    newExpiryDate = new Date(currentSub.expiresAt.getTime() + addedMs);
+  } else {
+    // No active subscription - start from now
+    newExpiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  }
+
+  await prisma.subscription.update({
+    where: { userId },
+    data: {
+      expiresAt: newExpiryDate,
+      tier: 'PRO',
+      status: 'ACTIVE',
+      renewalReminderSent: false // Reset reminder flag
+    }
+  });
+
+  return newExpiryDate;
+}
+```
+
+---
+
+#### 3-Day Plan Early Renewal (PROHIBITED)
+
+**Rule:** 3-day plan CANNOT be purchased if user has ANY active subscription.
+
+**Validation:**
+```typescript
+async function canPurchaseThreeDayPlan(userId: string): Promise<{
+  allowed: boolean;
+  reason?: string;
+}> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      subscription: true
+    }
+  });
+
+  // Check 1: Already used 3-day plan (lifetime restriction)
+  if (user.hasUsedThreeDayPlan) {
+    return {
+      allowed: false,
+      reason: '3-day plan is a one-time offer. Please select monthly plan.'
+    };
+  }
+
+  // Check 2: Currently has active subscription (any type)
+  if (user.subscription &&
+      user.subscription.expiresAt &&
+      user.subscription.expiresAt > new Date()) {
+    return {
+      allowed: false,
+      reason: 'You already have an active PRO subscription. The 3-day plan cannot be purchased while you have active PRO access.'
+    };
+  }
+
+  return { allowed: true };
+}
+```
+
+**Why Prohibited:**
+- Prevents abuse (user stacking multiple 3-day periods)
+- 3-day plan is introductory offer, not renewable
+- User should upgrade to monthly for continued access
+
+**UI Behavior:**
+```tsx
+// Hide 3-day plan option if user has active subscription
+{!hasActiveSubscription && !hasUsedThreeDayPlan && (
+  <PlanOption value="3-day">
+    3-Day PRO Plan - $1.99
+  </PlanOption>
+)}
+
+{hasActiveSubscription && (
+  <Notice>
+    You already have active PRO access until {expiryDate}.
+    You can renew with a monthly plan to extend your subscription.
+  </Notice>
+)}
+```
+
+---
+
+### 1.5 Subscription Cancellation (dLocal vs Stripe)
+
+**Rule:** dLocal subscriptions CANNOT be cancelled because there's no auto-renewal to cancel.
+
+#### Stripe Cancellation (ALLOWED)
+
+**Use Case:** Stop future automatic charges
+```typescript
+// Stripe user can cancel auto-renewal
+async function cancelStripeSubscription(userId: string) {
+  const subscription = await stripe.subscriptions.update(
+    subscriptionId,
+    { cancel_at_period_end: true }
+  );
+
+  // User keeps PRO access until current period ends
+  // Then auto-downgrades to FREE
+}
+```
+
+**UI:**
+```tsx
+{subscription.provider === 'STRIPE' && (
+  <Button onClick={handleCancelSubscription}>
+    Cancel Auto-Renewal
+  </Button>
+)}
+```
+
+---
+
+#### dLocal Cancellation (NOT APPLICABLE)
+
+**Rule:** NO cancellation feature for dLocal users.
+
+**Why:**
+- ❌ dLocal has NO auto-renewal
+- ❌ User already paid for fixed period (3 or 30 days)
+- ❌ No future charges to cancel
+- ✅ Subscription naturally expires at end of period
+
+**Instead:** User simply doesn't renew
+```typescript
+// dLocal user doesn't need to "cancel"
+// They just don't make another payment
+// System auto-downgrades to FREE when expiresAt is reached
+```
+
+**UI Behavior:**
+```tsx
+{subscription.provider === 'DLOCAL' && (
+  <Notice>
+    Your PRO subscription is active until {expiryDate}.
+    No auto-renewal - simply renew before expiry to continue PRO access.
+  </Notice>
+)}
+
+{/* DO NOT show cancellation button for dLocal users */}
+{subscription.provider === 'STRIPE' && (
+  <Button variant="destructive">Cancel Subscription</Button>
+)}
+```
+
+**Account Settings Page:**
+```tsx
+// Stripe user sees:
+┌─────────────────────────────────────────┐
+│  Current Plan: PRO (Monthly)            │
+│  Next Billing: Dec 1, 2025 - $29.00    │
+│  Auto-Renewal: ON                       │
+│  [Cancel Subscription]                  │
+└─────────────────────────────────────────┘
+
+// dLocal user sees:
+┌─────────────────────────────────────────┐
+│  Current Plan: PRO (Monthly)            │
+│  Expires: Dec 1, 2025                   │
+│  Auto-Renewal: Not applicable           │
+│  [Renew Subscription]                   │
+└─────────────────────────────────────────┘
+```
+
+---
+
+### 1.6 Currency Settlement (USD Only)
 
 **Rule:** Regardless of what local currency users pay with, you receive USD only.
 
@@ -139,7 +356,7 @@ model Payment {
 
 ---
 
-### 1.5 3-Day Plan Anti-Abuse Rules
+### 1.7 3-Day Plan Anti-Abuse Rules
 
 **SECURITY RISK IDENTIFIED:**
 
@@ -152,7 +369,7 @@ User could exploit 3-day plan pricing:
 
 #### Rule 1: One-Time Use Per Account (PRIMARY DEFENSE)
 
-**Rule:** 3-day plan can ONLY be purchased ONCE per user account, ever.
+**Rule:** 3-day plan can ONLY be purchased ONCE per user account, ever. Additionally, it CANNOT be purchased if user has ANY active subscription.
 
 ```typescript
 // lib/dlocal/three-day-validator.ts
@@ -160,19 +377,35 @@ async function canPurchaseThreeDayPlan(userId: string): Promise<{
   allowed: boolean;
   reason?: string;
 }> {
-  // Check if user has EVER purchased 3-day plan before
-  const existingThreeDayPurchase = await prisma.payment.findFirst({
-    where: {
-      userId: userId,
-      provider: 'DLOCAL',
-      planType: 'THREE_DAY'
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      subscription: true
     }
   });
 
-  if (existingThreeDayPurchase) {
+  if (!user) {
+    return {
+      allowed: false,
+      reason: 'User not found'
+    };
+  }
+
+  // Check 1: Already used 3-day plan (lifetime restriction)
+  if (user.hasUsedThreeDayPlan) {
     return {
       allowed: false,
       reason: '3-day plan is a one-time introductory offer. Please select monthly plan.'
+    };
+  }
+
+  // Check 2: Currently has active subscription (any type - 3-day OR monthly)
+  if (user.subscription &&
+      user.subscription.expiresAt &&
+      user.subscription.expiresAt > new Date()) {
+    return {
+      allowed: false,
+      reason: 'You already have an active PRO subscription. The 3-day plan cannot be purchased while you have active PRO access. Use monthly plan to extend your subscription.'
     };
   }
 
