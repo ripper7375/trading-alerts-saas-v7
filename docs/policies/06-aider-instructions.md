@@ -12,19 +12,23 @@ This document is Aider's "operating manual" - it tells you (Aider with MiniMax M
 
 When Aider starts (via `.aider.conf.yml`), you automatically load these files:
 
-**Policy Documents (Your Rules):**
+**Policy Documents (Your Rules) - 9 Total:**
+- `docs/policies/00-tier-specifications.md` - Tier system rules (FREE vs PRO)
 - `docs/policies/01-approval-policies.md` - When to approve/fix/escalate
 - `docs/policies/02-quality-standards.md` - What "good code" looks like
 - `docs/policies/03-architecture-rules.md` - System design constraints
 - `docs/policies/04-escalation-triggers.md` - When to stop and ask human
 - `docs/policies/05-coding-patterns.md` - Copy-paste ready code examples
 - `docs/policies/06-aider-instructions.md` - THIS FILE (how to work)
+- `docs/policies/07-dlocal-integration-rules.md` - dLocal payment integration (emerging markets)
+- `docs/policies/08-google-oauth-implementation-rules.md` - **NEW:** Google OAuth integration (NextAuth v4)
 
 **Project Specifications:**
-- `docs/v5-structure-division.md` - Where files go (16 parts, 170+ files)
-- `docs/trading_alerts_openapi.yaml` - Next.js API contract
+- `docs/v5-structure-division.md` - Where files go (19 parts, 170+ files)
+- `docs/trading_alerts_openapi.yaml` - Next.js API contract (v7.1.0 with OAuth)
 - `docs/flask_mt5_openapi.yaml` - Flask MT5 API contract
-- `docs/policies/00-tier-specifications.md` - Tier system rules
+- `docs/decisions/google-oauth-decisions.md` - **NEW:** OAuth architecture decisions
+- `docs/OAUTH_IMPLEMENTATION_READY.md` - **NEW:** OAuth handoff document
 
 **Seed Code (Reference Only):**
 - `seed-code/market_ai_engine.py` - Flask/MT5 patterns
