@@ -1136,6 +1136,155 @@ Proceeding to next file: app/api/affiliate/auth/verify-email/route.ts
 
 ---
 
+## 13. BUILDING PART 18: DLOCAL PAYMENT INTEGRATION
+
+### 13.1 Overview of Part 18
+
+Part 18 introduces dLocal payment provider as an alternative to Stripe for 8 emerging market countries, enabling local payment methods and currencies.
+
+**Part 18 contains 52 files across 3 modules:**
+
+1. **Backend Payment API** (14 files):
+   - Payment provider selection
+   - dLocal checkout/callback/renewal
+   - Stripe checkout (updated for dual provider)
+   - Subscription management (updated)
+   - Fraud detection
+
+2. **Frontend Components** (8 files):
+   - Payment provider selector
+   - Currency display
+   - Subscription status card
+   - Early renewal UI (dLocal)
+
+3. **Database & Utilities** (30 files):
+   - Updated Subscription model (paymentProvider field)
+   - New Payment model (audit trail)
+   - New FraudAlert model (abuse detection)
+   - Currency converter
+   - Fraud detector
+   - Provider selector utilities
+
+### 13.2 Critical Patterns for Part 18
+
+**When building Part 18 files, ALWAYS reference:**
+- **Pattern 11:** Payment Provider Strategy Pattern (lib/payments/subscription-manager.ts)
+- **Pattern 12:** Payment Provider Conditional Rendering (components/payments/payment-provider-selector.tsx)
+- **Section 14:** Payment Gateway Architecture from 03-architecture-rules.md
+- **Section 8:** dLocal Payment Integration Approval Criteria from 01-approval-policies.md
+
+### 13.3 Key Differences: Stripe vs dLocal
+
+| Feature | Stripe | dLocal |
+|---------|--------|--------|
+| Auto-Renewal | ✅ Yes | ❌ No (manual) |
+| Trial Period | ✅ 7 days | ❌ None |
+| Plan Types | Monthly only | 3-day + Monthly |
+| Currency | USD only | 8 local currencies |
+| Cancellation | ✅ User can cancel | ❌ Expires naturally |
+
+### 13.4 Building Order for Part 18
+
+Build in this order for logical dependencies:
+
+1. **Database Models** (Update Prisma schema first):
+   - Update User model (hasUsedThreeDayPlan, fraud fields)
+   - Update Subscription model (paymentProvider, dLocal fields)
+   - Add Payment model
+   - Add FraudAlert model
+
+2. **Utilities** (Core logic before API routes):
+   - lib/payments/currency-converter.ts
+   - lib/payments/fraud-detector.ts
+   - lib/payments/provider-selector.ts
+   - lib/payments/subscription-manager.ts (Pattern 11)
+
+3. **dLocal API Routes**:
+   - app/api/payments/dlocal/checkout/route.ts
+   - app/api/payments/dlocal/callback/route.ts
+   - app/api/payments/dlocal/renew/route.ts (early renewal)
+   - app/api/payments/dlocal/webhook/route.ts
+
+4. **Updated Stripe API Routes**:
+   - app/api/payments/stripe/checkout/route.ts (updated for dual provider)
+   - app/api/payments/stripe/webhook/route.ts (updated Subscription creation)
+
+5. **Frontend Components**:
+   - components/payments/payment-provider-selector.tsx (Pattern 12)
+   - components/payments/subscription-status-card.tsx
+   - components/payments/early-renewal-button.tsx
+
+6. **Admin Dashboard**:
+   - app/admin/fraud-alerts/page.tsx
+   - app/admin/fraud-alerts/[id]/resolve/route.ts
+   - app/admin/payments/page.tsx
+
+7. **Cron Jobs**:
+   - app/api/cron/check-expirations/route.ts (dLocal expiry check)
+
+### 13.5 Critical Validation Checks for Part 18
+
+**When validating Part 18 files, check:**
+
+1. **Single Subscription Model:**
+   - ✅ Uses ONE Subscription model with paymentProvider field
+   - ❌ Does NOT create separate StripeSubscription/DLocalSubscription models
+
+2. **Currency Conversion:**
+   - ✅ Converts USD → local currency for dLocal (real-time rates)
+   - ✅ Stores BOTH amount (local) and amountUsd (USD)
+   - ❌ Does NOT use hardcoded exchange rates
+
+3. **3-Day Plan Anti-Abuse:**
+   - ✅ Checks hasUsedThreeDayPlan before allowing purchase
+   - ✅ Creates FraudAlert if reuse attempt detected
+   - ❌ Does NOT allow multiple 3-day purchases
+
+4. **Early Renewal (dLocal Monthly):**
+   - ✅ Allows early renewal ONLY for dLocal monthly
+   - ✅ Stacks days: newExpiry = currentExpiry + 30 days
+   - ❌ Does NOT allow Stripe renewal (auto-renews)
+
+5. **Subscription Expiry:**
+   - ✅ Checks expiry ONLY for dLocal subscriptions
+   - ✅ Sends reminder 3 days before expiry
+   - ❌ Does NOT check Stripe subscriptions (webhooks handle it)
+
+6. **Fraud Detection:**
+   - ✅ Creates FraudAlert for suspicious activity
+   - ✅ Requires admin review before blocking users
+   - ❌ Does NOT auto-block users
+
+7. **Provider Selection:**
+   - ✅ Shows dLocal ONLY for 8 countries (IN, NG, PK, VN, ID, TH, ZA, TR)
+   - ✅ Displays prices in local currency with symbols
+   - ❌ Does NOT show dLocal for unsupported countries
+
+### 13.6 Part 18 Progress Tracking
+
+**Update PROGRESS.md after each file:**
+
+```markdown
+### Part 18: dLocal Payment Integration - ⏳ In Progress
+
+**Files:** 6 / 52 completed
+
+**Completed:**
+- ✅ lib/payments/currency-converter.ts (Pattern 11)
+- ✅ lib/payments/fraud-detector.ts (Section 8.6)
+- ✅ app/api/payments/dlocal/checkout/route.ts (Section 8.3)
+- ✅ app/api/payments/dlocal/callback/route.ts (Section 8.5)
+- ✅ components/payments/payment-provider-selector.tsx (Pattern 12)
+- ✅ app/api/cron/check-expirations/route.ts (Section 14.8)
+
+**In Progress:**
+- ⏳ app/api/payments/dlocal/renew/route.ts (Early renewal with day stacking)
+
+**Pending:** 45 files
+```
+
+---
+
 ## SUMMARY OF KEY PRINCIPLES
 
 1. **Follow the 7-Step Workflow** (Read → Plan → Generate → Validate → Decide → Act → Update)
@@ -1149,6 +1298,7 @@ Proceeding to next file: app/api/affiliate/auth/verify-email/route.ts
 9. **Communicate Progress** (every 3 files, not every file)
 10. **Test Suggestions** (provide testing instructions for human)
 11. **Affiliate Marketing (Part 17):** Use Patterns 7-10, separate JWT, crypto-secure codes, webhook-only commissions
+12. **dLocal Payment (Part 18):** Use Patterns 11-12, single Subscription model, real-time currency conversion, 3-day plan anti-abuse, country-based provider selection
 
 **Remember:** You are Aider with MiniMax M2 - cost-effective, autonomous, policy-driven development. Your goal is to build quality code while minimizing human intervention for repetitive tasks. Escalate for exceptions, auto-fix for common issues, and always follow the policies.
 

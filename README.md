@@ -19,7 +19,9 @@ A commercial SaaS platform providing real-time trading alerts and chart visualiz
 - 📊 Interactive charts with TradingView Lightweight Charts
 - 🔔 Price alerts with notifications
 - 👁️ Watchlists for multiple symbols and timeframes
-- 💳 Stripe subscription management (FREE & PRO tiers)
+- 💳 Dual payment integration (Stripe + dLocal for emerging markets)
+- 🌍 Local payment methods for 8 countries (India, Nigeria, Pakistan, Vietnam, Indonesia, Thailand, South Africa, Turkey)
+- 🤝 Affiliate marketing platform (2-sided marketplace)
 - 🎨 Modern UI with shadcn/ui components
 - 🔒 Secure authentication with NextAuth.js
 - 📱 Responsive design for desktop and mobile
@@ -29,7 +31,8 @@ A commercial SaaS platform providing real-time trading alerts and chart visualiz
 - **Backend:** Next.js API Routes + Flask Microservice
 - **Database:** PostgreSQL 15+ with Prisma ORM
 - **MT5 Integration:** Custom Python service reading from centralized MT5 terminal
-- **Payments:** Stripe for subscription management
+- **Payments:** Stripe (international cards) + dLocal (local payment methods for emerging markets)
+- **Affiliate System:** 2-sided marketplace with commission tracking
 - **Deployment:** Vercel (frontend) + Railway (database + Flask)
 - **AI Development:** MiniMax M2 for cost-effective autonomous building
 
@@ -92,11 +95,12 @@ Detailed implementation guides for each part:
 
 ### **API Specifications**
 OpenAPI 3.0 specifications for all endpoints:
-- [`docs/trading_alerts_openapi.yaml`](docs/trading_alerts_openapi.yaml) - Next.js API (38 endpoints)
+- [`docs/trading_alerts_openapi.yaml`](docs/trading_alerts_openapi.yaml) - Next.js API (38+ endpoints)
 - [`docs/flask_mt5_openapi.yaml`](docs/flask_mt5_openapi.yaml) - Flask MT5 service (4 endpoints)
+- [`docs/dlocal-openapi-endpoints.yaml`](docs/dlocal-openapi-endpoints.yaml) - dLocal payment endpoints (7 endpoints)
 
 ### **Project Structure**
-- [`docs/v5-structure-division.md`](docs/v5-structure-division.md) - 16 parts, 170+ files breakdown
+- [`docs/v5-structure-division.md`](docs/v5-structure-division.md) - 18 parts, 289 files breakdown (includes affiliate + dLocal)
 
 ### **Testing & Policies**
 - [`docs/mvp-manual-testing-checklist.md`](docs/mvp-manual-testing-checklist.md) - Complete testing checklist

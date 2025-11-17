@@ -1800,6 +1800,204 @@ if (Math.abs(totalEarned - earned) > 0.01) {
 
 ---
 
+## Pattern 11: Payment Provider Strategy Pattern (dLocal Integration)
+
+**Use this pattern for:** Isolating Stripe and dLocal logic using strategy pattern
+
+**File:** `lib/payments/subscription-manager.ts`
+
+```typescript
+interface PaymentProvider {
+  createCheckoutSession(userId: string, plan: PlanType): Promise<CheckoutSession>;
+  processCallback(data: unknown): Promise<Subscription>;
+  renewSubscription(subscriptionId: string): Promise<Subscription>;
+}
+
+class StripeProvider implements PaymentProvider {
+  async createCheckoutSession(userId: string, plan: PlanType) {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      line_items: [{ price: STRIPE_PRICE_IDS[plan], quantity: 1 }],
+      subscription_data: { trial_period_days: 7 }  // Stripe has trial
+    });
+    return session;
+  }
+
+  async renewSubscription(subscriptionId: string) {
+    throw new Error('Stripe subscriptions auto-renew. Manual renewal not supported.');
+  }
+}
+
+class DLocalProvider implements PaymentProvider {
+  async createCheckoutSession(userId: string, plan: PlanType) {
+    const { country, currency } = await getUserCountry(userId);
+    const { amount, rate } = await convertUsdToLocal(PLANS[plan].usd, currency);
+
+    const payment = await dlocal.createPayment({
+      amount,
+      currency,
+      country
+      // dLocal has NO trial period
+    });
+    return payment;
+  }
+
+  async renewSubscription(subscriptionId: string) {
+    const sub = await prisma.subscription.findUnique({ where: { id: subscriptionId } });
+
+    if (sub.planType === 'THREE_DAY') {
+      throw new Error('Cannot renew 3-day plan. Purchase monthly instead.');
+    }
+
+    // Early renewal with day stacking
+    const newExpiresAt = new Date(sub.expiresAt);
+    newExpiresAt.setDate(newExpiresAt.getDate() + 30);
+
+    // Process payment and update subscription
+    const payment = await dlocal.createPayment({...});
+    await prisma.subscription.update({
+      where: { id: subscriptionId },
+      data: { expiresAt: newExpiresAt }
+    });
+
+    return updatedSubscription;
+  }
+}
+
+// Factory function
+export function getPaymentProvider(provider: 'STRIPE' | 'DLOCAL'): PaymentProvider {
+  return provider === 'STRIPE' ? new StripeProvider() : new DLocalProvider();
+}
+
+// Usage in API routes
+export async function POST(req: NextRequest) {
+  const { provider, plan } = await req.json();
+  const paymentProvider = getPaymentProvider(provider);
+  const session = await paymentProvider.createCheckoutSession(userId, plan);
+  return NextResponse.json(session);
+}
+```
+
+**Why this pattern:**
+- Easy to add new payment providers (just implement interface)
+- Keeps provider-specific logic isolated
+- Prevents mixing Stripe and dLocal logic
+- Type-safe with TypeScript interfaces
+
+---
+
+## Pattern 12: Payment Provider Conditional Rendering
+
+**Use this pattern for:** Frontend components that show different options for Stripe vs dLocal
+
+**File:** `components/payments/payment-provider-selector.tsx`
+
+```typescript
+'use client';
+
+import { useState, useEffect } from 'react';
+
+const DLOCAL_COUNTRIES = ['IN', 'NG', 'PK', 'VN', 'ID', 'TH', 'ZA', 'TR'];
+
+const CURRENCY_SYMBOLS = {
+  'INR': '₹',
+  'NGN': '₦',
+  'PKR': '₨',
+  'VND': '₫',
+  'IDR': 'Rp',
+  'THB': '฿',
+  'ZAR': 'R',
+  'TRY': '₺',
+  'USD': '$'
+};
+
+export function PaymentProviderSelector({ country }: { country: string }) {
+  const [selectedProvider, setSelectedProvider] = useState<'STRIPE' | 'DLOCAL'>('STRIPE');
+  const [pricing, setPricing] = useState({ monthly: 29.00, threeDay: 0.96, currency: 'USD' });
+
+  useEffect(() => {
+    // Fetch localized pricing
+    if (DLOCAL_COUNTRIES.includes(country)) {
+      fetch(`/api/payments/pricing?country=${country}`)
+        .then(res => res.json())
+        .then(data => setPricing(data));
+    }
+  }, [country]);
+
+  const showDLocal = DLOCAL_COUNTRIES.includes(country);
+  const currencySymbol = CURRENCY_SYMBOLS[pricing.currency] || '$';
+
+  return (
+    <div className="space-y-4">
+      <h2>Choose Payment Method</h2>
+
+      {/* Stripe Option (always available) */}
+      <div
+        className={`border rounded p-4 cursor-pointer ${selectedProvider === 'STRIPE' ? 'border-blue-500' : ''}`}
+        onClick={() => setSelectedProvider('STRIPE')}
+      >
+        <h3>International Cards (Stripe)</h3>
+        <p>Visa, Mastercard, Amex</p>
+        <p className="text-lg font-bold">$29.00 USD / month</p>
+        <ul className="text-sm text-gray-600">
+          <li>✅ 7-day free trial</li>
+          <li>✅ Auto-renewal (cancel anytime)</li>
+          <li>✅ Accepted worldwide</li>
+        </ul>
+      </div>
+
+      {/* dLocal Option (only for supported countries) */}
+      {showDLocal && (
+        <div
+          className={`border rounded p-4 cursor-pointer ${selectedProvider === 'DLOCAL' ? 'border-blue-500' : ''}`}
+          onClick={() => setSelectedProvider('DLOCAL')}
+        >
+          <h3>Local Payment Methods (dLocal)</h3>
+          <p>UPI, NetBanking, Mobile Wallets</p>
+
+          <div className="mt-2 space-y-2">
+            <div>
+              <p className="text-sm">3-Day Trial (one-time use)</p>
+              <p className="text-lg font-bold">
+                {currencySymbol}{pricing.threeDay.toLocaleString()}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-sm">Monthly Plan</p>
+              <p className="text-lg font-bold">
+                {currencySymbol}{pricing.monthly.toLocaleString()} / month
+              </p>
+            </div>
+          </div>
+
+          <ul className="text-sm text-gray-600 mt-2">
+            <li>❌ No auto-renewal (manual renewal required)</li>
+            <li>✅ Pay in local currency</li>
+            <li>✅ Popular local payment methods</li>
+          </ul>
+        </div>
+      )}
+
+      <button
+        onClick={() => handleCheckout(selectedProvider)}
+        className="w-full bg-blue-500 text-white py-2 rounded"
+      >
+        Continue with {selectedProvider === 'STRIPE' ? 'Stripe' : 'dLocal'}
+      </button>
+    </div>
+  );
+}
+```
+
+**Key Points:**
+- Only show dLocal for supported countries (IN, NG, PK, VN, ID, TH, ZA, TR)
+- Display prices in local currency with correct symbols
+- Show different features (trial, auto-renewal) for each provider
+- Clear visual distinction between providers
+
+---
+
 ## SUMMARY OF PATTERNS
 
 Use these patterns as templates:
@@ -1814,6 +2012,8 @@ Use these patterns as templates:
 8. **Code Generation Pattern:** Cryptographically secure code generation (Pattern 8)
 9. **Commission Calculation Pattern:** Stripe webhook with exact formula (Pattern 9)
 10. **Accounting Report Pattern:** Opening/closing balance with reconciliation (Pattern 10)
+11. **Payment Provider Strategy Pattern:** Isolate Stripe and dLocal logic using strategy pattern (Pattern 11)
+12. **Payment Provider Conditional Rendering:** Show different options for Stripe vs dLocal based on country (Pattern 12)
 
 **Remember:** Adapt these patterns to your specific requirements and ensure they match OpenAPI contracts.
 

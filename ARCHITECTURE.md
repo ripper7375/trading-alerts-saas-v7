@@ -60,7 +60,7 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 
 ### External Services
 - **MT5 Terminal:** MetaTrader 5 (Windows/Linux VPS)
-- **Payments:** Stripe
+- **Payments:** Stripe (international cards) + dLocal (emerging market local payments)
 - **Email:** Resend
 - **Deployment:** Vercel (Next.js), Railway (PostgreSQL + Flask)
 
@@ -120,15 +120,17 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
                               └─────────────────────┘
 
     External Services:
-    ├─ Stripe (Payments + Commissions) ─┐
-    └─ Resend (Email) ──────────────┐  │
-                                    │  │
-                                ┌───▼──▼──────┐
-                                │  Webhooks    │
-                                │  (Vercel)    │
-                                │  - Track refs│
-                                │  - Calc comm.│
-                                └──────────────┘
+    ├─ Stripe (Int'l Cards + Commissions) ─┐
+    ├─ dLocal (Emerging Markets) ──────────┤
+    └─ Resend (Email) ──────────────────┐  │
+                                        │  │
+                                    ┌───▼──▼──────┐
+                                    │  Webhooks    │
+                                    │  (Vercel)    │
+                                    │  - Track refs│
+                                    │  - Calc comm.│
+                                    │  - Payments  │
+                                    └──────────────┘
 ```
 
 ---
@@ -467,20 +469,26 @@ lib/
 **Schema Overview:**
 ```prisma
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  password      String   // Hashed with bcrypt
-  name          String?
-  tier          String   @default("FREE")  // "FREE" or "PRO"
-  role          String   @default("USER")  // "USER" or "ADMIN"
-  isActive      Boolean  @default(true)
-  emailVerified DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  email               String   @unique
+  password            String   // Hashed with bcrypt
+  name                String?
+  tier                String   @default("FREE")  // "FREE" or "PRO"
+  role                String   @default("USER")  // "USER" or "ADMIN"
+  isActive            Boolean  @default(true)
+  emailVerified       DateTime?
+  hasUsedThreeDayPlan Boolean  @default(false)  // dLocal 3-day plan anti-abuse
+  threeDayPlanUsedAt  DateTime?                  // When 3-day plan was purchased
+  lastLoginIP         String?                    // Fraud detection
+  deviceFingerprint   String?                    // Fraud detection
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  alerts        Alert[]
-  watchlistItems WatchlistItem[]
-  subscription  Subscription?
+  alerts              Alert[]
+  watchlistItems      WatchlistItem[]
+  subscription        Subscription?
+  payments            Payment[]
+  fraudAlerts         FraudAlert[]
 }
 
 model Alert {
@@ -514,17 +522,35 @@ model WatchlistItem {
 }
 
 model Subscription {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  stripeCustomerId  String   @unique
-  stripePriceId     String
-  stripeCurrentPeriodEnd DateTime
-  status            String   // "active", "canceled", "past_due"
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Payment Provider (Stripe or dLocal)
+  paymentProvider        String   // "STRIPE" or "DLOCAL"
+
+  // Stripe fields (nullable for dLocal subscriptions)
+  stripeCustomerId       String?  @unique
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
+
+  // dLocal fields (nullable for Stripe subscriptions)
+  dLocalPaymentId        String?  @unique  // Transaction reference
+  dLocalCountry          String?             // Country code (IN, NG, PK, etc.)
+  dLocalCurrency         String?             // Local currency (INR, NGN, PKR, etc.)
+  dLocalAmount           Float?              // Amount in local currency
+
+  // Shared fields
+  planType               String   // "MONTHLY" or "THREE_DAY" (dLocal only)
+  amountUsd              Float    // Amount in USD (converted for dLocal)
+  status                 String   // "active", "canceled", "past_due", "expired"
+  expiresAt              DateTime // Explicit expiry date (critical for dLocal)
+  renewalReminderSent    Boolean  @default(false)  // For dLocal manual renewal
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   commissions Commission[]
+  payments    Payment[]
 }
 
 // Affiliate Marketing Models (Part 17)
@@ -617,6 +643,77 @@ model SystemConfigHistory {
   @@index([configKey])
   @@index([changedAt])
 }
+
+// Payment Models (Part 18: dLocal Integration)
+
+model Payment {
+  id                 String   @id @default(cuid())
+  userId             String
+  subscriptionId     String?
+
+  // Payment Provider
+  provider           String   // "STRIPE" or "DLOCAL"
+
+  // Transaction Details
+  amount             Float    // Amount in original currency
+  currency           String   // Currency code (USD, INR, NGN, etc.)
+  amountUsd          Float    // Amount converted to USD (for reporting)
+
+  // Provider References
+  providerPaymentId  String   @unique  // Stripe charge ID or dLocal transaction ID
+  providerStatus     String   // Provider-specific status
+
+  // Metadata
+  country            String?  // User's country (for dLocal)
+  paymentMethod      String?  // Payment method used (card, UPI, PIX, etc.)
+  ipAddress          String?  // IP address for fraud detection
+  deviceFingerprint  String?  // Device fingerprint for fraud detection
+
+  // Status and Timestamps
+  status             String   // "pending", "completed", "failed", "refunded"
+  completedAt        DateTime?
+  failedAt           DateTime?
+  failedReason       String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  @@index([userId])
+  @@index([provider])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model FraudAlert {
+  id                String   @id @default(cuid())
+  userId            String
+
+  // Alert Details
+  alertType         String   // "3DAY_PLAN_REUSE", "MULTIPLE_ACCOUNTS", "SUSPICIOUS_IP", etc.
+  severity          String   // "LOW", "MEDIUM", "HIGH"
+  description       String   // Human-readable description of the issue
+
+  // Detection Metadata
+  detectedAt        DateTime @default(now())
+  ipAddress         String?
+  deviceFingerprint String?
+  additionalData    Json?    // Flexible field for extra context
+
+  // Admin Review
+  reviewedBy        String?  // Admin user ID who reviewed
+  reviewedAt        DateTime?
+  resolution        String?  // "FALSE_POSITIVE", "BLOCKED", "WARNING_SENT", etc.
+  notes             String?  // Admin notes
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([alertType])
+  @@index([severity])
+  @@index([detectedAt])
+}
 ```
 
 **Migration Workflow:**
@@ -707,6 +804,356 @@ def get_fractals(symbol: str, timeframe: str):
 - Isolates MT5 connection from main app
 - Can scale independently
 - Easier to debug MT5-specific issues
+
+---
+
+### 4.6 Payment Gateway Architecture (Part 18: dLocal Integration)
+
+**Location:** `app/api/payments/` directory
+
+**Responsibilities:**
+- Dual payment provider system (Stripe + dLocal)
+- International cards via Stripe (global reach)
+- Local payment methods via dLocal (8 emerging markets)
+- Currency conversion and exchange rate management
+- Early renewal logic for dLocal monthly subscriptions
+- 3-day plan anti-abuse protection
+- Fraud monitoring and detection
+- Payment transaction audit trail
+
+**Supported Countries (dLocal):**
+- 🇮🇳 India (INR) - UPI, NetBanking, Cards
+- 🇳🇬 Nigeria (NGN) - Bank Transfer, Cards, Mobile Money
+- 🇵🇰 Pakistan (PKR) - EasyPaisa, JazzCash, Bank Transfer
+- 🇻🇳 Vietnam (VND) - MoMo, ZaloPay, Bank Transfer
+- 🇮🇩 Indonesia (IDR) - GoPay, OVO, Bank Transfer
+- 🇹🇭 Thailand (THB) - PromptPay, TrueMoney, Bank Transfer
+- 🇿🇦 South Africa (ZAR) - EFT, SnapScan, Cards
+- 🇹🇷 Turkey (TRY) - Bank Transfer, Cards
+
+**Key Files:**
+```
+app/
+├── api/
+│   ├── payments/
+│   │   ├── stripe/
+│   │   │   ├── checkout/route.ts           # Create Stripe checkout session
+│   │   │   ├── portal/route.ts             # Customer portal for management
+│   │   │   └── webhook/route.ts            # Stripe webhook handler
+│   │   ├── dlocal/
+│   │   │   ├── checkout/route.ts           # Create dLocal payment
+│   │   │   ├── callback/route.ts           # dLocal payment callback
+│   │   │   ├── renew/route.ts              # Manual renewal endpoint
+│   │   │   └── webhook/route.ts            # dLocal webhook handler
+│   │   ├── provider-select/route.ts        # Return available providers by country
+│   │   └── subscription/
+│   │       ├── status/route.ts             # Get current subscription status
+│   │       └── cancel/route.ts             # Cancel subscription (Stripe only)
+│   └── admin/
+│       ├── payments/
+│       │   └── route.ts                    # Payment transaction list
+│       └── fraud-alerts/
+│           ├── route.ts                    # Fraud alerts dashboard
+│           └── [id]/resolve/route.ts       # Resolve fraud alert
+
+lib/
+├── payments/
+│   ├── stripe-client.ts                    # Stripe SDK wrapper
+│   ├── dlocal-client.ts                    # dLocal API wrapper
+│   ├── currency-converter.ts               # USD ↔ Local currency conversion
+│   ├── fraud-detector.ts                   # Fraud detection logic
+│   └── subscription-manager.ts             # Unified subscription management
+
+components/
+└── payments/
+    ├── payment-provider-selector.tsx       # Choose Stripe or dLocal
+    ├── stripe-checkout-button.tsx          # Stripe checkout UI
+    ├── dlocal-checkout-form.tsx            # dLocal payment form
+    └── subscription-status-card.tsx        # Display subscription details
+```
+
+**Dual Payment Provider System:**
+
+```typescript
+// Pattern 11: Payment Provider Selection by Country
+// lib/payments/provider-selector.ts
+
+export function getAvailableProviders(countryCode: string): PaymentProvider[] {
+  const DLOCAL_COUNTRIES = ['IN', 'NG', 'PK', 'VN', 'ID', 'TH', 'ZA', 'TR'];
+
+  if (DLOCAL_COUNTRIES.includes(countryCode)) {
+    // Users in emerging markets can choose Stripe or dLocal
+    return ['STRIPE', 'DLOCAL'];
+  } else {
+    // International users only get Stripe
+    return ['STRIPE'];
+  }
+}
+```
+
+**Key Differences: Stripe vs dLocal**
+
+| Feature | Stripe | dLocal |
+|---------|--------|--------|
+| **Auto-Renewal** | ✅ Yes (recurring billing) | ❌ No (manual renewal) |
+| **Trial Period** | ✅ 7-day free trial | ❌ No trial |
+| **Payment Methods** | Cards (Visa, MC, Amex) | Local methods (UPI, PIX, Mobile Money, etc.) |
+| **Currency** | USD only | Local currency (INR, NGN, PKR, etc.) |
+| **Plan Types** | Monthly only | 3-day + Monthly |
+| **Cancellation** | ✅ User can cancel anytime | ❌ No cancellation (expires naturally) |
+| **Refunds** | Via Stripe dashboard | Via dLocal dashboard |
+| **Webhook Events** | `checkout.session.completed`, `customer.subscription.*` | `payment.completed`, `payment.refunded` |
+
+**Early Renewal Logic (dLocal Monthly Only):**
+
+```typescript
+// Pattern 12: Early Renewal with Stacking Days
+// app/api/payments/dlocal/renew/route.ts
+
+export async function POST(req: NextRequest) {
+  const session = await getServerSession();
+  const subscription = await prisma.subscription.findUnique({
+    where: { userId: session.user.id }
+  });
+
+  // Check if subscription is active
+  if (subscription && subscription.status === 'active') {
+    const now = new Date();
+    const expiresAt = new Date(subscription.expiresAt);
+    const remainingDays = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (remainingDays > 0) {
+      // Early renewal: Stack remaining days + 30 new days
+      const newExpiresAt = new Date(expiresAt);
+      newExpiresAt.setDate(newExpiresAt.getDate() + 30);
+
+      // Process payment first
+      const payment = await dLocalClient.createPayment({
+        amount: 29.00,
+        currency: subscription.dLocalCurrency,
+        userId: session.user.id
+      });
+
+      if (payment.status === 'completed') {
+        // Update subscription with new expiry date
+        await prisma.subscription.update({
+          where: { id: subscription.id },
+          data: {
+            expiresAt: newExpiresAt,
+            updatedAt: now
+          }
+        });
+
+        return NextResponse.json({
+          success: true,
+          message: `Renewed! ${remainingDays} days + 30 days = ${remainingDays + 30} days total`,
+          expiresAt: newExpiresAt
+        });
+      }
+    }
+  }
+
+  return NextResponse.json({ error: 'Renewal failed' }, { status: 400 });
+}
+```
+
+**3-Day Plan Anti-Abuse Protection:**
+
+```typescript
+// Pattern 13: 3-Day Plan One-Time Use Enforcement
+// app/api/payments/dlocal/checkout/route.ts
+
+export async function POST(req: NextRequest) {
+  const session = await getServerSession();
+  const { planType, country, currency } = await req.json();
+
+  if (planType === 'THREE_DAY') {
+    // Check if user has already used 3-day plan
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id }
+    });
+
+    if (user.hasUsedThreeDayPlan) {
+      // Create fraud alert
+      await prisma.fraudAlert.create({
+        data: {
+          userId: user.id,
+          alertType: '3DAY_PLAN_REUSE',
+          severity: 'MEDIUM',
+          description: 'User attempted to purchase 3-day plan more than once',
+          ipAddress: req.headers.get('x-forwarded-for'),
+          deviceFingerprint: req.headers.get('x-device-fingerprint')
+        }
+      });
+
+      return NextResponse.json({
+        error: 'The 3-day plan can only be purchased once per account. Please choose the monthly plan.',
+        errorCode: '3DAY_PLAN_ALREADY_USED'
+      }, { status: 403 });
+    }
+
+    // Check if user has an active subscription
+    const activeSubscription = await prisma.subscription.findFirst({
+      where: {
+        userId: user.id,
+        status: 'active',
+        expiresAt: { gte: new Date() }
+      }
+    });
+
+    if (activeSubscription) {
+      return NextResponse.json({
+        error: 'Cannot purchase 3-day plan while you have an active subscription',
+        errorCode: 'ACTIVE_SUBSCRIPTION_EXISTS'
+      }, { status: 403 });
+    }
+  }
+
+  // Proceed with payment creation
+  const payment = await dLocalClient.createPayment({...});
+  // ...
+}
+```
+
+**Fraud Monitoring System:**
+
+```typescript
+// Pattern 14: Fraud Detection and Admin Dashboard
+// lib/payments/fraud-detector.ts
+
+export async function detectFraud(userId: string, context: FraudContext): Promise<FraudAlert | null> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      payments: { orderBy: { createdAt: 'desc' }, take: 10 },
+      fraudAlerts: { where: { resolution: null } }
+    }
+  });
+
+  // Rule 1: Multiple failed payments in short time
+  const recentFailedPayments = user.payments.filter(
+    p => p.status === 'failed' &&
+    p.createdAt > new Date(Date.now() - 60 * 60 * 1000) // Last hour
+  );
+
+  if (recentFailedPayments.length >= 3) {
+    return createFraudAlert(userId, {
+      alertType: 'MULTIPLE_FAILED_PAYMENTS',
+      severity: 'HIGH',
+      description: `${recentFailedPayments.length} failed payments in the last hour`
+    });
+  }
+
+  // Rule 2: IP address change with device fingerprint mismatch
+  if (user.lastLoginIP && user.lastLoginIP !== context.ipAddress) {
+    if (user.deviceFingerprint && user.deviceFingerprint !== context.deviceFingerprint) {
+      return createFraudAlert(userId, {
+        alertType: 'SUSPICIOUS_IP_CHANGE',
+        severity: 'MEDIUM',
+        description: 'IP address and device fingerprint both changed'
+      });
+    }
+  }
+
+  // Rule 3: 3-day plan reuse attempt (already checked in checkout)
+  // Rule 4: Rapid subscription creation/cancellation pattern
+  // ... additional rules
+
+  return null;
+}
+```
+
+**Currency Conversion:**
+
+```typescript
+// Pattern 15: Real-Time Currency Conversion
+// lib/payments/currency-converter.ts
+
+export async function convertUsdToLocal(
+  amountUsd: number,
+  targetCurrency: string
+): Promise<{ amount: number; rate: number }> {
+  // Fetch real-time exchange rate from reliable API
+  const rate = await fetchExchangeRate('USD', targetCurrency);
+
+  // Convert amount
+  const localAmount = amountUsd * rate;
+
+  // Round to 2 decimal places
+  const roundedAmount = Math.round(localAmount * 100) / 100;
+
+  return {
+    amount: roundedAmount,
+    rate
+  };
+}
+
+// Example: $29 USD → ₹2,407 INR (assuming 1 USD = 83 INR)
+const { amount, rate } = await convertUsdToLocal(29.00, 'INR');
+// amount = 2407.00, rate = 83.00
+```
+
+**Subscription Status Management:**
+
+```typescript
+// Pattern 16: Unified Subscription Status Check
+// lib/payments/subscription-manager.ts
+
+export async function getSubscriptionStatus(userId: string): Promise<SubscriptionStatus> {
+  const subscription = await prisma.subscription.findUnique({
+    where: { userId }
+  });
+
+  if (!subscription) {
+    return {
+      tier: 'FREE',
+      status: 'none',
+      provider: null,
+      expiresAt: null,
+      canRenew: false
+    };
+  }
+
+  const now = new Date();
+  const expiresAt = new Date(subscription.expiresAt);
+  const isExpired = now > expiresAt;
+
+  if (subscription.paymentProvider === 'STRIPE') {
+    // Stripe: Check Stripe API for real-time status
+    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
+
+    return {
+      tier: stripeSubscription.status === 'active' ? 'PRO' : 'FREE',
+      status: stripeSubscription.status,
+      provider: 'STRIPE',
+      expiresAt: new Date(stripeSubscription.current_period_end * 1000),
+      canRenew: false, // Stripe handles renewal automatically
+      autoRenew: true
+    };
+  } else {
+    // dLocal: Check expiresAt field
+    return {
+      tier: isExpired ? 'FREE' : 'PRO',
+      status: isExpired ? 'expired' : 'active',
+      provider: 'DLOCAL',
+      expiresAt,
+      canRenew: true, // Manual renewal allowed
+      autoRenew: false,
+      daysRemaining: isExpired ? 0 : Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    };
+  }
+}
+```
+
+**Tech Notes:**
+- Single `Subscription` model for both Stripe and dLocal (provider field distinguishes)
+- `Payment` model tracks all transactions for audit trail
+- `FraudAlert` model enables admin review of suspicious activity
+- Currency conversion happens at checkout time (rate stored in Payment record)
+- dLocal subscriptions do NOT auto-renew (manual renewal via email reminders)
+- 3-day plan is one-time use per account (enforced at checkout + database constraint)
+- Stripe subscriptions use standard Stripe customer portal for cancellation
+- dLocal subscriptions expire naturally (no cancellation needed)
 
 ---
 
@@ -915,6 +1362,257 @@ def get_fractals(symbol: str, timeframe: str):
 - All commissions require admin approval before payout
 - Separate JWT authentication for affiliates (not NextAuth)
 - Crypto-secure code generation prevents guessing
+
+---
+
+### 5.4 Payment Flow (Stripe vs dLocal)
+
+#### 5.4.1 Stripe Payment Flow (International Cards)
+
+```
+1. USER clicks "Upgrade to PRO" button
+   │
+   ▼
+2. FRONTEND detects user's country (geo-location API)
+   - If international (not in dLocal countries) → Only Stripe option shown
+   - If emerging market → Show both Stripe and dLocal options
+   │
+   ▼
+3. USER selects Stripe payment method
+   │
+   ▼
+4. FRONTEND calls POST /api/payments/stripe/checkout
+   - Includes: priceId (monthly plan), affiliateCode (if referral)
+   │
+   ▼
+5. API creates Stripe Checkout Session
+   - Mode: 'subscription' (recurring billing)
+   - Price: $29/month with 7-day free trial
+   - Metadata: { userId, affiliateCode, country }
+   - Success URL: /dashboard?payment=success
+   - Cancel URL: /pricing?payment=canceled
+   │
+   ▼
+6. FRONTEND redirects to Stripe Checkout page
+   - User enters card details (Stripe-hosted, PCI-compliant)
+   - Stripe validates card and processes payment
+   │
+   ▼
+7. STRIPE sends webhook: checkout.session.completed
+   - Webhook received at /api/payments/stripe/webhook
+   │
+   ▼
+8. WEBHOOK HANDLER processes payment
+   - Verify Stripe signature (security)
+   - Extract userId, affiliateCode from metadata
+   - Create/update Subscription record:
+     * paymentProvider: 'STRIPE'
+     * stripeCustomerId, stripePriceId, stripeCurrentPeriodEnd
+     * planType: 'MONTHLY'
+     * amountUsd: 29.00
+     * status: 'active'
+     * expiresAt: stripeCurrentPeriodEnd (auto-renews before this date)
+   - Create Payment record for audit trail
+   - Update User.tier to 'PRO'
+   - If affiliateCode present → Calculate 20% commission (see 5.3)
+   │
+   ▼
+9. STRIPE sends email receipt to user
+   │
+   ▼
+10. USER redirected to /dashboard (tier is now PRO)
+    - Dashboard shows PRO features unlocked
+    - 15 symbols × 9 timeframes available
+```
+
+#### 5.4.2 dLocal Payment Flow (Emerging Markets)
+
+```
+1. USER clicks "Upgrade to PRO" button
+   │
+   ▼
+2. FRONTEND detects user's country = India (IN)
+   - Shows both Stripe and dLocal options
+   - dLocal displays local payment methods: UPI, NetBanking, Cards
+   - Shows pricing in INR (₹2,407) converted from $29 USD
+   │
+   ▼
+3. USER selects dLocal → chooses plan type
+   - Option A: 3-day plan (₹80 / $0.96 USD) - Try before monthly
+   - Option B: Monthly plan (₹2,407 / $29 USD) - Full month access
+   │
+   ▼
+4. FRONTEND calls POST /api/payments/dlocal/checkout
+   - Includes: planType ('THREE_DAY' or 'MONTHLY'), country, currency, paymentMethod
+   │
+   ▼
+5. API validates 3-day plan eligibility (if applicable)
+   - Check if user.hasUsedThreeDayPlan === false
+   - Check if user has no active subscription
+   - If violations → Return 403 error + create FraudAlert
+   │
+   ▼
+6. API converts USD to INR (real-time exchange rate)
+   - $29 USD → ₹2,407 INR (rate: 83.00)
+   - Store both amounts in database
+   │
+   ▼
+7. API creates dLocal payment request
+   - POST https://api.dlocal.com/v1/payments
+   - Body: { amount: 2407, currency: 'INR', country: 'IN', payment_method: 'UPI', ... }
+   - dLocal returns payment URL for user to complete
+   │
+   ▼
+8. FRONTEND redirects to dLocal payment page
+   - User completes payment (UPI app, NetBanking, etc.)
+   - dLocal processes payment
+   │
+   ▼
+9. dLocal sends callback to /api/payments/dlocal/callback
+   - Payment status: 'completed' or 'failed'
+   │
+   ▼
+10. CALLBACK HANDLER processes payment
+    - If THREE_DAY plan:
+      * Create Subscription:
+        - paymentProvider: 'DLOCAL'
+        - planType: 'THREE_DAY'
+        - expiresAt: now + 3 days
+        - status: 'active'
+      * Update User:
+        - tier: 'PRO'
+        - hasUsedThreeDayPlan: true
+        - threeDayPlanUsedAt: now
+    - If MONTHLY plan:
+      * Create Subscription:
+        - paymentProvider: 'DLOCAL'
+        - planType: 'MONTHLY'
+        - expiresAt: now + 30 days
+        - status: 'active'
+      * Update User.tier: 'PRO'
+    - Create Payment record for audit trail
+    - Send confirmation email
+    │
+    ▼
+11. USER redirected to /dashboard (tier is now PRO)
+    - Dashboard shows PRO features unlocked
+    - Subscription expiry date displayed (no auto-renewal)
+```
+
+#### 5.4.3 dLocal Early Renewal Flow (Monthly Only)
+
+```
+1. USER has active dLocal monthly subscription
+   - Expires in 10 days (20 days remaining)
+   │
+   ▼
+2. USER clicks "Renew Now" button in dashboard
+   │
+   ▼
+3. FRONTEND calls POST /api/payments/dlocal/renew
+   - Includes current subscription ID
+   │
+   ▼
+4. API calculates early renewal:
+   - Current expiresAt: 2025-11-27
+   - Days remaining: 10 days
+   - New expiresAt: 2025-11-27 + 30 days = 2025-12-27
+   - Total days from now: 10 + 30 = 40 days
+   │
+   ▼
+5. API creates dLocal payment for ₹2,407 INR
+   - Same process as initial monthly payment
+   │
+   ▼
+6. dLocal payment completed
+   │
+   ▼
+7. API updates Subscription:
+   - expiresAt: 2025-12-27 (stacked 30 days on top of remaining)
+   - updatedAt: now
+   - Create new Payment record
+   │
+   ▼
+8. FRONTEND shows success message:
+   "Renewed! You now have 40 days of PRO access (10 remaining + 30 new)"
+```
+
+#### 5.4.4 dLocal Subscription Expiry Flow
+
+```
+1. CRON JOB runs daily at midnight (Vercel Cron or external)
+   - Queries all dLocal subscriptions where expiresAt < now + 3 days
+   │
+   ▼
+2. For each expiring subscription:
+   - If 3 days before expiry + renewalReminderSent = false:
+     * Send email: "Your subscription expires in 3 days. Renew now!"
+     * Update renewalReminderSent: true
+   - If 1 day before expiry:
+     * Send email: "Last chance! Your subscription expires tomorrow."
+   - If expiresAt < now (expired):
+     * Update Subscription.status: 'expired'
+     * Update User.tier: 'FREE'
+     * Send email: "Your subscription has expired. Renew to regain PRO access."
+   │
+   ▼
+3. USER receives email and clicks "Renew" link
+   - Redirects to /dashboard/billing
+   - Shows "Your subscription expired. Click to renew."
+   - User clicks renew → Same flow as initial monthly payment
+   - New subscription created (expiresAt: now + 30 days)
+```
+
+#### 5.4.5 Fraud Detection Flow
+
+```
+1. USER attempts suspicious action:
+   - Example: Tries to purchase 3-day plan twice
+   │
+   ▼
+2. API detects fraud pattern (lib/payments/fraud-detector.ts)
+   - Checks fraud rules
+   │
+   ▼
+3. FraudAlert created in database:
+   - alertType: '3DAY_PLAN_REUSE'
+   - severity: 'MEDIUM'
+   - description: "User attempted to purchase 3-day plan more than once"
+   - ipAddress, deviceFingerprint captured
+   │
+   ▼
+4. ADMIN receives notification (email or dashboard badge)
+   │
+   ▼
+5. ADMIN reviews fraud alert in /admin/fraud-alerts
+   - Views user history: payments, subscriptions, login IPs
+   - Decides action:
+     * FALSE_POSITIVE → Dismiss alert
+     * WARNING_SENT → Send warning email to user
+     * BLOCKED → Block user account (isActive: false)
+   │
+   ▼
+6. ADMIN resolves alert:
+   - POST /api/admin/fraud-alerts/[id]/resolve
+   - Update FraudAlert:
+     * reviewedBy: admin.id
+     * reviewedAt: now
+     * resolution: 'BLOCKED'
+     * notes: "Confirmed abuse pattern. Account blocked."
+   - If BLOCKED → Update User.isActive: false
+```
+
+**Key Payment Architecture Notes:**
+
+1. **Single Subscription Model:** One `Subscription` record per user, regardless of provider
+2. **Provider Field:** Distinguishes Stripe vs dLocal behavior throughout codebase
+3. **Explicit Expiry:** Both providers use `expiresAt` field (Stripe syncs from `stripeCurrentPeriodEnd`)
+4. **No Auto-Renewal for dLocal:** Manual renewal via email reminders + dashboard button
+5. **Early Renewal Stacking:** dLocal monthly allows stacking remaining days (Stripe does not)
+6. **Currency Conversion:** Only for dLocal (Stripe stays USD); both store `amountUsd` for reporting
+7. **Fraud Prevention:** Multiple layers: hasUsedThreeDayPlan flag, IP tracking, device fingerprinting, admin review
+8. **Audit Trail:** Every payment creates `Payment` record with full transaction details
+9. **Commission Tracking:** Affiliate commissions calculated for both Stripe and dLocal (same 20% logic)
 
 ---
 
@@ -1464,7 +2162,7 @@ FLASK_API_KEY=[same as Next.js]
 
 This architecture enables:
 - ✅ **Scalability:** Serverless Next.js, independent Flask service
-- ✅ **Security:** Multi-layer validation, NextAuth.js + separate affiliate JWT, Prisma
+- ✅ **Security:** Multi-layer validation, NextAuth.js + separate affiliate JWT, Prisma, fraud detection
 - ✅ **Performance:** Server Components, edge runtime, polling, optimized indicators
 - ✅ **Maintainability:** TypeScript, OpenAPI contracts, Prisma
 - ✅ **Cost-Effectiveness:** Vercel free tier, Railway affordable, MiniMax M2 AI
@@ -1472,7 +2170,26 @@ This architecture enables:
 - ✅ **Trading Accuracy:** Advanced fractal detection with multi-point trendlines
 - ✅ **2-Sided Marketplace:** Affiliate marketing program with commission tracking
 - ✅ **Revenue Growth:** 20% commission model incentivizes partner promotion
+- ✅ **Global Payment Reach:** Dual payment providers (Stripe + dLocal for 8 emerging markets)
+- ✅ **Local Currency Support:** USD + 8 local currencies (INR, NGN, PKR, VND, IDR, THB, ZAR, TRY)
+- ✅ **Flexible Plans:** Monthly (Stripe + dLocal) + 3-day trial (dLocal only)
+- ✅ **Fraud Protection:** Multi-layer anti-abuse system with admin monitoring dashboard
 
-**Project Scale:** 17 Parts, **237 files total** (170 core + **67 affiliate/admin**)
+**Project Scale:** **18 Parts**, **289 files total** (170 core + 67 affiliate/admin + **52 dLocal payment**)
+
+**Payment Providers:**
+- **Stripe:** International cards (auto-renewal, 7-day trial, monthly only)
+- **dLocal:** Local payment methods in 8 countries (manual renewal, 3-day + monthly plans)
+
+**Supported Markets:**
+- 🌍 Global (Stripe): Visa, Mastercard, Amex (USD)
+- 🇮🇳 India: UPI, NetBanking, Cards (INR)
+- 🇳🇬 Nigeria: Bank Transfer, Mobile Money (NGN)
+- 🇵🇰 Pakistan: EasyPaisa, JazzCash (PKR)
+- 🇻🇳 Vietnam: MoMo, ZaloPay (VND)
+- 🇮🇩 Indonesia: GoPay, OVO (IDR)
+- 🇹🇭 Thailand: PromptPay, TrueMoney (THB)
+- 🇿🇦 South Africa: EFT, SnapScan (ZAR)
+- 🇹🇷 Turkey: Bank Transfer, Cards (TRY)
 
 **Next Steps:** Proceed to Phase 2 (CI/CD & Database Foundation) or Phase 3 (Autonomous Building with Aider + MiniMax M2).

@@ -1539,6 +1539,272 @@ export async function GET(req: NextRequest) {
 
 ---
 
+## 8. DLOCAL PAYMENT INTEGRATION APPROVAL CRITERIA (Part 18)
+
+### 8.1 Payment Provider Validation
+
+✅ **Auto-Approve if:**
+- MUST use single `Subscription` model with `paymentProvider` field ("STRIPE" or "DLOCAL")
+- MUST make Stripe fields nullable for dLocal subscriptions
+- MUST make dLocal fields nullable for Stripe subscriptions
+- MUST store BOTH `amount` (local currency) AND `amountUsd` for all payments
+- MUST check `paymentProvider` field before applying provider-specific logic
+
+```typescript
+// ✅ Auto-approve: Single Subscription model
+model Subscription {
+  paymentProvider String // "STRIPE" or "DLOCAL"
+
+  // Stripe fields (nullable)
+  stripeCustomerId String? @unique
+  stripePriceId String?
+
+  // dLocal fields (nullable)
+  dLocalPaymentId String? @unique
+  dLocalCurrency String?
+
+  // Shared fields
+  planType String // "MONTHLY" or "THREE_DAY"
+  amountUsd Float // Both providers
+  expiresAt DateTime // Both providers
+}
+
+// ❌ Reject: Separate models
+model StripeSubscription { ... }  // Don't create separate models
+model DLocalSubscription { ... }
+```
+
+---
+
+### 8.2 Currency Conversion
+
+✅ **Auto-Approve if:**
+- MUST convert USD → local currency ONLY for dLocal payments
+- MUST fetch real-time exchange rates (NEVER use hardcoded rates)
+- MUST store exchange rate used in Payment record for audit trail
+- MUST round converted amount to 2 decimal places
+- Stripe payments MUST remain in USD (no conversion)
+
+```typescript
+// ✅ Auto-approve: Real-time currency conversion
+const { amount, rate } = await convertUsdToLocal(29.00, 'INR');
+await prisma.payment.create({
+  data: {
+    amount: 2407.00,      // Local currency
+    currency: 'INR',
+    amountUsd: 29.00,     // USD equivalent
+    exchangeRate: 83.00   // Rate used
+  }
+});
+
+// ❌ Reject: Hardcoded exchange rates
+const amount = 29.00 * 83;  // Don't hardcode rate
+```
+
+---
+
+### 8.3 3-Day Plan Anti-Abuse
+
+✅ **Auto-Approve if:**
+- MUST check `hasUsedThreeDayPlan === false` before allowing purchase
+- MUST create `FraudAlert` if reuse attempt detected
+- MUST block 3-day purchase if active subscription exists
+- MUST mark `hasUsedThreeDayPlan = true` after successful payment
+- MUST include ipAddress and deviceFingerprint in fraud detection
+
+```typescript
+// ✅ Auto-approve: Complete 3-day plan validation
+if (planType === 'THREE_DAY') {
+  if (user.hasUsedThreeDayPlan) {
+    await prisma.fraudAlert.create({
+      data: {
+        userId: user.id,
+        alertType: '3DAY_PLAN_REUSE',
+        severity: 'MEDIUM',
+        ipAddress: req.headers.get('x-forwarded-for'),
+        deviceFingerprint: req.headers.get('x-device-fingerprint')
+      }
+    });
+    return NextResponse.json({ error: '3-day plan already used' }, { status: 403 });
+  }
+
+  // After payment success
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { hasUsedThreeDayPlan: true, threeDayPlanUsedAt: new Date() }
+  });
+}
+
+// ❌ Reject: Missing fraud alert or flag update
+if (user.hasUsedThreeDayPlan) {
+  return { error: '...' };  // Missing FraudAlert creation
+}
+```
+
+---
+
+### 8.4 Early Renewal Logic (dLocal Monthly Only)
+
+✅ **Auto-Approve if:**
+- MUST allow early renewal ONLY for dLocal monthly subscriptions
+- MUST block renewal for dLocal 3-day plans
+- MUST block renewal for Stripe subscriptions (auto-renews)
+- MUST calculate new expiry as: `current expiresAt + 30 days` (stacking)
+- MUST return clear message showing remaining days + new days
+
+```typescript
+// ✅ Auto-approve: Early renewal with day stacking
+if (subscription.paymentProvider !== 'DLOCAL') {
+  return NextResponse.json({ error: 'Stripe subscriptions auto-renew' }, { status: 400 });
+}
+
+if (subscription.planType === 'THREE_DAY') {
+  return NextResponse.json({ error: 'Cannot renew 3-day plan' }, { status: 400 });
+}
+
+const newExpiresAt = new Date(subscription.expiresAt);
+newExpiresAt.setDate(newExpiresAt.getDate() + 30);  // Stack days
+
+return NextResponse.json({
+  message: `${remainingDays} remaining + 30 new = ${remainingDays + 30} total`,
+  expiresAt: newExpiresAt
+});
+
+// ❌ Reject: Allows Stripe renewal or doesn't stack days
+if (subscription.planType === 'MONTHLY') {
+  const newExpiresAt = addDays(new Date(), 30);  // Wrong: doesn't stack
+}
+```
+
+---
+
+### 8.5 Subscription Expiry Handling
+
+✅ **Auto-Approve if:**
+- MUST check expiry ONLY for dLocal subscriptions (NOT Stripe)
+- MUST run via cron job daily at midnight UTC
+- MUST send reminder 3 days before expiry
+- MUST downgrade to FREE tier when `expiresAt < now`
+- MUST mark `renewalReminderSent = true` after sending reminder
+
+```typescript
+// ✅ Auto-approve: dLocal expiry check with reminders
+const expiringSubscriptions = await prisma.subscription.findMany({
+  where: {
+    paymentProvider: 'DLOCAL',  // Only dLocal
+    status: 'active',
+    OR: [
+      { expiresAt: { lt: now } },  // Expired
+      { expiresAt: { lt: addDays(now, 3) }, renewalReminderSent: false }
+    ]
+  }
+});
+
+for (const sub of expiringSubscriptions) {
+  if (daysUntilExpiry <= 0) {
+    // Downgrade to FREE
+    await prisma.$transaction([
+      prisma.subscription.update({ where: { id: sub.id }, data: { status: 'expired' } }),
+      prisma.user.update({ where: { id: sub.userId }, data: { tier: 'FREE' } })
+    ]);
+    await sendEmail(sub.user.email, 'Subscription Expired', {...});
+  } else if (daysUntilExpiry <= 3 && !sub.renewalReminderSent) {
+    await prisma.subscription.update({ data: { renewalReminderSent: true } });
+    await sendEmail(sub.user.email, 'Expiring Soon', {...});
+  }
+}
+
+// ❌ Reject: Checks Stripe subscriptions or missing reminder logic
+const expiringSubscriptions = await prisma.subscription.findMany({
+  where: { expiresAt: { lt: addDays(now, 3) } }  // Missing provider filter
+});
+```
+
+---
+
+### 8.6 Fraud Detection Integration
+
+✅ **Auto-Approve if:**
+- MUST call fraud detection on ALL payment operations
+- MUST create `FraudAlert` for suspicious patterns
+- MUST include severity: "LOW", "MEDIUM", or "HIGH"
+- MUST require admin review before blocking users
+- MUST keep fraud alerts for audit trail (NEVER delete)
+
+```typescript
+// ✅ Auto-approve: Comprehensive fraud detection
+const fraudAlert = await detectFraud(userId, {
+  ipAddress: req.headers.get('x-forwarded-for'),
+  deviceFingerprint: req.headers.get('x-device-fingerprint'),
+  paymentAmount: amount
+});
+
+if (fraudAlert) {
+  await prisma.fraudAlert.create({
+    data: {
+      userId,
+      alertType: fraudAlert.type,
+      severity: fraudAlert.severity,  // LOW, MEDIUM, HIGH
+      description: fraudAlert.description,
+      ipAddress: fraudAlert.ipAddress,
+      deviceFingerprint: fraudAlert.deviceFingerprint,
+      additionalData: fraudAlert.context
+    }
+  });
+
+  // Send to admin for review
+  await sendAdminNotification('New Fraud Alert', fraudAlert);
+}
+
+// ❌ Reject: Auto-blocks users or missing fraud alerts
+if (detectedFraud) {
+  await prisma.user.update({ data: { isActive: false } });  // Don't auto-block
+}
+```
+
+---
+
+### 8.7 Payment Provider Selection
+
+✅ **Auto-Approve if:**
+- MUST show dLocal option ONLY for supported countries: IN, NG, PK, VN, ID, TH, ZA, TR
+- MUST show prices in local currency for dLocal countries
+- MUST use correct currency symbols (₹, ₦, ₨, ₫, Rp, ฿, R, ₺)
+- MUST allow user to change country if geolocation wrong
+
+```typescript
+// ✅ Auto-approve: Country-based provider selection
+export const DLOCAL_COUNTRIES = ['IN', 'NG', 'PK', 'VN', 'ID', 'TH', 'ZA', 'TR'];
+
+export function getAvailableProviders(countryCode: string): PaymentProvider[] {
+  if (DLOCAL_COUNTRIES.includes(countryCode)) {
+    return ['STRIPE', 'DLOCAL'];  // Both options
+  }
+  return ['STRIPE'];  // International only
+}
+
+// Display localized pricing
+const { amount, currency, display } = getLocalizedPrice('MONTHLY', country);
+// India: ₹2,407, Nigeria: ₦12,470, etc.
+
+// ❌ Reject: Shows dLocal for all countries
+return ['STRIPE', 'DLOCAL'];  // Missing country check
+```
+
+---
+
+**Critical Rules for dLocal Integration:**
+1. ✅ Single Subscription model (both providers)
+2. ✅ Real-time currency conversion (no hardcoded rates)
+3. ✅ 3-day plan one-time use (with fraud detection)
+4. ✅ Early renewal with day stacking (dLocal monthly only)
+5. ✅ Daily expiry check (dLocal only, via cron)
+6. ✅ Fraud detection on all payment operations
+7. ✅ Country-based provider selection (8 dLocal countries)
+8. ✅ Store both local currency and USD for reporting
+
+---
+
 **If ANY Critical violated → ESCALATE immediately**
 
 ---

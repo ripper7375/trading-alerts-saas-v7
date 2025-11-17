@@ -1,6 +1,6 @@
 ## PHASE 3: AUTONOMOUS IMPLEMENTATION WITH AIDER
 ### Timeline: Weeks 3-10 (38 hours over 7 weeks)
-### Goal: Build 170 files using MiniMax M2 policy-driven autonomous development
+### Goal: Build 289 files (170 base + 67 affiliate + 52 dLocal) using MiniMax M2 policy-driven autonomous development
 
 💡 BEGINNER TIP: This is where V7 shines! You give simple commands, Aider 
 with MiniMax M2 builds autonomously. You only step in for exceptions.

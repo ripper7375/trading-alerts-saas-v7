@@ -67,6 +67,9 @@ read:
   - docs/policies/05-coding-patterns.md
   - docs/policies/06-aider-instructions.md
 
+  # Payment integration policies
+  - docs/policies/07-dlocal-integration-rules.md
+
   # Architecture and structure documentation
   - ARCHITECTURE.md
   - DOCKER.md
@@ -79,6 +82,7 @@ read:
   # OpenAPI specifications (source of truth)
   - trading_alerts_openapi.yaml
   - docs/flask_mt5_openapi.yaml
+  - docs/dlocal-openapi-endpoints.yaml
 
   # Seed code examples (reference only)
   - seed-code/market_ai_engine.py
