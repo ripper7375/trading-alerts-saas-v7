@@ -8,6 +8,8 @@ erDiagram
     User ||--o| Subscription : "has one"
     User ||--o{ ApiUsage : "generates"
     User ||--o{ Notification : "receives"
+    User ||--o{ Payment : "makes"
+    User ||--o{ FraudAlert : "triggers"
 
     User {
         string id PK
@@ -17,6 +19,10 @@ erDiagram
         datetime emailVerified
         string image
         string tier "FREE or PRO"
+        boolean hasUsedThreeDayPlan "default false"
+        datetime threeDayPlanUsedAt "nullable"
+        string lastLoginIP "nullable"
+        string deviceFingerprint "nullable"
         datetime createdAt
         datetime updatedAt
         datetime lastLogin
@@ -112,22 +118,31 @@ erDiagram
         datetime updatedAt
     }
 
-    %% SUBSCRIPTIONS (V5: 2-TIER)
+    %% SUBSCRIPTIONS (V7: DUAL PAYMENT PROVIDERS)
     Subscription ||--o| AffiliateCode : "may use"
+    Subscription ||--o{ Payment : "has payments"
 
     Subscription {
         string id PK
         string userId FK
-        string stripeCustomerId UK
-        string stripeSubscriptionId UK
-        string stripePriceId
-        datetime stripeCurrentPeriodEnd
-        string status
-        string plan
+        string paymentProvider "STRIPE or DLOCAL"
+        string stripeCustomerId UK "nullable: Stripe only"
+        string stripeSubscriptionId UK "nullable: Stripe only"
+        string stripePriceId "nullable: Stripe only"
+        datetime stripeCurrentPeriodEnd "nullable: Stripe only"
+        string dLocalPaymentId UK "nullable: dLocal only"
+        string dLocalCountry "nullable: dLocal country code"
+        string dLocalCurrency "nullable: dLocal local currency"
+        float dLocalAmount "nullable: dLocal local amount"
+        string planType "MONTHLY or THREE_DAY"
+        float amountUsd "USD amount for both providers"
+        string status "active|canceled|past_due|expired"
+        datetime expiresAt "Explicit expiry date (critical for dLocal)"
+        boolean renewalReminderSent "default false"
         datetime createdAt
         datetime updatedAt
-        datetime canceledAt
-        boolean cancelAtPeriodEnd
+        datetime canceledAt "nullable"
+        boolean cancelAtPeriodEnd "default false"
         string affiliateCodeId FK "nullable: discount code used"
         json metadata "affiliate code, discount amount, etc"
     }
@@ -260,6 +275,45 @@ erDiagram
         string changedBy "admin user ID or email"
         datetime changedAt
         string reason "nullable: why the change was made"
+    }
+
+    %% PAYMENT TRANSACTIONS (PART 18: DLOCAL INTEGRATION)
+    Payment {
+        string id PK
+        string userId FK
+        string subscriptionId FK "nullable"
+        string provider "STRIPE or DLOCAL"
+        float amount "Amount in original currency"
+        string currency "USD, INR, NGN, PKR, VND, etc"
+        float amountUsd "Amount converted to USD"
+        string providerPaymentId UK "Stripe charge ID or dLocal txn ID"
+        string providerStatus "Provider-specific status"
+        string country "nullable: User's country for dLocal"
+        string paymentMethod "nullable: card, UPI, PIX, etc"
+        string ipAddress "nullable: for fraud detection"
+        string deviceFingerprint "nullable: for fraud detection"
+        string status "pending|completed|failed|refunded"
+        datetime completedAt "nullable"
+        datetime failedAt "nullable"
+        string failedReason "nullable"
+        datetime createdAt
+        datetime updatedAt
+    }
+
+    FraudAlert {
+        string id PK
+        string userId FK
+        string alertType "3DAY_PLAN_REUSE|MULTIPLE_ACCOUNTS|SUSPICIOUS_IP"
+        string severity "LOW|MEDIUM|HIGH"
+        string description "Human-readable description"
+        datetime detectedAt
+        string ipAddress "nullable"
+        string deviceFingerprint "nullable"
+        json additionalData "nullable: flexible context"
+        string reviewedBy FK "nullable: admin user ID"
+        datetime reviewedAt "nullable"
+        string resolution "nullable: FALSE_POSITIVE|BLOCKED|WARNING_SENT"
+        string notes "nullable: admin notes"
     }
 
     %% SYSTEM LOGS
