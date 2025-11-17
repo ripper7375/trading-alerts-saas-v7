@@ -838,32 +838,188 @@ export function AlertForm() {
 
 ---
 
-## 8. FLASK MT5 SERVICE
+## 8. FLASK MT5 SERVICE - MULTI-TERMINAL ARCHITECTURE
 
-### 8.1 Separate Microservice Architecture
+### 8.1 Multi-Terminal Architecture Overview
 
-**Structure:**
+**Critical Change:** The Flask MT5 service now manages **15 separate MT5 terminals** (one per symbol) instead of a single terminal.
+
+**Why Multi-Terminal:**
+- PRO tier = 15 symbols × 9 timeframes = 135 chart combinations
+- Single MT5 terminal cannot efficiently handle 135 chart windows
+- Solution: 15 terminals × 9 charts each = distributed, manageable load
+- Fault isolation: if one terminal fails, other 14 symbols continue working
+
+**Symbol-to-Terminal Mapping:**
+```
+MT5_01 → AUDJPY     MT5_09 → NZDUSD
+MT5_02 → AUDUSD     MT5_10 → US30
+MT5_03 → BTCUSD     MT5_11 → USDCAD
+MT5_04 → ETHUSD     MT5_12 → USDCHF
+MT5_05 → EURUSD     MT5_13 → USDJPY
+MT5_06 → GBPJPY     MT5_14 → XAGUSD
+MT5_07 → GBPUSD     MT5_15 → XAUUSD
+MT5_08 → NDX100
+```
+
+**Updated Structure:**
 
 ```
 mt5-service/
 ├── app/
-│   ├── __init__.py               # Flask app factory
+│   ├── __init__.py                      # Flask app factory + pool initialization
 │   ├── routes/
 │   │   ├── __init__.py
-│   │   └── indicators.py         # /api/indicators routes
+│   │   ├── indicators.py                # /api/indicators routes (user-facing)
+│   │   └── admin_terminals.py           # /api/admin/terminals/* (admin-only)
 │   ├── services/
 │   │   ├── __init__.py
-│   │   └── mt5_connector.py      # MT5 connection logic
+│   │   ├── mt5_connection_pool.py       # Connection pool manager (NEW)
+│   │   ├── indicator_reader.py          # Reads from specific terminal (UPDATED)
+│   │   └── health_monitor.py            # Background health checks (NEW)
 │   └── middleware/
 │       ├── __init__.py
-│       └── tier_validator.py     # Tier validation middleware
-├── requirements.txt               # Python dependencies
-├── Dockerfile                     # Container config
+│       ├── auth.py                      # API key auth (standard + admin) (NEW)
+│       └── tier_validator.py            # Tier validation
+├── config/
+│   └── mt5_terminals.json               # Terminal configuration (15 terminals) (NEW)
+├── requirements.txt                     # Python dependencies
+├── Dockerfile                           # Container config
 ├── .env.example
-└── run.py                        # Entry point
+└── run.py                              # Entry point
 ```
 
 **Why separate service:** MT5 (MetaTrader 5) requires Python library (MetaTrader5 package). Next.js is JavaScript-only, so we use Flask for MT5 integration.
+
+---
+
+### 8.1.1 Connection Pool Pattern (NEW)
+
+**Rule:** All MT5 terminal connections MUST be managed through the connection pool. Never create direct MT5 connections outside the pool.
+
+**Connection Pool Responsibilities:**
+- Initialize and maintain 15 MT5 connections on startup
+- Route requests to correct terminal based on symbol
+- Monitor terminal health every 60 seconds
+- Auto-reconnect failed terminals
+- Provide health status for admin dashboard
+- Thread-safe access to connections
+
+**Implementation Pattern:**
+
+```python
+# app/services/mt5_connection_pool.py
+
+from typing import Dict, Optional
+import MetaTrader5 as mt5
+from threading import Lock
+
+class MT5Connection:
+    """Represents a single MT5 terminal connection"""
+    def __init__(self, config: dict):
+        self.id = config['id']           # e.g., "MT5_15"
+        self.symbol = config['symbol']   # e.g., "XAUUSD"
+        self.server = config['server']
+        self.login = config['login']
+        self.password = config['password']
+        self.connected = False
+        self.lock = Lock()  # Thread-safe access
+
+    def connect(self) -> bool:
+        """Connect to this specific MT5 terminal"""
+        with self.lock:
+            if not mt5.initialize():
+                return False
+
+            authorized = mt5.login(
+                login=self.login,
+                password=self.password,
+                server=self.server
+            )
+
+            if authorized:
+                self.connected = True
+                return True
+            return False
+
+    def reconnect(self) -> bool:
+        """Reconnect if connection lost"""
+        self.disconnect()
+        return self.connect()
+
+class MT5ConnectionPool:
+    """Manages pool of 15 MT5 connections"""
+    def __init__(self, config_path: str):
+        self.connections: Dict[str, MT5Connection] = {}
+        self.symbol_to_connection: Dict[str, MT5Connection] = {}
+        self._load_config(config_path)
+
+    def connect_all(self) -> tuple[int, int]:
+        """Connect to all MT5 terminals"""
+        successful = 0
+        for connection in self.connections.values():
+            if connection.connect():
+                successful += 1
+        return successful, len(self.connections)
+
+    def get_connection_by_symbol(self, symbol: str) -> Optional[MT5Connection]:
+        """Get MT5 connection for a specific symbol"""
+        connection = self.symbol_to_connection.get(symbol)
+        if connection and not connection.connected:
+            connection.reconnect()  # Auto-reconnect if disconnected
+        return connection
+
+# Global pool instance (singleton)
+_connection_pool = None
+
+def get_connection_pool() -> MT5ConnectionPool:
+    """Get global connection pool instance"""
+    global _connection_pool
+    if _connection_pool is None:
+        _connection_pool = MT5ConnectionPool('config/mt5_terminals.json')
+        _connection_pool.connect_all()
+    return _connection_pool
+```
+
+---
+
+### 8.1.2 Admin Endpoints for Terminal Management (NEW)
+
+**Rule:** Provide admin-only endpoints for monitoring and managing MT5 terminals.
+
+**Required Admin Endpoints:**
+
+```python
+# app/routes/admin_terminals.py
+
+GET  /api/admin/terminals/health           # Get health of all 15 terminals
+POST /api/admin/terminals/{id}/restart     # Restart specific terminal
+POST /api/admin/terminals/restart-all      # Restart all terminals (critical operation)
+GET  /api/admin/terminals/{id}/logs        # Get terminal logs
+GET  /api/admin/terminals/stats            # Aggregate statistics
+```
+
+**Authentication:** Admin endpoints MUST use separate admin API key (`X-Admin-API-Key`), not regular API key.
+
+**Example:**
+
+```python
+from app.middleware.auth import require_admin_api_key
+
+@admin_terminals_bp.route('/api/admin/terminals/health', methods=['GET'])
+@require_admin_api_key  # Admin-only
+def get_terminals_health():
+    """Get health status of all 15 MT5 terminals"""
+    pool = get_connection_pool()
+    health = pool.get_health_summary()
+
+    # Add admin-specific metrics
+    for symbol, connection in pool.symbol_to_connection.items():
+        health['terminals'][symbol]['uptime_percentage'] = connection.get_uptime_percentage()
+        health['terminals'][symbol]['reconnect_count'] = connection.reconnect_count
+
+    return jsonify(health), 200
+```
 
 ---
 
@@ -931,18 +1087,51 @@ indicators_bp = Blueprint('indicators', __name__)
 @indicators_bp.route('/api/indicators/<symbol>/<timeframe>', methods=['GET'])
 @validate_tier_access  # Validate tier before fetching MT5 data
 def get_indicators(symbol: str, timeframe: str):
-    """Fetch indicator data from MT5 for symbol/timeframe"""
+    """Fetch indicator data from MT5 for symbol/timeframe (MULTI-TERMINAL VERSION)"""
     try:
-        data = fetch_indicator_data(symbol, timeframe)
-        return jsonify(data), 200
+        # Get connection pool
+        pool = get_connection_pool()
+
+        # Route to correct terminal based on symbol
+        connection = pool.get_connection_by_symbol(symbol)
+
+        if connection is None:
+            return jsonify({'error': f'No terminal configured for {symbol}'}), 500
+
+        if not connection.connected:
+            return jsonify({
+                'error': f'Terminal for {symbol} is currently disconnected',
+                'terminal_id': connection.id
+            }), 503
+
+        # Fetch data using the specific terminal connection
+        data = fetch_indicator_data(connection, symbol, timeframe, bars=1000)
+
+        # Add metadata including which terminal served this request
+        data['metadata'] = {
+            'symbol': symbol,
+            'timeframe': timeframe,
+            'terminal_id': connection.id,  # Shows which MT5 was used
+            'fetchedAt': datetime.utcnow().isoformat()
+        }
+
+        return jsonify({'success': True, 'data': data}), 200
 
     except Exception as e:
+        logger.error(f"Error fetching indicator data: {e}")
         return jsonify({'error': 'Failed to fetch indicator data'}), 500
 ```
 
+**Key Changes for Multi-Terminal:**
+1. Get connection pool instance
+2. Route to correct terminal using `pool.get_connection_by_symbol(symbol)`
+3. Check if terminal is connected (return 503 if down)
+4. Pass specific connection to fetch function
+5. Include `terminal_id` in response metadata for transparency
+
 ---
 
-### 8.3 How Next.js Calls Flask
+### 8.3 How Next.js Calls Flask (UNCHANGED)
 
 ```typescript
 // lib/mt5/fetch-indicators.ts
