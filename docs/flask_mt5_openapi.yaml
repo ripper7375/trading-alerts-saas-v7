@@ -4,14 +4,23 @@ info:
   version: 5.0.0
   description: |
     MT5 integration microservice for Trading Alerts SaaS platform.
-    
-    **Purpose:** Reads indicator data from centralized MT5 terminal with custom MQL5 indicators.
-    
-    **Architecture:**
-    - Communicates with single MT5 terminal (your trading account)
-    - Reads custom indicator buffers:
+
+    **Purpose:** Reads indicator data from multiple MT5 terminals with custom MQL5 indicators.
+
+    **Architecture (Multi-Terminal):**
+    - Manages 15 MT5 terminal connections (one per symbol)
+    - Each terminal handles single symbol with all 9 timeframes
+    - Symbol-to-terminal routing handled internally
+    - Automatic connection pooling and health monitoring
+    - Reads custom indicator buffers from each terminal:
       - Fractal Horizontal Line_V5.mq5
       - Fractal Diagonal Line_V4.mq5
+
+    **Why Multiple Terminals:**
+    - PRO tier requires 135 chart combinations (15 symbols × 9 timeframes)
+    - Single MT5 cannot efficiently handle 135 chart windows
+    - Solution: 15 terminals × 9 charts each = distributed load
+    - Fault isolation: if one terminal fails, others continue working
     
     **Tier-Based Access Control:**
     - FREE tier: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1)
@@ -54,20 +63,74 @@ paths:
     get:
       tags:
         - System
-      summary: Health check
-      description: Check if MT5 service is running and connected to MT5 terminal
+      summary: Health check (all MT5 terminals)
+      description: |
+        Check if MT5 service is running and status of all 15 MT5 terminal connections.
+        Returns overall status and per-terminal connection details.
       security: []
       responses:
         '200':
-          description: Service is healthy
+          description: Service is healthy (at least 1 terminal connected)
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
+              examples:
+                all_connected:
+                  summary: All terminals connected
+                  value:
+                    status: ok
+                    version: v5.0.0
+                    total_terminals: 15
+                    connected_terminals: 15
+                    terminals:
+                      AUDJPY: { connected: true, terminal_id: MT5_01, last_check: '2025-11-17T10:30:00Z' }
+                      AUDUSD: { connected: true, terminal_id: MT5_02, last_check: '2025-11-17T10:30:00Z' }
+                      BTCUSD: { connected: true, terminal_id: MT5_03, last_check: '2025-11-17T10:30:00Z' }
+                      ETHUSD: { connected: true, terminal_id: MT5_04, last_check: '2025-11-17T10:30:00Z' }
+                      EURUSD: { connected: true, terminal_id: MT5_05, last_check: '2025-11-17T10:30:00Z' }
+                      GBPJPY: { connected: true, terminal_id: MT5_06, last_check: '2025-11-17T10:30:00Z' }
+                      GBPUSD: { connected: true, terminal_id: MT5_07, last_check: '2025-11-17T10:30:00Z' }
+                      NDX100: { connected: true, terminal_id: MT5_08, last_check: '2025-11-17T10:30:00Z' }
+                      NZDUSD: { connected: true, terminal_id: MT5_09, last_check: '2025-11-17T10:30:00Z' }
+                      US30: { connected: true, terminal_id: MT5_10, last_check: '2025-11-17T10:30:00Z' }
+                      USDCAD: { connected: true, terminal_id: MT5_11, last_check: '2025-11-17T10:30:00Z' }
+                      USDCHF: { connected: true, terminal_id: MT5_12, last_check: '2025-11-17T10:30:00Z' }
+                      USDJPY: { connected: true, terminal_id: MT5_13, last_check: '2025-11-17T10:30:00Z' }
+                      XAGUSD: { connected: true, terminal_id: MT5_14, last_check: '2025-11-17T10:30:00Z' }
+                      XAUUSD: { connected: true, terminal_id: MT5_15, last_check: '2025-11-17T10:30:00Z' }
+                partial_outage:
+                  summary: Some terminals disconnected
+                  value:
+                    status: degraded
+                    version: v5.0.0
+                    total_terminals: 15
+                    connected_terminals: 14
+                    terminals:
+                      AUDJPY: { connected: true, terminal_id: MT5_01, last_check: '2025-11-17T10:30:00Z' }
+                      AUDUSD: { connected: true, terminal_id: MT5_02, last_check: '2025-11-17T10:30:00Z' }
+                      BTCUSD: { connected: false, terminal_id: MT5_03, last_check: '2025-11-17T10:30:00Z', error: 'Connection timeout' }
+                      ETHUSD: { connected: true, terminal_id: MT5_04, last_check: '2025-11-17T10:30:00Z' }
+                      EURUSD: { connected: true, terminal_id: MT5_05, last_check: '2025-11-17T10:30:00Z' }
+                      GBPJPY: { connected: true, terminal_id: MT5_06, last_check: '2025-11-17T10:30:00Z' }
+                      GBPUSD: { connected: true, terminal_id: MT5_07, last_check: '2025-11-17T10:30:00Z' }
+                      NDX100: { connected: true, terminal_id: MT5_08, last_check: '2025-11-17T10:30:00Z' }
+                      NZDUSD: { connected: true, terminal_id: MT5_09, last_check: '2025-11-17T10:30:00Z' }
+                      US30: { connected: true, terminal_id: MT5_10, last_check: '2025-11-17T10:30:00Z' }
+                      USDCAD: { connected: true, terminal_id: MT5_11, last_check: '2025-11-17T10:30:00Z' }
+                      USDCHF: { connected: true, terminal_id: MT5_12, last_check: '2025-11-17T10:30:00Z' }
+                      USDJPY: { connected: true, terminal_id: MT5_13, last_check: '2025-11-17T10:30:00Z' }
+                      XAGUSD: { connected: true, terminal_id: MT5_14, last_check: '2025-11-17T10:30:00Z' }
+                      XAUUSD: { connected: true, terminal_id: MT5_15, last_check: '2025-11-17T10:30:00Z' }
+        '503':
+          description: Service unavailable (all terminals disconnected)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
               example:
-                status: ok
-                mt5_connected: true
-                version: v5
+                success: false
+                error: All MT5 terminals are disconnected
 
   # ============================================
   # METADATA ENDPOINTS
@@ -380,19 +443,72 @@ components:
           type: string
           enum:
             - ok
+            - degraded
             - error
-          description: Overall service status
-        mt5_connected:
-          type: boolean
-          description: Whether MT5 terminal is connected
+          description: |
+            Overall service status:
+            - ok: All terminals connected
+            - degraded: Some terminals disconnected
+            - error: All terminals disconnected
         version:
           type: string
           description: Service version identifier
-          example: v5
+          example: v5.0.0
+        total_terminals:
+          type: integer
+          description: Total number of MT5 terminals configured
+          example: 15
+        connected_terminals:
+          type: integer
+          description: Number of terminals currently connected
+          example: 15
+        terminals:
+          type: object
+          description: Per-symbol terminal connection status
+          additionalProperties:
+            $ref: '#/components/schemas/TerminalStatus'
+          example:
+            XAUUSD:
+              connected: true
+              terminal_id: MT5_15
+              last_check: '2025-11-17T10:30:00Z'
+            BTCUSD:
+              connected: false
+              terminal_id: MT5_03
+              last_check: '2025-11-17T10:30:00Z'
+              error: 'Connection timeout'
       required:
         - status
-        - mt5_connected
         - version
+        - total_terminals
+        - connected_terminals
+        - terminals
+
+    TerminalStatus:
+      type: object
+      description: Status of a single MT5 terminal connection
+      properties:
+        connected:
+          type: boolean
+          description: Whether terminal is currently connected
+          example: true
+        terminal_id:
+          type: string
+          description: Terminal identifier (MT5_01 through MT5_15)
+          example: MT5_01
+        last_check:
+          type: string
+          format: date-time
+          description: Timestamp of last health check
+          example: '2025-11-17T10:30:00Z'
+        error:
+          type: string
+          description: Error message if connection failed (only present when connected=false)
+          example: 'Connection timeout'
+      required:
+        - connected
+        - terminal_id
+        - last_check
 
     SymbolsResponse:
       type: object
