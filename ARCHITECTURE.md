@@ -98,26 +98,37 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 └────────────┬──────────────────────────┬───────────────────────────┘
             │                          │
             │                          │
-    ┌───────▼──────────────┐      ┌────────▼─────────────────┐
-    │  PostgreSQL DB   │      │  Flask MT5 Service  │
-    │   (Railway)      │      │    (Railway)        │
-    │                  │      │                     │
-    │ - Users          │      │ - MT5 Integration   │
-    │ - Alerts         │      │ - Fractal Detection │
-    │ - Watchlists     │      │ - Trendline Calc    │
-    │ - Subscriptions  │      │ - Tier Validation   │
-    │ - Affiliates     │      └─────────┬───────────┘
-    │ - AffiliateCodes │                │
-    │ - Commissions    │                │ MT5 API
-    └──────────────────┘                ▼
-                              ┌─────────────────────┐
-                              │   MT5 Terminal      │
-                              │   (VPS/Local)       │
-                              │                     │
-                              │ - Market Data       │
-                              │ - Price Feeds       │
-                              │ - Fractal Indicators│
-                              └─────────────────────┘
+    ┌───────▼──────────────┐      ┌────────▼──────────────────────┐
+    │  PostgreSQL DB   │      │  Flask MT5 Service        │
+    │   (Railway)      │      │    (Railway)              │
+    │                  │      │                           │
+    │ - Users          │      │ - MT5 Connection Pool     │
+    │ - Alerts         │      │ - Symbol Router           │
+    │ - Watchlists     │      │ - Fractal Detection       │
+    │ - Subscriptions  │      │ - Trendline Calc          │
+    │ - Affiliates     │      │ - Tier Validation         │
+    │ - AffiliateCodes │      │ - Health Monitoring       │
+    │ - Commissions    │      └────────┬──────────────────┘
+    └──────────────────┘               │ Manages 15 connections
+                                       │ (1 per symbol)
+                                       ▼
+                    ┌──────────────────────────────────────┐
+                    │   15 MT5 Terminals (VPS)             │
+                    │   Each: 1 symbol × 9 timeframes      │
+                    ├──────────────────────────────────────┤
+                    │ MT5_01 (AUDJPY)  │ MT5_09 (NZDUSD)  │
+                    │ MT5_02 (AUDUSD)  │ MT5_10 (US30)    │
+                    │ MT5_03 (BTCUSD)  │ MT5_11 (USDCAD)  │
+                    │ MT5_04 (ETHUSD)  │ MT5_12 (USDCHF)  │
+                    │ MT5_05 (EURUSD)  │ MT5_13 (USDJPY)  │
+                    │ MT5_06 (GBPJPY)  │ MT5_14 (XAGUSD)  │
+                    │ MT5_07 (GBPUSD)  │ MT5_15 (XAUUSD)  │
+                    │ MT5_08 (NDX100)  │                  │
+                    ├──────────────────────────────────────┤
+                    │ Each runs 9 chart windows:           │
+                    │ M5, M15, M30, H1, H2, H4, H8, H12, D1│
+                    │ With fractal indicators loaded       │
+                    └──────────────────────────────────────┘
 
     External Services:
     ├─ Stripe (Int'l Cards + Commissions) ─┐
@@ -724,66 +735,135 @@ model FraudAlert {
 
 ---
 
-### 4.5 Flask MT5 Service (Railway)
+### 4.5 Flask MT5 Service (Railway) - Multi-Terminal Architecture
 
 **Location:** `mt5-service/` directory
 
 **Responsibilities:**
-- Connect to MetaTrader 5 terminal
-- Fetch real-time market data
+- Manage 15 MT5 terminal connections (connection pool)
+- Route requests to correct terminal based on symbol
+- Fetch real-time market data from appropriate terminal
 - Calculate fractal indicators (using MQL5 indicators)
 - Calculate trendlines (horizontal and diagonal)
 - Validate tier access (double-check)
+- Monitor terminal health and auto-reconnect failed terminals
+- Provide admin endpoints for terminal management
 - Serve fractal data via REST API
+
+**Why Multiple Terminals:**
+- PRO tier requires 135 chart combinations (15 symbols × 9 timeframes)
+- Single MT5 terminal cannot efficiently handle 135 chart windows
+- Solution: 15 terminals × 9 charts each = distributed load (manageable)
+- Fault isolation: if one terminal fails, others continue working
+
+**Symbol-to-Terminal Mapping:**
+```
+MT5_01 → AUDJPY    MT5_09 → NZDUSD
+MT5_02 → AUDUSD    MT5_10 → US30
+MT5_03 → BTCUSD    MT5_11 → USDCAD
+MT5_04 → ETHUSD    MT5_12 → USDCHF
+MT5_05 → EURUSD    MT5_13 → USDJPY
+MT5_06 → GBPJPY    MT5_14 → XAGUSD
+MT5_07 → GBPUSD    MT5_15 → XAUUSD
+MT5_08 → NDX100
+```
 
 **Structure:**
 ```
 mt5-service/
 ├── app/
-│   ├── __init__.py              # Flask app factory
+│   ├── __init__.py                      # Flask app factory + pool initialization
 │   ├── routes/
-│   │   └── fractals.py          # /api/fractals routes
+│   │   ├── indicators.py                # /api/indicators routes (user-facing)
+│   │   └── admin_terminals.py           # /api/admin/terminals routes (admin-only)
 │   ├── services/
-│   │   ├── mt5_connector.py     # MT5 connection logic
-│   │   └── fractal_calculator.py # Fractal detection logic
+│   │   ├── mt5_connection_pool.py       # MT5 connection pool manager
+│   │   ├── indicator_reader.py          # Indicator buffer reader
+│   │   ├── fractal_calculator.py        # Fractal detection logic
+│   │   └── health_monitor.py            # Background health monitoring
 │   └── middleware/
-│       └── tier_validator.py    # Tier validation
+│       ├── auth.py                      # API key auth (standard + admin)
+│       └── tier_validator.py            # Tier validation
+├── config/
+│   └── mt5_terminals.json               # Terminal configuration (15 terminals)
 ├── indicators/
 │   ├── Fractal_Horizontal_Line_V5.mq5
 │   └── Fractal_Diagonal_Line_V4.mq5
-├── requirements.txt             # Python dependencies
-├── Dockerfile                   # Container config
+├── requirements.txt                     # Python dependencies
+├── Dockerfile                           # Container config
 ├── .env.example
-└── run.py                       # Entry point
+└── run.py                               # Entry point
 ```
 
-**Key Endpoint:**
+**Key Endpoint (Multi-Terminal):**
 ```python
-# GET /api/fractals/{symbol}/{timeframe}
-@fractals_bp.route('/api/fractals/<symbol>/<timeframe>', methods=['GET'])
+# GET /api/indicators/{symbol}/{timeframe}
+from app.services.mt5_connection_pool import get_connection_pool
+
+@indicators_bp.route('/api/indicators/<symbol>/<timeframe>', methods=['GET'])
+@require_api_key
 @validate_tier_access  # Tier validation middleware
-def get_fractals(symbol: str, timeframe: str):
-    """Fetch fractal data from MT5"""
+def get_indicators(symbol: str, timeframe: str):
+    """Fetch indicator data from appropriate MT5 terminal"""
     try:
-        # Fetch raw market data
-        ohlcv_data = fetch_mt5_data(symbol, timeframe)
-        
-        # Calculate fractals using indicator logic
-        horizontal_lines = calculate_horizontal_fractals(ohlcv_data)
-        diagonal_lines = calculate_diagonal_fractals(ohlcv_data)
-        
-        return jsonify({
+        # Get connection pool instance
+        pool = get_connection_pool()
+
+        # Route to correct terminal based on symbol
+        connection = pool.get_connection_by_symbol(symbol)
+
+        if connection is None:
+            return jsonify({'error': f'No terminal configured for {symbol}'}), 500
+
+        if not connection.connected:
+            return jsonify({
+                'error': f'Terminal for {symbol} is currently disconnected',
+                'terminal_id': connection.id
+            }), 503
+
+        # Fetch data using the specific terminal connection
+        logger.info(f"Fetching {symbol} {timeframe} from {connection.id}")
+        data = fetch_indicator_data(connection, symbol, timeframe, bars=1000)
+
+        # Add metadata including which terminal served the request
+        data['metadata'] = {
             'symbol': symbol,
             'timeframe': timeframe,
-            'horizontal_lines': horizontal_lines,
-            'diagonal_lines': diagonal_lines,
-            'metadata': {
-                'fetchedAt': datetime.utcnow().isoformat(),
-                'source': 'MT5'
-            }
+            'bars_returned': len(data.get('ohlc', [])),
+            'terminal_id': connection.id,  # Which MT5 served this request
+            'fetchedAt': datetime.utcnow().isoformat()
+        }
+
+        return jsonify({
+            'success': True,
+            'data': data
         }), 200
+
     except Exception as e:
-        return jsonify({'error': 'Failed to fetch fractal data'}), 500
+        logger.error(f"Error fetching indicator data: {e}")
+        return jsonify({'error': 'Failed to fetch data from MT5'}), 500
+```
+
+**Admin Health Endpoint:**
+```python
+# GET /api/admin/terminals/health (Admin-only)
+@admin_terminals_bp.route('/api/admin/terminals/health', methods=['GET'])
+@require_admin_api_key
+def get_terminals_health():
+    """Get health status of all 15 MT5 terminals (Admin only)"""
+    try:
+        pool = get_connection_pool()
+        health = pool.get_health_summary()
+
+        # Add admin-specific metrics
+        for symbol, connection in pool.symbol_to_connection.items():
+            if symbol in health['terminals']:
+                health['terminals'][symbol]['uptime_percentage'] = connection.get_uptime_percentage()
+                health['terminals'][symbol]['reconnect_count'] = connection.reconnect_count
+
+        return jsonify(health), 200
+    except Exception as e:
+        return jsonify({'error': 'Failed to get terminal health'}), 500
 ```
 
 **Fractal Detection:**
@@ -804,6 +884,31 @@ def get_fractals(symbol: str, timeframe: str):
 - Isolates MT5 connection from main app
 - Can scale independently
 - Easier to debug MT5-specific issues
+
+**Multi-Terminal Architecture Benefits:**
+- **Scalability:** 15 terminals × 9 charts = 135 total (vs 135 on one terminal)
+- **Performance:** Each terminal handles only 9 charts (very manageable load)
+- **Fault Tolerance:** If MT5_03 (BTCUSD) fails, other 14 symbols still work
+- **Auto-Recovery:** Health monitor automatically reconnects failed terminals
+- **Admin Visibility:** Dashboard shows real-time status of all 15 terminals
+- **Symbol Routing:** Automatic routing to correct terminal (transparent to clients)
+
+**Deployment Configuration:**
+- **Option 1 (Development):** Single VPS with 15 MT5 instances
+  - Cost: ~$80/month (32GB RAM, 8 cores)
+  - Simpler to manage
+  - Single point of failure
+
+- **Option 2 (Production - Recommended):** 3 VPS with 5 MT5 each
+  - Cost: ~$150/month (3 × $50)
+  - Fault tolerance (if one VPS fails, 10 symbols still work)
+  - Better resource distribution
+  - Professional reliability
+
+**Reference Documentation:**
+- Implementation guide: `docs/flask-multi-mt5-implementation.md`
+- Deployment strategy: `docs/mt5-terminal-mapping.md`
+- Admin dashboard: `docs/admin-mt5-dashboard-implementation.md`
 
 ---
 
