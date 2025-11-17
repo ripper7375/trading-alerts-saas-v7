@@ -51,6 +51,8 @@ tags:
     description: Indicator data retrieval (tier-gated)
   - name: Metadata
     description: Symbols and timeframes information
+  - name: Admin
+    description: Administrative endpoints for MT5 terminal management (admin-only)
 
 security:
   - ApiKeyAuth: []
@@ -326,6 +328,158 @@ paths:
                     success: false
                     error: Invalid timeframe M1. Valid options M5, M15, M30, H1, H2, H4, H8, H12, D1
 
+  # ============================================
+  # ADMIN ENDPOINTS (Terminal Management)
+  # ============================================
+  /api/admin/terminals/health:
+    get:
+      tags:
+        - Admin
+      summary: Get health status of all MT5 terminals (Admin only)
+      description: |
+        Retrieve detailed health status for all 15 MT5 terminals.
+        Includes admin-specific metrics like uptime percentage, reconnect counts, and error history.
+
+        **Authentication:** Requires admin API key via X-Admin-API-Key header
+      security:
+        - AdminApiKeyAuth: []
+      responses:
+        '200':
+          description: Terminal health data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminHealthResponse'
+        '403':
+          description: Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/terminals/{terminal_id}/restart:
+    post:
+      tags:
+        - Admin
+      summary: Restart a specific MT5 terminal (Admin only)
+      description: |
+        Restart/reconnect a specific MT5 terminal by its ID.
+        Use this when a terminal is experiencing connection issues.
+
+        **Authentication:** Requires admin API key
+      security:
+        - AdminApiKeyAuth: []
+      parameters:
+        - name: terminal_id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: MT5_15
+          description: Terminal ID (MT5_01 through MT5_15)
+      responses:
+        '200':
+          description: Terminal restarted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerminalRestartResponse'
+        '404':
+          description: Terminal not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Admin access required
+
+  /api/admin/terminals/restart-all:
+    post:
+      tags:
+        - Admin
+      summary: Restart ALL MT5 terminals (Admin only - Use with caution)
+      description: |
+        Restart/reconnect ALL 15 MT5 terminals simultaneously.
+
+        **WARNING:** This will temporarily interrupt service for all users.
+        Only use during maintenance windows or critical outages.
+
+        **Authentication:** Requires admin API key
+      security:
+        - AdminApiKeyAuth: []
+      responses:
+        '200':
+          description: Terminals restart initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestartAllResponse'
+        '403':
+          description: Admin access required
+
+  /api/admin/terminals/{terminal_id}/logs:
+    get:
+      tags:
+        - Admin
+      summary: Get recent logs for a specific terminal (Admin only)
+      description: |
+        Retrieve recent log entries for a specific MT5 terminal.
+        Useful for debugging connection issues.
+
+        **Authentication:** Requires admin API key
+      security:
+        - AdminApiKeyAuth: []
+      parameters:
+        - name: terminal_id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: MT5_15
+          description: Terminal ID (MT5_01 through MT5_15)
+        - name: lines
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+          description: Number of log lines to return
+      responses:
+        '200':
+          description: Log entries retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerminalLogsResponse'
+        '404':
+          description: Terminal not found
+        '403':
+          description: Admin access required
+
+  /api/admin/terminals/stats:
+    get:
+      tags:
+        - Admin
+      summary: Get aggregate statistics for all terminals (Admin only)
+      description: |
+        Retrieve aggregate statistics across all MT5 terminals.
+        Includes overall uptime, reconnect counts, and most problematic terminals.
+
+        **Authentication:** Requires admin API key
+      security:
+        - AdminApiKeyAuth: []
+      responses:
+        '200':
+          description: Statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerminalStatsResponse'
+        '403':
+          description: Admin access required
+
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -335,6 +489,15 @@ components:
       description: |
         API key for authenticating requests from Next.js backend.
         This service should NOT be exposed publicly - only accessed by Next.js API routes.
+
+    AdminApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Admin-API-Key
+      description: |
+        Admin API key for authenticating administrative requests.
+        Used for MT5 terminal management endpoints.
+        Separate from regular API key for enhanced security.
 
   parameters:
     SymbolPath:
@@ -824,6 +987,185 @@ components:
       required:
         - success
         - error
+
+    # ============================================
+    # ADMIN RESPONSE SCHEMAS
+    # ============================================
+    AdminHealthResponse:
+      type: object
+      description: Admin health response with additional metrics
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, error]
+        version:
+          type: string
+        total_terminals:
+          type: integer
+        connected_terminals:
+          type: integer
+        terminals:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/AdminTerminalStatus'
+      required:
+        - status
+        - version
+        - total_terminals
+        - connected_terminals
+        - terminals
+
+    AdminTerminalStatus:
+      type: object
+      description: Admin view of terminal status with additional metrics
+      properties:
+        connected:
+          type: boolean
+        terminal_id:
+          type: string
+        last_check:
+          type: string
+          format: date-time
+        error:
+          type: string
+        uptime_percentage:
+          type: number
+          description: Uptime percentage (0-100)
+        reconnect_count:
+          type: integer
+          description: Number of reconnections
+        last_error:
+          type: string
+          description: Last error message (if any)
+      required:
+        - connected
+        - terminal_id
+        - last_check
+
+    TerminalRestartResponse:
+      type: object
+      description: Response from terminal restart operation
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        terminal_id:
+          type: string
+        symbol:
+          type: string
+        connected:
+          type: boolean
+        last_error:
+          type: string
+      required:
+        - success
+        - terminal_id
+        - symbol
+
+    RestartAllResponse:
+      type: object
+      description: Response from restart all terminals operation
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        total_terminals:
+          type: integer
+        successful_restarts:
+          type: integer
+        failed_restarts:
+          type: integer
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              terminal_id:
+                type: string
+              symbol:
+                type: string
+              success:
+                type: boolean
+              error:
+                type: string
+      required:
+        - success
+        - total_terminals
+        - successful_restarts
+        - failed_restarts
+        - results
+
+    TerminalLogsResponse:
+      type: object
+      description: Terminal log entries
+      properties:
+        success:
+          type: boolean
+        terminal_id:
+          type: string
+        symbol:
+          type: string
+        logs:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+              level:
+                type: string
+                enum: [INFO, WARNING, ERROR, DEBUG]
+              message:
+                type: string
+      required:
+        - success
+        - terminal_id
+        - symbol
+        - logs
+
+    TerminalStatsResponse:
+      type: object
+      description: Aggregate statistics for all terminals
+      properties:
+        success:
+          type: boolean
+        stats:
+          type: object
+          properties:
+            total_uptime_percentage:
+              type: number
+            total_reconnects_24h:
+              type: integer
+            avg_response_time_ms:
+              type: number
+            terminals_by_status:
+              type: object
+              properties:
+                connected:
+                  type: integer
+                disconnected:
+                  type: integer
+                reconnecting:
+                  type: integer
+            most_problematic_terminals:
+              type: array
+              items:
+                type: object
+                properties:
+                  terminal_id:
+                    type: string
+                  symbol:
+                    type: string
+                  reconnect_count:
+                    type: integer
+                  uptime:
+                    type: number
+      required:
+        - success
+        - stats
 
   responses:
     Unauthorized:
