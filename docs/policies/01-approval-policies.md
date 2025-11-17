@@ -2137,6 +2137,242 @@ if (fraudCheck?.severity === 'HIGH') {
 
 ---
 
+### 8.9 Admin Fraud Management Actions
+
+✅ **Auto-Approve if:**
+- MUST verify admin role before ANY enforcement action (`session.user.role === 'ADMIN'`)
+- MUST update FraudAlert.resolution field for ALL actions
+- MUST log admin identity (reviewedBy + reviewedAt)
+- MUST send email notification for warnings, blocks, and unblocks
+- MUST require admin notes for audit trail (notes field)
+- BLOCK_ACCOUNT must downgrade user to FREE tier
+- BLOCK_ACCOUNT must cancel active subscriptions
+- BLOCK_ACCOUNT requires confirmation dialog in UI
+
+```typescript
+// ✅ Auto-approve: Admin enforcement with role check + email + audit trail
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
+  // ✅ Verify admin role
+  const session = await getServerSession();
+  if (!session || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const { action, notes, blockDuration } = await req.json();
+
+  const alert = await prisma.fraudAlert.findUnique({
+    where: { id: params.id },
+    include: { user: true }
+  });
+
+  switch (action) {
+    case 'BLOCK_ACCOUNT':
+      // ✅ Block user + downgrade + cancel subscriptions + email
+      await prisma.$transaction([
+        prisma.user.update({
+          where: { id: alert.userId },
+          data: { isActive: false, tier: 'FREE' }
+        }),
+        prisma.subscription.updateMany({
+          where: { userId: alert.userId, status: 'active' },
+          data: { status: 'canceled' }
+        }),
+        prisma.fraudAlert.update({
+          where: { id: params.id },
+          data: {
+            resolution: blockDuration === 'PERMANENT' ? 'BLOCKED_PERMANENT' : 'BLOCKED_TEMPORARY',
+            reviewedBy: session.user.id,
+            reviewedAt: new Date(),
+            notes: `${blockDuration} block. Reason: ${notes}`
+          }
+        })
+      ]);
+
+      // ✅ Send email notification
+      await sendEmail(alert.user.email, 'Account Suspended', {
+        subject: '🚫 Your account has been suspended',
+        html: `<h2>Account Suspended</h2>
+               <p>Reason: ${notes}</p>
+               <p>Duration: ${blockDuration}</p>`
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `Account blocked (${blockDuration})`
+      });
+
+    case 'SEND_WARNING':
+      // ✅ Email warning + update fraud alert
+      await prisma.fraudAlert.update({
+        where: { id: params.id },
+        data: {
+          resolution: 'WARNING_SENT',
+          reviewedBy: session.user.id,
+          reviewedAt: new Date(),
+          notes
+        }
+      });
+
+      await sendEmail(alert.user.email, 'Security Alert', {
+        subject: '⚠️ Suspicious activity detected',
+        html: `<p>${alert.description}</p><p>${notes}</p>`
+      });
+
+      return NextResponse.json({ success: true });
+
+    case 'DISMISS':
+      await prisma.fraudAlert.update({
+        where: { id: params.id },
+        data: {
+          resolution: 'FALSE_POSITIVE',
+          reviewedBy: session.user.id,
+          reviewedAt: new Date(),
+          notes
+        }
+      });
+
+      return NextResponse.json({ success: true });
+
+    case 'UNBLOCK_ACCOUNT':
+      await prisma.$transaction([
+        prisma.user.update({
+          where: { id: alert.userId },
+          data: { isActive: true }
+        }),
+        prisma.fraudAlert.update({
+          where: { id: params.id },
+          data: {
+            resolution: 'UNBLOCKED',
+            reviewedBy: session.user.id,
+            reviewedAt: new Date(),
+            notes
+          }
+        })
+      ]);
+
+      await sendEmail(alert.user.email, 'Account Restored', {
+        subject: '✅ Your account has been restored',
+        html: `<p>Your account has been restored. ${notes}</p>`
+      });
+
+      return NextResponse.json({ success: true });
+  }
+}
+```
+
+**Admin Dashboard UI:**
+```typescript
+// ✅ Auto-approve: Filters, action buttons, confirmation dialogs, notes required
+export default function FraudAlertsDashboard() {
+  const { data: session } = useSession();
+
+  // ✅ Redirect if not admin
+  if (session?.user?.role !== 'ADMIN') {
+    redirect('/dashboard');
+  }
+
+  const handleAction = async (alertId: string, action: string, blockDuration?: string) => {
+    // ✅ Require notes for non-dismiss actions
+    if (!actionNotes.trim() && action !== 'DISMISS') {
+      alert('Please add notes explaining your decision');
+      return;
+    }
+
+    // ✅ Confirmation for destructive actions
+    if (action === 'BLOCK_ACCOUNT') {
+      if (!confirm(`Are you sure you want to BLOCK this user's account?`)) {
+        return;
+      }
+    }
+
+    const response = await fetch(`/api/admin/fraud-alerts/${alertId}/actions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, notes: actionNotes, blockDuration })
+    });
+
+    if (response.ok) {
+      alert('Action completed successfully');
+      fetchAlerts();  // Refresh list
+    }
+  };
+
+  return (
+    <div>
+      {/* Filters: status, severity, date */}
+      {/* Alert list with details */}
+      {/* Action modal with buttons and notes field */}
+    </div>
+  );
+}
+```
+
+🚨 **ESCALATE if:**
+- Admin role check missing or incorrect
+- Email notification skipped for warnings/blocks/unblocks
+- Admin notes not required for actions
+- FraudAlert.resolution not updated
+- Block action doesn't downgrade user to FREE
+- Block action doesn't cancel subscriptions
+- No confirmation dialog for BLOCK_ACCOUNT
+- reviewedBy or reviewedAt not logged
+
+❌ **REJECT if:**
+```typescript
+// ❌ Reject: Missing admin role check
+export async function POST(req: NextRequest) {
+  const { action } = await req.json();
+  // No admin verification!
+  await prisma.fraudAlert.update({ /* ... */ });
+}
+
+// ❌ Reject: No email notification for block
+case 'BLOCK_ACCOUNT':
+  await prisma.user.update({ data: { isActive: false } });
+  // Missing: sendEmail()
+  return NextResponse.json({ success: true });
+
+// ❌ Reject: Block doesn't cancel subscriptions
+case 'BLOCK_ACCOUNT':
+  await prisma.user.update({
+    where: { id: userId },
+    data: { isActive: false }
+  });
+  // Missing: cancel subscriptions
+  return NextResponse.json({ success: true });
+
+// ❌ Reject: No notes required
+const handleAction = async (alertId, action) => {
+  // Missing: notes validation
+  await fetch(`/api/admin/fraud-alerts/${alertId}/actions`, {
+    body: JSON.stringify({ action })  // No notes!
+  });
+};
+
+// ❌ Reject: No confirmation dialog for block
+<button onClick={() => handleAction(alert.id, 'BLOCK_ACCOUNT')}>
+  Block Account
+</button>
+// Missing: confirm() dialog before blocking
+```
+
+**Expected Admin Workflow:**
+1. Admin sees fraud alert notification (email or dashboard badge)
+2. Admin opens fraud alert dashboard
+3. Admin filters by severity (HIGH priority first)
+4. Admin clicks "Take Action" on alert
+5. Admin reviews user details, IP data, trial usage history
+6. Admin enters notes explaining decision
+7. Admin selects action (Dismiss/Warning/Block/Unblock/Whitelist)
+8. System shows confirmation dialog (for destructive actions)
+9. System executes action (database updates + email notification)
+10. Alert marked as resolved with admin identity logged
+
+---
+
 **Critical Rules for Payment Integration:**
 
 **dLocal Integration:**
@@ -2158,6 +2394,14 @@ if (fraudCheck?.severity === 'HIGH') {
 14. ✅ One trial per user (hasUsedStripeTrial flag)
 15. ✅ Capture signupIP + deviceFingerprint at registration
 16. ✅ Create FraudAlert for all suspicious activity
+
+**Admin Fraud Management:**
+17. ✅ Verify admin role before enforcement actions
+18. ✅ Block action = downgrade to FREE + cancel subscriptions + send email
+19. ✅ Require admin notes for all actions (audit trail)
+20. ✅ Send email notifications for warnings/blocks/unblocks
+21. ✅ Confirmation dialog required for BLOCK_ACCOUNT
+22. ✅ Log admin identity (reviewedBy + reviewedAt)
 
 ---
 

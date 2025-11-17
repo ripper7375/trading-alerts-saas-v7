@@ -3041,6 +3041,169 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
 
 ---
 
+### 14.10 Admin Fraud Management Actions
+
+**Rule:** Admins must have comprehensive enforcement capabilities to manage fraud alerts beyond just reviewing them.
+
+**Why this matters:** Detection without action is useless. Admins need tools to block abusers, warn users, whitelist trusted users, and maintain audit trails.
+
+**Available Admin Actions:**
+1. **DISMISS (False Positive)** - Alert was incorrect, no enforcement needed
+2. **SEND_WARNING** - Email user about suspicious activity (soft warning)
+3. **BLOCK_ACCOUNT (Temporary/Permanent)** - Disable user account and downgrade to FREE
+4. **UNBLOCK_ACCOUNT** - Restore previously blocked user
+5. **WHITELIST_USER** - Mark user as trusted (future fraud checks bypass)
+
+**Admin Enforcement Endpoint:**
+```typescript
+// app/api/admin/fraud-alerts/[id]/actions/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { prisma } from '@/lib/prisma';
+import { sendEmail } from '@/lib/email';
+
+type AdminAction = 'DISMISS' | 'SEND_WARNING' | 'BLOCK_ACCOUNT' | 'UNBLOCK_ACCOUNT' | 'WHITELIST_USER';
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
+  // ✅ Verify admin role
+  const session = await getServerSession();
+  if (!session || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const { action, notes, blockDuration } = await req.json();
+
+  const alert = await prisma.fraudAlert.findUnique({
+    where: { id: params.id },
+    include: { user: true }
+  });
+
+  switch (action) {
+    case 'BLOCK_ACCOUNT':
+      // ✅ Block user + downgrade tier + cancel subscriptions
+      await prisma.$transaction([
+        prisma.user.update({
+          where: { id: alert.userId },
+          data: { isActive: false, tier: 'FREE' }
+        }),
+        prisma.subscription.updateMany({
+          where: { userId: alert.userId, status: 'active' },
+          data: { status: 'canceled' }
+        }),
+        prisma.fraudAlert.update({
+          where: { id: params.id },
+          data: {
+            resolution: blockDuration === 'PERMANENT' ? 'BLOCKED_PERMANENT' : 'BLOCKED_TEMPORARY',
+            reviewedBy: session.user.id,
+            reviewedAt: new Date(),
+            notes: `${blockDuration} block. Reason: ${notes}`
+          }
+        })
+      ]);
+
+      // ✅ Send email notification
+      await sendEmail(alert.user.email, 'Account Suspended', {
+        subject: '🚫 Your account has been suspended',
+        html: `Account suspended. Reason: ${notes}. Duration: ${blockDuration}.`
+      });
+
+      return NextResponse.json({ success: true, message: `Account blocked (${blockDuration})` });
+
+    case 'SEND_WARNING':
+      // ✅ Email warning + update fraud alert
+      await prisma.fraudAlert.update({
+        where: { id: params.id },
+        data: {
+          resolution: 'WARNING_SENT',
+          reviewedBy: session.user.id,
+          reviewedAt: new Date(),
+          notes
+        }
+      });
+
+      await sendEmail(alert.user.email, 'Security Alert', {
+        subject: '⚠️ Suspicious activity detected',
+        html: `We detected: ${alert.description}. Action required: ${notes}.`
+      });
+
+      return NextResponse.json({ success: true, message: 'Warning email sent' });
+
+    // ... other actions (DISMISS, UNBLOCK_ACCOUNT, WHITELIST_USER)
+  }
+}
+```
+
+**Admin Dashboard UI Requirements:**
+- **Filters:** Status (pending/resolved), Severity (HIGH/MEDIUM/LOW), Date range
+- **Alert Details:** User info, fraud type, IP/device data, trial usage history
+- **Action Buttons:** Dismiss, Send Warning, Block (Temp), Block (Perm), Whitelist
+- **Confirmation Dialogs:** Required for destructive actions (blocking)
+- **Notes Field:** Mandatory for all actions (audit trail)
+- **Real-time Updates:** Alerts refresh after action taken
+
+**Critical Rules:**
+- ✅ Verify admin role before ANY action (check `session.user.role === 'ADMIN'`)
+- ✅ Block action must downgrade user to FREE tier AND cancel subscriptions
+- ✅ Send email notification for EVERY enforcement action (warning/block/unblock)
+- ✅ Require admin notes for audit trail (notes field mandatory)
+- ✅ Update FraudAlert.resolution field with specific resolution type
+- ✅ Log admin who performed action (reviewedBy + reviewedAt)
+- ✅ Confirmation dialog required for BLOCK_ACCOUNT action
+- ❌ NEVER allow user to appeal via UI (must contact support)
+- ❌ NEVER skip email notification (user must know why they're blocked)
+- ❌ NEVER allow blocking without notes (audit trail essential)
+
+**Enforcement Impact:**
+
+| Action | User Impact | Database Changes | Email Sent |
+|--------|-------------|------------------|------------|
+| **DISMISS** | None | FraudAlert.resolution = 'FALSE_POSITIVE' | No |
+| **SEND_WARNING** | Warning email received | FraudAlert.resolution = 'WARNING_SENT' | Yes |
+| **BLOCK_ACCOUNT** | Login disabled, tier = FREE | User.isActive = false, Subscription.status = 'canceled' | Yes |
+| **UNBLOCK_ACCOUNT** | Access restored | User.isActive = true | Yes |
+| **WHITELIST_USER** | Future alerts bypassed | FraudAlert.resolution = 'WHITELISTED' | No |
+
+**Admin Audit Trail:**
+```prisma
+model FraudAlert {
+  // ... existing fields
+  resolution        String?   // Resolution type
+  reviewedBy        String?   // Admin user ID
+  reviewedAt        DateTime? // When admin acted
+  notes             String?   // Admin decision reasoning
+}
+```
+
+**Email Templates:**
+
+1. **Warning Email:**
+   - Subject: "⚠️ Suspicious activity detected on your account"
+   - Content: Alert type, description, admin notes, action required
+   - CTA: "Contact support if this wasn't you"
+
+2. **Block Email:**
+   - Subject: "🚫 Your account has been suspended"
+   - Content: Block reason, duration (temporary/permanent), support email
+   - CTA: "Contact support@tradingalerts.com if you believe this is a mistake"
+
+3. **Unblock Email:**
+   - Subject: "✅ Your account has been restored"
+   - Content: Account restored message, warning to follow terms of service
+   - CTA: "Login to dashboard"
+
+**Admin Metrics to Track:**
+- Total fraud alerts created
+- Alerts by severity (HIGH/MEDIUM/LOW)
+- Resolution breakdown (dismissed/warned/blocked)
+- Average admin review time
+- Block rate (% of alerts resulting in blocks)
+- False positive rate (dismissed alerts)
+
+---
+
 ## Summary of Architecture Rules
 
 ✅ **DO:**
@@ -3070,6 +3233,10 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
 - **Stripe Trial:** Check trial expiry every 6 hours (cron job)
 - **Stripe Trial:** Capture signupIP + deviceFingerprint at registration
 - **Stripe Trial:** Block HIGH severity fraud immediately, flag MEDIUM for admin review
+- **Admin Fraud Actions:** Verify admin role before ANY enforcement action
+- **Admin Fraud Actions:** Block user = downgrade to FREE + cancel subscriptions + send email
+- **Admin Fraud Actions:** Require admin notes for ALL actions (audit trail)
+- **Admin Fraud Actions:** Send email notification for warnings, blocks, and unblocks
 
 ❌ **DON'T:**
 - Manually define types that exist in OpenAPI
@@ -3095,5 +3262,9 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
 - **Stripe Trial:** Allow users to start trial twice (check hasUsedStripeTrial flag)
 - **Stripe Trial:** Skip fraud detection at registration
 - **Stripe Trial:** Use single-signal detection (email-only checks are insufficient)
+- **Admin Fraud Actions:** Allow non-admin users to perform enforcement actions
+- **Admin Fraud Actions:** Block users without sending email notification
+- **Admin Fraud Actions:** Skip admin notes (audit trail required)
+- **Admin Fraud Actions:** Allow blocking without confirmation dialog
 
 **Why these rules matter:** Consistent architecture makes the codebase navigable, maintainable, and secure. Following these patterns across all 289 files (including dual payment providers and affiliate system) ensures quality at scale.

@@ -2588,6 +2588,564 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
 
 ---
 
+### Step 7: Admin Fraud Management Actions
+
+**File:** `app/api/admin/fraud-alerts/[id]/actions/route.ts`
+
+Admin dashboard needs comprehensive enforcement capabilities beyond just reviewing alerts:
+
+**Available Admin Actions:**
+1. **Dismiss (False Positive)** - Alert was incorrect, no action needed
+2. **Send Warning Email** - Alert user about suspicious activity
+3. **Block Account** - Temporarily or permanently disable user account
+4. **Unblock Account** - Restore access to previously blocked user
+5. **Whitelist User** - Prevent future alerts for this user (trusted)
+6. **Add Notes** - Document decision reasoning for audit trail
+
+```typescript
+// app/api/admin/fraud-alerts/[id]/actions/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { prisma } from '@/lib/prisma';
+import { sendEmail } from '@/lib/email';
+
+type AdminAction =
+  | 'DISMISS'           // False positive
+  | 'SEND_WARNING'      // Email warning to user
+  | 'BLOCK_ACCOUNT'     // Disable user account
+  | 'UNBLOCK_ACCOUNT'   // Restore user account
+  | 'WHITELIST_USER';   // Trust user (no future alerts)
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+): Promise<NextResponse> {
+  // ✅ Verify admin authentication
+  const session = await getServerSession();
+  if (!session || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  const { action, notes, blockDuration } = await req.json() as {
+    action: AdminAction;
+    notes: string;
+    blockDuration?: 'TEMPORARY' | 'PERMANENT';
+  };
+
+  // Fetch fraud alert with user details
+  const alert = await prisma.fraudAlert.findUnique({
+    where: { id: params.id },
+    include: { user: true }
+  });
+
+  if (!alert) {
+    return NextResponse.json({ error: 'Fraud alert not found' }, { status: 404 });
+  }
+
+  // Execute admin action
+  switch (action) {
+    case 'DISMISS':
+      await prisma.fraudAlert.update({
+        where: { id: params.id },
+        data: {
+          resolution: 'FALSE_POSITIVE',
+          reviewedBy: session.user.id,
+          reviewedAt: new Date(),
+          notes
+        }
+      });
+      return NextResponse.json({
+        success: true,
+        message: 'Alert dismissed as false positive'
+      });
+
+    case 'SEND_WARNING':
+      // Update fraud alert
+      await prisma.fraudAlert.update({
+        where: { id: params.id },
+        data: {
+          resolution: 'WARNING_SENT',
+          reviewedBy: session.user.id,
+          reviewedAt: new Date(),
+          notes
+        }
+      });
+
+      // Send warning email to user
+      await sendEmail(alert.user.email, 'Security Alert', {
+        subject: '⚠️ Suspicious activity detected on your account',
+        html: `
+          <h2>Security Alert</h2>
+          <p>Dear ${alert.user.name},</p>
+          <p>We detected suspicious activity on your account:</p>
+          <ul>
+            <li><strong>Alert Type:</strong> ${alert.alertType}</li>
+            <li><strong>Detected:</strong> ${alert.detectedAt.toLocaleDateString()}</li>
+            <li><strong>Description:</strong> ${alert.description}</li>
+          </ul>
+          <p><strong>Action Required:</strong></p>
+          <p>${notes}</p>
+          <p>If this was you, no further action is needed. If you did not perform this activity, please contact support immediately.</p>
+          <p>Best regards,<br>Security Team</p>
+        `
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Warning email sent to user'
+      });
+
+    case 'BLOCK_ACCOUNT':
+      // Block user account
+      await prisma.$transaction([
+        // Update user account
+        prisma.user.update({
+          where: { id: alert.userId },
+          data: {
+            isActive: false,
+            tier: 'FREE'  // Downgrade to FREE when blocked
+          }
+        }),
+        // Expire active subscriptions
+        prisma.subscription.updateMany({
+          where: {
+            userId: alert.userId,
+            status: 'active'
+          },
+          data: { status: 'canceled' }
+        }),
+        // Update fraud alert
+        prisma.fraudAlert.update({
+          where: { id: params.id },
+          data: {
+            resolution: blockDuration === 'PERMANENT' ? 'BLOCKED_PERMANENT' : 'BLOCKED_TEMPORARY',
+            reviewedBy: session.user.id,
+            reviewedAt: new Date(),
+            notes: `${blockDuration || 'PERMANENT'} block. Reason: ${notes}`
+          }
+        })
+      ]);
+
+      // Send account blocked email
+      await sendEmail(alert.user.email, 'Account Suspended', {
+        subject: '🚫 Your account has been suspended',
+        html: `
+          <h2>Account Suspended</h2>
+          <p>Dear ${alert.user.name},</p>
+          <p>Your account has been suspended due to suspicious activity.</p>
+          <p><strong>Reason:</strong> ${notes}</p>
+          <p><strong>Duration:</strong> ${blockDuration || 'Permanent'}</p>
+          <p>If you believe this is a mistake, please contact support at support@tradingalerts.com</p>
+        `
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `Account blocked (${blockDuration || 'PERMANENT'})`
+      });
+
+    case 'UNBLOCK_ACCOUNT':
+      // Unblock user account
+      await prisma.$transaction([
+        prisma.user.update({
+          where: { id: alert.userId },
+          data: { isActive: true }
+        }),
+        prisma.fraudAlert.update({
+          where: { id: params.id },
+          data: {
+            resolution: 'UNBLOCKED',
+            reviewedBy: session.user.id,
+            reviewedAt: new Date(),
+            notes: `Account unblocked. ${notes}`
+          }
+        })
+      ]);
+
+      // Send account restored email
+      await sendEmail(alert.user.email, 'Account Restored', {
+        subject: '✅ Your account has been restored',
+        html: `
+          <h2>Account Restored</h2>
+          <p>Dear ${alert.user.name},</p>
+          <p>Your account has been restored and you can now access Trading Alerts.</p>
+          <p><strong>Note:</strong> ${notes}</p>
+          <p>Please ensure you follow our terms of service to avoid future suspensions.</p>
+        `
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Account unblocked successfully'
+      });
+
+    case 'WHITELIST_USER':
+      // Add user to whitelist (trusted users don't trigger future alerts)
+      await prisma.$transaction([
+        // Mark user as whitelisted (you'll need to add this field to User model)
+        prisma.user.update({
+          where: { id: alert.userId },
+          data: {
+            // Add a metadata field or create a Whitelist table
+            // For now, we'll use notes in FraudAlert
+          }
+        }),
+        prisma.fraudAlert.update({
+          where: { id: params.id },
+          data: {
+            resolution: 'WHITELISTED',
+            reviewedBy: session.user.id,
+            reviewedAt: new Date(),
+            notes: `User whitelisted (trusted). ${notes}`
+          }
+        })
+      ]);
+
+      return NextResponse.json({
+        success: true,
+        message: 'User whitelisted successfully'
+      });
+
+    default:
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+  }
+}
+```
+
+---
+
+### Step 8: Admin Fraud Dashboard UI
+
+**File:** `app/(admin)/fraud-alerts/page.tsx`
+
+Frontend dashboard for admins to review and manage fraud alerts:
+
+```typescript
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
+
+interface FraudAlert {
+  id: string;
+  alertType: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH';
+  description: string;
+  detectedAt: string;
+  ipAddress: string | null;
+  deviceFingerprint: string | null;
+  resolution: string | null;
+  reviewedBy: string | null;
+  reviewedAt: string | null;
+  notes: string | null;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    createdAt: string;
+    hasUsedStripeTrial: boolean;
+    hasUsedThreeDayPlan: boolean;
+  };
+}
+
+export default function FraudAlertsDashboard() {
+  const { data: session, status } = useSession();
+  const [alerts, setAlerts] = useState<FraudAlert[]>([]);
+  const [filter, setFilter] = useState<'all' | 'pending' | 'resolved'>('pending');
+  const [severityFilter, setSeverityFilter] = useState<'all' | 'HIGH' | 'MEDIUM' | 'LOW'>('all');
+  const [selectedAlert, setSelectedAlert] = useState<FraudAlert | null>(null);
+  const [actionNotes, setActionNotes] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect if not admin
+  useEffect(() => {
+    if (status === 'unauthenticated' || (session && session.user.role !== 'ADMIN')) {
+      redirect('/dashboard');
+    }
+  }, [session, status]);
+
+  // Fetch fraud alerts
+  useEffect(() => {
+    fetchAlerts();
+  }, [filter, severityFilter]);
+
+  const fetchAlerts = async () => {
+    const params = new URLSearchParams();
+    if (filter !== 'all') {
+      params.set('reviewed', filter === 'resolved' ? 'true' : 'false');
+    }
+    if (severityFilter !== 'all') {
+      params.set('severity', severityFilter);
+    }
+
+    const response = await fetch(`/api/admin/fraud-alerts?${params.toString()}`);
+    const data = await response.json();
+    setAlerts(data);
+  };
+
+  const handleAction = async (alertId: string, action: string, blockDuration?: string) => {
+    if (!actionNotes.trim() && action !== 'DISMISS') {
+      alert('Please add notes explaining your decision');
+      return;
+    }
+
+    if (action === 'BLOCK_ACCOUNT') {
+      if (!confirm(`Are you sure you want to BLOCK this user's account?`)) {
+        return;
+      }
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`/api/admin/fraud-alerts/${alertId}/actions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          notes: actionNotes,
+          blockDuration
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert(result.message);
+        setActionNotes('');
+        setSelectedAlert(null);
+        fetchAlerts();
+      } else {
+        alert(`Error: ${result.error}`);
+      }
+    } catch (error) {
+      alert('Failed to perform action');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'HIGH': return 'bg-red-100 text-red-800 border-red-300';
+      case 'MEDIUM': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 'LOW': return 'bg-blue-100 text-blue-800 border-blue-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+
+  return (
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Fraud Alert Dashboard</h1>
+
+      {/* Filters */}
+      <div className="mb-6 flex gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-2">Status</label>
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as any)}
+            className="border rounded px-3 py-2"
+          >
+            <option value="all">All Alerts</option>
+            <option value="pending">Pending Review</option>
+            <option value="resolved">Resolved</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-2">Severity</label>
+          <select
+            value={severityFilter}
+            onChange={(e) => setSeverityFilter(e.target.value as any)}
+            className="border rounded px-3 py-2"
+          >
+            <option value="all">All Severities</option>
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="LOW">Low</option>
+          </select>
+        </div>
+
+        <div className="flex items-end">
+          <button
+            onClick={fetchAlerts}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      {/* Alerts List */}
+      <div className="space-y-4">
+        {alerts.length === 0 ? (
+          <div className="text-center py-12 text-gray-500">
+            No fraud alerts found
+          </div>
+        ) : (
+          alerts.map((alert) => (
+            <div
+              key={alert.id}
+              className={`border rounded-lg p-4 ${
+                alert.resolution ? 'bg-gray-50' : 'bg-white'
+              }`}
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getSeverityColor(alert.severity)}`}>
+                      {alert.severity}
+                    </span>
+                    <span className="text-sm text-gray-600">
+                      {new Date(alert.detectedAt).toLocaleString()}
+                    </span>
+                    {alert.resolution && (
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-300">
+                        {alert.resolution}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="font-bold text-lg mb-2">{alert.alertType}</h3>
+                  <p className="text-gray-700 mb-3">{alert.description}</p>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <strong>User:</strong> {alert.user.name} ({alert.user.email})
+                    </div>
+                    <div>
+                      <strong>Account Created:</strong>{' '}
+                      {new Date(alert.user.createdAt).toLocaleDateString()}
+                    </div>
+                    <div>
+                      <strong>Stripe Trial Used:</strong>{' '}
+                      {alert.user.hasUsedStripeTrial ? 'Yes' : 'No'}
+                    </div>
+                    <div>
+                      <strong>3-Day Plan Used:</strong>{' '}
+                      {alert.user.hasUsedThreeDayPlan ? 'Yes' : 'No'}
+                    </div>
+                    {alert.ipAddress && (
+                      <div>
+                        <strong>IP Address:</strong> {alert.ipAddress}
+                      </div>
+                    )}
+                    {alert.deviceFingerprint && (
+                      <div>
+                        <strong>Device:</strong>{' '}
+                        {alert.deviceFingerprint.substring(0, 16)}...
+                      </div>
+                    )}
+                  </div>
+
+                  {alert.notes && (
+                    <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                      <strong>Admin Notes:</strong> {alert.notes}
+                    </div>
+                  )}
+                </div>
+
+                {!alert.resolution && (
+                  <button
+                    onClick={() => setSelectedAlert(alert)}
+                    className="ml-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  >
+                    Take Action
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Action Modal */}
+      {selectedAlert && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold mb-4">Take Action on Fraud Alert</h2>
+
+            <div className="mb-4 p-4 bg-gray-100 rounded">
+              <p><strong>Alert:</strong> {selectedAlert.alertType}</p>
+              <p><strong>User:</strong> {selectedAlert.user.email}</p>
+              <p><strong>Description:</strong> {selectedAlert.description}</p>
+            </div>
+
+            <div className="mb-4">
+              <label className="block font-medium mb-2">Admin Notes (Required)</label>
+              <textarea
+                value={actionNotes}
+                onChange={(e) => setActionNotes(e.target.value)}
+                className="w-full border rounded p-2"
+                rows={4}
+                placeholder="Explain your decision and reasoning..."
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => handleAction(selectedAlert.id, 'DISMISS')}
+                disabled={isLoading}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 disabled:opacity-50"
+              >
+                Dismiss (False Positive)
+              </button>
+
+              <button
+                onClick={() => handleAction(selectedAlert.id, 'SEND_WARNING')}
+                disabled={isLoading}
+                className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 disabled:opacity-50"
+              >
+                Send Warning Email
+              </button>
+
+              <button
+                onClick={() => handleAction(selectedAlert.id, 'BLOCK_ACCOUNT', 'TEMPORARY')}
+                disabled={isLoading}
+                className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 disabled:opacity-50"
+              >
+                Block Account (Temporary)
+              </button>
+
+              <button
+                onClick={() => handleAction(selectedAlert.id, 'BLOCK_ACCOUNT', 'PERMANENT')}
+                disabled={isLoading}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 disabled:opacity-50"
+              >
+                Block Account (Permanent)
+              </button>
+
+              <button
+                onClick={() => handleAction(selectedAlert.id, 'WHITELIST_USER')}
+                disabled={isLoading}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
+              >
+                Whitelist User (Trusted)
+              </button>
+
+              <button
+                onClick={() => {
+                  setSelectedAlert(null);
+                  setActionNotes('');
+                }}
+                disabled={isLoading}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+---
+
 **Key Points:**
 - NO credit card required for trial start (maximizes conversion ~40-60%)
 - 4 independent fraud signals (IP, device, email, velocity)
@@ -2597,12 +3155,18 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
 - Cron job every 6 hours (more frequent than dLocal daily check)
 - Client-side fingerprinting using browser characteristics
 - SHA-256 hash for device fingerprint (privacy-friendly)
+- **Admin Actions:** Dismiss, Send Warning, Block (Temp/Perm), Unblock, Whitelist
+- **Email Notifications:** Automated emails for warnings, blocks, and account restoration
+- **Audit Trail:** All admin actions logged with notes and timestamps
+- **User Impact:** Blocked users lose access + downgrade to FREE tier
 
 **Expected Metrics:**
 - **Conversion Rate:** 40-60% (vs 5-10% with card requirement)
 - **Fraud Detection:** 4 signals reduce abuse by 85-90%
 - **False Positive Rate:** <5% (admin review workflow)
 - **Admin Overhead:** 2-5 fraud alerts per day (manageable)
+- **Admin Review Time:** ~2-3 minutes per alert
+- **Block Rate:** ~5-10% of flagged alerts result in blocks
 
 ---
 
