@@ -1,11 +1,13 @@
 openapi: 3.0.3
 info:
   title: Trading Alerts SaaS API
-  version: 7.0.0
+  version: 7.1.0
   description: |
     Commercial SaaS platform for trading alerts and signal generation with real-time chart visualization.
 
     **Architecture:** Next.js 15 + Flask MT5 Microservice + Dual Payment Providers
+
+    **Authentication:** NextAuth.js v4 with Google OAuth + Email/Password (JWT sessions)
 
     **Tier System:**
     - FREE: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1) = 15 combinations
@@ -239,6 +241,160 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
+  # ============================================
+  # OAUTH AUTHENTICATION ENDPOINTS
+  # ============================================
+  /api/auth/signin/google:
+    post:
+      tags:
+        - Authentication
+      summary: Initiate Google OAuth sign-in
+      description: |
+        Redirects user to Google OAuth consent screen for authentication.
+        On successful authentication, user is redirected back to /api/auth/callback/google.
+
+        **Account Linking Strategy:** Verified-only linking (security-first)
+        - If email exists and verified → link accounts
+        - If email exists but unverified → reject (prevents account takeover)
+        - If email doesn't exist → create new user with FREE tier
+      security: []
+      responses:
+        '302':
+          description: Redirect to Google OAuth consent screen
+          headers:
+            Location:
+              schema:
+                type: string
+                format: uri
+                example: https://accounts.google.com/o/oauth2/v2/auth?...
+        '500':
+          description: OAuth initialization failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/callback/google:
+    get:
+      tags:
+        - Authentication
+      summary: Google OAuth callback handler
+      description: |
+        Handles OAuth callback from Google after user authentication.
+        Creates or links user account based on verified-only strategy.
+
+        **New User Flow:**
+        - Creates user with Google profile data
+        - Sets emailVerified to current timestamp
+        - Sets password to null (OAuth-only user)
+        - Assigns FREE tier by default
+        - Creates Account record linking Google provider
+
+        **Existing User Flow:**
+        - If emailVerified is null → reject (security)
+        - If emailVerified exists → link Google account
+        - Update profile picture from Google if user's image is null
+      security: []
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: OAuth authorization code from Google
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+          description: CSRF protection state parameter
+      responses:
+        '302':
+          description: Redirect to application dashboard after successful authentication
+          headers:
+            Location:
+              schema:
+                type: string
+                example: /dashboard
+            Set-Cookie:
+              schema:
+                type: string
+                description: NextAuth JWT session cookie
+        '400':
+          description: Invalid OAuth callback parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                account_takeover_prevented:
+                  value:
+                    error: Account linking rejected
+                    message: Cannot link to unverified email account. Please verify your email first.
+                invalid_code:
+                  value:
+                    error: Invalid authorization code
+                    message: OAuth callback failed
+        '500':
+          description: OAuth callback processing failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/providers:
+    get:
+      tags:
+        - Authentication
+      summary: Get available authentication providers
+      description: |
+        Returns list of configured authentication providers.
+        Used by login page to display available sign-in options.
+      security: []
+      responses:
+        '200':
+          description: List of available providers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  providers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          enum: [google, credentials]
+                          example: google
+                        name:
+                          type: string
+                          example: Google
+                        type:
+                          type: string
+                          enum: [oauth, credentials]
+                        signinUrl:
+                          type: string
+                          example: /api/auth/signin/google
+                        callbackUrl:
+                          type: string
+                          example: /api/auth/callback/google
+              examples:
+                providers_list:
+                  value:
+                    providers:
+                      - id: google
+                        name: Google
+                        type: oauth
+                        signinUrl: /api/auth/signin/google
+                        callbackUrl: /api/auth/callback/google
+                      - id: credentials
+                        name: Email/Password
+                        type: credentials
+                        signinUrl: /api/auth/login
+                        callbackUrl: /api/auth/callback/credentials
 
   # ============================================
   # INDICATORS ENDPOINTS (TIER-GATED)
@@ -2687,12 +2843,18 @@ components:
         image:
           type: string
           nullable: true
+          description: Profile picture URL (from Google OAuth or user upload)
         tier:
           $ref: '#/components/schemas/UserTier'
         emailVerified:
           type: string
           format: date-time
           nullable: true
+          description: |
+            Email verification timestamp.
+            - Email/password users: Set after email verification
+            - Google OAuth users: Auto-set on account creation
+            - CRITICAL for security: Prevents account takeover via OAuth linking
         isActive:
           type: boolean
         createdAt:
@@ -2702,6 +2864,14 @@ components:
           type: string
           format: date-time
           nullable: true
+        authMethod:
+          type: string
+          enum: [credentials, google, both]
+          description: |
+            Primary authentication method:
+            - credentials: Email/password only
+            - google: Google OAuth only
+            - both: Both methods linked (verified-only)
 
     UserPreference:
       type: object
@@ -2725,6 +2895,11 @@ components:
           properties:
             passwordHash:
               type: string
+              nullable: true
+              description: |
+                Password hash for email/password authentication.
+                NULL for OAuth-only users (no password set).
+                IMPORTANT: Never expose this field to users.
             subscription:
               type: object
               nullable: true
@@ -2733,6 +2908,73 @@ components:
                   $ref: '#/components/schemas/SubscriptionStatus'
                 plan:
                   $ref: '#/components/schemas/UserTier'
+            accounts:
+              type: array
+              items:
+                $ref: '#/components/schemas/Account'
+              description: OAuth provider accounts linked to this user
+
+    Account:
+      type: object
+      description: |
+        OAuth provider account linked to a user.
+        Created when user signs in with Google OAuth.
+        Enables account linking for verified users.
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+          description: Reference to User.id
+        type:
+          type: string
+          enum: [oauth]
+          description: Account type (always "oauth" for NextAuth v4)
+        provider:
+          type: string
+          enum: [google]
+          description: OAuth provider name
+        providerAccountId:
+          type: string
+          description: Unique user ID from Google (sub claim from JWT)
+        refresh_token:
+          type: string
+          nullable: true
+          description: OAuth refresh token (encrypted in database)
+        access_token:
+          type: string
+          nullable: true
+          description: OAuth access token (encrypted in database)
+        expires_at:
+          type: integer
+          nullable: true
+          description: Unix timestamp when access token expires
+        token_type:
+          type: string
+          nullable: true
+          example: Bearer
+        scope:
+          type: string
+          nullable: true
+          example: openid email profile
+        id_token:
+          type: string
+          nullable: true
+          description: Google ID token (encrypted)
+        session_state:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - userId
+        - type
+        - provider
+        - providerAccountId
 
     # ============================================
     # ADMIN SCHEMAS
