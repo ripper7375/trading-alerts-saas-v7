@@ -1,17 +1,31 @@
-# dLocal Payment Integration - OpenAPI Endpoints
-# These endpoints should be added to docs/trading_alerts_openapi.yaml
+openapi: 3.0.3
+
+info:
+  title: Trading Alerts - dLocal Payment Integration
+  description: |
+    dLocal payment endpoints for emerging markets integration.
+    These endpoints should be merged into the main trading_alerts_openapi.yaml specification.
+  version: 1.0.0
+  contact:
+    name: Trading Alerts API Support
+    email: support@tradingalerts.com
+
+servers:
+  - url: https://api.tradingalerts.com
+    description: Production server
+  - url: http://localhost:5000
+    description: Development server
 
 # ==============================================================================
-# NEW TAG: dLocal Payments
+# TAGS
 # ==============================================================================
-# Add this to the "tags" section in the main OpenAPI spec
 
 tags:
   - name: dLocal Payments
     description: dLocal payment processing for emerging markets (IN, NG, PK, VN, ID, TH, ZA, TR)
 
 # ==============================================================================
-# NEW PATHS: dLocal Payment Endpoints
+# PATHS: dLocal Payment Endpoints
 # ==============================================================================
 
 paths:
@@ -368,10 +382,37 @@ paths:
                     reason: Invalid discount code
 
 # ==============================================================================
-# NEW SCHEMAS: dLocal Payment Models
+# COMPONENTS: Schemas, Security, Responses
 # ==============================================================================
 
 components:
+  # ------------------------------------------------------------------------------
+  # Security Schemes
+  # ------------------------------------------------------------------------------
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token from authentication endpoint
+
+  # ------------------------------------------------------------------------------
+  # Reusable Responses
+  # ------------------------------------------------------------------------------
+  responses:
+    Unauthorized:
+      description: Missing or invalid authentication token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Unauthorized
+            message: Invalid or missing authentication token
+
+  # ------------------------------------------------------------------------------
+  # Schemas
+  # ------------------------------------------------------------------------------
   schemas:
     # Payment Method
     PaymentMethod:
@@ -527,7 +568,7 @@ components:
             document:
               type: string
               description: Tax ID (required for some countries)
-              example: 123456789
+              example: "123456789"
               nullable: true
             phone:
               type: string
@@ -684,7 +725,7 @@ components:
           description: Whether discount code is valid
         discountPercentage:
           type: number
-          format: int
+          format: int32
           description: Discount percentage (if valid)
           example: 20
           nullable: true
@@ -705,91 +746,107 @@ components:
       required:
         - valid
 
+    # Generic Error Response
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error type
+          example: Validation Error
+        message:
+          type: string
+          description: Error message
+          example: Invalid country code
+        details:
+          type: object
+          description: Additional error details
+          nullable: true
+      required:
+        - error
+        - message
+
     # ------------------------------------------------------------------------------
-    # UPDATE EXISTING SCHEMAS
+    # SUBSCRIPTION SCHEMA UPDATES
+    # ------------------------------------------------------------------------------
+    # NOTE: These fields should be ADDED to your existing Subscription schema
+    # in the main trading_alerts_openapi.yaml file
     # ------------------------------------------------------------------------------
 
-    # Add these fields to existing Subscription schema:
-    Subscription_UPDATES:
+    Subscription:
       type: object
       description: |
-        Add these fields to the existing Subscription schema in the main OpenAPI spec.
-        These are ADDITIONS, not replacements.
+        Complete Subscription schema with dLocal payment fields.
+        Merge these with your existing Subscription schema.
       properties:
-        # NEW FIELD
+        # ... existing fields (id, userId, tier, status, etc.) ...
+
+        # NEW FIELDS for dLocal integration
         paymentProvider:
           type: string
           enum: [STRIPE, DLOCAL]
           description: Payment provider for this subscription
           default: STRIPE
 
-        # NEW FIELD
         dlocalPaymentId:
           type: string
           description: dLocal payment ID (null for Stripe subscriptions)
           nullable: true
 
-        # NEW FIELD
         dlocalPaymentMethod:
           type: string
-          description: dLocal payment method used (e.g., UPI, PAYTM)
+          description: dLocal payment method used (e.g., UP, PAYTM)
           example: UP
           nullable: true
 
-        # NEW FIELD
         dlocalCountry:
           type: string
           enum: [IN, NG, PK, VN, ID, TH, ZA, TR]
           description: Country for dLocal payment
           nullable: true
 
-        # NEW FIELD
         dlocalCurrency:
           type: string
           enum: [INR, NGN, PKR, VND, IDR, THB, ZAR, TRY]
           description: Currency for dLocal payment
           nullable: true
 
-        # NEW FIELD
         planType:
           type: string
           enum: [THREE_DAY, MONTHLY]
           description: Subscription plan type
           example: MONTHLY
 
-        # NEW FIELD
         amount:
           type: number
           format: float
           description: Amount paid in local currency
           example: 2407
 
-        # NEW FIELD
         amountUSD:
           type: number
           format: float
           description: Equivalent amount in USD
           example: 29.00
 
-        # NEW FIELD
         expiresAt:
           type: string
           format: date-time
           description: Subscription expiry date (for dLocal manual renewal)
           nullable: true
 
-        # NEW FIELD
         renewalReminderSent:
           type: boolean
           description: Whether renewal reminder email was sent
           default: false
 
-    # NEW ENUM VALUES for SubscriptionStatus
-    SubscriptionStatus_UPDATES:
+    # Subscription Status Enum
+    SubscriptionStatus:
       type: string
       enum:
-        - ACTIVE           # Existing
-        - CANCELLED        # Existing
-        - PAST_DUE         # Existing (Stripe only)
-        - EXPIRED          # NEW - dLocal subscription expired
-        - PENDING          # NEW - Awaiting payment confirmation
+        - ACTIVE           # Subscription is active
+        - CANCELLED        # User cancelled subscription
+        - PAST_DUE         # Payment failed (Stripe only)
+        - EXPIRED          # Subscription expired (dLocal)
+        - PENDING          # Awaiting payment confirmation
+      description: Current status of the subscription
