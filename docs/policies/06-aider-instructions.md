@@ -24,11 +24,13 @@ When Aider starts (via `.aider.conf.yml`), you automatically load these files:
 - `docs/policies/08-google-oauth-implementation-rules.md` - **NEW:** Google OAuth integration (NextAuth v4)
 
 **Project Specifications:**
-- `docs/v5-structure-division.md` - Where files go (19 parts, 170+ files)
+- `docs/v5-structure-division.md` - Part structure overview (18 parts, 170+ files)
+- `docs/build-orders/part-XX-[name].md` - **PRIMARY:** File-by-file build sequences (18 files)
+- `docs/implementation-guides/v5_part_*.md` - **REFERENCE:** Business logic and requirements
 - `docs/trading_alerts_openapi.yaml` - Next.js API contract (v7.1.0 with OAuth)
 - `docs/flask_mt5_openapi.yaml` - Flask MT5 API contract
-- `docs/decisions/google-oauth-decisions.md` - **NEW:** OAuth architecture decisions
-- `docs/OAUTH_IMPLEMENTATION_READY.md` - **NEW:** OAuth handoff document
+- `docs/decisions/google-oauth-decisions.md` - OAuth architecture decisions
+- `docs/OAUTH_IMPLEMENTATION_READY.md` - OAuth handoff document
 
 **Seed Code (Reference Only):**
 - `seed-code/market_ai_engine.py` - Flask/MT5 patterns
@@ -83,22 +85,33 @@ Follow this **exact workflow** for every file you build:
 
 ```
 1. Read v5-structure-division.md for:
-   - Exact file location (app/api/alerts/route.ts, etc.)
-   - Which part this file belongs to (Part 1-19)
+   - Part structure overview
+   - Which part this file belongs to (Part 1-18)
 
-2. Read relevant implementation guide for:
+2. Read build-order file for file-by-file sequence:
+   - docs/build-orders/part-XX-[name].md (where XX is your current part)
+   - EXACT file to build (e.g., "File 3/12: app/api/alerts/route.ts")
+   - Build sequence (this is file 3 of 12 in this part)
+   - Dependencies (what files must exist before building this one)
+   - Pattern reference (which coding pattern to use)
+   - OpenAPI reference (which schemas apply)
+   - Seed code reference (which examples to look at)
+
+3. Read implementation guide for business context:
    - docs/implementation-guides/v5_part_X.md (where X is your current part)
-   - Implementation details
-   - Business requirements
-   - Specific features
+   - Business requirements and logic
+   - Tier validation rules
+   - Feature descriptions
+   - UI/UX requirements
+   - Special business rules
 
-3. Read OpenAPI spec for:
+4. Read OpenAPI spec for API contracts:
    - API contract (request/response structure)
    - Required fields
    - Status codes
    - Types
 
-4. **Check seed code for implementation patterns:**
+5. **Check seed code for implementation patterns:**
    Use docs/SEED-CODE-REFERENCE-GUIDE.md to quickly find relevant examples
 
    Based on your file type, reference:
@@ -137,11 +150,13 @@ Follow this **exact workflow** for every file you build:
    - TypeScript type usage
    - Database query patterns
 
-5. Read 05-coding-patterns.md for:
+6. Read 05-coding-patterns.md for code templates:
    - Code templates specific to our project
    - Tier validation patterns
-   - Pattern to follow
+   - Pattern specified in build-order file (step 2)
 ```
+
+**IMPORTANT:** Build-order files (step 2) are your PRIMARY source for knowing WHAT to build and WHEN. Implementation guides (step 3) tell you WHY and provide business context.
 
 ### STEP 2: PLAN IMPLEMENTATION
 
