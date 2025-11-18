@@ -1,6 +1,6 @@
 # CLAUDE CODE CLI - VALIDATION & QUALITY CHECK GUIDE
 
-**Last Updated:** 2025-11-12
+**Last Updated:** 2025-11-18
 **For:** Trading Alerts SaaS V7
 **Purpose:** Comprehensive guide for Claude Code CLI as an automated validator and quality checker
 
@@ -95,11 +95,15 @@ Claude Code is **embedded within Aider's workflow**. You don't call it directly;
 │               AIDER (Main Process)              │
 ├─────────────────────────────────────────────────┤
 │                                                 │
-│  Step 1: Read requirements from v5_part_e.md    │
+│  Step 1: Read requirements                      │
+│          ├─ build-orders/part-05-*.md (sequence)│
+│          ├─ v5_part_e.md (business logic)       │
+│          └─ OpenAPI specs (contracts)           │
 │  Step 2: Generate code for file                 │
 │  Step 3: ⚡ Call Claude Code for validation     │
 │          │                                      │
 │          ├─ Load project policies               │
+│          ├─ Load build-order file               │
 │          ├─ Load coding patterns                │
 │          ├─ Analyze generated code              │
 │          ├─ Check against standards             │
@@ -125,17 +129,79 @@ weak-model: anthropic/MiniMax-M2     # Model for simple tasks
 
 # These files are loaded for validation context
 read:
+  # Constitutions (9 policies - the rules)
+  - docs/policies/00-tier-specifications.md
   - docs/policies/01-approval-policies.md
   - docs/policies/02-quality-standards.md
   - docs/policies/03-architecture-rules.md
   - docs/policies/04-escalation-triggers.md
   - docs/policies/05-coding-patterns.md
   - docs/policies/06-aider-instructions.md
+  - docs/policies/07-dlocal-integration-rules.md
+  - docs/policies/08-google-oauth-implementation-rules.md
+
+  # Build orders (file-by-file sequences - the HOW/WHEN)
+  - docs/build-orders/part-01-foundation.md
+  - docs/build-orders/part-02-database.md
+  # ... all 18 parts loaded
+
+  # Implementation guides (business logic - the WHY/WHAT)
+  - docs/implementation-guides/v5_part_a.md
+  - docs/implementation-guides/v5_part_b.md
+  # ... reference material
+
+  # API specifications (contracts - the compliance layer)
   - docs/trading_alerts_openapi.yaml
   - docs/flask_mt5_openapi.yaml
 ```
 
-**Key Point:** Claude Code uses the **same policies** Aider uses, ensuring consistency!
+**Key Point:** Claude Code uses the **same policies** Aider uses, ensuring consistency! Now it also validates against the **build-order sequence** to ensure files are built in the correct order with proper dependencies.
+
+---
+
+## 🏗️ Build-Order System Integration
+
+Claude Code now works with the **Macro-to-Micro ordering system** that guides Aider through the entire build process.
+
+### The Complete Hierarchy
+
+```
+(E) PHASE: v7_phase_3_building.md
+    ↓ "Build Parts 1-18"
+
+(B) PART ORDERS: v5-structure-division.md
+    ↓ Defines Parts 1-18 (which files in each)
+
+(C) FILE-BY-FILE ORDERS: build-orders/part-XX-*.md  ← PRIMARY BUILD INSTRUCTION
+    ↓ Detailed build sequence for each part
+    ↓ References v5_part_*.md for business logic
+
+(D) SPECIAL RULES: 06-aider-instructions.md
+    ↓ Overrides for complex parts
+
+(A) API COMPLIANCE: OpenAPI specs
+    ↓ All files comply with these contracts
+```
+
+### Role Clarification
+
+**Build-Order Files** (`docs/build-orders/part-XX-*.md`)
+- **Purpose:** File-by-file build sequence instructions
+- **Contains:** WHAT to build, WHEN to build it, HOW to build it
+- **Usage:** Aider's PRIMARY instruction for building each part
+- **Example:** "File 3/12: app/api/alerts/route.ts, depends on files 1-2, use Pattern 5"
+
+**Implementation Guides** (`docs/implementation-guides/v5_part_*.md`)
+- **Purpose:** Business logic and requirements reference
+- **Contains:** WHY this logic, WHAT business rules apply
+- **Usage:** Aider's REFERENCE for understanding requirements
+- **Example:** "Alerts must validate tier restrictions: FREE users get 5 symbols"
+
+**Claude Code validates BOTH:**
+- ✅ File built in correct sequence (from build-orders)
+- ✅ Business logic implemented correctly (from implementation guides)
+- ✅ API contracts followed (from OpenAPI specs)
+- ✅ Quality standards met (from policies)
 
 ---
 
@@ -344,10 +410,11 @@ export async function DELETE(req: NextRequest) {
 
 ### Prerequisites:
 
-1. ✅ **Phase 1 Complete:** All 7 policies created
-2. ✅ **Aider Installed:** `pip install aider-chat`
-3. ✅ **API Key Configured:** MiniMax M2 API key set
-4. ✅ **.aider.conf.yml Created:** Configuration file exists
+1. ✅ **Phase 1 Complete:** All 9 policies created (00-08)
+2. ✅ **Build Orders Created:** All 18 part build-order files exist
+3. ✅ **Aider Installed:** `pip install aider-chat`
+4. ✅ **API Key Configured:** MiniMax M2 API key set
+5. ✅ **.aider.conf.yml Created:** Configuration file exists
 
 ---
 
@@ -494,7 +561,11 @@ Here's exactly how Claude Code validates each file during Phase 3 building.
 │ STEP 1: Aider Generates Code                               │
 ├─────────────────────────────────────────────────────────────┤
 │ File: app/api/alerts/route.ts                              │
-│ Aider reads: docs/v5_part_k.md (Alerts requirements)       │
+│ Aider reads:                                                │
+│   1. build-orders/part-11-alerts.md (build sequence)       │
+│   2. v5_part_*.md (business requirements)                   │
+│   3. trading_alerts_openapi.yaml (API contracts)            │
+│   4. 05-coding-patterns.md (code patterns)                  │
 │ Aider generates: Complete file with types, logic, errors   │
 └─────────────────────────────────────────────────────────────┘
                           ↓
@@ -505,18 +576,21 @@ Here's exactly how Claude Code validates each file during Phase 3 building.
 ├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │ Claude Code loads:                                          │
-│   ✓ All 7 policy files                                     │
+│   ✓ All 9 policy files (00-08 constitutions)              │
+│   ✓ Build-order file (part-11-alerts.md)                  │
 │   ✓ OpenAPI specifications                                 │
 │   ✓ Architecture rules                                     │
 │   ✓ Coding patterns                                        │
 │                                                             │
 │ Claude Code checks:                                         │
+│   ✓ Build sequence correct (file built in right order)    │
+│   ✓ Dependencies met (required files exist)               │
 │   ✓ TypeScript types correct                               │
 │   ✓ Error handling present                                 │
 │   ✓ Tier validation included                               │
 │   ✓ Authentication implemented                             │
 │   ✓ API contract matches OpenAPI spec                      │
-│   ✓ Follows coding patterns                                │
+│   ✓ Follows coding patterns from build-order              │
 │   ✓ Security standards met                                 │
 │                                                             │
 │ Analysis time: 3-5 seconds                                  │
@@ -1607,18 +1681,22 @@ High-Quality Codebase Built Autonomously! 🎉
 Use this checklist to ensure Claude Code is configured correctly:
 
 ### Phase 1 Preparation:
-- [ ] All 7 policy files created and comprehensive
+- [ ] All 9 policy files created and comprehensive (00-08)
+- [ ] All 18 build-order files created (part-01 through part-18)
 - [ ] Coding patterns include complete examples
 - [ ] Escalation triggers clearly defined
 - [ ] Quality standards specific and measurable
+- [ ] Build orders aligned with v5-structure-division.md
 
 ### Phase 2 Setup:
 - [ ] `.aider.conf.yml` created and configured
-- [ ] All policy files listed in `read:` section
+- [ ] All 9 policy files listed in `read:` section
+- [ ] All 18 build-order files listed in `read:` section
 - [ ] OpenAPI specs included in `read:` section
 - [ ] `ANTHROPIC_API_KEY` environment variable set
 - [ ] `ANTHROPIC_API_BASE` environment variable set
 - [ ] Aider starts without errors
+- [ ] Build-order files load successfully
 
 ### Phase 3 Validation:
 - [ ] Aider loads all policy files (✓ checkmarks)
