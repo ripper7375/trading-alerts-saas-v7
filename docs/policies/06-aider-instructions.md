@@ -84,9 +84,10 @@ Follow this **exact workflow** for every file you build:
 ```
 1. Read v5-structure-division.md for:
    - Exact file location (app/api/alerts/route.ts, etc.)
-   - Which part this file belongs to (Part 1-16)
+   - Which part this file belongs to (Part 1-19)
 
-2. Read relevant v5_part_X.md for:
+2. Read relevant implementation guide for:
+   - docs/implementation-guides/v5_part_X.md (where X is your current part)
    - Implementation details
    - Business requirements
    - Specific features
@@ -97,12 +98,49 @@ Follow this **exact workflow** for every file you build:
    - Status codes
    - Types
 
-4. Read 05-coding-patterns.md for:
-   - Code template to use
-   - Pattern to follow
+4. **Check seed code for implementation patterns:**
+   Use docs/SEED-CODE-REFERENCE-GUIDE.md to quickly find relevant examples
 
-5. Check seed code (if applicable):
-   - market_ai_engine.py for Flask patterns
+   Based on your file type, reference:
+
+   Authentication files?
+   → seed-code/saas-starter/app/(login)/*
+   → seed-code/next-shadcn-dashboard-starter/src/app/auth/*
+
+   Dashboard pages?
+   → seed-code/saas-starter/app/(dashboard)/*
+   → seed-code/v0-components/layouts/*
+
+   API routes?
+   → seed-code/saas-starter/app/api/user/route.ts
+   → seed-code/saas-starter/app/api/stripe/*
+
+   Forms?
+   → seed-code/next-shadcn-dashboard-starter/src/components/forms/*
+
+   Billing/subscription?
+   → seed-code/saas-starter/app/(dashboard)/pricing/*
+   → seed-code/saas-starter/app/api/stripe/*
+
+   UI components?
+   → seed-code/v0-components/*
+   → seed-code/next-shadcn-dashboard-starter/src/components/layout/*
+
+   Flask/MT5?
+   → seed-code/market_ai_engine.py
+
+   Extract from seed code:
+   - Overall component/route structure
+   - Error handling patterns
+   - Validation approach (Zod schemas)
+   - Loading state implementation
+   - TypeScript type usage
+   - Database query patterns
+
+5. Read 05-coding-patterns.md for:
+   - Code templates specific to our project
+   - Tier validation patterns
+   - Pattern to follow
 ```
 
 ### STEP 2: PLAN IMPLEMENTATION
