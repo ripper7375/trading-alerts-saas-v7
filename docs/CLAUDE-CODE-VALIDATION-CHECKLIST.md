@@ -479,6 +479,152 @@ These checks help ensure testability.
 
 ---
 
+## 🔄 SystemConfig Compliance Checks (Dynamic Configuration)
+
+These checks ensure affiliate discount/commission percentages use the dynamic SystemConfig system instead of hardcoded values.
+
+**Scope:** Affiliate-related features (pricing, billing, admin settings, affiliate dashboard, code generation)
+
+**When to check:** Files that display, calculate, or use discount/commission percentages
+
+### 29. SystemConfig Usage Validation
+
+#### 29.1 Frontend SystemConfig Usage
+
+- [ ] **Hook usage (Frontend)**
+  - Frontend components use `useAffiliateConfig()` hook
+  - Hook imported from `@/lib/hooks/useAffiliateConfig`
+  - NO hardcoded discount percentages (e.g., 20%, 20.0, 0.2)
+  - NO hardcoded commission percentages
+
+**Example - GOOD:**
+```typescript
+import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
+
+export function PricingCard() {
+  const { discountPercent, commissionPercent, calculateDiscountedPrice } = useAffiliateConfig();
+  const regularPrice = 29.00;
+  const discountedPrice = calculateDiscountedPrice(regularPrice);
+
+  return (
+    <div>
+      <p>Regular: ${regularPrice}/month</p>
+      <p>With code: ${discountedPrice}/month (Save {discountPercent}%!)</p>
+      <p>Affiliates earn {commissionPercent}% commission</p>
+    </div>
+  );
+}
+```
+
+**Example - BAD:**
+```typescript
+// ❌ Hardcoded percentage - REJECT
+export function PricingCard() {
+  const discount = 20; // Hardcoded!
+  return <p>Save 20%!</p>;
+}
+```
+
+#### 29.2 Backend SystemConfig Usage
+
+- [ ] **Database read (Backend)**
+  - Backend code generation reads from `SystemConfig` table
+  - NO hardcoded affiliate percentages in code generation
+  - Proper fallback values if config missing (default: 20.0)
+  - Config fetched BEFORE generating affiliate codes
+
+**Example - GOOD:**
+```typescript
+// app/api/admin/affiliates/[id]/distribute-codes/route.ts
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  // ✅ Fetch current config from SystemConfig table
+  const discountConfig = await prisma.systemConfig.findUnique({
+    where: { key: 'affiliate_discount_percent' }
+  });
+  const commissionConfig = await prisma.systemConfig.findUnique({
+    where: { key: 'affiliate_commission_percent' }
+  });
+
+  const discountPercent = parseFloat(discountConfig?.value || '20.0');
+  const commissionPercent = parseFloat(commissionConfig?.value || '20.0');
+
+  // ✅ Generate codes with current config values
+  const codes = await Promise.all(
+    Array(15).fill(null).map(() =>
+      prisma.affiliateCode.create({
+        data: {
+          code: generateSecureCode(),
+          affiliateId: params.id,
+          discountPercent,      // ✅ From SystemConfig
+          commissionPercent,    // ✅ From SystemConfig
+          expiresAt: endOfMonth(),
+          status: 'ACTIVE'
+        }
+      })
+    )
+  );
+
+  return NextResponse.json({ codesDistributed: codes.length });
+}
+```
+
+**Example - BAD:**
+```typescript
+// ❌ Hardcoded - REJECT
+await prisma.affiliateCode.create({
+  data: {
+    discountPercent: 20.0,  // ❌ Hardcoded!
+    commissionPercent: 20.0,  // ❌ Hardcoded!
+    ...
+  }
+});
+```
+
+#### 29.3 Admin UI SystemConfig Management
+
+- [ ] **Admin settings UI**
+  - Admin settings UI allows changing percentages
+  - UI uses SystemConfig GET/PATCH endpoints
+  - Changes create SystemConfigHistory entries
+  - Success message mentions "changes propagate within 5 minutes"
+
+#### 29.4 Common Violations
+
+| Violation | Example | Severity | Action |
+|-----------|---------|----------|--------|
+| Hardcoded percentage in frontend | `<p>Save 20%!</p>` | 🔴 Critical | **REJECT** - Use `useAffiliateConfig()` |
+| Hardcoded percentage in backend | `discountPercent: 20.0` | 🔴 Critical | **REJECT** - Read from SystemConfig table |
+| Not using hook | Missing `import { useAffiliateConfig }` | 🔴 Critical | **REJECT** - Add hook |
+| Missing fallback | `parseFloat(config.value)` (no `\|\| '20.0'`) | 🟡 Medium | **FIX** - Add fallback value |
+| Hardcoded in calculation | `price * 0.2` | 🔴 Critical | **REJECT** - Use `discountPercent / 100` |
+
+#### 29.5 Files That MUST Use SystemConfig
+
+Automatically check SystemConfig usage if file path matches:
+- `**/pricing/**` - Pricing pages
+- `**/affiliate/**` - Affiliate dashboard pages
+- `**/admin/**/affiliate**` - Admin affiliate management
+- `**/api/**/affiliate**` - Affiliate code generation APIs
+- `**/billing/**` - Billing pages showing discounts
+- Email templates mentioning commission/discount
+
+#### 29.6 Validation Quick Reference
+
+**For Frontend Files:**
+- ✅ Import `useAffiliateConfig` hook
+- ✅ Use `discountPercent`, `commissionPercent` from hook
+- ❌ NO hardcoded values like `20`, `20.0`, `0.2`
+
+**For Backend Files:**
+- ✅ Fetch from `prisma.systemConfig.findUnique()`
+- ✅ Use keys: `affiliate_discount_percent`, `affiliate_commission_percent`
+- ✅ Parse with fallback: `parseFloat(config?.value || '20.0')`
+- ❌ NO hardcoded percentages
+
+**Reference:** `docs/SYSTEMCONFIG-USAGE-GUIDE.md` for complete patterns and examples
+
+---
+
 ## 📊 Validation Decision Matrix
 
 Use this matrix to determine validation outcome:
@@ -501,6 +647,8 @@ Use this matrix to determine validation outcome:
 | API Contract | 1+ | - | - | - | 🔧 FIX |
 | Patterns | 0 | 0 | 0-3 | any | ✅ APPROVE |
 | Patterns | 0 | 1+ | - | - | 🔧 FIX |
+| SystemConfig | 0 | 0 | 0 | any | ✅ APPROVE |
+| SystemConfig | 1+ | - | - | - | 🔧 FIX (hardcoded values) |
 
 ### Issue Severity Definitions
 
@@ -509,6 +657,7 @@ Use this matrix to determine validation outcome:
 - Build sequence violations
 - Missing dependencies
 - Breaking changes
+- Hardcoded affiliate percentages (violates SystemConfig)
 
 **High (🟠):**
 - Type safety violations
@@ -593,11 +742,12 @@ When validating, check in this order:
 
 1. **Build-Order Compliance** (Is this the right file at the right time?)
 2. **Security Standards** (Is this safe?)
-3. **Type Safety** (Are all types correct?)
-4. **Error Handling** (Can this handle failures?)
-5. **API Contract** (Does this match the spec?)
-6. **Code Patterns** (Is this consistent?)
-7. **Quality Standards** (Is this maintainable?)
+3. **SystemConfig Compliance** (Are affiliate percentages dynamic, not hardcoded?)
+4. **Type Safety** (Are all types correct?)
+5. **Error Handling** (Can this handle failures?)
+6. **API Contract** (Does this match the spec?)
+7. **Code Patterns** (Is this consistent?)
+8. **Quality Standards** (Is this maintainable?)
 
 ---
 
@@ -615,13 +765,15 @@ A file passes validation when:
 ## 📚 Related Documentation
 
 - **CLAUDE.md** - Complete Claude Code guide
-- **docs/policies/01-approval-policies.md** - Approval criteria
+- **docs/policies/01-approval-policies.md** - Approval criteria (includes SystemConfig section 7.8)
 - **docs/policies/02-quality-standards.md** - Quality requirements
 - **docs/policies/05-coding-patterns.md** - Code patterns
+- **docs/policies/06-aider-instructions.md** - Aider workflow (includes SystemConfig check in STEP 1)
 - **docs/build-orders/README.md** - Build-order system guide
+- **docs/SYSTEMCONFIG-USAGE-GUIDE.md** - Complete SystemConfig patterns and examples
 
 ---
 
 **Last Updated:** 2025-11-18
-**Version:** 1.0.0
+**Version:** 1.1.0 (Added Section 29: SystemConfig Compliance Checks)
 **Maintained By:** Claude Code validation system

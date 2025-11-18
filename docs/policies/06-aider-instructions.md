@@ -154,6 +154,31 @@ Follow this **exact workflow** for every file you build:
    - Code templates specific to our project
    - Tier validation patterns
    - Pattern specified in build-order file (step 2)
+
+7. **Check for SystemConfig Usage (Dynamic Configuration):**
+
+   If building affiliate-related features (pricing, billing, admin settings, affiliate dashboard):
+
+   **CRITICAL - Check if SystemConfig should be used:**
+   - ✅ Frontend: Use `useAffiliateConfig()` hook for discount/commission percentages
+   - ✅ Backend: Read from `SystemConfig` table for code generation
+   - ❌ NEVER hardcode 20%, 20.0, or any affiliate percentages
+   - 📖 Reference: `docs/SYSTEMCONFIG-USAGE-GUIDE.md`
+
+   **Why this matters:** Admin can change affiliate percentages from dashboard without code deployment.
+   All pages must reflect these changes automatically (within 1-5 minutes via SWR cache).
+
+   **Files that MUST use SystemConfig:**
+   - Any pricing page component
+   - Affiliate dashboard pages
+   - Admin affiliate settings pages
+   - API routes that generate affiliate codes
+   - Email templates mentioning commission/discount
+
+   **Quick check:**
+   - Does this file display or calculate discount/commission percentages?
+   - Does this file generate new affiliate codes?
+   - If YES to either → Use SystemConfig patterns from 01-approval-policies.md section 7.8
 ```
 
 **IMPORTANT:** Build-order files (step 2) are your PRIMARY source for knowing WHAT to build and WHEN. Implementation guides (step 3) tell you WHY and provide business context.
