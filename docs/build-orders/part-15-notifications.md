@@ -1,32 +1,80 @@
-# Part 15: [Name] - Build Order
+# Part 15: Notifications & Real-time - Build Order
 
 **From:** `docs/v5-structure-division.md` Part 15
-**Status:** ⚠️ PLACEHOLDER - Detailed build order pending
-**Total Files:** TBD
-**Estimated Time:** TBD hours
+**Total Files:** 9 files
+**Estimated Time:** 3 hours
+**Priority:** ⭐⭐ Medium
+**Complexity:** Medium
 
 ---
 
 ## Overview
 
-**Scope:** [To be detailed]
+**Scope:** Notification system with WebSocket real-time updates and system monitoring.
 
-**Reference:** See `docs/v5-structure-division.md` Part 15 for file list.
+**Key Changes from V4:**
+- ✅ Monitor tier-based system health
+- ✅ Track per-tier metrics
+
+**Dependencies:**
+- Part 5 complete (Authentication)
 
 ---
 
-## Build Instructions
+## File Build Order
 
-This build order file is a **placeholder**. For now:
+**File 1/9:** `app/api/notifications/route.ts`
+- GET: List user notifications
+- POST: Mark all as read
+- Commit: `feat(api): add notifications endpoints`
 
-1. Read `docs/v5-structure-division.md` Part 15 for the complete file list
-2. Reference `docs/implementation-guides/v5_part_*.md` for implementation details
-3. Follow patterns from `docs/policies/05-coding-patterns.md`
-4. Validate against all 9 constitutions (docs/policies/00-08)
+**File 2/9:** `app/api/notifications/[id]/route.ts`
+- GET: Get notification
+- DELETE: Delete notification
+- Commit: `feat(api): add notification detail endpoints`
 
-**Detailed file-by-file build order will be added.**
+**File 3/9:** `app/api/notifications/[id]/read/route.ts`
+- POST: Mark notification as read
+- Commit: `feat(api): add mark as read endpoint`
+
+**File 4/9:** `components/notifications/notification-bell.tsx`
+- Notification bell icon with badge
+- Dropdown with recent notifications
+- Seed: `seed-code/v0-components/components/notification-bell.tsx`
+- Commit: `feat(notifications): add notification bell component`
+
+**File 5/9:** `components/notifications/notification-list.tsx`
+- Full notification list
+- Commit: `feat(notifications): add notification list component`
+
+**File 6/9:** `lib/websocket/server.ts`
+- WebSocket server setup
+- Send real-time notifications
+- Commit: `feat(websocket): add WebSocket server`
+
+**File 7/9:** `lib/monitoring/system-monitor.ts`
+- System health monitoring
+- Track tier-specific metrics
+- Commit: `feat(monitoring): add system monitor with tier metrics`
+
+**File 8/9:** `hooks/use-websocket.ts`
+- React hook for WebSocket connection
+- Commit: `feat(websocket): add WebSocket hook`
+
+**File 9/9:** `hooks/use-toast.ts`
+- React hook for toast notifications
+- Commit: `feat(notifications): add toast hook`
+
+---
+
+## Success Criteria
+
+- ✅ All 9 files created
+- ✅ Notifications display in bell
+- ✅ Real-time updates work
+- ✅ Mark as read works
+- ✅ WebSocket connection stable
 
 ---
 
 **Last Updated:** 2025-11-18
-**Alignment:** (E) Phase 3 → (B) Part 15 → (C) This file (placeholder)
