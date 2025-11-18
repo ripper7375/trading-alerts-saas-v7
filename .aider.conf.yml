@@ -111,7 +111,7 @@ read:
   - docs/policies/00-tier-specifications.md
 
   # OpenAPI specifications (source of truth)
-  - trading_alerts_openapi.yaml
+  - docs/trading_alerts_openapi.yaml
   - docs/flask_mt5_openapi.yaml
   - docs/dlocal-openapi-endpoints.yaml
 

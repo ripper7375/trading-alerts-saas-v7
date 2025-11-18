@@ -110,7 +110,7 @@ echo ""
 echo "🔌 Check 4: Verifying OpenAPI specification files..."
 
 OPENAPI_FILES=(
-  "trading_alerts_openapi.yaml"
+  "docs/trading_alerts_openapi.yaml"
   "docs/flask_mt5_openapi.yaml"
   "docs/dlocal-openapi-endpoints.yaml"
 )
