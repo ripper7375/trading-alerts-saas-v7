@@ -91,9 +91,6 @@ read:
   - docs/flask_mt5_openapi.yaml
   - docs/dlocal-openapi-endpoints.yaml
 
-  # Seed code examples (reference only)
-  - seed-code/market_ai_engine.py
-
   # Project overview
   - README.md
   - package.json  # Dependencies available for code generation
@@ -102,15 +99,106 @@ read:
   - PROGRESS.md
 
   # ============================================================================
-  # SEED CODE (REFERENCE ONLY - READ-ONLY)
+  # SEED CODE - AUTHENTICATION PATTERNS
   # ============================================================================
-  # V0.dev component references for UI frontend development (20 total components)
-  # These serve as visual references and coding patterns for production components
-  # Complete documentation: seed-code/v0-components/README.md & docs/ui-components-map.md
-  # Organized by category: public-pages, auth, dashboard, components, layouts, charts, alerts
+  # Reference these when implementing Part 5 (Authentication) or any auth-related features
+  # These provide complete examples of login/signup flows, form validation, error handling
+  - seed-code/saas-starter/app/(login)/actions.ts
+  - seed-code/saas-starter/app/(login)/sign-in/page.tsx
+  - seed-code/saas-starter/app/(login)/sign-up/page.tsx
+  - seed-code/next-shadcn-dashboard-starter/src/app/auth/sign-in/[[...sign-in]]/page.tsx
+  - seed-code/next-shadcn-dashboard-starter/src/app/auth/sign-up/[[...sign-up]]/page.tsx
 
+  # ============================================================================
+  # SEED CODE - DASHBOARD LAYOUTS
+  # ============================================================================
+  # Reference these when implementing dashboard pages (Part 11, 12, 13, 14)
+  # These show complete dashboard structure, sidebar navigation, header patterns
+  - seed-code/saas-starter/app/(dashboard)/layout.tsx
+  - seed-code/saas-starter/app/(dashboard)/page.tsx
+  - seed-code/next-shadcn-dashboard-starter/src/app/dashboard/layout.tsx
+  - seed-code/next-shadcn-dashboard-starter/src/app/dashboard/page.tsx
+  - seed-code/next-shadcn-dashboard-starter/src/app/dashboard/overview/layout.tsx
+  - seed-code/v0-components/layouts/dashboard-layout.tsx
+  - seed-code/v0-components/layouts/dashboard-page.tsx
+
+  # ============================================================================
+  # SEED CODE - API ROUTES PATTERNS
+  # ============================================================================
+  # Reference these when implementing API endpoints (Part 7, 8, 9, 10, etc.)
+  # These show Next.js 15 App Router API patterns, error handling, validation
+  - seed-code/saas-starter/app/api/user/route.ts
+  - seed-code/saas-starter/app/api/team/route.ts
+  - seed-code/saas-starter/app/api/stripe/checkout/route.ts
+  - seed-code/saas-starter/app/api/stripe/webhook/route.ts
+
+  # ============================================================================
+  # SEED CODE - BILLING & SUBSCRIPTION PATTERNS
+  # ============================================================================
+  # Reference these when implementing Part 15 (Billing & Subscription)
+  # These show Stripe integration, subscription management, upgrade flows
+  - seed-code/saas-starter/app/(dashboard)/pricing/page.tsx
+  - seed-code/saas-starter/app/(dashboard)/pricing/submit-button.tsx
+
+  # ============================================================================
+  # SEED CODE - UI COMPONENTS
+  # ============================================================================
+  # Reference these when building UI components (Part 2, 3, 4)
   # V0 Components - Main README (complete 20-component mapping guide)
   - seed-code/v0-components/README.md
+  # Existing components (charts, alerts, layouts)
+  - seed-code/v0-components/charts/trading-chart.tsx
+  - seed-code/v0-components/alerts/alert-card.tsx
+  # Layout components (header, sidebar, navigation)
+  - seed-code/next-shadcn-dashboard-starter/src/components/layout/header.tsx
+  - seed-code/next-shadcn-dashboard-starter/src/components/layout/app-sidebar.tsx
+  - seed-code/next-shadcn-dashboard-starter/src/components/layout/user-nav.tsx
+
+  # ============================================================================
+  # SEED CODE - FORM PATTERNS
+  # ============================================================================
+  # Reference these when implementing forms with validation (any part with forms)
+  # These show React Hook Form + Zod patterns, error handling, loading states
+  - seed-code/next-shadcn-dashboard-starter/src/components/forms/demo-form.tsx
+  - seed-code/next-shadcn-dashboard-starter/src/components/forms/form-input.tsx
+  - seed-code/next-shadcn-dashboard-starter/src/components/forms/form-select.tsx
+  - seed-code/next-shadcn-dashboard-starter/src/components/forms/form-checkbox.tsx
+  - seed-code/next-shadcn-dashboard-starter/src/components/forms/form-date-picker.tsx
+
+  # ============================================================================
+  # SEED CODE - FLASK/MT5 PATTERNS
+  # ============================================================================
+  # Reference these when implementing Part 6 (Flask MT5 Service)
+  - seed-code/market_ai_engine.py
+
+  # ============================================================================
+  # IMPLEMENTATION GUIDES (PART-SPECIFIC REQUIREMENTS)
+  # ============================================================================
+  # Reference the relevant guide for each part you're implementing
+  # These provide detailed requirements, business logic, and implementation notes
+  - docs/implementation-guides/v5_part_a.md  # Part A: Foundation & Root Config
+  - docs/implementation-guides/v5_part_b.md  # Part B: Database Schema (Prisma)
+  - docs/implementation-guides/v5_part_c.md  # Part C: Type Definitions
+  - docs/implementation-guides/v5_part_d.md  # Part D: Utilities & Helpers
+  - docs/implementation-guides/v5_part_e.md  # Part E: Authentication (NextAuth)
+  - docs/implementation-guides/v5_part_f.md  # Part F: Flask MT5 Service
+  - docs/implementation-guides/v5_part_g.md  # Part G: API Routes - User Management
+  - docs/implementation-guides/v5_part_h.md  # Part H: API Routes - Chart Data
+  - docs/implementation-guides/v5_part_i.md  # Part I: API Routes - Indicators
+  - docs/implementation-guides/v5_part_j.md  # Part J: API Routes - Watchlist
+  - docs/implementation-guides/v5_part_r.md  # Part R: Affiliate Marketing Platform
+
+  # ============================================================================
+  # TECHNICAL DOCUMENTATION (SPECIALIZED FEATURES)
+  # ============================================================================
+  # Reference these for complex feature implementation
+  - docs/ui-components-map.md                      # Complete UI component mapping
+  - docs/AFFILIATE-MARKETING-DESIGN.md             # Affiliate system architecture
+  - docs/SYSTEMCONFIG-USAGE-GUIDE.md               # SystemConfig table usage
+  - docs/SUBSCRIPTION-MODEL-CLARIFICATION.md       # Subscription business logic
+  - docs/admin-mt5-dashboard-implementation.md     # Admin dashboard for MT5 health
+  - docs/flask-multi-mt5-implementation.md         # Multi-MT5 terminal architecture
+  - docs/google-oauth-integration-summary.md       # OAuth integration overview
 
   # V0 Components - PUBLIC PAGES (Marketing & Registration - 3 components)
   # When generated from v0.dev, uncomment these files:

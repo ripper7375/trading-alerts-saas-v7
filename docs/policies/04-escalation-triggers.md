@@ -4,13 +4,275 @@
 
 This document defines EXACTLY when Aider (using MiniMax M2) should stop autonomous work and notify you (the human developer). Escalations are exceptions that require human judgment - they're learning opportunities that improve the system over time.
 
-**Key Principle:** Escalate early rather than making wrong assumptions. It's better to ask than to build the wrong thing.
+**Key Principle:** Check all available resources (policies, seed code, implementation guides, technical docs) BEFORE escalating. Only escalate if none of these resources provide an answer.
+
+---
+
+## 0. PRE-ESCALATION CHECKLIST ⚠️ **MANDATORY - CHECK BEFORE ESCALATING!**
+
+**CRITICAL:** Before escalating ANY issue to the human, Aider and Claude Code MUST complete ALL steps in this checklist. This checklist dramatically reduces unnecessary escalations by ensuring you've consulted all available resources.
+
+### The 5-Step Research Protocol
+
+```
+Issue Encountered
+    ↓
+Step 1: Check Policies (01-08) ✅
+    ↓
+Has policy answer? → YES → Follow policy, NO ESCALATION
+    ↓ NO
+Step 2: Check OpenAPI Specs ✅
+    ↓
+Has API contract answer? → YES → Follow spec, NO ESCALATION
+    ↓ NO
+Step 3: Check Seed Code (by category) ✅ **NEW!**
+    ↓
+Has pattern/example? → YES → Adapt pattern, NO ESCALATION
+    ↓ NO
+Step 4: Check Implementation Guide ✅ **NEW!**
+    ↓
+Has specific guidance? → YES → Follow guide, NO ESCALATION
+    ↓ NO
+Step 5: Check Technical Documentation ✅ **NEW!**
+    ↓
+Has specialized info? → YES → Follow docs, NO ESCALATION
+    ↓ NO
+Step 6: NOW escalate with full research documented ⚠️
+```
+
+---
+
+### Handling Document Conflicts and Version Precedence
+
+**IMPORTANT:** Due to the large number of documents in this repository, some documents may share the same development context but differ in details. This occurs because:
+- Documents are not always updated synchronously
+- Different documents may describe the same feature from different perspectives
+- Earlier documents may not reflect latest architectural decisions
+
+**When you encounter conflicting information between documents:**
+
+1. **Check Git commit dates** to determine which is most recent:
+   ```bash
+   git log --oneline -- path/to/document.md
+   ```
+
+2. **Precedence rules** (highest to lowest priority):
+   - ✅ **Most recent commit date** = Source of truth
+   - ✅ **Policy documents** (docs/policies/*) = Always current
+   - ✅ **Implementation guides** (docs/implementation-guides/*) = Part-specific details
+   - ✅ **Technical docs** (docs/*) = Specialized features
+   - ✅ **Seed code** = Reference patterns only
+
+3. **Examples of common conflicts:**
+
+   **Conflict Type 1: API endpoint definitions**
+   - Document A (older): Says use `/api/alerts/create`
+   - Document B (newer): Says use `/api/alerts` with POST
+   - **Resolution:** Use Document B (newer commit date)
+
+   **Conflict Type 2: Tier specifications**
+   - Document A (older): FREE tier has 3 symbols
+   - Document B (newer): FREE tier has 5 symbols
+   - **Resolution:** Use Document B (newer commit date)
+
+   **Conflict Type 3: Authentication method**
+   - Document A (older): Use Clerk for auth
+   - Document B (newer): Use NextAuth with Google OAuth
+   - **Resolution:** Use Document B (newer commit date)
+
+4. **When in doubt:**
+   - Check `docs/policies/00-tier-specifications.md` (always current)
+   - Check `trading_alerts_openapi.yaml` (source of truth for APIs)
+   - Check most recent commits: `git log --since="1 week ago" -- docs/`
+
+5. **Document in escalation** if conflicts prevent progress:
+   ```markdown
+   ⚠️ Document Conflict Detected:
+   - Document A: docs/old-guide.md (commit: abc123, date: 2025-01-15)
+   - Document B: docs/new-guide.md (commit: def456, date: 2025-11-18)
+
+   Conflict: Authentication method
+   - Document A says: Use Clerk
+   - Document B says: Use NextAuth + Google OAuth
+
+   Resolution: Using Document B (more recent: 2025-11-18)
+   ```
+
+**This approach helps you make autonomous decisions when documents conflict, reducing unnecessary escalations.**
+
+---
+
+### Step 3: Seed Code Reference Table
+
+Based on your issue type, check these seed code files **BEFORE** escalating:
+
+| Issue Type | Check These Seed Files First |
+|-----------|------------------------------|
+| **Authentication** | `seed-code/saas-starter/app/(login)/actions.ts`<br>`seed-code/saas-starter/app/(login)/sign-in/page.tsx`<br>`seed-code/saas-starter/app/(login)/sign-up/page.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/app/auth/sign-in/[[...sign-in]]/page.tsx` |
+| **Dashboard Layout** | `seed-code/saas-starter/app/(dashboard)/layout.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/app/dashboard/layout.tsx`<br>`seed-code/v0-components/layouts/dashboard-layout.tsx` |
+| **API Routes** | `seed-code/saas-starter/app/api/user/route.ts`<br>`seed-code/saas-starter/app/api/team/route.ts`<br>`seed-code/saas-starter/app/api/stripe/checkout/route.ts`<br>`seed-code/saas-starter/app/api/stripe/webhook/route.ts` |
+| **Billing/Subscription** | `seed-code/saas-starter/app/(dashboard)/pricing/page.tsx`<br>`seed-code/saas-starter/app/api/stripe/checkout/route.ts`<br>`seed-code/saas-starter/app/api/stripe/webhook/route.ts`<br>`docs/SUBSCRIPTION-MODEL-CLARIFICATION.md` |
+| **Forms** | `seed-code/next-shadcn-dashboard-starter/src/components/forms/demo-form.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/components/forms/form-input.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/components/forms/form-select.tsx` |
+| **UI Components** | `seed-code/v0-components/README.md`<br>`seed-code/v0-components/charts/trading-chart.tsx`<br>`seed-code/v0-components/alerts/alert-card.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/components/layout/*` |
+| **Flask/MT5** | `seed-code/market_ai_engine.py`<br>`docs/flask-multi-mt5-implementation.md`<br>`docs/admin-mt5-dashboard-implementation.md` |
+| **Affiliate System** | `docs/AFFILIATE-MARKETING-DESIGN.md`<br>`docs/implementation-guides/v5_part_r.md` |
+
+---
+
+### Step 4: Implementation Guide Reference
+
+For each part you're implementing, check the corresponding guide:
+
+| Part | Implementation Guide |
+|------|---------------------|
+| Part A | `docs/implementation-guides/v5_part_a.md` (Foundation & Root Config) |
+| Part B | `docs/implementation-guides/v5_part_b.md` (Database Schema) |
+| Part C | `docs/implementation-guides/v5_part_c.md` (Type Definitions) |
+| Part D | `docs/implementation-guides/v5_part_d.md` (Utilities & Helpers) |
+| Part E | `docs/implementation-guides/v5_part_e.md` (Authentication) |
+| Part F | `docs/implementation-guides/v5_part_f.md` (Flask MT5 Service) |
+| Part G | `docs/implementation-guides/v5_part_g.md` (API Routes - User) |
+| Part H | `docs/implementation-guides/v5_part_h.md` (API Routes - Charts) |
+| Part I | `docs/implementation-guides/v5_part_i.md` (API Routes - Indicators) |
+| Part J | `docs/implementation-guides/v5_part_j.md` (API Routes - Watchlist) |
+| Part R | `docs/implementation-guides/v5_part_r.md` (Affiliate Marketing) |
+
+---
+
+### Step 5: Technical Documentation Reference
+
+For complex features, check specialized documentation:
+
+| Feature Area | Technical Documentation |
+|-------------|------------------------|
+| **UI Components** | `docs/ui-components-map.md` |
+| **Affiliate System** | `docs/AFFILIATE-MARKETING-DESIGN.md`<br>`docs/AFFILIATE-SYSTEM-SETTINGS-DESIGN.md` |
+| **System Config** | `docs/SYSTEMCONFIG-USAGE-GUIDE.md` |
+| **Subscriptions** | `docs/SUBSCRIPTION-MODEL-CLARIFICATION.md` |
+| **Admin Dashboard** | `docs/admin-mt5-dashboard-implementation.md` |
+| **Multi-MT5** | `docs/flask-multi-mt5-implementation.md` |
+| **OAuth Integration** | `docs/google-oauth-integration-summary.md`<br>`docs/OAUTH_IMPLEMENTATION_READY.md` |
+
+---
+
+### Required Escalation Documentation
+
+**If you must escalate after completing all 5 steps**, include this in your escalation message:
+
+```markdown
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  ESCALATION: [CATEGORY] ⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Pre-Escalation Research Completed:
+✅ Step 1 - Checked policies:
+   - [List specific policy files checked]
+   - Why policies didn't resolve: [Explanation]
+
+✅ Step 2 - Checked OpenAPI specs:
+   - [Which spec files checked]
+   - Why specs didn't resolve: [Explanation]
+
+✅ Step 3 - Checked seed code:
+   - [List specific seed files checked]
+   - Why seed code didn't resolve: [Explanation]
+
+✅ Step 4 - Checked implementation guide:
+   - [Which guide checked]
+   - Why guide didn't resolve: [Explanation]
+
+✅ Step 5 - Checked technical docs:
+   - [Which docs checked]
+   - Why docs didn't resolve: [Explanation]
+
+Specific Gap or Ambiguity:
+[What specific information is missing that none of the resources provide]
+
+[Rest of escalation message with options, recommendations, etc.]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+### Example: ✅ GOOD Escalation (Full Research Documented)
+
+```markdown
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  ESCALATION: Architectural Decision ⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Issue Type: Payment Provider Routing
+File: app/api/checkout/route.ts
+Severity: High
+
+Pre-Escalation Research Completed:
+✅ Step 1 - Checked policies:
+   - docs/policies/07-dlocal-integration-rules.md
+   - Why policies didn't resolve: Policy shows dLocal for emerging markets
+     but doesn't specify routing logic (IP-based vs user preference)
+
+✅ Step 2 - Checked OpenAPI specs:
+   - trading_alerts_openapi.yaml (checkout endpoint)
+   - docs/dlocal-openapi-endpoints.yaml
+   - Why specs didn't resolve: Specs define both Stripe and dLocal endpoints
+     but don't specify routing decision criteria
+
+✅ Step 3 - Checked seed code:
+   - seed-code/saas-starter/app/api/stripe/checkout/route.ts
+   - Why seed code didn't resolve: Only shows Stripe integration, not
+     dual-provider routing logic
+
+✅ Step 4 - Checked implementation guide:
+   - docs/implementation-guides/v5_part_r.md (billing section)
+   - Why guide didn't resolve: Mentions both providers but doesn't specify
+     routing mechanism
+
+✅ Step 5 - Checked technical docs:
+   - docs/SUBSCRIPTION-MODEL-CLARIFICATION.md
+   - docs/DLOCAL-INTEGRATION-SUMMARY.md
+   - Why docs didn't resolve: Explains what dLocal does but not HOW to route
+     users between Stripe and dLocal
+
+Specific Gap or Ambiguity:
+Need to decide routing mechanism for dual payment providers:
+- Option A: IP-based geo-detection (auto-route by country)
+- Option B: User preference (let user choose payment method)
+- Option C: Hybrid (default IP-based, allow override)
+
+This is an architectural decision affecting checkout flow UX.
+
+[Options analysis, recommendations...]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+### Example: ❌ BAD Escalation (No Research Documented)
+
+```markdown
+❌ BAD EXAMPLE - DO NOT DO THIS:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  ESCALATION: How to implement authentication? ⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Problem: I don't know how to implement login/signup pages.
+
+[No mention of checking seed code, implementation guide, or policies]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+**Why this is BAD:**
+- Didn't check `seed-code/saas-starter/app/(login)/*` (has complete auth examples)
+- Didn't check `docs/implementation-guides/v5_part_e.md` (has auth requirements)
+- Didn't check `docs/policies/08-google-oauth-implementation-rules.md`
+- Wasted human's time on something seed code could have solved
 
 ---
 
 ## ESCALATION CATEGORIES
 
-Aider should escalate in these 10 situations:
+**After completing the pre-escalation checklist above**, Aider should escalate in these 10 situations:
 
 1. Critical Security Issues
 2. API Contract Violations (Can't Auto-Fix)
