@@ -83,6 +83,30 @@ read:
   - docs/v5-structure-division.md
   - phase_milestones_v7_minimax.md
 
+  # ============================================================================
+  # FILE-BY-FILE BUILD ORDERS (MACRO-TO-MICRO ORDERING)
+  # ============================================================================
+  # These files provide detailed build sequence for each part
+  # Alignment: (E) Phase → (B) Parts → (C) File-by-file orders
+  - docs/build-orders/part-01-foundation.md
+  - docs/build-orders/part-02-database.md
+  - docs/build-orders/part-03-types.md
+  - docs/build-orders/part-04-tier-system.md
+  - docs/build-orders/part-05-authentication.md
+  - docs/build-orders/part-06-flask-mt5.md
+  - docs/build-orders/part-07-indicators-api.md
+  - docs/build-orders/part-08-dashboard.md
+  - docs/build-orders/part-09-charts.md
+  - docs/build-orders/part-10-watchlist.md
+  - docs/build-orders/part-11-alerts.md
+  - docs/build-orders/part-12-ecommerce.md
+  - docs/build-orders/part-13-settings.md
+  - docs/build-orders/part-14-admin.md
+  - docs/build-orders/part-15-notifications.md
+  - docs/build-orders/part-16-utilities.md
+  - docs/build-orders/part-17-affiliate.md
+  - docs/build-orders/part-18-dlocal.md
+
   # Tier specifications
   - docs/policies/00-tier-specifications.md
 
