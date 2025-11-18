@@ -17,6 +17,8 @@
 - ✅ `package.json` - Next.js 15, React 19 dependencies
 - ✅ `.env.example` - 2-tier system environment variables
 
+**Note:** Part 1 consists primarily of configuration files (JSON, YAML, etc.). While `docs/policies/05-coding-patterns.md` focuses on TypeScript/API patterns, the configuration standards from `docs/policies/02-quality-standards.md` apply here.
+
 **Dependencies:**
 - None (this is the foundation - builds first)
 
