@@ -16,6 +16,17 @@ When you encounter an implementation issue:
 4. **Adapt the patterns** to match your specific requirements
 5. **Only escalate** if seed code doesn't provide the pattern you need
 
+### ⚠️ Important: Handling Document Conflicts
+
+If you encounter conflicting information between documents:
+
+- **Check git commit dates:** `git log --oneline -- path/to/document.md`
+- **Use most recent version** as source of truth
+- **Precedence:** Policy docs > Implementation guides > Technical docs > Seed code
+- **Reference:** See `docs/policies/04-escalation-triggers.md` section "Handling Document Conflicts"
+
+**Example:** If one doc says "3 symbols" (older) and another says "5 symbols" (newer), use the newer version (5 symbols).
+
 ---
 
 ## 📑 Quick Lookup Table

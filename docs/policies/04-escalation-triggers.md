@@ -42,6 +42,66 @@ Step 6: NOW escalate with full research documented ⚠️
 
 ---
 
+### Handling Document Conflicts and Version Precedence
+
+**IMPORTANT:** Due to the large number of documents in this repository, some documents may share the same development context but differ in details. This occurs because:
+- Documents are not always updated synchronously
+- Different documents may describe the same feature from different perspectives
+- Earlier documents may not reflect latest architectural decisions
+
+**When you encounter conflicting information between documents:**
+
+1. **Check Git commit dates** to determine which is most recent:
+   ```bash
+   git log --oneline -- path/to/document.md
+   ```
+
+2. **Precedence rules** (highest to lowest priority):
+   - ✅ **Most recent commit date** = Source of truth
+   - ✅ **Policy documents** (docs/policies/*) = Always current
+   - ✅ **Implementation guides** (docs/implementation-guides/*) = Part-specific details
+   - ✅ **Technical docs** (docs/*) = Specialized features
+   - ✅ **Seed code** = Reference patterns only
+
+3. **Examples of common conflicts:**
+
+   **Conflict Type 1: API endpoint definitions**
+   - Document A (older): Says use `/api/alerts/create`
+   - Document B (newer): Says use `/api/alerts` with POST
+   - **Resolution:** Use Document B (newer commit date)
+
+   **Conflict Type 2: Tier specifications**
+   - Document A (older): FREE tier has 3 symbols
+   - Document B (newer): FREE tier has 5 symbols
+   - **Resolution:** Use Document B (newer commit date)
+
+   **Conflict Type 3: Authentication method**
+   - Document A (older): Use Clerk for auth
+   - Document B (newer): Use NextAuth with Google OAuth
+   - **Resolution:** Use Document B (newer commit date)
+
+4. **When in doubt:**
+   - Check `docs/policies/00-tier-specifications.md` (always current)
+   - Check `trading_alerts_openapi.yaml` (source of truth for APIs)
+   - Check most recent commits: `git log --since="1 week ago" -- docs/`
+
+5. **Document in escalation** if conflicts prevent progress:
+   ```markdown
+   ⚠️ Document Conflict Detected:
+   - Document A: docs/old-guide.md (commit: abc123, date: 2025-01-15)
+   - Document B: docs/new-guide.md (commit: def456, date: 2025-11-18)
+
+   Conflict: Authentication method
+   - Document A says: Use Clerk
+   - Document B says: Use NextAuth + Google OAuth
+
+   Resolution: Using Document B (more recent: 2025-11-18)
+   ```
+
+**This approach helps you make autonomous decisions when documents conflict, reducing unnecessary escalations.**
+
+---
+
 ### Step 3: Seed Code Reference Table
 
 Based on your issue type, check these seed code files **BEFORE** escalating:

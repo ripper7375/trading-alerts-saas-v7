@@ -504,6 +504,53 @@ Multiply by ~10 authentication-related files = **130 minutes saved (~2 hours)**
 
 ---
 
+## 🔄 Handling Document Conflicts
+
+### The Challenge
+
+Due to the large number of documents in this repository (50+ documentation files), some documents may share the same development context but differ in details. This occurs because:
+
+- Documents are not always updated synchronously
+- Different documents may describe the same feature from different perspectives
+- Earlier documents may not reflect latest architectural decisions
+
+### The Solution: Version Precedence Rules
+
+When Aider/Claude Code encounter conflicting information:
+
+**1. Check Git commit dates:**
+```bash
+git log --oneline -- path/to/document.md
+```
+
+**2. Apply precedence rules (highest to lowest):**
+- ✅ **Most recent commit date** = Source of truth
+- ✅ **Policy documents** (docs/policies/*) = Always current
+- ✅ **Implementation guides** = Part-specific details
+- ✅ **Technical docs** = Specialized features
+- ✅ **Seed code** = Reference patterns only
+
+**3. Example conflict resolution:**
+```
+Conflict Detected:
+- Document A (2025-01-15): FREE tier has 3 symbols
+- Document B (2025-11-18): FREE tier has 5 symbols
+
+Resolution: Use Document B (more recent date)
+Action: Proceed with 5 symbols, no escalation needed
+```
+
+### Benefits
+
+- ✅ Autonomous conflict resolution
+- ✅ No escalation for version mismatches
+- ✅ Clear decision-making criteria
+- ✅ Documents conflicts in escalations if needed
+
+This addition further reduces escalations by ~5-10% (conflicts that would otherwise require human clarification).
+
+---
+
 ## 💡 KEY INSIGHTS
 
 ### Why Current Approach Has High Escalations
