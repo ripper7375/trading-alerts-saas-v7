@@ -12,6 +12,9 @@
 
 **Scope:** Trading charts with TradingView Lightweight Charts and tier-based filtering.
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_i.md` - Charts and visualization business requirements
+
 **Key Changes from V4:**
 - ✅ Timeframe selector: M5, H12 added; FREE tier limited to H1, H4, D1
 - ✅ Symbol selector shows tier-allowed symbols only

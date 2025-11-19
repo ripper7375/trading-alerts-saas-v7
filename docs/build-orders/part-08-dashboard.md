@@ -12,6 +12,9 @@
 
 **Scope:** Main dashboard layout and dashboard overview page with tier-based stats.
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_h.md` - Dashboard layout and component specifications
+
 **Key Changes from V4:**
 - ✅ Show user tier in header
 - ✅ Tier-based navigation items

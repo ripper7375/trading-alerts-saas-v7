@@ -12,6 +12,10 @@
 
 **Scope:** Complete 2-sided marketplace for affiliate marketing with self-service portal, automated code distribution, accounting reports, and admin BI dashboard.
 
+**Implementation Guide References:**
+- `docs/policies/06-aider-instructions.md` Section 12 (Step 1.6) - Affiliate system architecture and implementation specifications
+- `docs/v5-structure-division.md` Part 17 - Complete file list and structural organization
+
 **Key Features:**
 - Self-service affiliate registration
 - Monthly code distribution (15 codes/affiliate)

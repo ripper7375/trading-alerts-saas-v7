@@ -12,6 +12,10 @@
 
 **Scope:** User settings pages for profile, billing, appearance, privacy, and account management.
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_*.md` - Multiple implementation guides covering user preferences, account settings, and profile management requirements
+- Reference specific sections for billing settings, privacy controls, and account management features
+
 **Key Changes from V4:**
 - ✅ Billing page: Show FREE/PRO tiers
 - ✅ Remove ENTERPRISE mentions

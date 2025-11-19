@@ -12,6 +12,9 @@
 
 **Scope:** Watchlist management with symbol+timeframe combinations, tier-based limits.
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_j.md` - Watchlist system business logic and requirements
+
 **Key Changes from V4:**
 - ✅ Complete rewrite: Symbol+timeframe combinations (not just symbols)
 - ✅ Tier-based symbol filtering

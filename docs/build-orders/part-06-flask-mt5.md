@@ -12,6 +12,9 @@
 
 **Scope:** Complete Flask microservice for MT5 data retrieval with tier validation, indicator processing, and Docker deployment.
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_e.md` Section 8 - MT5 integration and data retrieval specifications
+
 **Key Changes from V4:**
 - ✅ NEW: `tier_service.py` for tier validation
 - ✅ Updated timeframe mapping: M5, H12 added (9 total timeframes)

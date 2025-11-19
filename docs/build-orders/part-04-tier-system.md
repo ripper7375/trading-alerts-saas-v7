@@ -12,6 +12,10 @@
 
 **Scope:** Core tier management system for access control, symbol/timeframe validation, and tier-based feature gating.
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_d.md` - Utilities & Helpers including tier validation logic and helper functions
+- `docs/policies/00-tier-specifications.md` - Complete tier system rules, constants, and feature limits
+
 **Key Changes from V4:**
 - ✅ NEW folder: `lib/tier/` (complete tier management system)
 - ✅ Timeframes: M5, H12 added; FREE tier limited to 3 timeframes (H1, H4, D1)

@@ -12,6 +12,10 @@
 
 **Scope:** Notification system with WebSocket real-time updates and system monitoring.
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_*.md` - Multiple implementation guides covering notification requirements, real-time communication, and monitoring specifications
+- Reference specific sections for WebSocket implementation, notification delivery, and tier-based monitoring
+
 **Key Changes from V4:**
 - ✅ Monitor tier-based system health
 - ✅ Track per-tier metrics

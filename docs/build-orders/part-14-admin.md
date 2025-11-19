@@ -12,6 +12,10 @@
 
 **Scope:** Admin dashboard for user management, analytics, and system monitoring.
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_*.md` - Multiple implementation guides covering admin requirements, analytics specifications, and monitoring features
+- Reference specific sections for user management, tier distribution analytics, and system health monitoring
+
 **Key Changes from V4:**
 - ✅ Track FREE vs PRO user distribution
 - ✅ Revenue analytics per tier
