@@ -12,6 +12,11 @@
 
 **Scope:** [Brief description of what this part does]
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_[letter].md` - [Description of what this guide provides]
+- `docs/[openapi-spec].yaml` - [Specific schemas or endpoints referenced]
+- `docs/policies/[policy-file].md` - [Specific policies that apply]
+
 **Key Changes from V4/V5:**
 - ✅ [Change 1]
 - ✅ [Change 2]
