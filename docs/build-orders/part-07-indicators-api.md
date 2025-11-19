@@ -12,6 +12,9 @@
 
 **Scope:** Next.js API routes for indicators and tier checking, connecting frontend to Flask MT5 service.
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_g.md` - Indicators API business logic and tier-based access control
+
 **Key Changes from V4:**
 - ✅ NEW folder: `app/api/tier/` (3 tier-checking routes)
 - ✅ Tier validation in indicators API before Flask call

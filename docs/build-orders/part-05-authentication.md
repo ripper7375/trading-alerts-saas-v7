@@ -12,6 +12,10 @@
 
 **Scope:** Complete authentication system with NextAuth.js, Google OAuth, email/password credentials, and tier-based permissions.
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_e.md` Section 5 - Authentication system implementation details and business logic
+- `docs/policies/08-google-oauth-implementation-rules.md` - Google OAuth integration rules and security policies
+
 **Key Changes from V4:**
 - ✅ Google OAuth integration (new provider)
 - ✅ Account model for OAuth provider linking

@@ -12,6 +12,11 @@
 
 **Scope:** TypeScript type definitions for the entire V7 application, including tier types, user types, alert types, indicator types, and API types.
 
+**Implementation Guide References:**
+- `docs/trading_alerts_openapi.yaml` - Primary source for API type definitions and schemas
+- `docs/flask_mt5_openapi.yaml` - Indicator and MT5-related type definitions
+- `docs/policies/00-tier-specifications.md` - Tier constants and limits
+
 **Key Changes from V4:**
 - ✅ New `tier.ts` - Tier-specific types and constants
 - ✅ Updated `user.ts` - Remove ENTERPRISE tier, add tier field

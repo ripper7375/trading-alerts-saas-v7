@@ -12,6 +12,10 @@
 
 **Scope:** Stripe integration for 2-tier subscription system (FREE → PRO upgrades).
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_*.md` - Multiple implementation guides covering e-commerce requirements, subscription management, and billing workflows
+- Reference specific sections for payment processing, subscription lifecycle, and tier upgrades
+
 **Pricing:**
 - FREE: $0/month (5 symbols, 3 timeframes, 5 alerts)
 - PRO: $29/month (15 symbols, 9 timeframes, 20 alerts)

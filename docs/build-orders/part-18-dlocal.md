@@ -12,6 +12,12 @@
 
 **Scope:** Payment processing for emerging markets (India, Nigeria, Pakistan, Vietnam, Indonesia, Thailand, South Africa, Turkey) using local payment methods without international cards.
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_r.md` - dLocal payment integration business requirements and workflows
+- `docs/policies/06-aider-instructions.md` Section 13 (Step 1.7) - dLocal implementation architecture and specifications
+- `docs/policies/07-dlocal-integration-rules.md` - dLocal-specific integration rules and policies
+- `docs/dlocal-openapi-endpoints.yaml` - dLocal API endpoint specifications
+
 **Why:** Stripe requires international cards. dLocal supports 50+ local payment methods (UPI, Paytm, JazzCash, GoPay, etc.).
 
 **Key Features:**
