@@ -15,14 +15,14 @@ COMPLETE=0
 PLACEHOLDER=0
 MISSING=0
 
-# Define expected parts
+# Define expected parts (per README.md)
 declare -a PARTS=(
     "01-foundation"
     "02-database"
-    "03-type-definitions"
+    "03-types"
     "04-tier-system"
     "05-authentication"
-    "06-flask-mt5-service"
+    "06-flask-mt5"
     "07-indicators-api"
     "08-dashboard"
     "09-charts"
