@@ -12,6 +12,9 @@
 
 **Scope:** Root-level configuration files for Next.js 15, TypeScript, Tailwind CSS, ESLint, and development environment setup.
 
+**Implementation Guide References:**
+- `docs/implementation-guides/v5_part_a.md` - Technology stack, Next.js 15 configuration, and environment setup
+
 **Key Changes from V4:**
 - ✅ `next.config.js` - Updated for Next.js 15 with Turbopack
 - ✅ `package.json` - Next.js 15, React 19 dependencies
