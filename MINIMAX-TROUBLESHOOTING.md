@@ -1,345 +1,280 @@
-# MiniMax M2 API Troubleshooting Guide
+# MiniMax M2 with Aider - Complete Troubleshooting Guide
 
-## Issue: Connection Errors with Aider + MiniMax M2
-
-**Date Resolved**: 2025-11-10
-**Status**: ✅ RESOLVED
+**Project:** Trading Alerts SaaS V7  
+**Date:** 2025-11-20  
+**Status:** ✅ WORKING SOLUTION VERIFIED  
+**Model:** MiniMax M2 via OpenAI-compatible API endpoint
 
 ---
 
-## Problem Description
+## 🎯 Executive Summary
 
-When running Aider with MiniMax M2, users encountered persistent connection errors:
+This document chronicles the complete troubleshooting journey to successfully integrate MiniMax M2 with Aider for autonomous code generation. After extensive testing, we discovered the **correct configuration** that works reliably.
 
+**Final Result:**
+- ✅ Model string: `openai/MiniMax-M2`
+- ✅ API endpoint: `https://api.minimax.io/v1`
+- ✅ API variables: `OPENAI_API_KEY` and `OPENAI_API_BASE`
+- ✅ Context management: 129k base load + 75k rotation budget
+
+---
+
+## 📊 Problem Statement
+
+**Initial Challenge:**  
+Aider configuration used `anthropic/MiniMax-M2` model string with Anthropic-style API variables, but this resulted in errors when attempting to start Aider.
+
+**Root Causes:**
+1. Incorrect model provider prefix
+2. Wrong API variable names
+3. Context window exceeded (281k tokens > 204k limit)
+4. Misunderstanding of MiniMax API compatibility
+
+---
+
+## 🧪 Trial and Error Process
+
+### **Trial 1: anthropic/MiniMax-M2** ❌
+
+**Configuration:**
+```yaml
+model: anthropic/MiniMax-M2
 ```
-litellm.InternalServerError: InternalServerError: OpenAIException - Connection error.
-The API provider's servers are down or overloaded.
-Retrying in 0.2 seconds...
+
+**Environment:**
+```bash
+ANTHROPIC_API_KEY=eyJhbGci...
 ```
 
-The error kept retrying indefinitely and Aider never connected.
+**Result:**  
+❌ **FAILED** - 404 Error: Model not found
+
+**Why it failed:**  
+MiniMax does not support Anthropic API format. The `/v1/messages` endpoint doesn't exist on MiniMax servers.
 
 ---
 
-## Root Causes Identified
+### **Trial 2: minimax/MiniMax-M2** ❌
 
-### 1. ❌ Free Trial Expired (November 7, 2025)
+**Configuration:**
+```yaml
+model: minimax/MiniMax-M2
+```
 
-**Problem**: MiniMax free trial ended on November 7, 2025. Any requests after this date were rejected.
+**Environment:**
+```bash
+OPENAI_API_KEY=eyJhbGci...
+OPENAI_API_BASE=https://api.minimax.io/v1
+```
 
-**Solution**: Add credits to MiniMax account at https://platform.minimax.io
-- Minimum: $25 (recommended starting amount)
-- Pricing: $0.30/M input tokens, $1.20/M output tokens
+**Result:**  
+❌ **FAILED** - LLM Provider NOT provided error
 
-**How to Verify**:
-- Log in to https://platform.minimax.io
-- Check "Balance" section
-- Should show current balance > $0
+**Error Message:**
+```
+LLM Provider NOT provided. Pass in the LLM provider you are trying to call.
+You passed model=minimax/MiniMax-M2
+```
+
+**Why it failed:**  
+LiteLLM (used by Aider) does not recognize `minimax/` as a valid provider prefix.
 
 ---
 
-### 2. ❌ Missing `--model` Flag in Aider Command
+### **Trial 3: MiniMax-M2 (no prefix)** ❌
 
-**Problem**: Original `start-aider.bat` didn't specify which model to use:
+**Configuration:**
+```yaml
+model: MiniMax-M2
+```
+
+**Environment:**
+```bash
+OPENAI_API_KEY=eyJhbGci...
+OPENAI_API_BASE=https://api.minimax.io/v1
+```
+
+**Result:**  
+❌ **FAILED** - LLM Provider NOT provided error
+
+**Why it failed:**  
+Without a provider prefix, LiteLLM doesn't know which API format to use.
+
+---
+
+### **Trial 4: openai/MiniMax-M2** ✅
+
+**Configuration:**
+```yaml
+model: openai/MiniMax-M2
+```
+
+**Environment:**
+```bash
+OPENAI_API_KEY=eyJhbGci...
+OPENAI_API_BASE=https://api.minimax.io/v1
+```
+
+**Result:**  
+✅ **SUCCESS** - Aider started successfully!
+
+**But then hit:** Context window exceeded (2013 tokens in initial test, but full config had 281k)
+
+**Why it worked:**  
+MiniMax's API is OpenAI-compatible (uses `/v1/chat/completions` endpoint). Setting `OPENAI_API_BASE` redirects OpenAI SDK to MiniMax servers.
+
+---
+
+### **Trial 5: Reducing Context Window** ✅
+
+**Problem:**  
+Even with correct model string, Aider failed due to excessive context (281k tokens > 204k limit).
+
+**Solution:**  
+1. Compress 6 largest policy files (43% reduction: 136k → 77k tokens)
+2. Implement rotation strategy (load files dynamically with `/add` and `/drop`)
+3. Reduce `map-tokens` from 2048 → 512
+
+**Result:**  
+✅ **WORKING** - Base load: 129k tokens, 75k available for rotation
+
+---
+
+## ✅ Final Working Configuration
+
+### **1. Environment Variables (.env)**
+
+```bash
+# MiniMax M2 API Configuration
+OPENAI_API_KEY=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJHcm91cE5hbWUiOiJEaGFwYW5hcnQgS2V2YWxlZSIsIlVzZXJOYW1lIjoiRGhhcGFuYXJ0IEtldmFsZWUiLCJBY2NvdW50IjoiIiwiU3ViamVjdElEIjoiMTk4NDI2MzUzNDY1NzE1MTkwMiIsIlBob25lIjoiIiwiR3JvdXBJRCI6IjE5ODQyNjM1MzQ2NTI5NTM1MDIiLCJQYWdlTmFtZSI6IiIsIk1haWwiOiJyaXBwZXI3Mzc1QGdtYWlsLmNvbSIsIkNyZWF0ZVRpbWUiOiIyMDI1LTExLTA1IDE1OjQyOjU0IiwiVG9rZW5UeXBlIjoxLCJpc3MiOiJtaW5pbWF4In0.iDz-qldYGYrqfNg8xvgi0wa8QmL3jXDj7_uAodeqweZeSUm0pK7GYJ0lD6_107mOd73qVkqzsRc-Xfw5MGxP5-AfJf9aHv3ZGl1SBWT5vMXr4K3bulWWAwcfdgNEZ46uXAtNPwQBuPmoqAlarcXOjcPQ6QjCNfos0oa7GGU71xTSkJr3jlntr8_ExFaxuAMSd2D2CwV8r_uY5EBaRddACGbOPIc-GS67ejTqQTQnvgi0sYlIymr1aMmW_VmtBntYvD7xvSIqQzKgew3R2UXnihqJXbjtM0Mv_a-f_qzaD16cFIte2DfnlxP6MtwPqmXMCKp6eu0hBSh4_AaIDIBeVA
+
+# MiniMax API endpoint (OpenAI-compatible)
+OPENAI_API_BASE=https://api.minimax.io/v1
+```
+
+**Key Points:**
+- ✅ Use `OPENAI_API_KEY` (NOT `ANTHROPIC_API_KEY`)
+- ✅ Use `OPENAI_API_BASE` (NOT `ANTHROPIC_API_BASE`)
+- ✅ Endpoint is `/v1` (OpenAI-compatible, NOT `/v1/messages` Anthropic format)
+
+---
+
+### **2. Aider Configuration (.aider.conf.yml)**
+
+```yaml
+# Model Configuration
+model: openai/MiniMax-M2
+editor-model: openai/MiniMax-M2
+weak-model: openai/MiniMax-M2
+
+# Reduce map tokens to save context
+map-tokens: 512
+
+# Environment file
+env-file: .env
+
+# Load compressed policy files (base load: ~129k tokens)
+read:
+  - docs/policies/01-approval-policies-compress.md        # 9,491 tokens
+  - docs/policies/02-quality-standards.md                 # 9,818 tokens
+  - docs/policies/03-architecture-rules-compress.md       # 11,326 tokens
+  - docs/policies/04-escalation-triggers-compress.md      # 7,430 tokens
+  - docs/policies/05-coding-patterns-compress.md          # 20,999 tokens
+  - docs/policies/06-aider-instructions.md                # 10,966 tokens
+  - docs/policies/07-dlocal-integration-rules-compress.md # 6,870 tokens
+  - docs/policies/00-tier-specifications.md               # 2,479 tokens
+  - docs/trading_alerts_openapi_compress.yaml             # 21,690 tokens
+  - ARCHITECTURE.md                                        # ~10,000 tokens
+  - README.md                                              # ~5,000 tokens
+  - docs/v5-structure-division.md                          # ~10,000 tokens
+  - docs/build-orders/README.md                            # ~3,000 tokens
+  - PROGRESS.md
+
+# Total base load: ~129,000 tokens
+# Available for rotation: ~75,000 tokens
+```
+
+**Critical Changes:**
+- ✅ Model prefix: `openai/` (NOT `anthropic/` or `minimax/`)
+- ✅ Map tokens: `512` (reduced from 2048)
+- ✅ Compressed files: Use `-compress.md` versions
+
+---
+
+### **3. Batch Script (start-aider-anthropic.bat)**
+
+**Line 49 MUST be:**
 ```bat
-py -3.11 -m aider %*
+py -3.11 -m aider --model openai/MiniMax-M2 %*
 ```
 
-Without the `--model` flag, LiteLLM couldn't properly route requests to MiniMax API.
-
-**Solution**: Explicitly specify the model:
+**NOT:**
 ```bat
-py -3.11 -m aider --model anthropic/MiniMax-M2 %*
+py -3.11 -m aider --model minimax/MiniMax-M2 %*  ❌ WRONG
+py -3.11 -m aider --model anthropic/MiniMax-M2 %* ❌ WRONG
 ```
 
----
-
-### 3. ❌ OpenAI-Compatible Endpoint Had Routing Issues
-
-**Problem**: Using Anthropic-compatible endpoint caused LiteLLM routing failures:
+**Full working batch file:**
 ```bat
-set ANTHROPIC_API_KEY=...
-set ANTHROPIC_API_BASE=https://api.minimax.io/v1
-py -3.11 -m aider --model anthropic/MiniMax-M2
+@echo off
+set OPENAI_API_KEY=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+set OPENAI_API_BASE=https://api.minimax.io/v1
+
+echo Starting Aider with OpenAI-compatible model: openai/MiniMax-M2
+py -3.11 -m aider --model openai/MiniMax-M2 %*
 ```
 
-This configuration failed even with explicit `--model` flag.
-
-**Root Cause**: LiteLLM's OpenAI provider routing doesn't work reliably with MiniMax's Anthropic-compatible endpoint.
-
 ---
 
-### 4. ✅ Anthropic-Compatible Endpoint Works Perfectly
+## 📊 Context Window Management
 
-**Solution**: MiniMax provides an Anthropic-compatible API that works reliably with LiteLLM:
+### **MiniMax M2 Specifications**
 
-```bat
-set ANTHROPIC_API_KEY=your_minimax_api_key_here
-set ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic
-py -3.11 -m aider --model anthropic/MiniMax-M2
+| Specification | Value |
+|--------------|-------|
+| **Total Context Window** | 204,800 tokens |
+| **Base Load** | ~129,000 tokens (63%) |
+| **Available for Rotation** | ~75,000 tokens (37%) |
+| **System Overhead** | ~5,000 tokens |
+| **Repo-map** | 512 tokens |
+| **Safety Margin** | ~10,000 tokens |
+
+### **Token Budget Breakdown**
+
+```
+Total Context: 204,800 tokens
+├── System Overhead: 5,000 tokens
+├── Repo-map: 512 tokens
+├── Compressed Policies: 79,000 tokens
+├── Compressed OpenAPI: 22,000 tokens
+├── Architecture Docs: 28,000 tokens
+├── Conversation Buffer: Variable
+└── AVAILABLE FOR ROTATION: ~75,000 tokens
 ```
 
-**Why This Works**:
-- MiniMax officially recommends using their Anthropic-compatible API
-- LiteLLM's Anthropic provider routing is more reliable
-- MiniMax's Anthropic endpoint is designed to work with official Anthropic SDKs
-
 ---
 
-## Solution: Use start-aider-anthropic.bat
-
-### Step 1: Edit the Script
-
-Open `start-aider-anthropic.bat` and set your API key on line 21:
-
-```bat
-set ANTHROPIC_API_KEY=your_actual_minimax_api_key_here
-```
-
-### Step 2: Run Aider
-
-```cmd
-start-aider-anthropic.bat
-```
-
-### Step 3: Verify It Works
-
-You should see:
-```
-========================================
-  Starting Aider with MiniMax M2
-  (Anthropic-Compatible Endpoint)
-========================================
-
-Environment variables set:
-  ANTHROPIC_API_KEY: eyJhbGciOiJSUzI1NiIs...
-  ANTHROPIC_BASE_URL: https://api.minimax.io/anthropic
-
-Starting Aider with Anthropic-compatible model: anthropic/MiniMax-M2
-```
-
-Aider should connect successfully without retrying or connection errors.
-
----
-
-## Testing & Verification
-
-### Test 1: Direct API Connection
-
-Run the test script to verify MiniMax API is accessible:
-
-```cmd
-test-minimax-api.bat
-```
-
-**Expected Result**:
-```
-✅ SUCCESS! API is working!
-
-Response from MiniMax M2:
-------------------------------------------------------------
-API test successful
-------------------------------------------------------------
-
-Token Usage:
-  Input tokens:  51
-  Output tokens: 50
-  Total tokens:  101
-
-✅ Your MiniMax API is ready for Aider!
-```
-
-**What This Tests**:
-- API key is valid ✓
-- Account has credits ✓
-- Network can reach MiniMax servers ✓
-- MiniMax API is responding ✓
-
-### Test 2: Aider Connection
-
-Start Aider and ask a simple question:
-
-```cmd
-start-aider-anthropic.bat
-```
-
-Then in Aider:
-```
-What are the AUTO-APPROVE conditions according to our approval policies?
-```
-
-**Expected Result**:
-- No connection errors
-- MiniMax M2 responds with thinking process and answer
-- Token usage displayed at end
-
----
-
-## Files Reference
-
-### ✅ Working Scripts
-
-| File | Purpose | Status |
-|------|---------|--------|
-| `start-aider-anthropic.bat` | Anthropic-compatible endpoint (recommended) | ✅ WORKS |
-| `test-minimax-api.py` | Direct API connectivity test | ✅ WORKS |
-| `test-minimax-api.bat` | Windows wrapper for test script | ✅ WORKS |
-
-### ❌ Non-Working Scripts (Keep for Reference)
-
-| File | Purpose | Status |
-|------|---------|--------|
-| `start-aider.bat` | Original script (no --model flag) | ❌ FAILS |
-| `start-aider-fixed.bat` | Anthropic-compatible endpoint attempt | ❌ FAILS |
-
----
-
-## Common Issues & Solutions
-
-### Issue: "ERROR: ANTHROPIC_API_KEY not set in environment"
-
-**Cause**: API key not configured in the script.
-
-**Solution**: Edit the script and set your actual API key on line 21.
-
----
-
-### Issue: "401 Unauthorized"
-
-**Cause**: Invalid or expired API key.
-
-**Solution**:
-1. Log in to https://platform.minimax.io
-2. Go to API Keys section
-3. Generate a new API key
-4. Update your script with the new key
-
----
-
-### Issue: "403 Forbidden"
-
-**Cause**: Account has $0 balance.
-
-**Solution**:
-1. Log in to https://platform.minimax.io
-2. Go to Balance/Billing section
-3. Add credits (minimum $25 recommended)
-4. Wait 2-3 minutes for credits to activate
-5. Try again
-
----
-
-### Issue: "Connection error" or "Cannot reach api.minimax.io"
-
-**Possible Causes**:
-- No internet connection
-- Firewall blocking api.minimax.io
-- VPN interfering with connection
-- MiniMax servers temporarily down
-
-**Solution**:
-1. Check internet connection
-2. Disable VPN temporarily and test
-3. Check firewall settings (allow api.minimax.io)
-4. Check MiniMax status page (if available)
-5. Try again in 5-10 minutes
-
----
-
-### Issue: Test script works, but Aider fails
-
-**Cause**: LiteLLM configuration issue (this was the main issue we solved).
-
-**Solution**: Use `start-aider-anthropic.bat` instead of other scripts.
-
----
-
-## Cost Estimation
-
-### Token Usage Example (from testing):
-- Input tokens: 96,000 (~96k)
-- Output tokens: 1,100 (~1.1k)
-- **Cost**: (96,000 × $0.30/M) + (1,100 × $1.20/M) = $0.029 + $0.001 = **$0.03 per query**
-
-### How Long Will $25 Last?
-
-**Conservative estimate** (assuming average queries):
-- $25 ÷ $0.03 per query = **~833 queries**
-
-**Light usage** (10 queries/day):
-- 833 queries ÷ 10/day = **~83 days** (~2.5 months)
-
-**Heavy usage** (50 queries/day):
-- 833 queries ÷ 50/day = **~16 days**
-
----
-
-## Technical Details
-
-### Working Configuration
-
-**Environment Variables**:
-```bat
-ANTHROPIC_API_KEY=your_minimax_api_key_here
-ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic
-```
-
-**Aider Command**:
-```bat
-py -3.11 -m aider --model anthropic/MiniMax-M2
-```
-
-**Why This Works**:
-1. MiniMax provides Anthropic-compatible API at `/anthropic` endpoint
-2. LiteLLM recognizes `anthropic/` prefix and routes through Anthropic provider
-3. LiteLLM sends requests to `ANTHROPIC_BASE_URL` instead of default Anthropic URL
-4. MiniMax's Anthropic endpoint handles the request and returns response in Anthropic format
-5. LiteLLM converts response back to Aider's expected format
-
-### API Endpoints
-
-| Endpoint Type | URL | Works with Aider? |
-|--------------|-----|-------------------|
-| Anthropic-compatible | `https://api.minimax.io/v1` | ❌ Routing issues |
-| Anthropic-compatible | `https://api.minimax.io/anthropic` | ✅ Works perfectly |
-
----
-
-## References
-
-- **MiniMax Dashboard**: https://platform.minimax.io
-- **MiniMax API Docs**: https://platform.minimax.io/docs
-- **LiteLLM Docs**: https://docs.litellm.ai
-- **Aider Docs**: https://aider.chat/docs
-
----
-
-## Changelog
-
-### 2025-11-10
-- ✅ Identified free trial expiration as primary issue
-- ✅ Added $25 credits to account
-- ✅ Identified missing `--model` flag in original script
-- ✅ Tested Anthropic-compatible endpoint (failed)
-- ✅ Tested Anthropic-compatible endpoint (success!)
-- ✅ Created `start-aider-anthropic.bat` as recommended solution
-- ✅ Created test scripts for API connectivity verification
-- ✅ Documented troubleshooting process
-
----
-
-## Contact & Support
-
-For MiniMax-specific issues:
-- MiniMax Support: https://platform.minimax.io/support (check their website for support options)
-
-For Aider-specific issues:
-- Aider GitHub: https://github.com/Aider-AI/aider
-
-For LiteLLM issues:
-- LiteLLM GitHub: https://github.com/BerriAI/litellm
-
----
-
-**Last Updated**: 2025-11-10
-**Status**: ✅ Issue Resolved - Use `start-aider-anthropic.bat`
+## 🗜️ File Compression Results
+
+Conservative compression was performed on the 6 largest files to reduce token usage while preserving quality.
+
+### **Compression Summary**
+
+| File | Original | Compressed | Saved | Reduction |
+|------|----------|-----------|-------|-----------|
+| 01-approval-policies.md | 18,529 | 9,491 | 9,038 | 49% |
+| 03-architecture-rules.md | 29,324 | 11,326 | 17,998 | 61% |
+| 04-escalation-triggers.md | 22,484 | 7,430 | 15,054 | 67% |
+| 05-coding-patterns.md | 26,686 | 20,999 | 5,687 | 21% |
+| 07-dlocal-integration-rules.md | 15,296 | 6,870 | 8,426 | 55% |
+| trading_alerts_openapi.yaml | 24,060 | 21,690 | 2,370 | 10% |
+| **TOTAL** | **136,379** | **77,806** | **58,573** | **43%** |
+
+**Compression Strategy:**
+- ✅ Remove redundant explanations
+- ✅ Consolidate similar examples
+- ✅ Use tables instead of prose
+- ✅ Remove meta-commentary
+- ❌ **Preserve ALL** code examples
+- ❌ **Preserve ALL** technical specifications
+- ❌ **Preserve ALL** decision criteria
