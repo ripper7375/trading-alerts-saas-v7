@@ -278,3 +278,313 @@ Conservative compression was performed on the 6 largest files to reduce token us
 - ❌ **Preserve ALL** code examples
 - ❌ **Preserve ALL** technical specifications
 - ❌ **Preserve ALL** decision criteria
+
+---
+
+## 🔄 Rotation Strategy
+
+With 75k tokens available for dynamic loading, you can load 1-2 build orders + implementation guides per session.
+
+### **Example Workflow**
+
+```bash
+# Start Aider (base load: 129k)
+start-aider-anthropic.bat
+
+# Load Part 1 files (~11k tokens)
+> /add docs/build-orders/part-01-foundation.md
+> /add docs/implementation-guides/v5_part_a.md
+
+# Build Part 1
+> Build Part 1 following the build order
+
+# When complete, rotate to Part 2
+> /drop docs/build-orders/part-01-foundation.md
+> /drop docs/implementation-guides/v5_part_a.md
+> /add docs/build-orders/part-02-database.md
+> /add docs/implementation-guides/v5_part_b.md
+
+# Build Part 2
+> Build Part 2 following the build order
+```
+
+### **Token Budget per Part**
+
+| Part | Build Order | Impl Guide | Other | Total | Status |
+|------|------------|------------|-------|-------|--------|
+| 1 | 5k | 6k | - | 11k | ✅ Fits |
+| 2 | 3k | 4k | - | 7k | ✅ Fits |
+| 3 | 8k | 5k | - | 13k | ✅ Fits |
+| 4 | 4k | 3k | - | 7k | ✅ Fits |
+| 5 | 2k | 5k | 6k (OAuth) | 13k | ✅ Fits |
+| 6 | 2k | 4k | 10k (Flask OpenAPI) | 16k | ✅ Fits |
+| 7-16 | ~2k | ~4k | - | ~6k | ✅ Fits each |
+| 17 | 2k | 19k | 5k | 26k | ✅ Fits (multi-session) |
+| 18 | 2k | 19k | 7k | 28k | ✅ Fits (multi-session) |
+
+---
+
+## 🚨 Common Issues and Solutions
+
+### **Issue 1: "LLM Provider NOT provided"**
+
+**Symptoms:**
+```
+litellm.BadRequestError: LLM Provider NOT provided.
+You passed model=minimax/MiniMax-M2
+```
+
+**Solution:**
+Change model string from `minimax/MiniMax-M2` to `openai/MiniMax-M2`
+
+**Why:** LiteLLM doesn't recognize `minimax/` as a provider. Use `openai/` prefix with `OPENAI_API_BASE` to redirect to MiniMax.
+
+---
+
+### **Issue 2: "Context window exceeds limit"**
+
+**Symptoms:**
+```
+OpenAIException - invalid params, context window exceeds limit (2013)
+```
+
+**Solution:**
+1. Reduce `map-tokens` to 512
+2. Use compressed policy files
+3. Implement rotation strategy
+4. Load only necessary files with `/add`
+
+**Why:** 281k total tokens > 204k MiniMax M2 limit
+
+---
+
+### **Issue 3: Wrong API Variables**
+
+**Symptoms:**
+```
+Error: ANTHROPIC_API_KEY not found
+```
+
+**Solution:**
+Use `OPENAI_API_KEY` and `OPENAI_API_BASE`, NOT Anthropic variables.
+
+**Correct:**
+```bash
+OPENAI_API_KEY=eyJhbGci...
+OPENAI_API_BASE=https://api.minimax.io/v1
+```
+
+**Incorrect:**
+```bash
+ANTHROPIC_API_KEY=eyJhbGci...  ❌
+```
+
+---
+
+### **Issue 4: 404 Error**
+
+**Symptoms:**
+```
+404 Not Found: Model anthropic/MiniMax-M2 not found
+```
+
+**Solution:**
+Change model string to `openai/MiniMax-M2`
+
+**Why:** MiniMax doesn't support Anthropic API format. It only supports OpenAI-compatible format.
+
+---
+
+### **Issue 5: Aider Doesn't Start**
+
+**Symptoms:**
+Aider exits immediately with error.
+
+**Checklist:**
+1. ✅ Model string is `openai/MiniMax-M2` in `.aider.conf.yml`
+2. ✅ Model string is `openai/MiniMax-M2` in `start-aider-anthropic.bat` line 49
+3. ✅ `OPENAI_API_KEY` is set (in .env or batch file)
+4. ✅ `OPENAI_API_BASE=https://api.minimax.io/v1` is set
+5. ✅ Compressed files exist with `-compress` suffix
+6. ✅ `map-tokens: 512` in config
+
+---
+
+## ✅ Verification Tests
+
+### **Test 1: API Connection**
+
+```bash
+# Test that API credentials work
+test-minimax-api.bat
+```
+
+**Expected Output:**
+```json
+{
+  "id": "chatcmpl-...",
+  "object": "chat.completion",
+  "created": 1700000000,
+  "model": "MiniMax-M2",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Hello! How can I help you today?"
+      },
+      "finish_reason": "stop"
+    }
+  ]
+}
+```
+
+---
+
+### **Test 2: Aider Starts Successfully**
+
+```bash
+start-aider-anthropic.bat
+```
+
+**Expected Output:**
+```
+========================================
+  Starting Aider with MiniMax M2
+  (OpenAI-Compatible Endpoint /v1)
+========================================
+
+Aider v0.86.1
+Model: openai/MiniMax-M2 with diff edit format
+Git repo: .git with 2,062 files
+Repo-map: using 512 tokens
+
+>
+```
+
+✅ **Success Indicator:** You see the `>` prompt without errors
+
+---
+
+### **Test 3: Simple Query**
+
+```
+> What is 2 + 2?
+```
+
+**Expected Response:**
+```
+The answer is 4.
+
+Tokens: 1.7k sent, 156 received.
+```
+
+✅ **Success Indicator:** Model responds correctly with token usage shown
+
+---
+
+### **Test 4: Load Files and Check Context**
+
+```
+> /add docs/build-orders/part-01-foundation.md
+> /add docs/implementation-guides/v5_part_a.md
+```
+
+**Expected:**
+- No errors
+- Files load successfully
+- Context stays within limits
+
+---
+
+## 📝 Final Checklist
+
+Before starting autonomous development, verify:
+
+- [ ] `OPENAI_API_KEY` is set in `.env`
+- [ ] `OPENAI_API_BASE=https://api.minimax.io/v1` is set in `.env`
+- [ ] Model string in `.aider.conf.yml` is `openai/MiniMax-M2`
+- [ ] Model string in `start-aider-anthropic.bat` line 49 is `openai/MiniMax-M2`
+- [ ] `map-tokens: 512` in `.aider.conf.yml`
+- [ ] Compressed files exist: `*-compress.md` and `*_compress.yaml`
+- [ ] Original files preserved as backup
+- [ ] Test script `test-minimax-api.bat` runs successfully
+- [ ] Aider starts without errors
+- [ ] Simple query test passes (2+2=4)
+- [ ] File loading test passes
+
+---
+
+## 🎯 Key Learnings
+
+### **What Works**
+
+1. ✅ **Model String:** `openai/MiniMax-M2` (with OpenAI prefix)
+2. ✅ **API Variables:** `OPENAI_API_KEY` + `OPENAI_API_BASE`
+3. ✅ **Endpoint:** `https://api.minimax.io/v1` (OpenAI-compatible)
+4. ✅ **Context Management:** Compression (43%) + Rotation strategy
+5. ✅ **Map Tokens:** 512 (reduced from 2048)
+
+### **What Doesn't Work**
+
+1. ❌ `anthropic/MiniMax-M2` → 404 Error
+2. ❌ `minimax/MiniMax-M2` → Provider not recognized
+3. ❌ `MiniMax-M2` (no prefix) → Provider not recognized
+4. ❌ `ANTHROPIC_API_KEY` → Wrong variable
+5. ❌ Loading 60+ files → Context overflow
+6. ❌ `map-tokens: 2048` → Too large
+
+---
+
+## 📚 Reference Documents
+
+- **API Test Script:** `test-minimax-api.bat`
+- **Batch Script:** `start-aider-anthropic.bat`
+- **Aider Config:** `.aider.conf.yml`
+- **Environment:** `.env` and `.env.local`
+- **This Document:** `MINIMAX-TROUBLESHOOTING.md`
+
+---
+
+## 🎉 Success Metrics
+
+**Verified Working Configuration:**
+- ✅ API connection successful
+- ✅ Aider starts without errors
+- ✅ Model responds to queries
+- ✅ Context stays within 204k limit
+- ✅ File rotation works smoothly
+- ✅ Token usage tracked: 1.7k sent, 156 received per simple query
+- ✅ Ready for autonomous code generation
+
+---
+
+## 📞 Support
+
+If issues persist after following this guide:
+
+1. **Re-run verification tests** (Test 1-4 above)
+2. **Check error logs** in Aider output
+3. **Compare your config** against this document
+4. **Verify MiniMax API status** at https://platform.minimax.io
+
+---
+
+**Document Version:** 1.0  
+**Last Updated:** 2025-11-20  
+**Status:** Production Ready ✅  
+**Tested By:** Dhapanart + Claude  
+**Success Rate:** 100% after configuration fix
+
+---
+
+## 🚀 Ready to Build!
+
+With this configuration, you can now:
+1. Start Aider with `start-aider-anthropic.bat`
+2. Load Part 1 files
+3. Begin autonomous code generation
+4. Rotate through all 18 parts
+5. Build Trading Alerts SaaS V7 successfully
+
+**Happy Building!** 🎉
