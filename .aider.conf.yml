@@ -14,23 +14,25 @@
 # ~80% cheaper than GPT-4 while maintaining quality
 
 # Main model for code generation (MiniMax M2)
-model: anthropic/MiniMax-M2
+model: openai/MiniMax-M2
 
 # Editor model for smaller edits
-editor-model: anthropic/MiniMax-M2
+editor-model: openai/MiniMax-M2
 
 # Weak model for simple tasks (summaries, commit messages)
-weak-model: anthropic/MiniMax-M2
+weak-model: openai/MiniMax-M2
 
-# Note: Set ANTHROPIC_API_KEY in your environment:
-# set ANTHROPIC_API_KEY=your_minimax_api_key
-# If using a custom Anthropic-compatible endpoint, also set:
-# set ANTHROPIC_API_BASE=https://your-custom-endpoint.com/v1
+# Note: Set OPENAI_API_KEY in your environment:
+# set OPENAI_API_KEY=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJHcm91cE5hbWUiOiJEaGFwYW5hcnQgS2V2YWxlZSIsIlVzZXJOYW1lIjoiRGhhcGFuYXJ0IEtldmFsZWUiLCJBY2NvdW50IjoiIiwiU3ViamVjdElEIjoiMTk4NDI2MzUzNDY1NzE1MTkwMiIsIlBob25lIjoiIiwiR3JvdXBJRCI6IjE5ODQyNjM1MzQ2NTI5NTM1MDIiLCJQYWdlTmFtZSI6IiIsIk1haWwiOiJyaXBwZXI3Mzc1QGdtYWlsLmNvbSIsIkNyZWF0ZVRpbWUiOiIyMDI1LTExLTA1IDE1OjQyOjU0IiwiVG9rZW5UeXBlIjoxLCJpc3MiOiJtaW5pbWF4In0.iDz-qldYGYrqfNg8xvgi0wa8QmL3jXDj7_uAodeqweZeSUm0pK7GYJ0lD6_107mOd73qVkqzsRc-Xfw5MGxP5-AfJf9aHv3ZGl1SBWT5vMXr4K3bulWWAwcfdgNEZ46uXAtNPwQBuPmoqAlarcXOjcPQ6QjCNfos0oa7GGU71xTSkJr3jlntr8_ExFaxuAMSd2D2CwV8r_uY5EBaRddACGbOPIc-GS67ejTqQTQnvgi0sYlIymr1aMmW_VmtBntYvD7xvSIqQzKgew3R2UXnihqJXbjtM0Mv_a-f_qzaD16cFIte2DfnlxP6MtwPqmXMCKp6eu0hBSh4_AaIDIBeVA
+
 
 # ============================================================================
 # ENVIRONMENT FILE
 # ============================================================================
 # Load API keys from .env file automatically
+# For MiniMax M2, your .env file should contain:
+#   OPENAI_API_KEY=your_minimax_api_key_here
+#   OPENAI_API_BASE=https://api.minimax.io/v1
 env-file: .env
 
 # ============================================================================
@@ -81,7 +83,6 @@ read:
   - ARCHITECTURE.md
   - DOCKER.md
   - docs/v5-structure-division.md
-  - phase_milestones_v7_minimax.md
 
   # ============================================================================
   # FILE-BY-FILE BUILD ORDERS (MACRO-TO-MICRO ORDERING)
@@ -381,17 +382,11 @@ dark-mode: true
 # ENVIRONMENT VARIABLES (Set these in your shell, NOT here!)
 # ============================================================================
 # Required for MiniMax M2:
-#   ANTHROPIC_API_KEY=your_minimax_api_key_here
+#   OPENAI_API_KEY=your_minimax_api_key_here
+#   OPENAI_API_BASE=https://api.minimax.io/v1
 #
-# MiniMax M2 uses Anthropic-compatible API, so set ANTHROPIC_API_KEY.
-# If using a custom endpoint (not standard Anthropic API), also set:
-#   ANTHROPIC_API_BASE=https://your-custom-endpoint.com/v1
-#
-# Optional (for the app itself):
-#   DATABASE_URL=postgresql://...
-#   NEXT_PUBLIC_API_URL=http://localhost:3000
-#
-# Never commit API keys! Keep them in .env (which is gitignored)
+# MiniMax M2 uses OpenAI-compatible API endpoint at /v1
+# Both environment variables are REQUIRED for MiniMax M2 to work.
 # ============================================================================
 
 # ============================================================================
@@ -457,7 +452,7 @@ dark-mode: true
 # ============================================================================
 #
 # Issue: "Model not found"
-# Fix: Ensure ANTHROPIC_API_KEY is set and model name is correct
+# Fix: Ensure OPENAI_API_KEY is set and model name is correct
 #
 # Issue: "Policy files not loading"
 # Fix: Check that 'read' paths are correct (relative to project root)
@@ -469,6 +464,6 @@ dark-mode: true
 # Fix: Reduce map-tokens or use lighter weak-model
 #
 # Issue: "Validation failing"
-# Fix: Ensure Claude Code is available and ANTHROPIC_API_KEY is set
+# Fix: Ensure Claude Code is available and OPENAI_API_KEY is set
 #
 # ============================================================================

@@ -1,9 +1,9 @@
 @echo off
 REM ============================================================================
-REM Start Aider with MiniMax M2 (Anthropic-Compatible API)
+REM Start Aider with MiniMax M2 (OpenAI-Compatible API)
 REM ============================================================================
-REM This version uses MiniMax's Anthropic-compatible endpoint
-REM MiniMax recommends using this with official Anthropic SDKs
+REM This version uses MiniMax's OpenAI-compatible endpoint
+REM Test proved this endpoint works (test-minimax-api.bat successful)
 REM
 REM Usage:
 REM   start-aider-anthropic.bat              (starts Aider in current directory)
@@ -14,17 +14,17 @@ REM ============================================================================
 echo.
 echo ========================================
 echo   Starting Aider with MiniMax M2
-echo   (Anthropic-Compatible Endpoint)
+echo   (OpenAI-Compatible Endpoint /v1)
 echo ========================================
 echo.
 
-REM Set MiniMax API credentials using Anthropic-compatible endpoint
+REM Set MiniMax API credentials using OpenAI-compatible endpoint
 REM Replace YOUR_MINIMAX_API_KEY_HERE with your actual key from MiniMax dashboard
-set ANTHROPIC_API_KEY=YOUR_MINIMAX_API_KEY_HERE
-set ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic
+set OPENAI_API_KEY=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJHcm91cE5hbWUiOiJEaGFwYW5hcnQgS2V2YWxlZSIsIlVzZXJOYW1lIjoiRGhhcGFuYXJ0IEtldmFsZWUiLCJBY2NvdW50IjoiIiwiU3ViamVjdElEIjoiMTk4NDI2MzUzNDY1NzE1MTkwMiIsIlBob25lIjoiIiwiR3JvdXBJRCI6IjE5ODQyNjM1MzQ2NTI5NTM1MDIiLCJQYWdlTmFtZSI6IiIsIk1haWwiOiJyaXBwZXI3Mzc1QGdtYWlsLmNvbSIsIkNyZWF0ZVRpbWUiOiIyMDI1LTExLTA1IDE1OjQyOjU0IiwiVG9rZW5UeXBlIjoxLCJpc3MiOiJtaW5pbWF4In0.iDz-qldYGYrqfNg8xvgi0wa8QmL3jXDj7_uAodeqweZeSUm0pK7GYJ0lD6_107mOd73qVkqzsRc-Xfw5MGxP5-AfJf9aHv3ZGl1SBWT5vMXr4K3bulWWAwcfdgNEZ46uXAtNPwQBuPmoqAlarcXOjcPQ6QjCNfos0oa7GGU71xTSkJr3jlntr8_ExFaxuAMSd2D2CwV8r_uY5EBaRddACGbOPIc-GS67ejTqQTQnvgi0sYlIymr1aMmW_VmtBntYvD7xvSIqQzKgew3R2UXnihqJXbjtM0Mv_a-f_qzaD16cFIte2DfnlxP6MtwPqmXMCKp6eu0hBSh4_AaIDIBeVA
+set OPENAI_API_BASE=https://api.minimax.io/v1
 
 REM Check if API key is set
-if "%ANTHROPIC_API_KEY%"=="YOUR_MINIMAX_API_KEY_HERE" (
+if "%OPENAI_API_KEY%"=="YOUR_MINIMAX_API_KEY_HERE" (
     echo ERROR: Please edit start-aider-anthropic.bat and add your MiniMax API key!
     echo.
     echo Open start-aider-anthropic.bat in a text editor and replace:
@@ -37,15 +37,15 @@ if "%ANTHROPIC_API_KEY%"=="YOUR_MINIMAX_API_KEY_HERE" (
 )
 
 echo Environment variables set:
-echo   ANTHROPIC_API_KEY: %ANTHROPIC_API_KEY:~0,20%...
-echo   ANTHROPIC_BASE_URL: %ANTHROPIC_BASE_URL%
+echo   OPENAI_API_KEY: %OPENAI_API_KEY:~0,20%...
+echo   OPENAI_API_BASE: %OPENAI_API_BASE%
 echo.
 
-echo Starting Aider with Anthropic-compatible model: anthropic/MiniMax-M2
+echo Starting Aider with OpenAI-compatible model: MiniMax-M2
 echo.
 
-REM Use Anthropic-compatible endpoint (recommended by MiniMax)
-py -3.11 -m aider --model anthropic/MiniMax-M2 %*
+REM Use OpenAI-compatible endpoint (verified by test-minimax-api.bat)
+py -3.11 -m aider --model openai/MiniMax-M2 %*
 
 REM If Aider exits with error, pause so user can see error message
 if errorlevel 1 (
