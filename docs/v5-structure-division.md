@@ -1,8 +1,8 @@
-# V5 Project Structure Division - 16 Logical Parts
+# V5 Project Structure Division - 18 Logical Parts
 
 ## Overview
 
-The V5 project structure is divided into **16 logical parts** that can be built systematically. Each part represents a cohesive set of files and folders.
+The V5 project structure is divided into **18 logical parts** that can be built systematically. Each part represents a cohesive set of files and folders.
 
 ---
 
