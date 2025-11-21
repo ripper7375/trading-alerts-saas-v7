@@ -209,10 +209,12 @@ Start with File 1/15: mt5-service/app.py
 | 14 | part-14-admin.md | v5_part_n.md | ✅ Exists |
 | 15 | part-15-notifications.md | v5_part_o.md | ✅ Exists |
 | 16 | part-16-utilities.md | v5_part_p.md | ✅ Exists |
-| 17 | part-17-affiliate.md | v5_part_r.md | ✅ Exists |
-| 18 | part-18-dlocal.md | v5_part_s.md | ✅ Exists |
+| 17 | part-17-affiliate.md | v5_part_q.md | ✅ Exists (created 2025-11-21) |
+| 18 | part-18-dlocal.md | v5_part_r.md | ✅ Exists (comprehensive - 2680 lines) |
 
 **All 18 implementation guides now exist and are ready for use!**
+
+**Note:** v5_part_s.md also exists for Part 18 (shorter summary - 611 lines), but v5_part_r.md is the primary comprehensive guide.
 
 ---
 

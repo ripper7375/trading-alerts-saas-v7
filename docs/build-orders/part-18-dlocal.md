@@ -13,7 +13,7 @@
 **Scope:** Payment processing for emerging markets (India, Nigeria, Pakistan, Vietnam, Indonesia, Thailand, South Africa, Turkey) using local payment methods without international cards.
 
 **Implementation Guide References:**
-- `docs/implementation-guides/v5_part_s.md` - dLocal payment integration business requirements and workflows
+- `docs/implementation-guides/v5_part_r.md` - dLocal payment integration business requirements and workflows (comprehensive - 2680 lines)
 - `docs/policies/06-aider-instructions.md` Section 13 (Step 1.7) - dLocal implementation architecture and specifications
 - `docs/policies/07-dlocal-integration-rules.md` - dLocal-specific integration rules and policies
 - `docs/dlocal-openapi-endpoints.yaml` - dLocal API endpoint specifications
