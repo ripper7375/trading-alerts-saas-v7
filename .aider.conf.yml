@@ -205,22 +205,26 @@ read:
   # /read-only docs/implementation-guides/v5_part_p.md              # ~4k
   
   # ==========================================================================
-  # PART 17: AFFILIATE MARKETING (~26k tokens) WARNING: LARGE!
+  # PART 17: AFFILIATE MARKETING (~8k tokens)
   # ==========================================================================
-  # When building: 67 affiliate system files
-  # BREAK INTO 4 SUB-SESSIONS (Files 1-11, 12-30, 31-49, 50-67)
-  # /read-only docs/build-orders/part-17-affiliate.md               # ~2k
-  # /read-only docs/implementation-guides/v5_part_r.md              # ~19k
+  # When building: 67 affiliate system files (8 phases: A-H)
+  # /read-only docs/build-orders/part-17-affiliate.md               # ~6k
+  # /read-only docs/implementation-guides/v5_part_q.md              # ~18k
   # /read-only docs/AFFILIATE-MARKETING-DESIGN.md                   # ~5k
+  #
+  # Note: Build-order now has file-by-file instructions (67 files detailed)
+  # No sub-sessions needed - Aider can build sequentially through all phases
   
   # ==========================================================================
-  # PART 18: DLOCAL PAYMENTS (~28k tokens) WARNING: LARGE!
+  # PART 18: DLOCAL PAYMENTS (~12k tokens)
   # ==========================================================================
   # When building: 45 payment integration files
-  # BREAK INTO 4 SUB-SESSIONS (Files 1-9, 10-18, 19-25, 26-37)
   # /read-only docs/build-orders/part-18-dlocal.md                  # ~2k
-  # /read-only docs/implementation-guides/v5_part_s.md              # ~10k
+  # /read-only docs/implementation-guides/v5_part_r.md              # ~19k (comprehensive)
   # /read-only docs/dlocal-openapi-endpoints.yaml                   # ~7k
+  #
+  # Note: v5_part_r.md is the primary implementation guide for Part 18
+  # (v5_part_s.md also exists as a shorter summary - 611 lines vs 2680 lines)
   
   # ========== OTHER OPTIONAL FILES (Load when needed) ==========
   # These files can be loaded on-demand for reference
