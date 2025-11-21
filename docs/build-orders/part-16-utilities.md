@@ -13,8 +13,7 @@
 **Scope:** Helper functions, validation schemas, error handling, caching, email, and deployment config.
 
 **Implementation Guide References:**
-- `docs/implementation-guides/v5_part_*.md` - Multiple implementation guides covering utility requirements, validation rules, and infrastructure specifications
-- Reference specific sections for email templates, error handling patterns, and caching strategies
+- `docs/implementation-guides/v5_part_p.md` - Utilities & infrastructure business logic, validation schemas, and helper functions
 
 **Key Changes from V4:**
 - ✅ NEW: `watchlist.ts` validation for symbol+timeframe combinations

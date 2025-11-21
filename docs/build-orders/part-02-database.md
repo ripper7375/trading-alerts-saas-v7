@@ -13,7 +13,7 @@
 **Scope:** Database layer with Prisma ORM, schema definition, migrations, and seed data
 
 **Implementation Guide References:**
-- `docs/implementation-guides/v5_part_c.md` - Database models and Prisma schema
+- `docs/implementation-guides/v5_part_b.md` - Database models and Prisma schema
 - `docs/trading_alerts_openapi.yaml` - Model schema definitions for all entities
 - `docs/policies/00-tier-specifications.md` - Tier enum and FREE/PRO specifications
 
