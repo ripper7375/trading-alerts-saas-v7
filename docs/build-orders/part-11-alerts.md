@@ -13,8 +13,7 @@
 **Scope:** Alert management with tier-based limits, price alerts, and notifications.
 
 **Implementation Guide References:**
-- `docs/implementation-guides/v5_part_*.md` - Multiple implementation guides covering alert business logic, notification requirements, and tier-based restrictions
-- Reference specific sections as needed for alert creation, triggering, and notification workflows
+- `docs/implementation-guides/v5_part_k.md` - Alerts system business logic, tier-based limits, and notification workflows
 
 **Key Changes from V4:**
 - ✅ Alert form shows only tier-allowed symbols

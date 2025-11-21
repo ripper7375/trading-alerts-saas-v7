@@ -219,7 +219,7 @@ read:
   # When building: 45 payment integration files
   # BREAK INTO 4 SUB-SESSIONS (Files 1-9, 10-18, 19-25, 26-37)
   # /read-only docs/build-orders/part-18-dlocal.md                  # ~2k
-  # /read-only docs/implementation-guides/v5_part_r.md              # ~19k
+  # /read-only docs/implementation-guides/v5_part_s.md              # ~10k
   # /read-only docs/dlocal-openapi-endpoints.yaml                   # ~7k
   
   # ========== OTHER OPTIONAL FILES (Load when needed) ==========
