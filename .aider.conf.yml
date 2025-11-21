@@ -49,7 +49,7 @@ attribute-committer: true
 read:
   # ========== COMPRESSED POLICY FILES (79k tokens) ==========
   # These were compressed by Claude Code to reduce token usage
-  # Original: 139k → Compressed: 79k (43% reduction)
+  # Original: 139k -> Compressed: 79k (43% reduction)
   
   - docs/policies/01-approval-policies-compress.md        # 9,491 tokens
   - docs/policies/02-quality-standards.md                 # 9,818 tokens (not compressed, small)
@@ -73,10 +73,10 @@ read:
   - docs/v5-structure-division.md                          # ~10,000 tokens
   - docs/build-orders/README.md                            # ~3,000 tokens
   
-  # ────────────────────────────────────────────────────────────
+  # --------------------------------------------------------------------------
   # TOTAL BASE LOAD: ~129,000 tokens
   # AVAILABLE FOR DYNAMIC LOADING: ~75,000 tokens
-  # ────────────────────────────────────────────────────────────
+  # --------------------------------------------------------------------------
 
   # ========== ROTATION STRATEGY: PART-BY-PART LOADING ==========
   # Load these files ONLY when working on specific parts
@@ -85,133 +85,133 @@ read:
   # CRITICAL: Do NOT uncomment multiple parts at once!
   # Load ONE part at a time, complete it, then move to next
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 1: FOUNDATION & ROOT CONFIG (~11k tokens)          │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 1: FOUNDATION & ROOT CONFIG (~11k tokens)
+  # ==========================================================================
   # When building: 12 configuration files
   # /add docs/build-orders/part-01-foundation.md              # ~5k
   # /add docs/implementation-guides/v5_part_a.md              # ~6k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 2: DATABASE SCHEMA (~7k tokens)                    │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 2: DATABASE SCHEMA (~7k tokens)
+  # ==========================================================================
   # When building: 4 database files
   # /add docs/build-orders/part-02-database.md                # ~3k
   # /add docs/implementation-guides/v5_part_b.md              # ~4k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 3: TYPE DEFINITIONS (~13k tokens)                  │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 3: TYPE DEFINITIONS (~13k tokens)
+  # ==========================================================================
   # When building: 6 type files
   # /add docs/build-orders/part-03-types.md                   # ~8k
   # /add docs/implementation-guides/v5_part_c.md              # ~5k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 4: TIER SYSTEM (~7k tokens)                        │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 4: TIER SYSTEM (~7k tokens)
+  # ==========================================================================
   # When building: 4 tier management files
   # /add docs/build-orders/part-04-tier-system.md             # ~4k
   # /add docs/implementation-guides/v5_part_d.md              # ~3k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 5: AUTHENTICATION (~13k tokens)                    │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 5: AUTHENTICATION (~13k tokens)
+  # ==========================================================================
   # When building: 19 authentication files (Google OAuth + credentials)
   # /add docs/build-orders/part-05-authentication.md          # ~2k
   # /add docs/implementation-guides/v5_part_e.md              # ~5k
   # /add docs/policies/08-google-oauth-implementation-rules.md # ~4k
   # /add docs/OAUTH_IMPLEMENTATION_READY.md                   # ~2k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 6: FLASK MT5 SERVICE (~16k tokens)                 │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 6: FLASK MT5 SERVICE (~16k tokens)
+  # ==========================================================================
   # When building: 15 Flask microservice files
   # /add docs/build-orders/part-06-flask-mt5.md               # ~2k
   # /add docs/implementation-guides/v5_part_f.md              # ~4k
   # /add docs/flask_mt5_openapi.yaml                          # ~10k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 7: INDICATORS API (~6k tokens)                     │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 7: INDICATORS API (~6k tokens)
+  # ==========================================================================
   # When building: 6 API route files
   # /add docs/build-orders/part-07-indicators-api.md          # ~2k
   # /add docs/implementation-guides/v5_part_g.md              # ~4k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 8: DASHBOARD (~6k tokens)                          │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 8: DASHBOARD (~6k tokens)
+  # ==========================================================================
   # When building: 9 dashboard component files
   # /add docs/build-orders/part-08-dashboard.md               # ~2k
   # /add docs/implementation-guides/v5_part_h.md              # ~4k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 9: CHARTS (~6k tokens)                             │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 9: CHARTS (~6k tokens)
+  # ==========================================================================
   # When building: 8 chart component files
   # /add docs/build-orders/part-09-charts.md                  # ~2k
   # /add docs/implementation-guides/v5_part_i.md              # ~4k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 10: WATCHLIST (~6k tokens)                         │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 10: WATCHLIST (~6k tokens)
+  # ==========================================================================
   # When building: 8 watchlist files
   # /add docs/build-orders/part-10-watchlist.md               # ~2k
   # /add docs/implementation-guides/v5_part_j.md              # ~4k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 11: ALERTS (~6k tokens)                            │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 11: ALERTS (~6k tokens)
+  # ==========================================================================
   # When building: 10 alert system files
   # /add docs/build-orders/part-11-alerts.md                  # ~2k
   # /add docs/implementation-guides/v5_part_k.md              # ~4k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 12: E-COMMERCE & BILLING (~7k tokens)              │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 12: E-COMMERCE & BILLING (~7k tokens)
+  # ==========================================================================
   # When building: 11 Stripe integration files
   # /add docs/build-orders/part-12-ecommerce.md               # ~2k
   # /add docs/implementation-guides/v5_part_l.md              # ~5k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 13: SETTINGS (~6k tokens)                          │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 13: SETTINGS (~6k tokens)
+  # ==========================================================================
   # When building: 17 settings page files
   # /add docs/build-orders/part-13-settings.md                # ~2k
   # /add docs/implementation-guides/v5_part_m.md              # ~4k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 14: ADMIN DASHBOARD (~6k tokens)                   │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 14: ADMIN DASHBOARD (~6k tokens)
+  # ==========================================================================
   # When building: 9 admin portal files
   # /add docs/build-orders/part-14-admin.md                   # ~2k
   # /add docs/implementation-guides/v5_part_n.md              # ~4k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 15: NOTIFICATIONS (~6k tokens)                     │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 15: NOTIFICATIONS (~6k tokens)
+  # ==========================================================================
   # When building: 9 notification system files
   # /add docs/build-orders/part-15-notifications.md           # ~2k
   # /add docs/implementation-guides/v5_part_o.md              # ~4k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 16: UTILITIES (~6k tokens)                         │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 16: UTILITIES (~6k tokens)
+  # ==========================================================================
   # When building: 25 utility files
   # /add docs/build-orders/part-16-utilities.md               # ~2k
   # /add docs/implementation-guides/v5_part_p.md              # ~4k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 17: AFFILIATE MARKETING (~26k tokens) ⚠️ LARGE!    │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 17: AFFILIATE MARKETING (~26k tokens) WARNING: LARGE!
+  # ==========================================================================
   # When building: 67 affiliate system files
   # BREAK INTO 4 SUB-SESSIONS (Files 1-11, 12-30, 31-49, 50-67)
   # /add docs/build-orders/part-17-affiliate.md               # ~2k
   # /add docs/implementation-guides/v5_part_r.md              # ~19k
   # /add docs/AFFILIATE-MARKETING-DESIGN.md                   # ~5k
   
-  # ┌─────────────────────────────────────────────────────────┐
-  # │ PART 18: DLOCAL PAYMENTS (~28k tokens) ⚠️ LARGE!        │
-  # └─────────────────────────────────────────────────────────┘
+  # ==========================================================================
+  # PART 18: DLOCAL PAYMENTS (~28k tokens) WARNING: LARGE!
+  # ==========================================================================
   # When building: 45 payment integration files
   # BREAK INTO 4 SUB-SESSIONS (Files 1-9, 10-18, 19-25, 26-37)
   # /add docs/build-orders/part-18-dlocal.md                  # ~2k
@@ -267,7 +267,7 @@ dark-mode: true
 # ============================================================================
 #
 # STEP 1: Start Aider
-# ────────────────────
+# --------------------
 # > start-aider-anthropic.bat
 #
 # Base load will automatically include:
@@ -277,13 +277,13 @@ dark-mode: true
 # - Build order README
 #
 # STEP 2: Load Part Files (ONE PART AT A TIME)
-# ──────────────────────────────────────────────
+# ----------------------------------------------
 # Example for Part 1:
 # > /add docs/build-orders/part-01-foundation.md
 # > /add docs/implementation-guides/v5_part_a.md
 #
 # STEP 3: Build Part
-# ──────────────────
+# ------------------
 # > "Build Part 1 following the build order"
 #
 # Aider will:
@@ -294,7 +294,7 @@ dark-mode: true
 # - Auto-commit if approved
 #
 # STEP 4: Rotate to Next Part
-# ────────────────────────────
+# ----------------------------
 # > /drop docs/build-orders/part-01-foundation.md
 # > /drop docs/implementation-guides/v5_part_a.md
 # > /add docs/build-orders/part-02-database.md
@@ -302,7 +302,7 @@ dark-mode: true
 # > "Build Part 2 following the build order"
 #
 # STEP 5: Repeat for All Parts (1-18)
-# ────────────────────────────────────
+# ------------------------------------
 # Continue rotating through parts until complete
 #
 # ============================================================================
