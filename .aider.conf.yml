@@ -1,469 +1,324 @@
 # ============================================================================
-# Trading Alerts SaaS V7 - Aider Configuration
+# Trading Alerts SaaS V7 - Aider Configuration (MiniMax M2 Optimized)
 # ============================================================================
-# This file configures Aider to work autonomously with MiniMax M2 API
-# following our 8 policy documents for consistent, high-quality code generation.
+# This file configures Aider to work with MiniMax M2 API using a rotation
+# strategy to stay within the 204,800 token context window limit.
 #
-# Last Updated: 2025-11-17 (Added Policy 08: Google OAuth Integration)
+# Last Updated: 2025-11-20
+# Context Window: 204,800 tokens (MiniMax M2)
+# Base Load: ~129,000 tokens (compressed policies + architecture)
+# Available for Dynamic Loading: ~75,000 tokens
 # ============================================================================
 
 # ============================================================================
 # MODEL CONFIGURATION
 # ============================================================================
-# MiniMax M2 is configured as the default model
-# ~80% cheaper than GPT-4 while maintaining quality
+# MiniMax M2 via OpenAI-compatible endpoint
 
-# Main model for code generation (MiniMax M2)
+# Main model for code generation
 model: openai/MiniMax-M2
 
 # Editor model for smaller edits
 editor-model: openai/MiniMax-M2
 
-# Weak model for simple tasks (summaries, commit messages)
+# Weak model for simple tasks
 weak-model: openai/MiniMax-M2
 
-# Note: Set OPENAI_API_KEY in your environment:
-# set OPENAI_API_KEY=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJHcm91cE5hbWUiOiJEaGFwYW5hcnQgS2V2YWxlZSIsIlVzZXJOYW1lIjoiRGhhcGFuYXJ0IEtldmFsZWUiLCJBY2NvdW50IjoiIiwiU3ViamVjdElEIjoiMTk4NDI2MzUzNDY1NzE1MTkwMiIsIlBob25lIjoiIiwiR3JvdXBJRCI6IjE5ODQyNjM1MzQ2NTI5NTM1MDIiLCJQYWdlTmFtZSI6IiIsIk1haWwiOiJyaXBwZXI3Mzc1QGdtYWlsLmNvbSIsIkNyZWF0ZVRpbWUiOiIyMDI1LTExLTA1IDE1OjQyOjU0IiwiVG9rZW5UeXBlIjoxLCJpc3MiOiJtaW5pbWF4In0.iDz-qldYGYrqfNg8xvgi0wa8QmL3jXDj7_uAodeqweZeSUm0pK7GYJ0lD6_107mOd73qVkqzsRc-Xfw5MGxP5-AfJf9aHv3ZGl1SBWT5vMXr4K3bulWWAwcfdgNEZ46uXAtNPwQBuPmoqAlarcXOjcPQ6QjCNfos0oa7GGU71xTSkJr3jlntr8_ExFaxuAMSd2D2CwV8r_uY5EBaRddACGbOPIc-GS67ejTqQTQnvgi0sYlIymr1aMmW_VmtBntYvD7xvSIqQzKgew3R2UXnihqJXbjtM0Mv_a-f_qzaD16cFIte2DfnlxP6MtwPqmXMCKp6eu0hBSh4_AaIDIBeVA
-
+# Note: Set these environment variables:
+# OPENAI_API_KEY=your_minimax_api_key
+# OPENAI_API_BASE=https://api.minimax.io/v1
 
 # ============================================================================
 # ENVIRONMENT FILE
 # ============================================================================
-# Load API keys from .env file automatically
-# For MiniMax M2, your .env file should contain:
-#   OPENAI_API_KEY=your_minimax_api_key_here
-#   OPENAI_API_BASE=https://api.minimax.io/v1
 env-file: .env
 
 # ============================================================================
 # AUTO-COMMIT SETTINGS
 # ============================================================================
-
-# Enable auto-commits after successful code generation
-# Set to false for interactive testing, true for autonomous mode
 auto-commits: false
-
-# Commit message template
-# Aider will use this format for commit messages
-# commit-prompt: |
-#   Write a concise commit message following conventional commits format.
-#   Format: <type>(<scope>): <description>
-#   Types: feat, fix, docs, style, refactor, test, chore
-#   Include validation results in commit body.
-
-# Require attribution in commits
 attribute-author: true
 attribute-committer: true
 
 # ============================================================================
-# POLICY DOCUMENTS (READ-ONLY)
+# CORE POLICY DOCUMENTS (ALWAYS LOADED - BASE: ~79k tokens)
 # ============================================================================
-# These files guide Aider's decision-making but should never be modified
+# These compressed files provide essential guidance for all development
+# NEVER remove these from the base load - they're required for quality
 
 read:
-  # Core policy documents (PRIMARY GUIDANCE)
-  - docs/policies/01-approval-policies.md
-  - docs/policies/02-quality-standards.md
-  - docs/policies/03-architecture-rules.md
-  - docs/policies/04-escalation-triggers.md
-  - docs/policies/05-coding-patterns.md
-  - docs/policies/06-aider-instructions.md
+  # ========== COMPRESSED POLICY FILES (79k tokens) ==========
+  # These were compressed by Claude Code to reduce token usage
+  # Original: 139k → Compressed: 79k (43% reduction)
+  
+  - docs/policies/01-approval-policies-compress.md        # 9,491 tokens
+  - docs/policies/02-quality-standards.md                 # 9,818 tokens (not compressed, small)
+  - docs/policies/03-architecture-rules-compress.md       # 11,326 tokens
+  - docs/policies/04-escalation-triggers-compress.md      # 7,430 tokens
+  - docs/policies/05-coding-patterns-compress.md          # 20,999 tokens
+  - docs/policies/06-aider-instructions.md                # 10,966 tokens (not compressed)
+  - docs/policies/07-dlocal-integration-rules-compress.md # 6,870 tokens
+  - docs/policies/00-tier-specifications.md               # 2,479 tokens (not compressed, tiny)
+  
+  # ========== COMPRESSED OPENAPI SPEC (22k tokens) ==========
+  # Primary API contract - always available
+  
+  - docs/trading_alerts_openapi_compress.yaml             # 21,690 tokens
+  
+  # ========== ARCHITECTURE & STRUCTURE (28k tokens) ==========
+  # Project structure and architecture documentation
+  
+  - ARCHITECTURE.md                                        # ~10,000 tokens
+  - README.md                                              # ~5,000 tokens
+  - docs/v5-structure-division.md                          # ~10,000 tokens
+  - docs/build-orders/README.md                            # ~3,000 tokens
+  
+  # ────────────────────────────────────────────────────────────
+  # TOTAL BASE LOAD: ~129,000 tokens
+  # AVAILABLE FOR DYNAMIC LOADING: ~75,000 tokens
+  # ────────────────────────────────────────────────────────────
 
-  # Payment integration policies
-  - docs/policies/07-dlocal-integration-rules.md
-
-  # Google OAuth integration policies (Part 5: Authentication)
-  - docs/policies/08-google-oauth-implementation-rules.md
-
-  # OAuth implementation decisions and guides
-  - docs/decisions/google-oauth-decisions.md
-  - docs/OAUTH_IMPLEMENTATION_READY.md
-
-  # Architecture and structure documentation
-  - ARCHITECTURE.md
-  - DOCKER.md
-  - docs/v5-structure-division.md
-
-  # ============================================================================
-  # FILE-BY-FILE BUILD ORDERS (MACRO-TO-MICRO ORDERING)
-  # ============================================================================
-  # These files provide detailed build sequence for each part
-  # Alignment: (E) Phase → (B) Parts → (C) File-by-file orders
-  - docs/build-orders/part-01-foundation.md
-  - docs/build-orders/part-02-database.md
-  - docs/build-orders/part-03-types.md
-  - docs/build-orders/part-04-tier-system.md
-  - docs/build-orders/part-05-authentication.md
-  - docs/build-orders/part-06-flask-mt5.md
-  - docs/build-orders/part-07-indicators-api.md
-  - docs/build-orders/part-08-dashboard.md
-  - docs/build-orders/part-09-charts.md
-  - docs/build-orders/part-10-watchlist.md
-  - docs/build-orders/part-11-alerts.md
-  - docs/build-orders/part-12-ecommerce.md
-  - docs/build-orders/part-13-settings.md
-  - docs/build-orders/part-14-admin.md
-  - docs/build-orders/part-15-notifications.md
-  - docs/build-orders/part-16-utilities.md
-  - docs/build-orders/part-17-affiliate.md
-  - docs/build-orders/part-18-dlocal.md
-
-  # Tier specifications
-  - docs/policies/00-tier-specifications.md
-
-  # OpenAPI specifications (source of truth)
-  - docs/trading_alerts_openapi.yaml
-  - docs/flask_mt5_openapi.yaml
-  - docs/dlocal-openapi-endpoints.yaml
-
-  # Project overview
-  - README.md
-  - package.json  # Dependencies available for code generation
-
-  # Progress tracking (Aider updates this, but reads for context)
+  # ========== ROTATION STRATEGY: PART-BY-PART LOADING ==========
+  # Load these files ONLY when working on specific parts
+  # Use /add and /drop commands to rotate files as needed
+  #
+  # CRITICAL: Do NOT uncomment multiple parts at once!
+  # Load ONE part at a time, complete it, then move to next
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 1: FOUNDATION & ROOT CONFIG (~11k tokens)          │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 12 configuration files
+  # /add docs/build-orders/part-01-foundation.md              # ~5k
+  # /add docs/implementation-guides/v5_part_a.md              # ~6k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 2: DATABASE SCHEMA (~7k tokens)                    │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 4 database files
+  # /add docs/build-orders/part-02-database.md                # ~3k
+  # /add docs/implementation-guides/v5_part_b.md              # ~4k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 3: TYPE DEFINITIONS (~13k tokens)                  │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 6 type files
+  # /add docs/build-orders/part-03-types.md                   # ~8k
+  # /add docs/implementation-guides/v5_part_c.md              # ~5k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 4: TIER SYSTEM (~7k tokens)                        │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 4 tier management files
+  # /add docs/build-orders/part-04-tier-system.md             # ~4k
+  # /add docs/implementation-guides/v5_part_d.md              # ~3k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 5: AUTHENTICATION (~13k tokens)                    │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 19 authentication files (Google OAuth + credentials)
+  # /add docs/build-orders/part-05-authentication.md          # ~2k
+  # /add docs/implementation-guides/v5_part_e.md              # ~5k
+  # /add docs/policies/08-google-oauth-implementation-rules.md # ~4k
+  # /add docs/OAUTH_IMPLEMENTATION_READY.md                   # ~2k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 6: FLASK MT5 SERVICE (~16k tokens)                 │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 15 Flask microservice files
+  # /add docs/build-orders/part-06-flask-mt5.md               # ~2k
+  # /add docs/implementation-guides/v5_part_f.md              # ~4k
+  # /add docs/flask_mt5_openapi.yaml                          # ~10k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 7: INDICATORS API (~6k tokens)                     │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 6 API route files
+  # /add docs/build-orders/part-07-indicators-api.md          # ~2k
+  # /add docs/implementation-guides/v5_part_g.md              # ~4k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 8: DASHBOARD (~6k tokens)                          │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 9 dashboard component files
+  # /add docs/build-orders/part-08-dashboard.md               # ~2k
+  # /add docs/implementation-guides/v5_part_h.md              # ~4k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 9: CHARTS (~6k tokens)                             │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 8 chart component files
+  # /add docs/build-orders/part-09-charts.md                  # ~2k
+  # /add docs/implementation-guides/v5_part_i.md              # ~4k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 10: WATCHLIST (~6k tokens)                         │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 8 watchlist files
+  # /add docs/build-orders/part-10-watchlist.md               # ~2k
+  # /add docs/implementation-guides/v5_part_j.md              # ~4k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 11: ALERTS (~6k tokens)                            │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 10 alert system files
+  # /add docs/build-orders/part-11-alerts.md                  # ~2k
+  # /add docs/implementation-guides/v5_part_k.md              # ~4k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 12: E-COMMERCE & BILLING (~7k tokens)              │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 11 Stripe integration files
+  # /add docs/build-orders/part-12-ecommerce.md               # ~2k
+  # /add docs/implementation-guides/v5_part_l.md              # ~5k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 13: SETTINGS (~6k tokens)                          │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 17 settings page files
+  # /add docs/build-orders/part-13-settings.md                # ~2k
+  # /add docs/implementation-guides/v5_part_m.md              # ~4k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 14: ADMIN DASHBOARD (~6k tokens)                   │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 9 admin portal files
+  # /add docs/build-orders/part-14-admin.md                   # ~2k
+  # /add docs/implementation-guides/v5_part_n.md              # ~4k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 15: NOTIFICATIONS (~6k tokens)                     │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 9 notification system files
+  # /add docs/build-orders/part-15-notifications.md           # ~2k
+  # /add docs/implementation-guides/v5_part_o.md              # ~4k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 16: UTILITIES (~6k tokens)                         │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 25 utility files
+  # /add docs/build-orders/part-16-utilities.md               # ~2k
+  # /add docs/implementation-guides/v5_part_p.md              # ~4k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 17: AFFILIATE MARKETING (~26k tokens) ⚠️ LARGE!    │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 67 affiliate system files
+  # BREAK INTO 4 SUB-SESSIONS (Files 1-11, 12-30, 31-49, 50-67)
+  # /add docs/build-orders/part-17-affiliate.md               # ~2k
+  # /add docs/implementation-guides/v5_part_r.md              # ~19k
+  # /add docs/AFFILIATE-MARKETING-DESIGN.md                   # ~5k
+  
+  # ┌─────────────────────────────────────────────────────────┐
+  # │ PART 18: DLOCAL PAYMENTS (~28k tokens) ⚠️ LARGE!        │
+  # └─────────────────────────────────────────────────────────┘
+  # When building: 45 payment integration files
+  # BREAK INTO 4 SUB-SESSIONS (Files 1-9, 10-18, 19-25, 26-37)
+  # /add docs/build-orders/part-18-dlocal.md                  # ~2k
+  # /add docs/implementation-guides/v5_part_r.md              # ~19k
+  # /add docs/dlocal-openapi-endpoints.yaml                   # ~7k
+  
+  # ========== OTHER OPTIONAL FILES (Load when needed) ==========
+  # These files can be loaded on-demand for reference
+  
+  # Other OpenAPI specs (load when working on specific APIs):
+  # /add docs/flask_mt5_openapi.yaml                          # ~10k
+  # /add docs/dlocal-openapi-endpoints.yaml                   # ~7k
+  
+  # Seed code (load specific files when referencing patterns):
+  # /add seed-code/saas-starter/app/(login)/actions.ts
+  # /add seed-code/v0-components/layouts/dashboard-layout.tsx
+  # etc.
+  
+  # Progress tracking (automatically updated by Aider):
   - PROGRESS.md
-
-  # ============================================================================
-  # SEED CODE - AUTHENTICATION PATTERNS
-  # ============================================================================
-  # Reference these when implementing Part 5 (Authentication) or any auth-related features
-  # These provide complete examples of login/signup flows, form validation, error handling
-  - seed-code/saas-starter/app/(login)/actions.ts
-  - seed-code/saas-starter/app/(login)/sign-in/page.tsx
-  - seed-code/saas-starter/app/(login)/sign-up/page.tsx
-  - seed-code/next-shadcn-dashboard-starter/src/app/auth/sign-in/[[...sign-in]]/page.tsx
-  - seed-code/next-shadcn-dashboard-starter/src/app/auth/sign-up/[[...sign-up]]/page.tsx
-
-  # ============================================================================
-  # SEED CODE - DASHBOARD LAYOUTS
-  # ============================================================================
-  # Reference these when implementing dashboard pages (Part 11, 12, 13, 14)
-  # These show complete dashboard structure, sidebar navigation, header patterns
-  - seed-code/saas-starter/app/(dashboard)/layout.tsx
-  - seed-code/saas-starter/app/(dashboard)/page.tsx
-  - seed-code/next-shadcn-dashboard-starter/src/app/dashboard/layout.tsx
-  - seed-code/next-shadcn-dashboard-starter/src/app/dashboard/page.tsx
-  - seed-code/next-shadcn-dashboard-starter/src/app/dashboard/overview/layout.tsx
-  - seed-code/v0-components/layouts/dashboard-layout.tsx
-  - seed-code/v0-components/layouts/dashboard-page.tsx
-
-  # ============================================================================
-  # SEED CODE - API ROUTES PATTERNS
-  # ============================================================================
-  # Reference these when implementing API endpoints (Part 7, 8, 9, 10, etc.)
-  # These show Next.js 15 App Router API patterns, error handling, validation
-  - seed-code/saas-starter/app/api/user/route.ts
-  - seed-code/saas-starter/app/api/team/route.ts
-  - seed-code/saas-starter/app/api/stripe/checkout/route.ts
-  - seed-code/saas-starter/app/api/stripe/webhook/route.ts
-
-  # ============================================================================
-  # SEED CODE - BILLING & SUBSCRIPTION PATTERNS
-  # ============================================================================
-  # Reference these when implementing Part 15 (Billing & Subscription)
-  # These show Stripe integration, subscription management, upgrade flows
-  - seed-code/saas-starter/app/(dashboard)/pricing/page.tsx
-  - seed-code/saas-starter/app/(dashboard)/pricing/submit-button.tsx
-
-  # ============================================================================
-  # SEED CODE - UI COMPONENTS
-  # ============================================================================
-  # Reference these when building UI components (Part 2, 3, 4)
-  # V0 Components - Main README (complete 20-component mapping guide)
-  - seed-code/v0-components/README.md
-  # Existing components (charts, alerts, layouts)
-  - seed-code/v0-components/charts/trading-chart.tsx
-  - seed-code/v0-components/alerts/alert-card.tsx
-  # Layout components (header, sidebar, navigation)
-  - seed-code/next-shadcn-dashboard-starter/src/components/layout/header.tsx
-  - seed-code/next-shadcn-dashboard-starter/src/components/layout/app-sidebar.tsx
-  - seed-code/next-shadcn-dashboard-starter/src/components/layout/user-nav.tsx
-
-  # ============================================================================
-  # SEED CODE - FORM PATTERNS
-  # ============================================================================
-  # Reference these when implementing forms with validation (any part with forms)
-  # These show React Hook Form + Zod patterns, error handling, loading states
-  - seed-code/next-shadcn-dashboard-starter/src/components/forms/demo-form.tsx
-  - seed-code/next-shadcn-dashboard-starter/src/components/forms/form-input.tsx
-  - seed-code/next-shadcn-dashboard-starter/src/components/forms/form-select.tsx
-  - seed-code/next-shadcn-dashboard-starter/src/components/forms/form-checkbox.tsx
-  - seed-code/next-shadcn-dashboard-starter/src/components/forms/form-date-picker.tsx
-
-  # ============================================================================
-  # SEED CODE - FLASK/MT5 PATTERNS
-  # ============================================================================
-  # Reference these when implementing Part 6 (Flask MT5 Service)
-  - seed-code/market_ai_engine.py
-
-  # ============================================================================
-  # IMPLEMENTATION GUIDES (PART-SPECIFIC REQUIREMENTS)
-  # ============================================================================
-  # Reference the relevant guide for each part you're implementing
-  # These provide detailed requirements, business logic, and implementation notes
-  - docs/implementation-guides/v5_part_a.md  # Part A: Foundation & Root Config
-  - docs/implementation-guides/v5_part_b.md  # Part B: Database Schema (Prisma)
-  - docs/implementation-guides/v5_part_c.md  # Part C: Type Definitions
-  - docs/implementation-guides/v5_part_d.md  # Part D: Utilities & Helpers
-  - docs/implementation-guides/v5_part_e.md  # Part E: Authentication (NextAuth)
-  - docs/implementation-guides/v5_part_f.md  # Part F: Flask MT5 Service
-  - docs/implementation-guides/v5_part_g.md  # Part G: API Routes - User Management
-  - docs/implementation-guides/v5_part_h.md  # Part H: API Routes - Chart Data
-  - docs/implementation-guides/v5_part_i.md  # Part I: API Routes - Indicators
-  - docs/implementation-guides/v5_part_j.md  # Part J: API Routes - Watchlist
-  - docs/implementation-guides/v5_part_r.md  # Part R: Affiliate Marketing Platform
-
-  # ============================================================================
-  # TECHNICAL DOCUMENTATION (SPECIALIZED FEATURES)
-  # ============================================================================
-  # Reference these for complex feature implementation
-  - docs/ui-components-map.md                      # Complete UI component mapping
-  - docs/AFFILIATE-MARKETING-DESIGN.md             # Affiliate system architecture
-  - docs/SYSTEMCONFIG-USAGE-GUIDE.md               # SystemConfig table usage
-  - docs/SUBSCRIPTION-MODEL-CLARIFICATION.md       # Subscription business logic
-  - docs/admin-mt5-dashboard-implementation.md     # Admin dashboard for MT5 health
-  - docs/flask-multi-mt5-implementation.md         # Multi-MT5 terminal architecture
-  - docs/google-oauth-integration-summary.md       # OAuth integration overview
-
-  # V0 Components - PUBLIC PAGES (Marketing & Registration - 3 components)
-  # When generated from v0.dev, uncomment these files:
-  # - seed-code/v0-components/public-pages/homepage.tsx              # → app/(marketing)/page.tsx
-  # - seed-code/v0-components/public-pages/pricing-page.tsx          # → app/(marketing)/pricing/page.tsx
-  # - seed-code/v0-components/public-pages/registration-page.tsx     # → app/(auth)/register/page.tsx
-
-  # V0 Components - AUTH (Authentication pages - 2 components)
-  # When generated from v0.dev, uncomment these files:
-  # - seed-code/v0-components/auth/login-page.tsx                    # → app/(auth)/login/page.tsx
-  # - seed-code/v0-components/auth/forgot-password-page.tsx          # → app/(auth)/forgot-password/page.tsx
-
-  # V0 Components - DASHBOARD (Main app pages - 8 components)
-  # When generated from v0.dev, uncomment these files:
-  # - seed-code/v0-components/dashboard/dashboard-overview.tsx       # → app/(dashboard)/dashboard/page.tsx
-  # - seed-code/v0-components/dashboard/watchlist-page.tsx           # → app/(dashboard)/watchlist/page.tsx
-  # - seed-code/v0-components/dashboard/alert-creation-modal.tsx     # → components/alerts/alert-modal.tsx
-  # - seed-code/v0-components/dashboard/alerts-list.tsx              # → app/(dashboard)/alerts/page.tsx
-  # - seed-code/v0-components/dashboard/billing-page.tsx             # → app/(dashboard)/settings/billing/page.tsx
-  # - seed-code/v0-components/dashboard/settings-layout.tsx          # → app/(dashboard)/settings/layout.tsx
-  # - seed-code/v0-components/dashboard/profile-settings.tsx         # → app/(dashboard)/settings/profile/page.tsx
-
-  # V0 Components - COMPONENTS (Reusable UI - 4 components)
-  # When generated from v0.dev, uncomment these files:
-  # - seed-code/v0-components/components/chart-controls.tsx          # → components/charts/chart-controls.tsx
-  # - seed-code/v0-components/components/empty-states.tsx            # → components/ui/empty-state.tsx
-  # - seed-code/v0-components/components/notification-bell.tsx       # → components/layout/notification-bell.tsx
-  # - seed-code/v0-components/components/user-menu.tsx               # → components/layout/user-menu.tsx
-  # - seed-code/v0-components/components/footer.tsx                  # → components/layout/footer.tsx
-
-  # V0 Components - EXISTING SEED (Reference implementations - 3 components)
-  # Layouts (Dashboard shell, sidebar, navigation)
-  - seed-code/v0-components/layouts/dashboard-layout.tsx
-  - seed-code/v0-components/layouts/dashboard-page.tsx
-  - seed-code/v0-components/layouts/dashboard-globals.css
-
-  # Charts (TradingView integration examples)
-  - seed-code/v0-components/charts/trading-chart.tsx
-  - seed-code/v0-components/charts/trading-chart-page.tsx
-
-  # Alerts (Alert card and management)
-  - seed-code/v0-components/alerts/alert-card.tsx
-  - seed-code/v0-components/alerts/alert-card-page.tsx
-
-  # Note: Package.json files in seed-code are for reference only
-  # Dependencies should be added to main package.json after review
-  # When you generate the 17 new components from v0.dev, uncomment the relevant lines above
 
 # ============================================================================
 # GIT CONFIGURATION
 # ============================================================================
-
-# Use git for version control
 git: true
-
-# Automatically add new files to git
 gitignore: true
-
-# Show git diffs before committing
 show-diffs: true
 
 # ============================================================================
 # EDITING BEHAVIOR
 # ============================================================================
-
-# Editing format (whole file, diff, or udiff)
-# "diff" is more efficient for large files
 edit-format: diff
-
-# Enable code streaming (faster feedback)
 stream: true
-
-# Show repository map for context
-map-tokens: 2048
-
-# Use universal ctags for better code navigation
-# Disabled: may cause issues if ctags not installed
-# use-ctags: false  # Not supported in config file for this version
-
-# ============================================================================
-# VALIDATION & TESTING
-# ============================================================================
-
-# Run linting checks
-# Disabled: may cause issues if linter not configured
-lint: false
-
-# Run tests after changes (if available)
-# test-cmd: npm test
-
-# Lint command (if you want Aider to auto-lint)
-# lint-cmd: npm run lint
+map-tokens: 512  # REDUCED to save context space
 
 # ============================================================================
 # CHAT SETTINGS
 # ============================================================================
-
-# Enable chat history
 chat-history-file: .aider.chat.history.md
-
-# Save input history
 input-history-file: .aider.input.history
-
-# Enable pretty output with colors
 pretty: true
-
-# Show token usage for cost tracking
 show-model-warnings: true
-
-# ============================================================================
-# FILE HANDLING
-# ============================================================================
-
-# Note: auto-add and ignore are not supported in .aider.conf.yml for v0.86.1
-# Use .aiderignore file instead for ignoring files
-# Use command-line arguments to add specific files
-
-# Automatically add commonly needed files
-# auto-add:
-#   - "*.ts"
-#   - "*.tsx"
-#   - "*.py"
-#   - "*.yaml"
-#   - "*.yml"
-#   - "*.json"
-#   - "*.md"
-
-# Ignore patterns (in addition to .gitignore)
-# ignore:
-#   - node_modules/
-#   - .next/
-#   - dist/
-#   - build/
-#   - __pycache__/
-#   - "*.pyc"
-#   - .env
-#   - .env.local
 
 # ============================================================================
 # ADVANCED SETTINGS
 # ============================================================================
-
-# Number of context messages to keep
 max-chat-history: 100
-
-# Enable suggestions from Aider
 suggest-shell-commands: true
-
-# Enable voice input (if supported)
-# voice: false
-
-# Dark mode for terminal output
 dark-mode: true
 
 # ============================================================================
-# ENVIRONMENT VARIABLES (Set these in your shell, NOT here!)
-# ============================================================================
-# Required for MiniMax M2:
-#   OPENAI_API_KEY=your_minimax_api_key_here
-#   OPENAI_API_BASE=https://api.minimax.io/v1
-#
-# MiniMax M2 uses OpenAI-compatible API endpoint at /v1
-# Both environment variables are REQUIRED for MiniMax M2 to work.
-# ============================================================================
-
-# ============================================================================
-# USAGE INSTRUCTIONS
+# USAGE INSTRUCTIONS - ROTATION WORKFLOW
 # ============================================================================
 #
-# Basic Commands:
-# ---------------
-# Start Aider:
-#   aider
+# STEP 1: Start Aider
+# ────────────────────
+# > start-aider-anthropic.bat
 #
-# Add files to chat:
-#   /add app/api/example/route.ts
-#   /add components/example.tsx
+# Base load will automatically include:
+# - All 9 compressed policy files
+# - Compressed OpenAPI spec
+# - Architecture documentation
+# - Build order README
 #
-# Read policy files (already auto-loaded from 'read' section above):
-#   Policies are automatically available as context
+# STEP 2: Load Part Files (ONE PART AT A TIME)
+# ──────────────────────────────────────────────
+# Example for Part 1:
+# > /add docs/build-orders/part-01-foundation.md
+# > /add docs/implementation-guides/v5_part_a.md
 #
-# Ask Aider to implement:
-#   "Implement GET /api/alerts following Pattern 1 from 05-coding-patterns.md"
-#   "Create the tier validation utility from 03-architecture-rules.md"
+# STEP 3: Build Part
+# ──────────────────
+# > "Build Part 1 following the build order"
 #
-# Check validation:
-#   "Validate the code with Claude Code and show results"
+# Aider will:
+# - Read build-orders/part-01-foundation.md
+# - Follow file-by-file sequence
+# - Use patterns from 05-coding-patterns-compress.md
+# - Validate against all policies
+# - Auto-commit if approved
 #
-# Commit:
-#   /commit
-#   (or auto-commits if auto-commits: true)
+# STEP 4: Rotate to Next Part
+# ────────────────────────────
+# > /drop docs/build-orders/part-01-foundation.md
+# > /drop docs/implementation-guides/v5_part_a.md
+# > /add docs/build-orders/part-02-database.md
+# > /add docs/implementation-guides/v5_part_b.md
+# > "Build Part 2 following the build order"
 #
-# See help:
-#   /help
-#
-# Exit:
-#   /exit
-#
-# ============================================================================
-# WORKFLOW EXAMPLE (from 06-aider-instructions.md)
-# ============================================================================
-#
-# 1. Start Aider:
-#    $ aider
-#
-# 2. Aider loads policy files automatically (from 'read' section)
-#
-# 3. Tell Aider what to build:
-#    You: "Implement Part 1: Foundation & Root Configuration"
-#
-# 4. Aider follows 7-step workflow:
-#    - Read Requirements (policies, OpenAPI, seed code)
-#    - Plan Implementation
-#    - Generate Code
-#    - Validate with Claude Code
-#    - Decide (approve/fix/escalate)
-#    - Act (commit or fix)
-#    - Update PROGRESS.md
-#
-# 5. Aider reports progress every 3 files
-#
-# 6. If escalation needed, Aider asks you for decision
+# STEP 5: Repeat for All Parts (1-18)
+# ────────────────────────────────────
+# Continue rotating through parts until complete
 #
 # ============================================================================
 # TROUBLESHOOTING
 # ============================================================================
 #
+# Issue: "Context window exceeds limit"
+# Fix: You loaded too many files. Use /drop to remove some.
+#
 # Issue: "Model not found"
-# Fix: Ensure OPENAI_API_KEY is set and model name is correct
+# Fix: Check OPENAI_API_KEY and OPENAI_API_BASE are set correctly
 #
-# Issue: "Policy files not loading"
-# Fix: Check that 'read' paths are correct (relative to project root)
+# Issue: Aider can't find a file
+# Fix: Use /add with correct relative path from project root
 #
-# Issue: "Auto-commits not working"
-# Fix: Ensure git is initialized and auto-commits: true
-#
-# Issue: "Aider too slow"
-# Fix: Reduce map-tokens or use lighter weak-model
-#
-# Issue: "Validation failing"
-# Fix: Ensure Claude Code is available and OPENAI_API_KEY is set
+# Issue: Need to reference seed code
+# Fix: /add seed-code/[path]/[file] temporarily, then /drop when done
 #
 # ============================================================================

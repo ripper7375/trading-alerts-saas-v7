@@ -41,7 +41,7 @@ echo   OPENAI_API_KEY: %OPENAI_API_KEY:~0,20%...
 echo   OPENAI_API_BASE: %OPENAI_API_BASE%
 echo.
 
-echo Starting Aider with OpenAI-compatible model: MiniMax-M2
+echo Starting Aider with OpenAI-compatible model: openai/MiniMax-M2
 echo.
 
 REM Use OpenAI-compatible endpoint (verified by test-minimax-api.bat)
@@ -52,8 +52,10 @@ if errorlevel 1 (
     echo.
     echo Aider exited with an error.
     echo.
-    echo If this doesn't work, try the OpenAI-compatible version:
-    echo   start-aider-fixed.bat
+    echo If this doesn't work, check:
+    echo   1. OPENAI_API_KEY is correct
+    echo   2. OPENAI_API_BASE is set to https://api.minimax.io/v1
+    echo   3. Model string is openai/MiniMax-M2
     echo.
     pause
 )
