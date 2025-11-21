@@ -187,6 +187,35 @@ Start with File 1/15: mt5-service/app.py
 
 ---
 
+## 📌 Complete Part → Implementation Guide Mapping
+
+**IMPORTANT:** Use this table to load the correct implementation guide for each part.
+
+| Part | Build Order File | Implementation Guide | Status |
+|------|------------------|---------------------|--------|
+| 1 | part-01-foundation.md | v5_part_a.md | ✅ Exists |
+| 2 | part-02-database.md | v5_part_b.md | ✅ Exists |
+| 3 | part-03-types.md | v5_part_c.md | ✅ Exists |
+| 4 | part-04-tier-system.md | v5_part_d.md | ✅ Exists |
+| 5 | part-05-authentication.md | v5_part_e.md | ✅ Exists |
+| 6 | part-06-flask-mt5.md | v5_part_f.md | ✅ Exists |
+| 7 | part-07-indicators-api.md | v5_part_g.md | ✅ Exists |
+| 8 | part-08-dashboard.md | v5_part_h.md | ✅ Exists |
+| 9 | part-09-charts.md | v5_part_i.md | ✅ Exists |
+| 10 | part-10-watchlist.md | v5_part_j.md | ✅ Exists |
+| 11 | part-11-alerts.md | v5_part_k.md | ✅ Exists |
+| 12 | part-12-ecommerce.md | v5_part_l.md | ✅ Exists |
+| 13 | part-13-settings.md | v5_part_m.md | ✅ Exists |
+| 14 | part-14-admin.md | v5_part_n.md | ✅ Exists |
+| 15 | part-15-notifications.md | v5_part_o.md | ✅ Exists |
+| 16 | part-16-utilities.md | v5_part_p.md | ✅ Exists |
+| 17 | part-17-affiliate.md | v5_part_r.md | ✅ Exists |
+| 18 | part-18-dlocal.md | v5_part_s.md | ✅ Exists |
+
+**All 18 implementation guides now exist and are ready for use!**
+
+---
+
 ## 📌 Starting Parts 7-16 (Standard Parts)
 
 **Template for Parts 7-16:**
@@ -200,6 +229,18 @@ Start with File 1/15: mt5-service/app.py
 /read-only docs/build-orders/part-0X-[name].md
 /read-only docs/implementation-guides/v5_part_[letter].md
 ```
+
+**Quick Reference for Parts 7-16:**
+- Part 7: v5_part_g.md (Indicators API)
+- Part 8: v5_part_h.md (Dashboard)
+- Part 9: v5_part_i.md (Charts)
+- Part 10: v5_part_j.md (Watchlist)
+- Part 11: v5_part_k.md (Alerts)
+- Part 12: v5_part_l.md (E-commerce)
+- Part 13: v5_part_m.md (Settings)
+- Part 14: v5_part_n.md (Admin)
+- Part 15: v5_part_o.md (Notifications)
+- Part 16: v5_part_p.md (Utilities)
 
 ```
 Build Part X: [Part Name]
@@ -478,6 +519,56 @@ If you cannot fix it, escalate with detailed explanation.
 - Skip verification tests
 - Override build order without reason
 - Panic when Aider escalates (it's designed to escalate)
+
+---
+
+## 🔧 TROUBLESHOOTING
+
+### **Issue: "Cannot find v5_part_X.md"**
+
+**Symptoms:**
+- Aider says it cannot find an implementation guide
+- Error: "File not found: docs/implementation-guides/v5_part_k.md"
+
+**Solution:**
+```bash
+# Check if all 18 guides exist
+cd docs/implementation-guides
+ls -1 v5_part_{a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s}.md | wc -l
+# Should return: 18
+
+# If any are missing, check the audit report
+# All guides were created on 2025-11-21 and should exist
+```
+
+**All 18 guides now exist:**
+- Parts 1-10: v5_part_a.md through v5_part_j.md ✅
+- Parts 11-16: v5_part_k.md through v5_part_p.md ✅
+- Part 17: v5_part_r.md ✅
+- Part 18: v5_part_s.md ✅
+
+### **Issue: Token limit exceeded**
+
+**Solution:**
+```bash
+# Drop unused files
+/drop docs/build-orders/part-XX-previous.md
+/drop docs/implementation-guides/v5_part_previous.md
+
+# Clear conversation if needed
+/clear
+```
+
+### **Issue: Aider doesn't load policy files**
+
+**Solution:**
+```bash
+# Verify .aider.conf.yml exists in project root
+ls -la .aider.conf.yml
+
+# Restart Aider to reload configuration
+# Exit and start again with start-aider-anthropic.bat
+```
 
 ---
 

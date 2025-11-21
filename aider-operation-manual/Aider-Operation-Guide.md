@@ -313,6 +313,63 @@ Start with File 1/4: prisma/schema.prisma
 
 ---
 
+## 🔧 TROUBLESHOOTING
+
+### **Issue: "Cannot find implementation guide"**
+
+**Error:** `File not found: docs/implementation-guides/v5_part_k.md`
+
+**Cause:** Implementation guide missing
+
+**Solution:**
+```bash
+# All 18 guides were created on 2025-11-21
+# Verify they exist:
+cd docs/implementation-guides
+ls -1 v5_part_{a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s}.md | wc -l
+# Should return: 18
+```
+
+**Complete Guide List:**
+- ✅ v5_part_a.md through v5_part_j.md (Parts 1-10)
+- ✅ v5_part_k.md through v5_part_p.md (Parts 11-16)
+- ✅ v5_part_r.md (Part 17)
+- ✅ v5_part_s.md (Part 18)
+
+If any guide is actually missing, they need to be recreated using the implementation guide template from existing guides.
+
+### **Issue: Aider won't load files**
+
+**Symptoms:**
+- `/read-only` command fails
+- "File not found" errors
+- Policy files not loading
+
+**Solutions:**
+1. Verify you're in project root: `pwd` should show `trading-alerts-saas-v7`
+2. Check file path is correct: `ls docs/build-orders/part-01-foundation.md`
+3. Use relative paths from project root (not absolute paths)
+
+### **Issue: Token limit exceeded**
+
+**Symptoms:**
+- "Context window exceeds limit"
+- Aider becomes slow or unresponsive
+
+**Solutions:**
+```bash
+# Drop previous part files
+/drop docs/build-orders/part-XX-previous.md
+/drop docs/implementation-guides/v5_part_previous.md
+
+# Clear conversation history
+/clear
+
+# Restart Aider if needed
+```
+
+---
+
 ## 🎉 You're Ready!
 
 With this corrected guide:

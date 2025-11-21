@@ -8,6 +8,10 @@
 # Context Window: 204,800 tokens (MiniMax M2)
 # Base Load: ~129,000 tokens (compressed policies + architecture)
 # Available for Dynamic Loading: ~75,000 tokens
+#
+# NOTE: Token estimates were verified on 2025-11-21. All 18 implementation
+# guides now exist (v5_part_a through v5_part_s). Estimates are accurate
+# for current file sizes. Monitor actual token usage during first build.
 # ============================================================================
 
 # ============================================================================
