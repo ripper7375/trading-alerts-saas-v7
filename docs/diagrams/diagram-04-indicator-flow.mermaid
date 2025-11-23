@@ -53,15 +53,15 @@ sequenceDiagram
                 Flask->>MT5: Get OHLC data<br/>copy_rates_from_pos()
                 MT5-->>Flask: Return bars[]
                 
-                Flask->>Indicators: Get indicator handle<br/>iCustom("Fractal Horizontal V5")
+                Flask->>Indicators: Get indicator handle<br/>iCustom("Fractal Horizontal Line_V5.mq5")
                 Indicators-->>Flask: Handle ID
-                
+
                 Flask->>Indicators: Read buffer 4-9<br/>(Peak/Bottom Lines)
                 Indicators-->>Flask: Line data[]
-                
-                Flask->>Indicators: Get indicator handle<br/>iCustom("Fractal Diagonal V4")
+
+                Flask->>Indicators: Get indicator handle<br/>iCustom("Fractal Diagonal Line_V4.mq5")
                 Indicators-->>Flask: Handle ID
-                
+
                 Flask->>Indicators: Read buffer 0-5<br/>(Ascending/Descending)
                 Indicators-->>Flask: Line data[]
                 

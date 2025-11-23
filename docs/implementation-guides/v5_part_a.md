@@ -15,14 +15,15 @@
 Before starting implementation in your next chat, you will need these files from this conversation:
 
 #### 1. **MQL5 Indicator Files** (REQUIRED)
-- ✅ `Fractal Horizontal Line_V5.mq5`
-- ✅ `Fractal Diagonal Line_V4.mq5`
+- ✅ `Fractal Horizontal Line_V5.mq5` (REQUIRED - provides horizontal support/resistance lines)
+- ✅ `Fractal Diagonal Line_V4.mq5` (REQUIRED - provides diagonal trend lines)
+- 📦 `OHLC Download_V4.mq5` (OPTIONAL - utility for exporting OHLC data to files, NOT used by Flask)
 
-**Why needed:** The Flask MT5 service reads buffer indices from these specific indicators. Buffer positions must match your indicator code.
+**Why needed:** The Flask MT5 service reads buffer indices from the 2 Fractal indicators. Buffer positions must match your indicator code. The OHLC Download tool is included for reference but is NOT required for the SaaS platform.
 
-**How to attach:** 
+**How to attach:**
 ```
-In your next chat, upload these 2 files and say:
+In your next chat, upload the 2 REQUIRED Fractal indicator files and say:
 "I'm implementing the Trading Alerts SaaS. Here are my MQL5 indicators.
 Please help me set up [specific phase]."
 ```
