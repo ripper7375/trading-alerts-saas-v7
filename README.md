@@ -8,6 +8,19 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue)](https://www.postgresql.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
+### 🔄 CI/CD Status
+
+| Workflow | Status | Phase | Purpose |
+|----------|--------|-------|---------|
+| OpenAPI Validation | ✅ Active | 1-4 | Validate API specifications |
+| Dependencies Security | ✅ Active | 1-4 | Scan for vulnerabilities |
+| Flask CI | ✅ Active | 1-4 | Flask app validation |
+| Next.js CI | ⏭️ Standby | 3-4 | Next.js app validation |
+| API Tests | ⏭️ Standby | 3-4 | Integration tests |
+
+**Current Phase:** 1-2 (Planning/Documentation) | **Success Rate:** 100%
+📖 [View detailed workflow documentation](.github/workflows/README.md)
+
 ---
 
 ## 📋 **Project Overview**

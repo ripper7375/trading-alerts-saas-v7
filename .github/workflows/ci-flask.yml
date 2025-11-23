@@ -66,11 +66,23 @@ jobs:
         run: |
           # Change to Flask app directory
           cd ${{ env.FLASK_APP_DIR }}
-          # Run pytest if available, otherwise use unittest
-          if [ -f "requirements-dev.txt" ] && grep -q "pytest" requirements-dev.txt; then
-            pytest tests/ -v --cov=app --cov-report=xml
+          # Check if tests directory exists and contains test files
+          if [ -d "tests" ] && [ "$(find tests -name 'test_*.py' 2>/dev/null | wc -l)" -gt 0 ]; then
+            # Run pytest if available, otherwise use unittest
+            if [ -f "requirements-dev.txt" ] && grep -q "pytest" requirements-dev.txt; then
+              echo "Running unit tests with pytest..."
+              pytest tests/ -v --cov=app --cov-report=xml
+            else
+              echo "Running unit tests with unittest..."
+              python -m unittest discover -s tests -p "test_*.py" -v
+            fi
+            echo "✅ Unit tests completed"
           else
-            python -m unittest discover -s tests -p "test_*.py" -v
+            echo "⏭️  No test files found - skipping unit tests"
+            echo "   Reason: tests/ directory is empty or doesn't contain test_*.py files"
+            echo "   Expected: This is normal during Phase 1-2 (planning phase)"
+            echo "   Action: Unit tests will be added during Phase 3 implementation"
+            exit 0
           fi
 
       - name: Build Flask application
