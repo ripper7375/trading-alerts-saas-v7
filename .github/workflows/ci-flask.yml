@@ -41,9 +41,9 @@ jobs:
 
       - name: Validate OpenAPI specification
         run: |
-          # Install swagger-cli if not already installed
-          pip install swagger-cli
-          swagger-cli validate docs/flask_mt5_openapi.yaml
+          # Install openapi-spec-validator (Python package)
+          pip install openapi-spec-validator
+          openapi-spec-validator docs/flask_mt5_openapi.yaml
           echo "✅ Flask MT5 OpenAPI specification is valid"
 
       - name: Run Python linting with flake8
@@ -130,7 +130,7 @@ jobs:
       - name: Run security audit with safety
         run: |
           cd ${{ env.FLASK_APP_DIR }}
-          safety scan --output text
+          safety scan
           echo "✅ Security audit passed"
 
       - name: Run static security analysis with bandit
