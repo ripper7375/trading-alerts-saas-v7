@@ -130,7 +130,7 @@ jobs:
       - name: Run security audit with safety
         run: |
           cd ${{ env.FLASK_APP_DIR }}
-          safety check -r requirements.txt
+          safety scan --output text
           echo "✅ Security audit passed"
 
       - name: Run static security analysis with bandit
