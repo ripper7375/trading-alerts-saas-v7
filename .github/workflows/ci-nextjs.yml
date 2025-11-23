@@ -113,9 +113,12 @@ jobs:
       - name: Upload test coverage
         if: always()
         uses: codecov/codecov-action@v4
+        continue-on-error: true
         with:
           files: ./coverage/lcov.info
-          fail_ci_if_error: true
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   lint-and-format:
     runs-on: ubuntu-latest
