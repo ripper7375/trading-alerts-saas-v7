@@ -41,12 +41,19 @@ jobs:
       - name: Check if Next.js project exists
         id: check_project
         run: |
-          if [ -d "app" ] || [ -d "pages" ] || [ -f "next.config.js" ] || [ -f "next.config.mjs" ]; then
+          # Check if Next.js config exists (required for build)
+          if [ -f "next.config.js" ] || [ -f "next.config.mjs" ] || [ -f "next.config.ts" ]; then
             echo "project_exists=true" >> $GITHUB_OUTPUT
-            echo "✅ Next.js project found"
+            echo "✅ Next.js project found (next.config exists)"
+          # Also check for substantial app directory (more than just placeholders)
+          elif [ -d "app" ] && [ "$(find app -name '*.tsx' -o -name '*.ts' 2>/dev/null | wc -l)" -gt 10 ]; then
+            echo "project_exists=true" >> $GITHUB_OUTPUT
+            echo "✅ Next.js project found (substantial app directory)"
           else
             echo "project_exists=false" >> $GITHUB_OUTPUT
-            echo "⚠️ Next.js project not created yet (Phase 3)"
+            echo "⏭️  Next.js project not ready for build yet (Phase 1-2)"
+            echo "   Reason: No next.config.js found and app/ directory minimal"
+            echo "   Expected: This will be available in Phase 3 when project is built"
           fi
 
       - name: Setup Node.js
