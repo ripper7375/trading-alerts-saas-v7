@@ -1,6 +1,6 @@
 ## PHASE 3: AUTONOMOUS IMPLEMENTATION WITH AIDER
-### Timeline: Weeks 3-10 (38 hours over 7 weeks)
-### Goal: Build 289 files (170 base + 67 affiliate + 52 dLocal) using MiniMax M2 policy-driven autonomous development
+### Timeline: Weeks 3-13 (62 hours over 11 weeks)
+### Goal: Build 282 files (170 core + 67 affiliate + 45 dLocal) using MiniMax M2 policy-driven autonomous development
 
 💡 BEGINNER TIP: This is where V7 shines! You give simple commands, Aider 
 with MiniMax M2 builds autonomously. You only step in for exceptions.
@@ -188,6 +188,7 @@ follow the same pattern!
 | Part 15 | Notifications | seed-code/saas-starter/ (email patterns) |
 | Part 16 | Utilities | (helper functions) |
 | **Part 17** | **Affiliate Marketing (67 files)** | **seed-code/saas-starter/ (Stripe webhooks) + next-shadcn-dashboard-starter/ (analytics dashboards, admin tables)** |
+| **Part 18** | **dLocal Payment Integration (45 files)** | **docs/implementation-guides/v5_part_r.md (comprehensive) + docs/policies/07-dlocal-integration-rules.md + docs/dlocal-openapi-endpoints.yaml** |
 
 💡 **Important:** Aider uses these as **reference/inspiration**, not copy/paste!
 
@@ -663,9 +664,10 @@ you're using MiniMax M2 API which is cost-effective!
 | Part 15: Notifications | 8 | 2h | 1 | Email, in-app alerts |
 | Part 16: Utilities | 5 | 1.5h | 0 | Helper functions |
 | **Part 17: Affiliate Marketing** | **67** | **4h** | **2** | **2-sided marketplace, commissions** |
+| **Part 18: dLocal Integration** | **45** | **20h** | **3** | **Emerging markets, local payments, multi-provider checkout** |
 
-**Total: 42 hours over 8 weeks**
-**Total Files: 237 (170 core + 67 affiliate/admin)**
+**Total: 62 hours over 13 weeks**
+**Total Files: 282 (170 core + 67 affiliate + 45 dLocal)**
 **Model: MiniMax M2 for cost-effective autonomous building**
 
 ---
