@@ -570,8 +570,9 @@ Subject: Trading Alerts SaaS V5 Implementation - Phase [X]
 
 Hi! I'm implementing the Trading Alerts SaaS V5 (Future-Proof MVP with Next.js 15 + Flask).
 
-[ATTACH FILE: Fractal Horizontal Line_V5.mq5]
-[ATTACH FILE: Fractal Diagonal Line_V4.mq5]
+[ATTACH FILE: Fractal Horizontal Line_V5.mq5] (REQUIRED)
+[ATTACH FILE: Fractal Diagonal Line_V4.mq5] (REQUIRED)
+[OPTIONAL: OHLC Download_V4.mq5 - utility for data export, not used by Flask]
 
 My Configuration:
 - Symbol: [Your symbol, e.g., "XAUUSD"]
@@ -662,8 +663,9 @@ This comprehensive V5 implementation plan provides everything you need to build 
 
 ```
 ☐ Downloaded complete V5 documentation (Parts A-J)
-☐ Located Fractal Horizontal Line_V5.mq5 file
-☐ Located Fractal Diagonal Line_V4.mq5 file
+☐ Located Fractal Horizontal Line_V5.mq5 file (REQUIRED)
+☐ Located Fractal Diagonal Line_V4.mq5 file (REQUIRED)
+☐ (Optional) Located OHLC Download_V4.mq5 file (utility for data export - not used by Flask)
 ☐ Prepared MT5 credentials
 ☐ Reviewed 2-tier pricing model (FREE: $0, PRO: $29)
 ☐ Understood symbol restrictions per tier

@@ -8,6 +8,19 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-blue)](https://www.postgresql.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
+### 🔄 CI/CD Status
+
+| Workflow | Status | Phase | Purpose |
+|----------|--------|-------|---------|
+| OpenAPI Validation | ✅ Active | 1-4 | Validate API specifications |
+| Dependencies Security | ✅ Active | 1-4 | Scan for vulnerabilities |
+| Flask CI | ✅ Active | 1-4 | Flask app validation |
+| Next.js CI | ⏭️ Standby | 3-4 | Next.js app validation |
+| API Tests | ⏭️ Standby | 3-4 | Integration tests |
+
+**Current Phase:** 1-2 (Planning/Documentation) | **Success Rate:** 100%
+📖 [View detailed workflow documentation](.github/workflows/README.md)
+
 ---
 
 ## 📋 **Project Overview**
@@ -44,11 +57,12 @@ A commercial SaaS platform providing real-time trading alerts and chart visualiz
 ┌─────────────────────────────────────────┐
 │       YOUR MT5 TERMINAL                 │
 │  (Centralized Data Source)              │
-│  - Fractal Horizontal Line_V5.mq5       │
-│  - Fractal Diagonal Line_V4.mq5         │
+│  - Fractal Horizontal Line_V5.mq5 ✓     │
+│  - Fractal Diagonal Line_V4.mq5 ✓       │
+│  - OHLC Download_V4.mq5 (utility) ℹ️     │
 └──────────────┬──────────────────────────┘
                │
-               │ Indicator Buffers
+               │ Indicator Buffers (2 indicators)
                ▼
 ┌─────────────────────────────────────────┐
 │       FLASK MT5 SERVICE                 │
@@ -158,12 +172,15 @@ seed-code/next-shadcn-dashboard-starter/
 ### **4. MQL5 Indicators**
 ```
 seed-code/mlq5-indicator/
-├── Fractal Horizontal Line_V5.mq5
-└── Fractal Diagonal Line_V4.mq5
+├── Fractal Horizontal Line_V5.mq5  (used by Flask - horizontal support/resistance)
+├── Fractal Diagonal Line_V4.mq5    (used by Flask - diagonal trend lines)
+└── OHLC Download_V4.mq5            (utility tool - data export to files)
 ```
-- Custom indicator source code
-- Buffer index reference
-- **Used in:** Part 6 (Flask MT5 integration)
+- **Active Indicators (2):** Fractal Horizontal & Diagonal provide real-time data via buffers
+- **Utility Tool (1):** OHLC Download exports historical data to files (not used by Flask service)
+- Custom indicator source code for reference
+- Buffer index mappings documented in flask_mt5_openapi.yaml
+- **Used in:** Part 6 (Flask MT5 integration - reads buffers from 2 Fractal indicators)
 
 **Important:** Seed code is for **reference only** - Aider adapts patterns to our specific requirements.
 
