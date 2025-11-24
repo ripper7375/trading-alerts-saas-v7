@@ -1,22 +1,26 @@
 # 🔄 CI/CD Workflows - Trading Alerts SaaS V7
 
-**Last Updated:** 2025-11-23
-**Version:** 2.0 (Autonomous-Friendly Design)
+**Last Updated:** 2025-11-24
+**Version:** 3.0 (Phase 3.5 + Phase 4 Integration)
 **For:** Phases 1-4 of development
 
 ---
 
 ## 📊 Workflow Status Overview
 
-| Workflow | Status | Active In | Purpose |
-|----------|--------|-----------|---------|
-| [openapi-validation.yml](#1-openapi-validation) | ✅ Active | Phase 1-4 | Validate OpenAPI specifications |
-| [dependencies-security.yml](#2-dependencies-security) | ✅ Active | Phase 1-4 | Security scans for dependencies |
-| [ci-flask.yml](#3-flask-ci) | ✅ Active | Phase 1-4 | Flask app CI (progressive) |
-| [ci-nextjs-progressive.yml](#4-nextjs-ci-progressive) | ✅ Active | Phase 1-4 | Next.js app CI (progressive) |
-| [api-tests.yml](#5-api-integration-tests) | ⏭️ Standby | Phase 3-4 | API integration tests |
+| Workflow | Status | Type | Blocking? | Active In | Purpose |
+|----------|--------|------|-----------|-----------|---------|
+| [openapi-validation.yml](#1-openapi-validation) | ✅ Active | Development CI | ❌ No | Phase 1-4 | Validate OpenAPI specifications |
+| [dependencies-security.yml](#2-dependencies-security) | ✅ Active | Development CI | ❌ No | Phase 1-4 | Security scans for dependencies |
+| [ci-flask.yml](#3-flask-ci) | ✅ Active | Development CI | ❌ No | Phase 1-4 | Flask app CI (progressive) |
+| [ci-nextjs-progressive.yml](#4-nextjs-ci-progressive) | ✅ Active | Development CI | ❌ No | Phase 1-4 | Next.js app CI (progressive) |
+| [api-tests.yml](#5-api-integration-tests) | ⏭️ Standby | Development CI | ❌ No | Phase 3-4 | API integration tests |
+| [tests.yml](#6-phase-35-test-suite) | ✅ Active | **Deployment Gate** | ✅ **YES** | Phase 3.5+ | **Unit, Component, Integration tests** |
+| [deploy.yml](#7-automated-deployment) | ✅ Active | **Deployment Gate** | ✅ **YES** | Phase 4 | **Production deployment with test gates** |
 
-**Total Workflows:** 5
+**Total Workflows:** 7
+**Development CI:** 5 workflows (non-blocking, informative)
+**Deployment Gate:** 2 workflows (blocking, protective)
 **Success Rate:** 100% (all pass or skip gracefully)
 
 ---
@@ -42,6 +46,108 @@
 - Designed for Aider + Claude Code workflow
 - CI provides guidance, not gatekeeping
 - Aider can commit confidently without fear of blocking workflows
+
+---
+
+## 🛤️ Two-Track CI/CD System
+
+### Overview
+
+This repository implements a **Two-Track CI/CD System** that balances developer velocity with production safety:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    TWO-TRACK CI/CD SYSTEM                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  TRACK 1: Development CI (Non-Blocking)                    │
+│  ════════════════════════════════════════                   │
+│  Purpose: Inform, guide, detect issues early               │
+│  Behavior: Warnings only, never blocks commits/merges      │
+│                                                             │
+│  Workflows:                                                 │
+│  • openapi-validation.yml          ❌ Non-blocking         │
+│  • dependencies-security.yml       ❌ Non-blocking         │
+│  • ci-flask.yml                    ❌ Non-blocking         │
+│  • ci-nextjs-progressive.yml       ❌ Non-blocking         │
+│  • api-tests.yml                   ❌ Non-blocking         │
+│                                                             │
+│  Philosophy:                                                │
+│  - Fast feedback for developers                            │
+│  - Detect issues without blocking progress                 │
+│  - Progressive activation as features are built            │
+│  - Autonomous development friendly                         │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  TRACK 2: Deployment Gate (Blocking)                       │
+│  ════════════════════════════════════                       │
+│  Purpose: Protect production, enforce quality              │
+│  Behavior: BLOCKS deployment if tests fail                 │
+│                                                             │
+│  Workflows:                                                 │
+│  • tests.yml                       ✅ BLOCKING             │
+│  • deploy.yml                      ✅ BLOCKING             │
+│                                                             │
+│  Philosophy:                                                │
+│  - Production quality gate                                 │
+│  - 102 tests MUST pass before deployment                   │
+│  - 92% code coverage enforced                              │
+│  - Zero tolerance for broken builds in production          │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### How the Two Tracks Work Together
+
+#### During Development (Phase 1-3):
+- **Track 1 (Development CI)**: Active, providing feedback
+- **Track 2 (Deployment Gate)**: Not yet enforced (no deployments)
+- Developers can commit freely without blocking CI checks
+- Fast iteration and autonomous development
+
+#### During Testing & QA (Phase 3.5):
+- **Track 1 (Development CI)**: Continues running, non-blocking
+- **Track 2 (Deployment Gate)**: Activates with `tests.yml`
+- Test suite establishes quality baseline (102 tests, 92% coverage)
+- Test failures are informative, not yet blocking merges
+
+#### During Deployment (Phase 4):
+- **Track 1 (Development CI)**: Continues running, provides insights
+- **Track 2 (Deployment Gate)**: Fully enforced, BLOCKS bad code
+- `tests.yml` MUST pass before `deploy.yml` runs
+- Production is protected by automated test gates
+
+### Key Differences Between Tracks
+
+| Aspect | Track 1: Development CI | Track 2: Deployment Gate |
+|--------|-------------------------|--------------------------|
+| **Purpose** | Inform & guide | Protect & enforce |
+| **Behavior** | Warnings only | Blocks deployment |
+| **Failures** | Informative | Blocking |
+| **Speed** | Fast feedback | Comprehensive validation |
+| **Philosophy** | Developer-friendly | Production-safe |
+| **When Active** | Always (Phase 1+) | Phase 3.5+ (deployment) |
+| **Can Bypass** | N/A (non-blocking) | ❌ Cannot bypass |
+
+### Why Two Tracks?
+
+**Problem Solved:**
+- Single-track systems are either too strict (slow development) or too lenient (risky production)
+- Developers need fast feedback without being blocked
+- Production needs strong guarantees without slowing development
+
+**Solution:**
+- **Track 1**: Fast, informative, non-blocking (development velocity)
+- **Track 2**: Comprehensive, enforced, blocking (production safety)
+- Both coexist without conflict
+
+**Benefits:**
+✅ Fast development iteration
+✅ Early issue detection
+✅ Production quality enforcement
+✅ Autonomous development friendly
+✅ Zero-downtime deployment protection
 
 ---
 
@@ -248,6 +354,175 @@ Run Postman/Newman API integration tests
 
 ---
 
+### 6. Phase 3.5 Test Suite (DEPLOYMENT GATE)
+
+**File:** `tests.yml`
+**Status:** ✅ Active
+**Type:** 🛡️ **DEPLOYMENT GATE** (Track 2: Blocking)
+**Triggers:** Push/PR to main, develop, claude/**
+
+**Purpose:**
+Comprehensive testing infrastructure with automated test gates. **This workflow BLOCKS deployment if any test fails.**
+
+**What it does:**
+
+**Job 1: unit-and-component-tests**
+1. ✅ TypeScript type checking
+2. ✅ ESLint code quality
+3. ✅ Jest unit tests
+4. ✅ Component tests (React Testing Library)
+5. ✅ Coverage reporting (Codecov)
+6. ✅ Upload test results
+
+**Job 2: integration-tests**
+1. ✅ End-to-end user flow tests
+2. ✅ Multi-step scenario validation
+
+**Job 3: build-check**
+1. ✅ Production build verification
+2. ✅ Bundle size validation (<100MB)
+
+**Job 4: test-summary**
+1. ✅ Aggregate all test results
+2. ✅ Pass/fail decision
+3. ✅ GitHub Actions summary
+
+**When it runs:**
+- Every push to main, develop, or claude/** branches
+- Every pull request to main or develop
+- Called by deploy.yml as deployment gate
+
+**Expected behavior:**
+- ✅ **Phase 3.5+:** All tests run (102 tests, 92% coverage)
+- ❌ **If tests fail:** BLOCKS deployment, prevents merge
+- 🛡️ **Production protection:** Tests MUST pass before any code reaches production
+
+**Test Coverage:**
+- Unit tests: 62 tests (lib utilities)
+- Integration tests: 40 tests (user flows)
+- Total: 102 tests passing
+- Coverage: 92.72% statements
+
+**BLOCKING Behavior:**
+```
+Push to main
+    ↓
+tests.yml runs
+    ├─ ❌ Tests FAIL → Deployment BLOCKED
+    │                  ↓
+    │                  Notify failure
+    │                  ↓
+    │                  Developer fixes issue
+    │                  ↓
+    │                  Push fix
+    │                  ↓
+    │                  Tests run again
+    │
+    └─ ✅ Tests PASS → Deployment proceeds (deploy.yml)
+```
+
+**Key Features:**
+- **Reusable workflow:** Called by `deploy.yml` as GATE 1
+- **Cannot bypass:** GitHub Actions enforces dependencies
+- **Fast feedback:** Results in 3-5 minutes
+- **Comprehensive:** TypeScript, ESLint, Jest, Build check
+
+---
+
+### 7. Automated Deployment (DEPLOYMENT GATE)
+
+**File:** `deploy.yml`
+**Status:** ✅ Active
+**Type:** 🛡️ **DEPLOYMENT GATE** (Track 2: Blocking)
+**Triggers:** Push to main, manual trigger
+
+**Purpose:**
+Automated production deployment with Phase 3.5 test gates. **Deployment is BLOCKED if tests fail.**
+
+**What it does:**
+
+**GATE 1: tests** (MUST PASS)
+- Uses `tests.yml` workflow
+- Runs all Phase 3.5 tests
+- If fails: Deployment is **BLOCKED**
+
+**GATE 2: deploy-frontend**
+- Needs: [tests] ✅
+- Deploys Next.js to Vercel
+- Uses: `amondnet/vercel-action@v25`
+- Secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
+
+**GATE 3: deploy-backend**
+- Needs: [tests] ✅
+- Deploys Flask to Railway
+- Uses: `bervProject/railway-deploy@main`
+- Secrets: RAILWAY_TOKEN, RAILWAY_SERVICE_ID
+
+**GATE 4: verify-deployment**
+- Needs: [deploy-frontend, deploy-backend] ✅
+- Health check: Frontend (HTTP 200/301/308)
+- Health check: Backend (/health endpoint)
+- Creates deployment summary
+
+**notify-success**
+- Needs: [verify-deployment] ✅
+- Logs success message
+- Creates success annotation
+- Displays deployment URLs
+
+**notify-failure**
+- Needs: [tests, deploy-frontend, deploy-backend, verify-deployment]
+- If: failure()
+- Determines failure stage
+- Provides troubleshooting steps
+- Links to TEST-FAILURE-WORKFLOW.md
+- Creates failure annotation
+
+**When it runs:**
+- Push to main branch (automatic)
+- Manual trigger via GitHub Actions UI
+
+**Expected behavior:**
+- ✅ **Tests pass:** Deployment proceeds
+- ❌ **Tests fail:** Deployment BLOCKED
+- ✅ **Deploy succeeds:** Services updated, health checked
+- ❌ **Deploy fails:** Rollback available, failure logged
+
+**Deployment Flow:**
+```
+Push to main
+    ↓
+Run Phase 3.5 tests (GATE 1)
+    ├─ ❌ Fail → BLOCK deployment
+    └─ ✅ Pass → Continue
+         ↓
+    Deploy Frontend (GATE 2)
+         ↓
+    Deploy Backend (GATE 3)
+         ↓
+    Health Checks (GATE 4)
+         ↓
+    Notify Success/Failure
+```
+
+**Required Secrets:**
+- `VERCEL_TOKEN`: Vercel authentication
+- `VERCEL_ORG_ID`: Organization ID
+- `VERCEL_PROJECT_ID`: Project ID
+- `RAILWAY_TOKEN`: Railway authentication
+- `RAILWAY_SERVICE_ID`: Flask service ID
+- `PRODUCTION_URL`: Frontend URL for health checks
+- `FLASK_URL`: Backend URL for health checks
+
+**Concurrency:**
+- Group: `production-deployment`
+- Cancel-in-progress: `false` (prevents concurrent deploys)
+
+**Key Feature:**
+**Tests MUST pass before deployment.** This is enforced by GitHub Actions dependencies.
+
+---
+
 ## 🚀 Quick Reference
 
 ### For Developers (Human)
@@ -269,16 +544,24 @@ A: Yes, during Phase 1-3. Workflows are informative, not blocking.
 ### For Aider (Autonomous Development)
 
 **Q: Will my commits be blocked by CI/CD?**
-A: No. All workflows are non-blocking during Phase 1-3. You can commit confidently.
+A: **Track 1 (Development CI)**: No, never blocks. Commit confidently during development.
+   **Track 2 (Deployment Gate)**: Only blocks deployment to production, not commits to feature branches.
 
 **Q: What if a workflow fails?**
-A: Check the reason. During Phase 1-2, most "failures" are actually expected skips. During Phase 3+, failures indicate real issues that need fixing.
+A: **Track 1 failures**: Informative only. Review and fix when convenient.
+   **Track 2 failures**: Blocks deployment. Must be fixed before code reaches production.
 
 **Q: When do I need to worry about test failures?**
-A: Only when test files exist (Phase 3+). Until then, test jobs skip gracefully.
+A:
+   - **Phase 1-3**: Test jobs skip gracefully, no worries
+   - **Phase 3.5+**: tests.yml runs but doesn't block development
+   - **Phase 4**: tests.yml blocks deployment (but not your commits)
 
-**Q: How do I know if I'm in Phase 1-2 or Phase 3?**
-A: Check `ci-nextjs-progressive.yml` summary job output. It explicitly states the project phase.
+**Q: How does the Two-Track system affect me?**
+A: You can commit freely to any branch. Track 1 gives feedback. Track 2 only activates when code reaches main branch and attempts to deploy. Your development velocity is not impacted.
+
+**Q: What if I push to main and tests fail?**
+A: Deployment is blocked, but you can immediately push a fix. No rollback needed since deployment never happened.
 
 ---
 
@@ -286,9 +569,200 @@ A: Check `ci-nextjs-progressive.yml` summary job output. It explicitly states th
 
 | Phase | Active Workflows | Expected Behavior |
 |-------|------------------|-------------------|
-| **Phase 1-2** (Current) | openapi-validation<br>dependencies-security<br>ci-nextjs-progressive (partial)<br>ci-flask (partial) | ✅ Documentation validated<br>✅ Security scanned<br>⏭️ Builds/tests skip |
-| **Phase 3** (Implementation) | All workflows | ✅ Builds activate<br>✅ Type-check activates<br>✅ Tests activate (when added)<br>✅ API tests activate |
-| **Phase 4** (Production Prep) | All workflows (strict) | ✅ All jobs run<br>❌ Failures block (enforced)<br>✅ Full coverage required |
+| **Phase 1-2** (Planning) | openapi-validation<br>dependencies-security<br>ci-nextjs-progressive (partial)<br>ci-flask (partial) | ✅ Documentation validated<br>✅ Security scanned<br>⏭️ Builds/tests skip |
+| **Phase 3** (Implementation) | All Phase 1-2 workflows<br>api-tests | ✅ Builds activate<br>✅ Type-check activates<br>✅ Tests activate (when added)<br>✅ API tests activate |
+| **Phase 3.5** (Testing & QA) | All Phase 3 workflows<br>**tests.yml (NEW)** | ✅ **Unit tests: 102 passing**<br>✅ **Integration tests active**<br>✅ **92% code coverage**<br>✅ **Test gates enforced** |
+| **Phase 4** (Deployment) | All workflows<br>**deploy.yml (NEW)** | ✅ **Automated deployment**<br>✅ **Test gates BLOCK bad code**<br>✅ **Production protected**<br>✅ **CI/CD fully automated** |
+
+---
+
+## 🔗 Phase 3.5 Integration: Two-Track System in Practice
+
+### How Phase 3.5 Changed the CI/CD Architecture
+
+**Before Phase 3.5 (Phases 1-3):**
+```
+Development Workflow:
+    ↓
+Commit → Push → CI checks (non-blocking) → Continue working
+    ↓
+All workflows provide feedback but never block
+```
+
+**After Phase 3.5 (Phase 4):**
+```
+Development Workflow (Track 1):
+    ↓
+Commit → Push → Development CI (non-blocking) → Continue working
+    ↓
+    • openapi-validation.yml     ❌ Non-blocking
+    • dependencies-security.yml  ❌ Non-blocking
+    • ci-flask.yml               ❌ Non-blocking
+    • ci-nextjs-progressive.yml  ❌ Non-blocking
+    • api-tests.yml              ❌ Non-blocking
+
+Deployment Workflow (Track 2):
+    ↓
+Push to main → tests.yml (BLOCKING) → deploy.yml (BLOCKING)
+    ↓
+    ├─ Tests FAIL → ❌ Deployment BLOCKED
+    │                 Production safe, no broken code deployed
+    │
+    └─ Tests PASS → ✅ Deployment proceeds
+                      Frontend (Vercel) + Backend (Railway)
+```
+
+### The Integration Points
+
+#### 1. tests.yml is Reusable
+
+`tests.yml` is designed as a **reusable workflow** that can be called by other workflows:
+
+```yaml
+# In deploy.yml
+jobs:
+  tests:
+    name: Run Phase 3.5 Test Suite
+    uses: ./.github/workflows/tests.yml  # ← Calls tests.yml
+    secrets: inherit
+
+  deploy-frontend:
+    needs: [tests]  # ← BLOCKS until tests pass
+    if: success()   # ← Only runs if tests succeeded
+```
+
+**Benefits:**
+- Single source of truth for test execution
+- Same tests run for PRs and deployments
+- No duplication of test configuration
+
+#### 2. Dependency Chain Enforcement
+
+GitHub Actions enforces the dependency chain:
+
+```
+tests.yml (GATE 1)
+    ↓ needs: [tests]
+deploy-frontend (GATE 2) + deploy-backend (GATE 3)
+    ↓ needs: [deploy-frontend, deploy-backend]
+verify-deployment (GATE 4)
+    ↓ needs: [verify-deployment]
+notify-success
+```
+
+**Key Point:** If `tests.yml` fails, GitHub Actions will **automatically skip** all downstream jobs. This is not optional - it's enforced by the platform.
+
+#### 3. Coexistence Without Conflict
+
+Both tracks can run **simultaneously** without interfering:
+
+**Example: Push to main branch**
+
+```
+Push to main
+    ↓
+    ├─ Track 1 (Development CI) - Runs in parallel
+    │   ├─ openapi-validation.yml     → Runs, reports results
+    │   ├─ dependencies-security.yml  → Runs, reports results
+    │   ├─ ci-flask.yml               → Runs, reports results
+    │   ├─ ci-nextjs-progressive.yml  → Runs, reports results
+    │   └─ api-tests.yml              → Runs, reports results
+    │
+    └─ Track 2 (Deployment Gate) - Runs sequentially
+        ├─ tests.yml                  → MUST PASS
+        ├─ deploy-frontend            → Waits for tests
+        ├─ deploy-backend             → Waits for tests
+        └─ verify-deployment          → Waits for deploys
+```
+
+**Result:**
+- Track 1 provides fast feedback (informative)
+- Track 2 protects production (blocking)
+- Both contribute to code quality
+
+#### 4. Progressive Enforcement
+
+The Two-Track System activates progressively:
+
+| Phase | Track 1 Status | Track 2 Status | Behavior |
+|-------|---------------|----------------|----------|
+| **Phase 1-2** | Active, informative | Not active | Fast development, no blocks |
+| **Phase 3** | Active, informative | Not active | Builds run, tests optional |
+| **Phase 3.5** | Active, informative | Tests active, not enforced | Test baseline established |
+| **Phase 4** | Active, informative | **Fully enforced** | **Production protected** |
+
+**Transition Point:**
+- **Phase 3.5**: Tests.yml created, runs on every push, establishes quality baseline
+- **Phase 4**: Deploy.yml created, makes tests.yml blocking for deployments
+
+### Real-World Scenarios
+
+#### Scenario 1: Developer Working on Feature Branch
+
+**Branch:** `feature/new-alert-type`
+**Track 1 (Development CI):** ✅ Runs, provides feedback
+**Track 2 (Deployment Gate):** ⏭️ Skipped (not main branch)
+
+**Result:** Fast iteration, no blocking checks
+
+---
+
+#### Scenario 2: PR to Main Branch
+
+**Action:** Create pull request to merge feature → main
+**Track 1 (Development CI):** ✅ Runs all workflows, reports issues
+**Track 2 (Deployment Gate):** ✅ tests.yml runs, must pass for merge
+
+**Result:** Quality checks before merge, production protected
+
+---
+
+#### Scenario 3: Merge to Main (Automatic Deployment)
+
+**Action:** Merge approved PR to main
+**Track 1 (Development CI):** ✅ Runs, monitors for issues
+**Track 2 (Deployment Gate):**
+1. ✅ tests.yml runs (102 tests)
+2. ✅ If pass → deploy-frontend (Vercel)
+3. ✅ If pass → deploy-backend (Railway)
+4. ✅ If pass → verify-deployment (health checks)
+5. ✅ If pass → notify-success
+
+**Result:** Automated deployment with quality guarantees
+
+---
+
+#### Scenario 4: Tests Fail on Main
+
+**Action:** Merge to main, but tests fail
+**Track 1 (Development CI):** ✅ Runs, reports issues
+**Track 2 (Deployment Gate):**
+1. ❌ tests.yml fails
+2. ⏭️ deploy-frontend SKIPPED
+3. ⏭️ deploy-backend SKIPPED
+4. ⏭️ verify-deployment SKIPPED
+5. ✅ notify-failure runs (provides diagnostics)
+
+**Result:** Deployment BLOCKED, production safe, developer notified
+
+---
+
+### Key Insights
+
+✅ **Coexistence is the goal**: Both tracks serve different purposes
+✅ **No conflicts**: Development CI doesn't block, Deployment Gate only blocks deployment
+✅ **Progressive activation**: System grows stricter as project matures
+✅ **Developer-friendly**: Fast feedback during development
+✅ **Production-safe**: Strong guarantees before deployment
+✅ **Automated**: No manual intervention needed
+✅ **Enforceable**: Cannot bypass test gates
+
+### Documentation References
+
+- **Track 1 Workflows**: See individual workflow sections above
+- **Track 2 Workflows**: See [Section 6](#6-phase-35-test-suite-deployment-gate) and [Section 7](#7-automated-deployment-deployment-gate)
+- **Test Failure Handling**: See `docs/TEST-FAILURE-WORKFLOW.md`
+- **Branch Protection**: See `docs/BRANCH-PROTECTION-RULES.md`
 
 ---
 
@@ -352,18 +826,46 @@ A: Check `ci-nextjs-progressive.yml` summary job output. It explicitly states th
 ## ✅ Status Indicators
 
 ```
-Phase 1-2 (Current):
-═══════════════════
-openapi-validation       ✅ ACTIVE
-dependencies-security    ✅ ACTIVE
-ci-flask                 ✅ ACTIVE (partial - tests skip)
-ci-nextjs-progressive    ✅ ACTIVE (partial - most jobs skip)
-api-tests                ⏭️ STANDBY (waiting for app/api/)
+Phase 3.5+ (Current): Two-Track CI/CD System
+═════════════════════════════════════════════════════════════
+
+TRACK 1: Development CI (Non-Blocking)
+────────────────────────────────────────
+openapi-validation       ✅ ACTIVE  (informative)
+dependencies-security    ✅ ACTIVE  (informative)
+ci-flask                 ✅ ACTIVE  (with tests, informative)
+ci-nextjs-progressive    ✅ ACTIVE  (full pipeline, informative)
+api-tests                ✅ ACTIVE  (Postman collections, informative)
+
+TRACK 2: Deployment Gate (BLOCKING)
+────────────────────────────────────────
+tests.yml                ✅ ACTIVE  🛡️ BLOCKS deployment on failure
+deploy.yml               ✅ ACTIVE  🛡️ BLOCKS on test failure
+
+═════════════════════════════════════════════════════════════
 
 Overall Status: ✅ ALL SYSTEMS GO
 Success Rate: 100%
+Test Coverage: 92.72%
+Deployment: 🛡️ Protected by BLOCKING test gates
+Architecture: 🛤️ Two-Track CI/CD (Development + Deployment)
 ```
 
+**Key Milestones Achieved:**
+- ✅ Phase 3.5: Testing & QA infrastructure complete (102 tests, 92% coverage)
+- ✅ Phase 4: Automated deployment with BLOCKING test gates
+- 🛡️ Production protected: Tests MUST pass before deployment
+- 🛤️ Two-Track CI/CD: Development velocity + Production safety
+- 🚀 CI/CD: Fully automated from commit to production
+- ⚡ Fast feedback: Track 1 provides instant insights
+- 🔒 Zero-downtime protection: Track 2 blocks bad deployments
+
 ---
+
+**Documentation:**
+- Testing: `docs/TESTING-GUIDE.md`
+- Test Failures: `docs/TEST-FAILURE-WORKFLOW.md`
+- Branch Protection: `docs/BRANCH-PROTECTION-RULES.md`
+- Deployment: `docs/v7/v7_phase_4_deployment.md`
 
 **For questions or issues, see:** `/tmp/cicd-rebuild.md` (comprehensive rebuild documentation)
