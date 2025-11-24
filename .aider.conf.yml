@@ -1,10 +1,23 @@
 # ============================================================================
 # Trading Alerts SaaS V7 - Aider Configuration (MiniMax M2 Optimized)
 # ============================================================================
-# This file configures Aider to work with MiniMax M2 API using a rotation
-# strategy to stay within the 204,800 token context window limit.
+# This file configures Aider as the AUTONOMOUS BUILDER & VALIDATOR for Phase 3
 #
-# Last Updated: 2025-11-21
+# AIDER'S ROLE:
+# - Autonomous code generation following policies
+# - Automated validation execution (npm run validate)
+# - Approve/Fix/Escalate decision-making
+# - Auto-fix minor issues (npm run fix)
+# - Escalation to human for major issues
+# - Progress tracking and git commits
+#
+# VALIDATION SYSTEM:
+# - TypeScript (tsc --noEmit) - Type checking
+# - ESLint (next lint) - Code quality
+# - Prettier (prettier --check) - Formatting
+# - Custom Policy Validator (scripts/validate-file.js) - Policy compliance
+#
+# Last Updated: 2025-11-24
 # Context Window: 204,800 tokens (MiniMax M2)
 # Base Load: ~129,000 tokens (compressed policies + architecture)
 # Available for Dynamic Loading: ~75,000 tokens
