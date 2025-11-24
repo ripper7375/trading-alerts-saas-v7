@@ -231,20 +231,30 @@ Follow this **exact workflow** for every file you build:
 ### STEP 4: VALIDATE
 
 ```
-1. Run Claude Code validation:
-   claude code "validate [filename]"
+1. Run automated validation:
+   npm run validate
 
-2. Parse validation output:
-   - Count Critical issues
-   - Count High issues
-   - Count Medium issues
-   - Count Low issues
+   This runs all validation layers:
+   - TypeScript type checking (tsc --noEmit)
+   - ESLint code quality (next lint)
+   - Prettier formatting (prettier --check)
+   - Policy compliance (scripts/validate-file.js)
+   - Jest tests (if applicable)
 
-3. Categorize by severity (see 01-approval-policies.md):
-   - Critical: Security vulnerabilities, API contract violations
-   - High: Missing error handling, wrong types, missing tier validation
-   - Medium: Missing JSDoc, suboptimal patterns
-   - Low: Formatting, style
+2. Review validation output:
+   - TypeScript errors (must be 0)
+   - ESLint errors/warnings
+   - Prettier formatting issues
+   - Policy validation issues by severity:
+     * Critical: Security vulnerabilities, missing auth, tier bypass
+     * High: Missing error handling, wrong types, missing validation
+     * Medium: Missing JSDoc, suboptimal patterns
+     * Low: Style preferences, minor improvements
+
+3. Categorize results:
+   - ALL PASS: TypeScript ✓, ESLint ✓, Prettier ✓, Policies ✓
+   - MINOR ISSUES: Auto-fixable (formatting, imports, JSDoc)
+   - MAJOR ISSUES: Requires manual fix or architectural decision
 ```
 
 ### STEP 5: DECIDE
@@ -299,7 +309,15 @@ ELSE:
 **If Decision = AUTO-FIX:**
 
 ```
-1. Apply fix based on issue type:
+1. Run auto-fix command:
+   npm run fix
+
+   This automatically fixes:
+   - ESLint auto-fixable issues (imports, unused vars, etc.)
+   - Prettier formatting issues
+   - Import organization
+
+2. For other fixable issues:
 
    Missing TypeScript types:
    - Add explicit return types
@@ -317,13 +335,9 @@ ELSE:
    - Add @returns
    - Add @throws if applicable
 
-   ESLint/Prettier:
-   - Run: pnpm lint --fix
-   - Run: pnpm format
-
-2. Re-validate (STEP 4)
-3. Re-decide (STEP 5)
-4. If still issues after 3 attempts → ESCALATE
+3. Re-validate: npm run validate (STEP 4)
+4. Re-decide (STEP 5)
+5. If still issues after 3 attempts → ESCALATE
 ```
 
 **If Decision = ESCALATE:**
