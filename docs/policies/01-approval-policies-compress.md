@@ -117,7 +117,7 @@ validateChartAccess(userTier, params.symbol, params.timeframe);  // ✅
 - Database utilities in `lib/db/`
 - Tier logic in `lib/tier/`
 
-### 1.5 Claude Code Validation Results
+### 1.5 Automated Validation Results
 
 ✅ **Validation Thresholds:**
 - **0 Critical issues** (security, contract violations)
@@ -140,7 +140,7 @@ validateChartAccess(userTier, params.symbol, params.timeframe);  // ✅
 - [ ] Tier validation present on protected endpoints
 - [ ] Response matches OpenAPI schema exactly
 - [ ] File in correct location per v5-structure-division.md
-- [ ] Claude Code validation: 0 Critical, ≤2 High issues
+- [ ] Automated validation: 0 Critical, ≤2 High issues
 - [ ] All High issues are auto-fixable
 
 **If ALL conditions met → AUTO-APPROVE → COMMIT**
@@ -165,7 +165,7 @@ Aider auto-fixes (max 3 attempts) when issues are **fixable**:
 
 ```
 1. Generate code
-2. Run Claude Code validation
+2. Run Automated validation
 3. If fixable issues found (and <3 retry attempts):
    a. Apply auto-fix
    b. Re-run validation
@@ -242,7 +242,7 @@ Aider **STOPS and notifies you** when encountering:
 - Changing required fields
 - Modifying authentication requirements
 
-### 3.8 Claude Code Validation Failures
+### 3.8 Automated Validation Failures
 
 **Escalate when:**
 - >3 High severity issues after auto-fix
@@ -308,7 +308,7 @@ Awaiting human decision...
 ```
 Generate code
      ↓
-Validate with Claude Code
+Run automated validation (npm run validate)
      ↓
 ╔════════════════════════════════════════════╗
 ║ Check ALL approval conditions (Section 1)   ║
@@ -341,7 +341,7 @@ Validate with Claude Code
 | Tier validation | Symbol/timeframe access checked | Critical |
 | OpenAPI compliance | Response matches spec | Critical |
 | Architecture compliance | File in correct location | Medium |
-| Claude Code validation | 0 Critical, ≤2 High | - |
+| Automated validation | 0 Critical, ≤2 High | - |
 
 **If ANY Critical → ESCALATE**
 **If >2 High → ESCALATE**

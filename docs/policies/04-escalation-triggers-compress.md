@@ -115,7 +115,7 @@ Specific Gap: [What information is missing]
 5. Dependency Additions
 6. Database Migrations
 7. Breaking Changes
-8. Claude Code Validation Failures
+8. Automated Validation Failures
 9. Unclear Requirements
 10. Test Failures
 11. Affiliate Marketing Specific
@@ -538,7 +538,7 @@ Migration: Gradual frontend update, then deprecate old mode
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  ESCALATION: Claude Code Validation Failure ⚠️
+⚠️  ESCALATION: Automated Validation Failure ⚠️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 File: app/api/indicators/[symbol]/[timeframe]/route.ts
