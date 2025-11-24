@@ -2528,3 +2528,203 @@ This architecture enables:
 - 🇹🇷 Turkey: Bank Transfer, Cards (TRY)
 
 **Next Steps:** Proceed to Phase 2 (CI/CD & Database Foundation) or Phase 3 (Autonomous Building with Aider + MiniMax M2).
+---
+
+## Development Workflow - Phase 3: Autonomous Building with Aider
+
+**Last Updated:** 2025-11-24
+
+### Aider's Dual Role
+
+Aider serves as both the **autonomous builder** and **automated validator** for Phase 3:
+
+#### 1. Autonomous Builder
+- Generates code following policies from `.aider.conf.yml`
+- Applies patterns from `docs/policies/05-coding-patterns.md`
+- Follows build orders from `docs/build-orders/part-*.md`
+- Creates 170+ files across 18 parts
+
+#### 2. Automated Validator
+- Executes validation tools after each file
+- Analyzes validation results
+- Makes approve/fix/escalate decisions
+- Commits approved code automatically
+
+### Validation System Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│                   AIDER                         │
+│        (Autonomous Builder & Validator)         │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│  Step 1: Read Requirements & Policies           │
+│  Step 2: Generate Code                          │
+│  Step 3: Run Validation (npm run validate)     │
+│          ↓                                      │
+│     ┌───────────────────────────┐              │
+│     │ AUTOMATED VALIDATION      │              │
+│     ├───────────────────────────┤              │
+│     │ • TypeScript (tsc)        │              │
+│     │ • ESLint (next lint)      │              │
+│     │ • Prettier (--check)      │              │
+│     │ • Policy Validator        │              │
+│     └───────────────────────────┘              │
+│          ↓                                      │
+│  Step 4: Analyze Results & Decide              │
+│  Step 5: Act (Approve/Fix/Escalate)            │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+### Validation Tools
+
+#### 1. TypeScript Compiler (`tsc --noEmit`)
+- **Purpose:** Type safety validation
+- **Configuration:** `tsconfig.json`
+- **Checks:**
+  - No `any` types
+  - All parameters typed
+  - All return types specified
+  - Null safety
+  - Type consistency
+
+#### 2. ESLint (`next lint`)
+- **Purpose:** Code quality validation
+- **Configuration:** `.eslintrc.json`
+- **Checks:**
+  - Code quality rules
+  - React hooks usage
+  - Import organization
+  - Unused variables
+  - Console.log statements
+
+#### 3. Prettier (`prettier --check`)
+- **Purpose:** Code formatting validation
+- **Configuration:** `.prettierrc`
+- **Checks:**
+  - Consistent formatting
+  - Proper indentation
+  - Quote style (single quotes)
+  - Semicolons
+  - Line length (80 characters)
+
+#### 4. Custom Policy Validator
+- **Purpose:** Project-specific policy validation
+- **Implementation:** `scripts/validate-file.js`
+- **Checks:**
+  - Authentication checks (protected routes)
+  - Tier validation (symbol/timeframe endpoints)
+  - Error handling (try-catch blocks)
+  - Security patterns (no hardcoded secrets)
+  - Input validation (Zod schemas)
+  - SQL injection prevention
+  - API contract compliance
+
+### Phase 3 Workflow
+
+```
+1. START AIDER
+   > aider
+
+2. LOAD PART BUILD ORDER
+   > /read docs/build-orders/part-11-alerts.md
+   > /read docs/implementation-guides/v5_part_k.md
+
+3. BUILD FILES
+   > "Build Part 11 following the build order file-by-file"
+
+4. AIDER GENERATES CODE
+   [Reads policies, patterns, requirements]
+   [Generates file: app/api/alerts/route.ts]
+
+5. AIDER RUNS VALIDATION
+   > npm run validate
+   
+   Results:
+   🔍 TypeScript: ✅ 0 errors
+   🔍 ESLint: ✅ 0 errors, 0 warnings
+   🔍 Prettier: ✅ Formatted correctly
+   🔍 Policies: ✅ 0 Critical, 0 High, 0 Medium, 0 Low
+
+6. AIDER MAKES DECISION
+   - 0 Critical ✓
+   - 0 High ✓
+   → APPROVE
+
+7. AIDER COMMITS
+   > git add app/api/alerts/route.ts
+   > git commit -m "feat(alerts): add alerts endpoint
+   
+   - Validation: 0 Critical, 0 High, 0 Medium, 0 Low
+   - Pattern: API Route Pattern
+   - Model: MiniMax M2"
+
+8. REPEAT FOR NEXT FILE
+   [Continue for all 170+ files]
+```
+
+### Decision Criteria
+
+#### ✅ AUTO-APPROVE
+- 0 Critical issues
+- ≤2 High issues (all auto-fixable)
+- TypeScript passes (0 errors)
+- ESLint passes (0 errors, 0 warnings)
+- Prettier passes
+- Policy validator passes
+
+#### 🔧 AUTO-FIX
+- Formatting issues → `npm run format`
+- ESLint auto-fixable → `npm run lint:fix`
+- Import organization
+- Minor style issues
+
+**Command:** `npm run fix`
+
+#### 🚨 ESCALATE TO HUMAN
+- >0 Critical issues (security, auth, tier bypass)
+- >2 High issues
+- Architectural decisions needed
+- Ambiguous requirements
+
+### Success Metrics (Target)
+
+| Metric | Target | Indicates |
+|--------|--------|-----------|
+| Auto-Approve Rate | 85-92% | System working well |
+| Auto-Fix Rate | 6-12% | Minor issues caught |
+| Escalation Rate | 2-5% | Major issues flagged |
+| Validation Time | <10 sec/file | Fast validation |
+
+### Commands
+
+```bash
+# Complete validation
+npm run validate
+
+# Individual validators
+npm run validate:types     # TypeScript only
+npm run validate:lint      # ESLint only
+npm run validate:format    # Prettier only
+npm run validate:policies  # Policy validator only
+
+# Auto-fix
+npm run fix                # Fix ESLint + Prettier
+
+# Tests
+npm test                   # Run Jest tests
+```
+
+### Documentation
+
+- **Complete Guide:** `VALIDATION-SETUP-GUIDE.md`
+- **Workflow Analysis:** `docs/CLAUDE-CODE-WORKFLOW-ANALYSIS.md`
+- **Responsibility Checklist:** `docs/CLAUDE-CODE-VALIDATION-CHECKLIST.md`
+- **Aider Instructions:** `docs/policies/06-aider-instructions.md`
+
+---
+
+**Phase 3 Status:** ✅ Ready for autonomous building
+**Validation System:** ✅ Fully operational
+**Next Step:** Start building with Aider
