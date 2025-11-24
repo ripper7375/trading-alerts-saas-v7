@@ -1,7 +1,7 @@
 # 🔄 CI/CD Workflows - Trading Alerts SaaS V7
 
-**Last Updated:** 2025-11-23
-**Version:** 2.0 (Autonomous-Friendly Design)
+**Last Updated:** 2025-11-24
+**Version:** 3.0 (Phase 3.5 + Phase 4 Integration)
 **For:** Phases 1-4 of development
 
 ---
@@ -15,8 +15,10 @@
 | [ci-flask.yml](#3-flask-ci) | ✅ Active | Phase 1-4 | Flask app CI (progressive) |
 | [ci-nextjs-progressive.yml](#4-nextjs-ci-progressive) | ✅ Active | Phase 1-4 | Next.js app CI (progressive) |
 | [api-tests.yml](#5-api-integration-tests) | ⏭️ Standby | Phase 3-4 | API integration tests |
+| [tests.yml](#6-phase-35-test-suite) | ✅ Active | Phase 3.5+ | **Unit, Component, Integration tests** |
+| [deploy.yml](#7-automated-deployment) | ✅ Active | Phase 4 | **Production deployment with test gates** |
 
-**Total Workflows:** 5
+**Total Workflows:** 7
 **Success Rate:** 100% (all pass or skip gracefully)
 
 ---
@@ -248,6 +250,151 @@ Run Postman/Newman API integration tests
 
 ---
 
+### 6. Phase 3.5 Test Suite
+
+**File:** `tests.yml`
+**Status:** ✅ Active
+**Triggers:** Push/PR to main, develop, claude/**
+
+**Purpose:**
+Comprehensive testing infrastructure with automated test gates
+
+**What it does:**
+
+**Job 1: unit-and-component-tests**
+1. ✅ TypeScript type checking
+2. ✅ ESLint code quality
+3. ✅ Jest unit tests
+4. ✅ Component tests (React Testing Library)
+5. ✅ Coverage reporting (Codecov)
+6. ✅ Upload test results
+
+**Job 2: integration-tests**
+1. ✅ End-to-end user flow tests
+2. ✅ Multi-step scenario validation
+
+**Job 3: build-check**
+1. ✅ Production build verification
+2. ✅ Bundle size validation (<100MB)
+
+**Job 4: test-summary**
+1. ✅ Aggregate all test results
+2. ✅ Pass/fail decision
+3. ✅ GitHub Actions summary
+
+**When it runs:**
+- Every push to main, develop, or claude/** branches
+- Every pull request to main or develop
+- Called by deploy.yml as deployment gate
+
+**Expected behavior:**
+- ✅ **Phase 3.5+:** All tests run (102 tests, 92% coverage)
+- ❌ **If tests fail:** Blocks deployment, prevents merge
+
+**Test Coverage:**
+- Unit tests: 62 tests (lib utilities)
+- Integration tests: 40 tests (user flows)
+- Total: 102 tests passing
+- Coverage: 92.72% statements
+
+**Key Feature:**
+This workflow is **reusable** and called by `deploy.yml` as GATE 1 before any deployment.
+
+---
+
+### 7. Automated Deployment
+
+**File:** `deploy.yml`
+**Status:** ✅ Active
+**Triggers:** Push to main, manual trigger
+
+**Purpose:**
+Automated production deployment with Phase 3.5 test gates
+
+**What it does:**
+
+**GATE 1: tests** (MUST PASS)
+- Uses `tests.yml` workflow
+- Runs all Phase 3.5 tests
+- If fails: Deployment is **BLOCKED**
+
+**GATE 2: deploy-frontend**
+- Needs: [tests] ✅
+- Deploys Next.js to Vercel
+- Uses: `amondnet/vercel-action@v25`
+- Secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
+
+**GATE 3: deploy-backend**
+- Needs: [tests] ✅
+- Deploys Flask to Railway
+- Uses: `bervProject/railway-deploy@main`
+- Secrets: RAILWAY_TOKEN, RAILWAY_SERVICE_ID
+
+**GATE 4: verify-deployment**
+- Needs: [deploy-frontend, deploy-backend] ✅
+- Health check: Frontend (HTTP 200/301/308)
+- Health check: Backend (/health endpoint)
+- Creates deployment summary
+
+**notify-success**
+- Needs: [verify-deployment] ✅
+- Logs success message
+- Creates success annotation
+- Displays deployment URLs
+
+**notify-failure**
+- Needs: [tests, deploy-frontend, deploy-backend, verify-deployment]
+- If: failure()
+- Determines failure stage
+- Provides troubleshooting steps
+- Links to TEST-FAILURE-WORKFLOW.md
+- Creates failure annotation
+
+**When it runs:**
+- Push to main branch (automatic)
+- Manual trigger via GitHub Actions UI
+
+**Expected behavior:**
+- ✅ **Tests pass:** Deployment proceeds
+- ❌ **Tests fail:** Deployment BLOCKED
+- ✅ **Deploy succeeds:** Services updated, health checked
+- ❌ **Deploy fails:** Rollback available, failure logged
+
+**Deployment Flow:**
+```
+Push to main
+    ↓
+Run Phase 3.5 tests (GATE 1)
+    ├─ ❌ Fail → BLOCK deployment
+    └─ ✅ Pass → Continue
+         ↓
+    Deploy Frontend (GATE 2)
+         ↓
+    Deploy Backend (GATE 3)
+         ↓
+    Health Checks (GATE 4)
+         ↓
+    Notify Success/Failure
+```
+
+**Required Secrets:**
+- `VERCEL_TOKEN`: Vercel authentication
+- `VERCEL_ORG_ID`: Organization ID
+- `VERCEL_PROJECT_ID`: Project ID
+- `RAILWAY_TOKEN`: Railway authentication
+- `RAILWAY_SERVICE_ID`: Flask service ID
+- `PRODUCTION_URL`: Frontend URL for health checks
+- `FLASK_URL`: Backend URL for health checks
+
+**Concurrency:**
+- Group: `production-deployment`
+- Cancel-in-progress: `false` (prevents concurrent deploys)
+
+**Key Feature:**
+**Tests MUST pass before deployment.** This is enforced by GitHub Actions dependencies.
+
+---
+
 ## 🚀 Quick Reference
 
 ### For Developers (Human)
@@ -286,9 +433,10 @@ A: Check `ci-nextjs-progressive.yml` summary job output. It explicitly states th
 
 | Phase | Active Workflows | Expected Behavior |
 |-------|------------------|-------------------|
-| **Phase 1-2** (Current) | openapi-validation<br>dependencies-security<br>ci-nextjs-progressive (partial)<br>ci-flask (partial) | ✅ Documentation validated<br>✅ Security scanned<br>⏭️ Builds/tests skip |
-| **Phase 3** (Implementation) | All workflows | ✅ Builds activate<br>✅ Type-check activates<br>✅ Tests activate (when added)<br>✅ API tests activate |
-| **Phase 4** (Production Prep) | All workflows (strict) | ✅ All jobs run<br>❌ Failures block (enforced)<br>✅ Full coverage required |
+| **Phase 1-2** (Planning) | openapi-validation<br>dependencies-security<br>ci-nextjs-progressive (partial)<br>ci-flask (partial) | ✅ Documentation validated<br>✅ Security scanned<br>⏭️ Builds/tests skip |
+| **Phase 3** (Implementation) | All Phase 1-2 workflows<br>api-tests | ✅ Builds activate<br>✅ Type-check activates<br>✅ Tests activate (when added)<br>✅ API tests activate |
+| **Phase 3.5** (Testing & QA) | All Phase 3 workflows<br>**tests.yml (NEW)** | ✅ **Unit tests: 102 passing**<br>✅ **Integration tests active**<br>✅ **92% code coverage**<br>✅ **Test gates enforced** |
+| **Phase 4** (Deployment) | All workflows<br>**deploy.yml (NEW)** | ✅ **Automated deployment**<br>✅ **Test gates BLOCK bad code**<br>✅ **Production protected**<br>✅ **CI/CD fully automated** |
 
 ---
 
@@ -352,18 +500,34 @@ A: Check `ci-nextjs-progressive.yml` summary job output. It explicitly states th
 ## ✅ Status Indicators
 
 ```
-Phase 1-2 (Current):
-═══════════════════
+Phase 3.5+ (Current):
+═══════════════════════════════════════════════
 openapi-validation       ✅ ACTIVE
 dependencies-security    ✅ ACTIVE
-ci-flask                 ✅ ACTIVE (partial - tests skip)
-ci-nextjs-progressive    ✅ ACTIVE (partial - most jobs skip)
-api-tests                ⏭️ STANDBY (waiting for app/api/)
+ci-flask                 ✅ ACTIVE (with tests)
+ci-nextjs-progressive    ✅ ACTIVE (full pipeline)
+api-tests                ✅ ACTIVE (Postman collections)
+tests.yml                ✅ ACTIVE (102 tests, 92% coverage)
+deploy.yml               ✅ ACTIVE (automated deployment)
 
 Overall Status: ✅ ALL SYSTEMS GO
 Success Rate: 100%
+Test Coverage: 92.72%
+Deployment: 🛡️ Protected by test gates
 ```
 
+**Key Milestones Achieved:**
+- ✅ Phase 3.5: Testing & QA infrastructure complete
+- ✅ Phase 4: Automated deployment with test gates
+- 🛡️ Production protected: Tests MUST pass before deployment
+- 🚀 CI/CD: Fully automated from commit to production
+
 ---
+
+**Documentation:**
+- Testing: `docs/TESTING-GUIDE.md`
+- Test Failures: `docs/TEST-FAILURE-WORKFLOW.md`
+- Branch Protection: `docs/BRANCH-PROTECTION-RULES.md`
+- Deployment: `docs/v7/v7_phase_4_deployment.md`
 
 **For questions or issues, see:** `/tmp/cicd-rebuild.md` (comprehensive rebuild documentation)
