@@ -1501,3 +1501,390 @@ If all checked ✅ → **READY FOR PHASE 2!** 🚀
 Everything from here builds on this foundation.
 
 ---
+---
+
+## Phase 2: Validation System Setup (COMPLETE)
+
+**Date:** 2025-11-24
+**Status:** ✅ Fully Operational
+
+### Overview
+
+Phase 2 established a complete automated validation system that enables Aider to autonomously build and validate code with minimal human intervention.
+
+### Validation Tools Configured
+
+#### 1. TypeScript Configuration (tsconfig.json)
+- **Purpose:** Type safety validation
+- **Features:**
+  - Strict mode enabled
+  - No implicit any
+  - Strict null checks
+  - All function return types required
+  - Parameter types required
+
+#### 2. ESLint Configuration (.eslintrc.json)
+- **Purpose:** Code quality validation
+- **Features:**
+  - Next.js + TypeScript rules
+  - No explicit any (error level)
+  - React hooks validation
+  - Import organization
+  - Unused variable detection
+
+#### 3. Prettier Configuration (.prettierrc)
+- **Purpose:** Code formatting validation
+- **Features:**
+  - Single quotes
+  - Semicolons required
+  - 80 character line length
+  - Consistent indentation
+  - Trailing commas (ES5)
+
+#### 4. Custom Policy Validator (scripts/validate-file.js)
+- **Purpose:** Project-specific policy validation
+- **Checks:**
+  - Authentication (protected routes check session)
+  - Tier validation (symbol/timeframe restrictions)
+  - Error handling (try-catch blocks present)
+  - Security patterns:
+    - No hardcoded secrets
+    - SQL injection prevention
+    - XSS protection
+  - Input validation (Zod schemas for POST/PATCH/PUT)
+  - API contract compliance
+
+#### 5. Jest Test Framework
+- **Purpose:** Unit and integration testing
+- **Configuration:** jest.config.js
+- **Features:**
+  - TypeScript support
+  - React Testing Library
+  - DOM testing utilities
+  - Coverage reporting
+
+### Package Scripts
+
+```json
+{
+  "validate": "npm run validate:types && npm run validate:lint && npm run validate:format && npm run validate:policies",
+  "validate:types": "echo '🔍 Checking TypeScript types...' && tsc --noEmit",
+  "validate:lint": "echo '🔍 Checking code quality...' && next lint --max-warnings 0",
+  "validate:format": "echo '🔍 Checking code formatting...' && prettier --check .",
+  "validate:policies": "echo '🔍 Checking policy compliance...' && node scripts/validate-file.js --all",
+  "validate:file": "node scripts/validate-file.js",
+  "fix": "npm run lint:fix && npm run format",
+  "lint:fix": "next lint --fix",
+  "test": "jest",
+  "test:watch": "jest --watch",
+  "test:coverage": "jest --coverage"
+}
+```
+
+### Aider Configuration Updates
+
+#### .aider.conf.yml
+- **Updated:** 2025-11-24
+- **Role:** Autonomous Builder & Validator
+- **Responsibilities:**
+  - Code generation following policies
+  - Automated validation execution
+  - Approve/Fix/Escalate decision-making
+  - Auto-fix minor issues
+  - Escalation to human for major issues
+  - Progress tracking
+  - Git commits
+
+#### Policies Loaded
+All 9 policy files automatically loaded:
+1. 00-tier-specifications.md
+2. 01-approval-policies-compress.md
+3. 02-quality-standards.md
+4. 03-architecture-rules-compress.md
+5. 04-escalation-triggers-compress.md
+6. 05-coding-patterns-compress.md
+7. 06-aider-instructions.md
+8. 07-dlocal-integration-rules-compress.md
+9. 08-google-oauth-implementation-rules.md
+
+### Documentation Created
+
+1. **VALIDATION-SETUP-GUIDE.md**
+   - Complete usage guide
+   - All commands explained
+   - Troubleshooting section
+   - Real-world examples
+
+2. **docs/CLAUDE-CODE-VALIDATION-CHECKLIST.md**
+   - Responsibility transfer checklist
+   - Before/After comparison
+   - Tool overview
+
+3. **docs/CLAUDE-CODE-WORKFLOW-ANALYSIS.md**
+   - Detailed workflow diagrams
+   - Integration points
+   - Decision flows
+   - Success metrics
+
+4. **CLAUDE.md** (Updated)
+   - What is Aider
+   - Validation system architecture
+   - Decision criteria
+   - Real-world examples
+
+5. **docs/policies/06-aider-instructions.md** (Updated)
+   - STEP 4 now uses npm run validate
+   - STEP 6 AUTO-FIX uses npm run fix
+
+### Success Metrics (Target)
+
+| Metric | Target | Purpose |
+|--------|--------|---------|
+| Auto-Approve Rate | 85-92% | Files pass first time |
+| Auto-Fix Rate | 6-12% | Minor issues fixed automatically |
+| Escalation Rate | 2-5% | Major issues requiring human input |
+| Validation Time | <10 sec/file | Fast feedback loop |
+
+### Ready for Phase 3
+
+✅ All validation tools configured
+✅ Aider updated with validator role
+✅ Documentation complete
+✅ Scripts tested
+✅ Ready for autonomous building
+
+---
+
+## MiniMax M2 API Integration & Troubleshooting
+
+**Date:** 2025-11-20  
+**Status:** ✅ WORKING SOLUTION VERIFIED  
+**Model:** MiniMax M2 via OpenAI-compatible API endpoint
+
+### Executive Summary
+
+This section documents the complete configuration for successfully integrating MiniMax M2 with Aider for autonomous code generation.
+
+**Final Working Configuration:**
+- ✅ Model string: `openai/MiniMax-M2`
+- ✅ API endpoint: `https://api.minimax.io/v1`
+- ✅ API variables: `OPENAI_API_KEY` and `OPENAI_API_BASE`
+- ✅ Context management: 129k base load + 75k rotation budget
+
+### Environment Variables (.env)
+
+```bash
+# MiniMax M2 API Configuration
+OPENAI_API_KEY=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJHcm91cE5hbWUiOiJEaGFwYW5hcnQgS2V2YWxlZSIsIlVzZXJOYW1lIjoiRGhhcGFuYXJ0IEtldmFsZWUiLCJBY2NvdW50IjoiIiwiU3ViamVjdElEIjoiMTk4NDI2MzUzNDY1NzE1MTkwMiIsIlBob25lIjoiIiwiR3JvdXBJRCI6IjE5ODQyNjM1MzQ2NTI5NTM1MDIiLCJQYWdlTmFtZSI6IiIsIk1haWwiOiJyaXBwZXI3Mzc1QGdtYWlsLmNvbSIsIkNyZWF0ZVRpbWUiOiIyMDI1LTExLTA1IDE1OjQyOjU0IiwiVG9rZW5UeXBlIjoxLCJpc3MiOiJtaW5pbWF4In0.iDz-qldYGYrqfNg8xvgi0wa8QmL3jXDj7_uAodeqweZeSUm0pK7GYJ0lD6_107mOd73qVkqzsRc-Xfw5MGxP5-AfJf9aHv3ZGl1SBWT5vMXr4K3bulWWAwcfdgNEZ46uXAtNPwQBuPmoqAlarcXOjcPQ6QjCNfos0oa7GGU71xTSkJr3jlntr8_ExFaxuAMSd2D2CwV8r_uY5EBaRddACGbOPIc-GS67ejTqQTQnvgi0sYlIymr1aMmW_VmtBntYvD7xvSIqQzKgew3R2UXnihqJXbjtM0Mv_a-f_qzaD16cFIte2DfnlxP6MtwPqmXMCKp6eu0hBSh4_AaIDIBeVA
+
+# MiniMax API endpoint (OpenAI-compatible)
+OPENAI_API_BASE=https://api.minimax.io/v1
+```
+
+**Key Points:**
+- ✅ Use `OPENAI_API_KEY` (NOT `ANTHROPIC_API_KEY`)
+- ✅ Use `OPENAI_API_BASE` (NOT `ANTHROPIC_API_BASE`)
+- ✅ Endpoint is `/v1` (OpenAI-compatible)
+
+### Aider Configuration (.aider.conf.yml)
+
+```yaml
+# Model Configuration
+model: openai/MiniMax-M2
+editor-model: openai/MiniMax-M2
+weak-model: openai/MiniMax-M2
+
+# Reduce map tokens to save context
+map-tokens: 512
+
+# Environment file
+env-file: .env.local
+
+# Load compressed policy files (base load: ~129k tokens)
+read:
+  - docs/policies/01-approval-policies-compress.md
+  - docs/policies/02-quality-standards.md
+  - docs/policies/03-architecture-rules-compress.md
+  - docs/policies/04-escalation-triggers-compress.md
+  - docs/policies/05-coding-patterns-compress.md
+  - docs/policies/06-aider-instructions.md
+  - docs/policies/07-dlocal-integration-rules-compress.md
+  - docs/policies/00-tier-specifications.md
+  - docs/trading_alerts_openapi_compress.yaml
+  - ARCHITECTURE.md
+  - README.md
+  - docs/v5-structure-division.md
+  - docs/build-orders/README.md
+  - PROGRESS.md
+
+# Total base load: ~129,000 tokens
+# Available for rotation: ~75,000 tokens
+```
+
+**Critical Settings:**
+- ✅ Model prefix: `openai/` (NOT `anthropic/` or `minimax/`)
+- ✅ Map tokens: `512` (reduced from 2048)
+- ✅ Compressed files: Use `-compress.md` versions
+
+### Context Window Management
+
+#### MiniMax M2 Specifications
+
+| Specification | Value |
+|--------------|-------|
+| **Total Context Window** | 204,800 tokens |
+| **Base Load** | ~129,000 tokens (63%) |
+| **Available for Rotation** | ~75,000 tokens (37%) |
+| **System Overhead** | ~5,000 tokens |
+| **Repo-map** | 512 tokens |
+
+#### Token Budget Breakdown
+
+```
+Total Context: 204,800 tokens
+├── System Overhead: 5,000 tokens
+├── Repo-map: 512 tokens
+├── Compressed Policies: 79,000 tokens
+├── Compressed OpenAPI: 22,000 tokens
+├── Architecture Docs: 28,000 tokens
+└── AVAILABLE FOR ROTATION: ~75,000 tokens
+```
+
+### File Compression Results
+
+Conservative compression was performed on the 6 largest files to reduce token usage:
+
+| File | Original | Compressed | Saved | Reduction |
+|------|----------|-----------|-------|-----------|
+| 01-approval-policies.md | 18,529 | 9,491 | 9,038 | 49% |
+| 03-architecture-rules.md | 29,324 | 11,326 | 17,998 | 61% |
+| 04-escalation-triggers.md | 22,484 | 7,430 | 15,054 | 67% |
+| 05-coding-patterns.md | 26,686 | 20,999 | 5,687 | 21% |
+| 07-dlocal-integration-rules.md | 15,296 | 6,870 | 8,426 | 55% |
+| trading_alerts_openapi.yaml | 24,060 | 21,690 | 2,370 | 10% |
+| **TOTAL** | **136,379** | **77,806** | **58,573** | **43%** |
+
+### Common Issues and Solutions
+
+#### Issue 1: "LLM Provider NOT provided"
+
+**Symptoms:**
+```
+litellm.BadRequestError: LLM Provider NOT provided.
+You passed model=minimax/MiniMax-M2
+```
+
+**Solution:**  
+Change model string from `minimax/MiniMax-M2` to `openai/MiniMax-M2`
+
+**Why:** LiteLLM doesn't recognize `minimax/` as a provider. Use `openai/` prefix with `OPENAI_API_BASE` to redirect to MiniMax.
+
+#### Issue 2: "Context window exceeds limit"
+
+**Symptoms:**
+```
+OpenAIException - invalid params, context window exceeds limit
+```
+
+**Solution:**
+1. Reduce `map-tokens` to 512
+2. Use compressed policy files
+3. Implement rotation strategy with `/read-only` and `/drop`
+4. Load only necessary files
+
+**Why:** Total tokens > 204k MiniMax M2 limit
+
+#### Issue 3: Wrong API Variables
+
+**Symptoms:**
+```
+Error: ANTHROPIC_API_KEY not found
+```
+
+**Solution:**  
+Use `OPENAI_API_KEY` and `OPENAI_API_BASE`, NOT Anthropic variables.
+
+**Correct:**
+```bash
+OPENAI_API_KEY=eyJhbGci...
+OPENAI_API_BASE=https://api.minimax.io/v1
+```
+
+**Incorrect:**
+```bash
+ANTHROPIC_API_KEY=eyJhbGci...  ❌
+```
+
+### Rotation Strategy
+
+With 75k tokens available for dynamic loading, you can load 1-2 build orders + implementation guides per session.
+
+#### Example Workflow
+
+```bash
+# Start Aider (base load: 129k)
+aider
+
+# Load Part 1 files (~11k tokens)
+> /read-only docs/build-orders/part-01-foundation.md
+> /read-only docs/implementation-guides/v5_part_a.md
+
+# Build Part 1
+> "Build Part 1 following the build order file-by-file"
+
+# When complete, rotate to Part 2
+> /drop docs/build-orders/part-01-foundation.md
+> /drop docs/implementation-guides/v5_part_a.md
+> /read-only docs/build-orders/part-02-database.md
+> /read-only docs/implementation-guides/v5_part_b.md
+
+# Build Part 2
+> "Build Part 2 following the build order"
+```
+
+### Verification Checklist
+
+Before starting autonomous development, verify:
+
+- [ ] `OPENAI_API_KEY` is set in `.env.local`
+- [ ] `OPENAI_API_BASE=https://api.minimax.io/v1` is set
+- [ ] Model string in `.aider.conf.yml` is `openai/MiniMax-M2`
+- [ ] `map-tokens: 512` in `.aider.conf.yml`
+- [ ] Compressed files exist: `*-compress.md` and `*_compress.yaml`
+- [ ] Aider starts without errors
+- [ ] Simple query test passes
+
+### Key Learnings
+
+#### What Works ✅
+
+1. **Model String:** `openai/MiniMax-M2` (with OpenAI prefix)
+2. **API Variables:** `OPENAI_API_KEY` + `OPENAI_API_BASE`
+3. **Endpoint:** `https://api.minimax.io/v1` (OpenAI-compatible)
+4. **Context Management:** Compression (43%) + Rotation strategy
+5. **Map Tokens:** 512 (reduced from 2048)
+
+#### What Doesn't Work ❌
+
+1. `anthropic/MiniMax-M2` → 404 Error
+2. `minimax/MiniMax-M2` → Provider not recognized
+3. `MiniMax-M2` (no prefix) → Provider not recognized
+4. `ANTHROPIC_API_KEY` → Wrong variable
+5. Loading 60+ files → Context overflow
+6. `map-tokens: 2048` → Too large
+
+### Success Metrics
+
+**Verified Working Configuration:**
+- ✅ API connection successful
+- ✅ Aider starts without errors
+- ✅ Model responds to queries
+- ✅ Context stays within 204k limit
+- ✅ File rotation works smoothly
+- ✅ Ready for autonomous code generation
+
+---
+
+**Phase 1 Complete!** ✅  
+**Ready for Phase 3 autonomous building with Aider + MiniMax M2!** 🚀
+

@@ -924,3 +924,358 @@ git push
 
 *Last Updated: 2024-01-15*
 *V7 Implementation Guide for Trading Alerts SaaS with MiniMax M2*
+
+---
+
+## Phase 3: Automated Building & Validation
+
+**Date:** 2025-11-24
+**Status:** ✅ Setup Complete - Ready to Build
+
+### Overview
+
+Phase 3 uses Aider as an autonomous builder and validator to generate all 170+ files with automated quality assurance.
+
+### Setup Status
+
+#### ✅ Validation Tools Configured
+
+1. **TypeScript** - Type checking
+   - Configuration: `tsconfig.json`
+   - Strict mode enabled
+   - No implicit any
+   - Command: `npm run validate:types`
+
+2. **ESLint** - Code quality
+   - Configuration: `.eslintrc.json`
+   - Next.js + TypeScript rules
+   - React hooks validation
+   - Command: `npm run validate:lint`
+
+3. **Prettier** - Formatting
+   - Configuration: `.prettierrc`
+   - Single quotes, semicolons
+   - 80 character lines
+   - Command: `npm run validate:format`
+
+4. **Custom Policy Validator**
+   - Implementation: `scripts/validate-file.js`
+   - Checks: Auth, tier, security, error handling
+   - Command: `npm run validate:policies`
+
+#### ✅ Aider Configuration
+
+- File: `.aider.conf.yml`
+- Role: Autonomous builder & validator
+- Policies: All 9 policy files loaded automatically
+- Model: MiniMax M2
+
+#### ✅ Package Scripts
+
+```json
+{
+  "validate": "Run all validation layers",
+  "validate:types": "TypeScript only",
+  "validate:lint": "ESLint only",
+  "validate:format": "Prettier only",
+  "validate:policies": "Policy validator only",
+  "fix": "Auto-fix ESLint + Prettier issues",
+  "test": "Run Jest tests"
+}
+```
+
+### Phase 3 Workflow
+
+#### Step 1: Start Aider
+
+```bash
+# Navigate to project root
+cd /home/user/trading-alerts-saas-v7
+
+# Start Aider
+aider
+
+# Aider automatically loads:
+# - 9 policy files
+# - Compressed OpenAPI spec
+# - Architecture documentation
+# - Build order README
+```
+
+#### Step 2: Load Part Build Order
+
+```bash
+# Load build order for the part you want to build
+> /read docs/build-orders/part-01-foundation.md
+
+# Load implementation guide for business context
+> /read docs/implementation-guides/v5_part_a.md
+
+# Check token usage
+> /tokens
+```
+
+#### Step 3: Build Files
+
+```bash
+# Tell Aider to build the part
+> "Build Part 1 following the build order file-by-file"
+
+# Aider will:
+# 1. Read the build order
+# 2. Build first file
+# 3. Run validation automatically
+# 4. Make decision (approve/fix/escalate)
+# 5. Commit if approved
+# 6. Move to next file
+# 7. Repeat for all files in the part
+```
+
+#### Step 4: Validation Process (Automatic)
+
+After generating each file, Aider runs:
+
+```bash
+npm run validate
+```
+
+This executes:
+1. ✅ TypeScript type checking
+2. ✅ ESLint code quality
+3. ✅ Prettier formatting
+4. ✅ Custom policy validation
+
+**Results Example:**
+```
+🔍 Checking TypeScript types...
+✅ 0 errors
+
+🔍 Checking code quality...
+✅ 0 errors, 0 warnings
+
+🔍 Checking code formatting...
+✅ All files formatted correctly
+
+🔍 Checking policy compliance...
+📊 VALIDATION REPORT
+Files Checked: 1
+Total Issues: 0
+✅ All policy checks passed!
+```
+
+#### Step 5: Aider Decision
+
+Based on validation results:
+
+**Option A: APPROVE (85-92% of files)**
+- All validation passed
+- Aider commits automatically
+- Moves to next file
+
+**Option B: AUTO-FIX (6-12% of files)**
+- Minor issues found (formatting, imports)
+- Aider runs: `npm run fix`
+- Re-validates
+- If fixed → commits
+- If not fixed after 3 attempts → escalates
+
+**Option C: ESCALATE (2-5% of files)**
+- Critical issues found
+- Or >2 High issues
+- Or architectural decision needed
+- Aider stops and asks you for guidance
+
+#### Step 6: Handle Escalations
+
+When Aider escalates:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  ESCALATION: Missing Authentication ⚠️
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+File: app/api/alerts/route.ts
+Severity: Critical
+
+Problem:
+Protected API route missing authentication check
+
+Options:
+1. Add getServerSession check
+2. Make endpoint public
+3. Use different auth method
+
+Recommendation: Option 1
+
+What should I do?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+You respond:
+```
+> "Add getServerSession check with 401 response if not authenticated"
+```
+
+Aider fixes and continues.
+
+#### Step 7: Rotate to Next Part
+
+When part is complete:
+
+```bash
+# Drop current part files to save tokens
+> /drop docs/build-orders/part-01-foundation.md
+> /drop docs/implementation-guides/v5_part_a.md
+
+# Load next part
+> /read docs/build-orders/part-02-database.md
+> /read docs/implementation-guides/v5_part_b.md
+
+# Build next part
+> "Build Part 2 following the build order file-by-file"
+```
+
+#### Step 8: Repeat for All 18 Parts
+
+Continue rotating through parts until complete.
+
+### Testing After Each Part
+
+After completing a part, test the functionality:
+
+```bash
+# Run validation
+npm run validate
+
+# Run tests
+npm test
+
+# Test in browser
+npm run dev
+# Visit http://localhost:3000
+```
+
+### Monitoring Progress
+
+Aider updates `PROGRESS.md` after each file:
+
+```markdown
+### Part 1: Foundation - ✅ Complete
+- Files: 12/12 (100%)
+- Completed: 2025-11-24
+- Escalations: 0
+- Time: 2 hours
+
+### Part 2: Database - ⏳ In Progress
+- Files: 2/4 (50%)
+- In Progress: prisma/schema.prisma
+```
+
+### Commands Reference
+
+```bash
+# Validation
+npm run validate              # All validation
+npm run validate:types        # TypeScript only
+npm run validate:lint         # ESLint only
+npm run validate:format       # Prettier only
+npm run validate:policies     # Policy validator only
+
+# Auto-fix
+npm run fix                   # Fix ESLint + Prettier
+
+# Tests
+npm test                      # Run all tests
+npm run test:watch            # Watch mode
+npm run test:coverage         # With coverage
+
+# Database
+npm run db:generate           # Generate Prisma types
+npm run db:push               # Push schema to database
+npm run db:migrate            # Create migration
+npm run db:studio             # Open Prisma Studio
+
+# Development
+npm run dev                   # Start dev server
+npm run build                 # Build for production
+```
+
+### Troubleshooting
+
+#### Issue: Validation Fails with TypeScript Errors
+
+```bash
+# Regenerate Prisma types
+npm run db:generate
+
+# Re-run validation
+npm run validate:types
+```
+
+#### Issue: ESLint Warnings Exceed Maximum
+
+```bash
+# Auto-fix warnings
+npm run lint:fix
+
+# Re-validate
+npm run validate:lint
+```
+
+#### Issue: Policy Validator Finds Issues
+
+Review the policy validator output and:
+1. Check if the issue is valid
+2. Fix manually or ask Aider to fix
+3. Re-run validation
+
+#### Issue: Context Window Full in Aider
+
+```bash
+# Drop unnecessary files
+> /drop [filename]
+
+# Check token usage
+> /tokens
+
+# If still full, restart Aider with clean slate
+> /exit
+> aider
+```
+
+### Documentation
+
+- **Complete Validation Guide:** `VALIDATION-SETUP-GUIDE.md`
+- **Workflow Analysis:** `docs/CLAUDE-CODE-WORKFLOW-ANALYSIS.md`
+- **Responsibility Checklist:** `docs/CLAUDE-CODE-VALIDATION-CHECKLIST.md`
+- **Aider Instructions:** `docs/policies/06-aider-instructions.md`
+- **Main Guide:** `CLAUDE.md`
+
+### Success Criteria
+
+Phase 3 is successful when:
+
+✅ All 170+ files generated
+✅ All validation passes
+✅ No critical issues
+✅ Tests pass
+✅ Application builds successfully
+✅ All features work in browser
+
+### Next Steps
+
+1. ✅ Setup complete (you are here)
+2. Start building Part 1
+3. Continue through all 18 parts
+4. Test each part
+5. Deploy to staging
+6. Final testing
+7. Deploy to production
+
+---
+
+**Phase 3 Status:** ✅ Ready to start building
+**Estimated Time:** 40-60 hours of Aider autonomous work
+**Your Time:** 2-5 hours (handling escalations)
+
+**Start building:** `aider` → Load Part 1 → Build! 🚀

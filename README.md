@@ -520,3 +520,96 @@ MIT License - See [LICENSE](LICENSE) file for details
 **Quality Assurance:** Claude Code validation
 
 *Welcome to the future of SaaS development!* 🚀
+
+---
+
+## Automated Validation System
+
+**Status:** ✅ Fully Operational  
+**Date:** 2025-11-24
+
+This project uses a fully automated validation system powered by Aider for Phase 3 autonomous building.
+
+### Validation Tools
+
+Our multi-layer validation ensures high code quality:
+
+1. **TypeScript** (`tsc --noEmit`) - Type checking
+2. **ESLint** (`next lint`) - Code quality
+3. **Prettier** (`prettier --check`) - Formatting
+4. **Custom Policy Validator** (`scripts/validate-file.js`) - Policy compliance
+5. **Jest** (`npm test`) - Unit tests
+
+### Quick Start
+
+```bash
+# Run complete validation
+npm run validate
+
+# Auto-fix issues
+npm run fix
+
+# Run tests
+npm test
+
+# Individual validators
+npm run validate:types      # TypeScript only
+npm run validate:lint       # ESLint only
+npm run validate:format     # Prettier only
+npm run validate:policies   # Policy validator only
+```
+
+### Phase 3 Development Workflow
+
+**Aider** serves as the autonomous builder and validator:
+
+```
+┌─────────────────────────────────────┐
+│          AIDER (MiniMax M2)         │
+├─────────────────────────────────────┤
+│ 1. Read policies & requirements     │
+│ 2. Generate code                    │
+│ 3. Run validation                   │
+│ 4. Make decision:                   │
+│    - ✅ Approve → Commit           │
+│    - 🔧 Auto-fix → Fix & retry     │
+│    - 🚨 Escalate → Ask human       │
+│ 5. Move to next file                │
+└─────────────────────────────────────┘
+```
+
+**Success Metrics:**
+- Target: 85-92% auto-approve rate
+- Target: 6-12% auto-fix rate  
+- Target: 2-5% escalation rate
+
+### Documentation
+
+- **Complete Validation Guide:** `VALIDATION-SETUP-GUIDE.md`
+- **Workflow Analysis:** `docs/CLAUDE-CODE-WORKFLOW-ANALYSIS.md`
+- **Responsibility Checklist:** `docs/CLAUDE-CODE-VALIDATION-CHECKLIST.md`
+- **Aider Instructions:** `docs/policies/06-aider-instructions.md`
+- **Main Guide:** `CLAUDE.md`
+
+### Starting Phase 3
+
+```bash
+# Start Aider
+aider
+
+# Load part build order
+> /read docs/build-orders/part-01-foundation.md
+> /read docs/implementation-guides/v5_part_a.md
+
+# Build files
+> "Build Part 1 following the build order file-by-file"
+
+# Aider will autonomously:
+# - Generate code
+# - Run validation
+# - Make decisions
+# - Commit approved code
+# - Handle escalations
+```
+
+**Ready to build 170+ files with automated quality assurance!** 🚀

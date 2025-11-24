@@ -247,3 +247,246 @@ You + Aider → Deploy to production
 💡 BEGINNER TIP: The 14 hours in Week 1 save you 102 hours later!
 
 ---
+---
+
+## Phase 3: Automated Building & Validation
+
+**Date:** 2025-11-24  
+**Status:** ✅ Ready to Start
+
+### Overview
+
+Phase 3 leverages **Aider** as an autonomous builder and validator to generate all 170+ files with automated quality assurance.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│                   AIDER                         │
+│        (Autonomous Builder & Validator)         │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│  STEP 1: Read Requirements                      │
+│  ├─ Load policies from .aider.conf.yml         │
+│  ├─ Read build orders                          │
+│  └─ Read implementation guides                 │
+│                                                 │
+│  STEP 2: Generate Code                          │
+│  ├─ Follow policies                            │
+│  ├─ Apply patterns                             │
+│  └─ Create file                                │
+│                                                 │
+│  STEP 3: Run Validation                         │
+│  └─ Execute: npm run validate                  │
+│                   ↓                             │
+│     ┌─────────────────────────────┐            │
+│     │  AUTOMATED VALIDATION TOOLS │            │
+│     ├─────────────────────────────┤            │
+│     │ • TypeScript (tsc)          │            │
+│     │ • ESLint (next lint)        │            │
+│     │ • Prettier (--check)        │            │
+│     │ • Policy Validator (custom) │            │
+│     │ • Jest (tests)              │            │
+│     └─────────────────────────────┘            │
+│                   ↓                             │
+│            Validation Results                   │
+│                                                 │
+│  STEP 4: Analyze Results & Decide              │
+│  ├─ Count issues by severity                   │
+│  ├─ Check approval criteria                    │
+│  └─ Make decision                              │
+│                                                 │
+│  STEP 5: Act on Decision                        │
+│  ├─ APPROVE → Commit & continue                │
+│  ├─ AUTO-FIX → Run npm run fix → Re-validate  │
+│  └─ ESCALATE → Ask human for guidance         │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+### Validation Components
+
+#### 1. TypeScript Compiler
+- **Configuration:** `tsconfig.json`
+- **Purpose:** Type safety validation
+- **Checks:**
+  - No `any` types
+  - All parameters typed
+  - All return types specified
+  - Null safety
+  - Type consistency
+
+#### 2. ESLint
+- **Configuration:** `.eslintrc.json`
+- **Purpose:** Code quality validation
+- **Checks:**
+  - Code quality rules
+  - React hooks usage
+  - Import organization
+  - Unused variables
+
+#### 3. Prettier
+- **Configuration:** `.prettierrc`
+- **Purpose:** Code formatting validation
+- **Checks:**
+  - Consistent formatting
+  - Single quotes
+  - Semicolons
+  - 80 character lines
+
+#### 4. Custom Policy Validator
+- **Implementation:** `scripts/validate-file.js`
+- **Purpose:** Project-specific policy validation
+- **Checks:**
+  - Authentication (protected routes)
+  - Tier validation (symbol/timeframe)
+  - Error handling (try-catch)
+  - Security (no hardcoded secrets, SQL injection prevention)
+  - Input validation (Zod schemas)
+  - API contract compliance
+
+#### 5. Jest Tests
+- **Configuration:** `jest.config.js`
+- **Purpose:** Unit and integration testing
+- **Checks:**
+  - Unit tests pass
+  - Integration tests pass
+  - No regressions
+
+### Decision Criteria
+
+#### ✅ AUTO-APPROVE (85-92% target)
+- 0 Critical issues
+- ≤2 High issues (all auto-fixable)
+- TypeScript passes (0 errors)
+- ESLint passes (0 errors, 0 warnings)
+- Prettier passes
+- Policy validator passes
+
+#### 🔧 AUTO-FIX (6-12% target)
+- Formatting issues
+- ESLint auto-fixable issues
+- Import organization
+- Minor style issues
+
+**Command:** `npm run fix`
+
+#### 🚨 ESCALATE (2-5% target)
+- >0 Critical issues
+- >2 High issues
+- Architectural decisions needed
+- Ambiguous requirements
+
+### Workflow Example
+
+```
+1. START: aider
+2. LOAD: /read docs/build-orders/part-11-alerts.md
+3. BUILD: "Build Part 11 file-by-file"
+
+For each file:
+4. GENERATE: Aider creates app/api/alerts/route.ts
+5. VALIDATE: npm run validate
+   
+   Results:
+   🔍 TypeScript: ✅ 0 errors
+   🔍 ESLint: ✅ 0 errors, 0 warnings
+   🔍 Prettier: ✅ Formatted
+   🔍 Policies: ✅ 0 Critical, 0 High, 0 Medium, 0 Low
+
+6. DECIDE: APPROVE (all checks passed)
+7. COMMIT: git commit -m "feat(alerts): add alerts endpoint"
+8. REPEAT: Move to next file
+```
+
+### Success Metrics
+
+| Metric | Target | Indicates |
+|--------|--------|-----------|
+| Auto-Approve Rate | 85-92% | System working well |
+| Auto-Fix Rate | 6-12% | Minor issues caught & fixed |
+| Escalation Rate | 2-5% | Major issues flagged |
+| Validation Time | <10 sec/file | Fast validation |
+| Files Generated | 170+ | Complete codebase |
+
+### Commands
+
+```bash
+# Complete validation
+npm run validate
+
+# Individual validators
+npm run validate:types      # TypeScript
+npm run validate:lint       # ESLint
+npm run validate:format     # Prettier
+npm run validate:policies   # Policy validator
+
+# Auto-fix
+npm run fix                 # ESLint + Prettier
+
+# Tests
+npm test                    # Jest tests
+```
+
+### Documentation
+
+- **Complete Guide:** `VALIDATION-SETUP-GUIDE.md`
+- **Workflow Analysis:** `docs/CLAUDE-CODE-WORKFLOW-ANALYSIS.md`
+- **Responsibility Checklist:** `docs/CLAUDE-CODE-VALIDATION-CHECKLIST.md`
+- **Aider Instructions:** `docs/policies/06-aider-instructions.md`
+- **Main Guide:** `CLAUDE.md`
+
+### Timeline Estimate
+
+| Activity | Duration | Notes |
+|----------|----------|-------|
+| Aider Autonomous Work | 40-60 hours | Building 170+ files |
+| Human Escalation Handling | 2-5 hours | 2-5% of files |
+| Testing & QA | 8-12 hours | After each part |
+| **Total** | **50-77 hours** | Mostly automated |
+
+### Parts to Build (18 Total)
+
+1. Part 1: Foundation & Root Config (12 files)
+2. Part 2: Database Schema (4 files)
+3. Part 3: Type Definitions (6 files)
+4. Part 4: Tier System (4 files)
+5. Part 5: Authentication (19 files)
+6. Part 6: Flask MT5 Service (15 files)
+7. Part 7: Indicators API (6 files)
+8. Part 8: Dashboard (9 files)
+9. Part 9: Charts (8 files)
+10. Part 10: Watchlist (8 files)
+11. Part 11: Alerts (10 files)
+12. Part 12: E-Commerce & Billing (11 files)
+13. Part 13: Settings (17 files)
+14. Part 14: Admin Dashboard (9 files)
+15. Part 15: Notifications (9 files)
+16. Part 16: Utilities (25 files)
+17. Part 17: Affiliate Marketing (67 files)
+18. Part 18: dLocal Payments (52 files)
+
+**Total:** 170+ files
+
+### Phase 3 Status
+
+**Current Status:** ✅ All systems operational
+
+**Ready for:**
+- Autonomous code generation
+- Automated validation
+- Approve/fix/escalate decisions
+- Progress tracking
+- Git commits
+
+**Next Step:** Start building!
+
+```bash
+aider
+> /read docs/build-orders/part-01-foundation.md
+> "Build Part 1 file-by-file"
+```
+
+---
+
+**Phase 3 is ready to begin!** 🚀
