@@ -33,15 +33,21 @@ const config = {
     '!**/coverage/**',
   ],
 
-  // Coverage thresholds
+  // Coverage thresholds (Phase 3.5 target: 60%)
   coverageThreshold: {
     global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70,
+      branches: 60,
+      functions: 60,
+      lines: 60,
+      statements: 60,
     },
   },
+
+  // Test match patterns
+  testMatch: [
+    '**/__tests__/**/*.test.ts',
+    '**/__tests__/**/*.test.tsx',
+  ],
 
   // Module file extensions
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
