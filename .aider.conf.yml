@@ -17,14 +17,15 @@
 # - Prettier (prettier --check) - Formatting
 # - Custom Policy Validator (scripts/validate-file.js) - Policy compliance
 #
-# Last Updated: 2025-11-24
+# Last Updated: 2025-11-26
 # Context Window: 204,800 tokens (MiniMax M2)
-# Base Load: ~129,000 tokens (compressed policies + architecture)
-# Available for Dynamic Loading: ~75,000 tokens
+# Base Load: ~147,000 tokens (policies + quality gates + architecture)
+# Available for Dynamic Loading: ~57,800 tokens
 #
-# NOTE: Token estimates were verified on 2025-11-21. All 18 implementation
-# guides now exist (v5_part_a through v5_part_s). Estimates are accurate
-# for current file sizes. Monitor actual token usage during first build.
+# NOTE: Token estimates were verified on 2025-11-26. All 18 implementation
+# guides exist (v5_part_a through v5_part_s). Build orders now split into
+# 19 parts (Part 17 split into 17A + 17B to prevent token overflow).
+# Monitor actual token usage during first build.
 # ============================================================================
 
 # ============================================================================
@@ -238,15 +239,31 @@ read:
   # /read-only docs/implementation-guides/v5_part_p.md              # ~4k
 
   # ==========================================================================
-  # PART 17: AFFILIATE MARKETING (~8k tokens)
+  # PART 17A: AFFILIATE MARKETING - AFFILIATE PORTAL (~14k tokens)
   # ==========================================================================
-  # When building: 67 affiliate system files (8 phases: A-H)
-  # /read-only docs/build-orders/part-17-affiliate.md               # ~6k
-  # /read-only docs/implementation-guides/v5_part_q.md              # ~18k
-  # /read-only docs/AFFILIATE-MARKETING-DESIGN.md                   # ~5k
+  # When building: 32 affiliate portal files (Phases A-D)
+  # /read-only docs/build-orders/part-17a-affiliate-portal.md       # ~7k
+  # /read-only docs/implementation-guides/v5_part_q.md              # ~9k (first half)
+  # /read-only docs/AFFILIATE-MARKETING-DESIGN.md                   # ~5k (optional)
   #
-  # Note: Build-order now has file-by-file instructions (67 files detailed)
-  # No sub-sessions needed - Aider can build sequentially through all phases
+  # Token Budget: 147k (base) + 14k (part) + 25k (conversation/code) = 186k
+  # Margin: 18.8k tokens ✅ SAFE
+  #
+  # Note: Part 17 split into 17A + 17B to avoid token overflow
+  # Build 17A first (affiliate portal), then 17B (admin + automation)
+
+  # ==========================================================================
+  # PART 17B: AFFILIATE MARKETING - ADMIN & AUTOMATION (~12k tokens)
+  # ==========================================================================
+  # When building: 35 admin/automation files (Phases E-H)
+  # /read-only docs/build-orders/part-17b-admin-automation.md       # ~7k
+  # /read-only docs/implementation-guides/v5_part_q.md              # ~9k (second half)
+  #
+  # Token Budget: 147k (base) + 12k (part) + 25k (conversation/code) = 184k
+  # Margin: 20.8k tokens ✅ SAFE
+  #
+  # Dependencies: Must complete Part 17A first
+  # Note: Includes admin portal, BI reports, cron jobs, components
 
   # ==========================================================================
   # PART 18: DLOCAL PAYMENTS (~12k tokens)
