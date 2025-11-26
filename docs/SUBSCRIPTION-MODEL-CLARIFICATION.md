@@ -63,10 +63,18 @@
 **Pricing Structure:**
 ```
 PRO Plan (Monthly Only):
-- Regular Price: $29.00/month
+- Trial Period: 7-day free trial (no credit card required)
+- Regular Price: $29.00/month (after trial ends)
 - With Affiliate Code: $23.20/month (20% discount)
 - Auto-renews monthly
 - Cancel anytime
+
+Trial Details:
+- 7-day free trial with full PRO access
+- No credit card required during trial
+- After 7 days: Auto-converts to $29/month (if payment method added)
+- Or downgrade to FREE tier (if no payment method)
+- One trial per user (lifetime)
 
 ❌ NO Annual Plan Yet:
 - Will be introduced in later phase
@@ -82,13 +90,79 @@ PRO Plan (Monthly Only):
 
 ---
 
+## 🎁 7-Day Free Trial (PRO Tier)
+
+### Trial Activation and Flow
+
+**Day 0 (Trial Starts):**
+```
+User clicks "Start 7-Day Trial" on pricing page
+User account created (no credit card required)
+User tier: FREE (actual tier)
+Trial status: ACTIVE
+Effective tier: PRO (trial gives PRO access)
+User gets full PRO features immediately:
+  ✅ 15 symbols
+  ✅ 9 timeframes
+  ✅ 20 alerts
+  ✅ 50 watchlist items
+```
+
+**Day 5 (Reminder):**
+```
+Email sent: "2 days left in your trial. Add payment to continue PRO access."
+Dashboard banner: "⏰ Your trial ends in 2 days. Add payment to keep PRO features."
+User can:
+  - Add payment method → Trial converts to paid after 7 days
+  - Do nothing → Trial expires, downgrade to FREE tier
+  - Cancel trial → Immediate downgrade to FREE tier
+```
+
+**Day 7 (Trial Ends):**
+
+**Scenario A: User Added Payment During Trial**
+```
+Trial status: CONVERTED
+User tier: PRO
+Subscription status: ACTIVE (auto-renews)
+First charge: $29.00/month (or $23.20 if affiliate code used)
+User keeps all PRO features
+```
+
+**Scenario B: User Did NOT Add Payment**
+```
+Trial status: EXPIRED
+User tier: FREE (downgraded)
+Subscription status: INACTIVE
+No charge
+User loses PRO features:
+  ❌ Only 5 symbols now
+  ❌ Only 3 timeframes now
+  ❌ Only 5 alerts now
+Can upgrade to PRO anytime (no second trial)
+```
+
+**Trial Business Rules:**
+- ✅ One free trial per user (lifetime)
+- ✅ Tracked via `hasUsedFreeTrial` field
+- ✅ Cannot restart trial after cancellation
+- ✅ Cannot get trial if already on PRO tier
+- ✅ Trial is provider-agnostic (works with Stripe, dLocal, etc.)
+
+---
+
 ## 🔄 Auto-Renewal with Optional Codes
 
 ### How It Works
 
-**Month 1 (Initial Signup):**
+**Month 1 (Initial Signup - After Trial or Direct):**
 ```
-User visits checkout page
+OPTION A: User finished 7-day trial, added payment
+Trial converted to paid subscription
+Subscription status: ACTIVE (auto-renews)
+First charge: $29.00 (or $23.20 if affiliate code used during trial)
+
+OPTION B: User skipped trial, went straight to paid
 User enters affiliate code: "SMITH-ABC123"
 User pays: $23.20 (20% discount)
 Subscription status: ACTIVE (auto-renews)
@@ -537,11 +611,71 @@ Trading Alerts Team
 
 ## 👤 User Journeys
 
+### Journey 0: New User - Trial to Paid Conversion
+
+**Day 0:**
+- User clicks "Start 7-Day Trial"
+- Creates account (no credit card required)
+- Immediately gets PRO access (15 symbols, 9 timeframes, 20 alerts)
+- Explores features for 7 days
+
+**Day 5:**
+- Receives email: "2 days left in trial"
+- Dashboard banner: "Add payment to keep PRO access"
+- User decides to continue (likes the service)
+- Adds credit card in billing settings
+- Enters affiliate code "SMITH-ABC123" for 20% off first payment
+
+**Day 7:**
+- Trial ends
+- Trial status: CONVERTED
+- User tier: PRO
+- First charge: $23.20 (with affiliate code)
+- User keeps all PRO features
+- Subscription: ACTIVE, auto-renews
+
+**Day 8:**
+- User receives email: "Welcome to PRO! You saved $5.80 with code SMITH-ABC123"
+- User continues using service...
+
+**Result:** User successfully converted from trial to paid subscriber with discount
+
+---
+
+### Journey 0b: Trial User - Expires Without Payment
+
+**Day 0:**
+- User clicks "Start 7-Day Trial"
+- Gets PRO access for 7 days
+
+**Day 5:**
+- Receives trial expiring email
+- User busy, ignores it
+
+**Day 7:**
+- Trial ends
+- Trial status: EXPIRED
+- User tier: FREE (downgraded)
+- No charge
+- User can only access 5 symbols, 3 timeframes now
+- User receives email: "Your trial ended. Upgrade to PRO anytime for $29/month"
+
+**Day 30:**
+- User misses PRO features
+- Clicks "Upgrade to PRO" in dashboard
+- Adds payment (cannot get second trial)
+- Pays $29/month
+- Gets PRO access back
+
+**Result:** User tried service for free, later upgraded when ready
+
+---
+
 ### Journey 1: Active User Who Finds Codes Monthly
 
-**Month 1:**
-- User signs up with code "SMITH-ABC123"
-- Pays $23.20, saves $5.80
+**Month 1 (After Trial):**
+- User already converted from trial
+- First charge: $23.20 (used code during trial)
 - Subscription: ACTIVE, auto-renews
 
 **Month 2:**
