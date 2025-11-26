@@ -233,30 +233,31 @@ Start with File 1/15: mt5-service/app.py
 
 **IMPORTANT:** Use this table to load the correct implementation guide for each part.
 
-| Part | Build Order File          | Implementation Guide | Status                                 |
-| ---- | ------------------------- | -------------------- | -------------------------------------- |
-| 1    | part-01-foundation.md     | v5_part_a.md         | ✅ Exists                              |
-| 2    | part-02-database.md       | v5_part_b.md         | ✅ Exists                              |
-| 3    | part-03-types.md          | v5_part_c.md         | ✅ Exists                              |
-| 4    | part-04-tier-system.md    | v5_part_d.md         | ✅ Exists                              |
-| 5    | part-05-authentication.md | v5_part_e.md         | ✅ Exists                              |
-| 6    | part-06-flask-mt5.md      | v5_part_f.md         | ✅ Exists                              |
-| 7    | part-07-indicators-api.md | v5_part_g.md         | ✅ Exists                              |
-| 8    | part-08-dashboard.md      | v5_part_h.md         | ✅ Exists                              |
-| 9    | part-09-charts.md         | v5_part_i.md         | ✅ Exists                              |
-| 10   | part-10-watchlist.md      | v5_part_j.md         | ✅ Exists                              |
-| 11   | part-11-alerts.md         | v5_part_k.md         | ✅ Exists                              |
-| 12   | part-12-ecommerce.md      | v5_part_l.md         | ✅ Exists                              |
-| 13   | part-13-settings.md       | v5_part_m.md         | ✅ Exists                              |
-| 14   | part-14-admin.md          | v5_part_n.md         | ✅ Exists                              |
-| 15   | part-15-notifications.md  | v5_part_o.md         | ✅ Exists                              |
-| 16   | part-16-utilities.md      | v5_part_p.md         | ✅ Exists                              |
-| 17   | part-17-affiliate.md      | v5_part_q.md         | ✅ Exists (created 2025-11-21)         |
-| 18   | part-18-dlocal.md         | v5_part_r.md         | ✅ Exists (comprehensive - 2680 lines) |
+| Part | Build Order File             | Implementation Guide | Status                            |
+| ---- | ---------------------------- | -------------------- | --------------------------------- |
+| 1    | part-01-foundation.md        | v5_part_a.md         | ✅ Exists                         |
+| 2    | part-02-database.md          | v5_part_b.md         | ✅ Exists                         |
+| 3    | part-03-types.md             | v5_part_c.md         | ✅ Exists                         |
+| 4    | part-04-tier-system.md       | v5_part_d.md         | ✅ Exists                         |
+| 5    | part-05-authentication.md    | v5_part_e.md         | ✅ Exists                         |
+| 6    | part-06-flask-mt5.md         | v5_part_f.md         | ✅ Exists                         |
+| 7    | part-07-indicators-api.md    | v5_part_g.md         | ✅ Exists                         |
+| 8    | part-08-dashboard.md         | v5_part_h.md         | ✅ Exists                         |
+| 9    | part-09-charts.md            | v5_part_i.md         | ✅ Exists                         |
+| 10   | part-10-watchlist.md         | v5_part_j.md         | ✅ Exists                         |
+| 11   | part-11-alerts.md            | v5_part_k.md         | ✅ Exists                         |
+| 12   | part-12-ecommerce.md         | v5_part_l.md         | ✅ Exists                         |
+| 13   | part-13-settings.md          | v5_part_m.md         | ✅ Exists                         |
+| 14   | part-14-admin.md             | v5_part_n.md         | ✅ Exists                         |
+| 15   | part-15-notifications.md     | v5_part_o.md         | ✅ Exists                         |
+| 16   | part-16-utilities.md         | v5_part_p.md         | ✅ Exists                         |
+| 17A  | part-17a-affiliate-portal.md | v5_part_q.md         | ✅ Exists (32 files - Phases A-D) |
+| 17B  | part-17b-admin-automation.md | v5_part_q.md         | ✅ Exists (35 files - Phases E-H) |
+| 18   | part-18-dlocal.md            | v5_part_r.md         | ✅ Exists (37 files - 2680 lines) |
 
-**All 18 implementation guides now exist and are ready for use!**
+**All implementation guides now exist and are ready for use!**
 
-**Note:** v5_part_s.md also exists for Part 18 (shorter summary - 611 lines), but v5_part_r.md is the primary comprehensive guide.
+**Note:** Part 17 was split into 17A and 17B (67 files total) to prevent token overflow during building. Build 17A first, then 17B.
 
 ---
 
@@ -312,216 +313,198 @@ Start with File 1/[total]: [first-file]
 
 ---
 
-## 📌 Part 17 (Affiliate - 67 files) - Multi-Session
-
-### **Session 1: Database & Business Logic (Files 1-11)**
+## 📌 Part 17A (Affiliate Portal - 32 files)
 
 ```bash
 /drop docs/build-orders/part-16-utilities.md
 /drop docs/implementation-guides/v5_part_p.md
 
-/read-only docs/build-orders/part-17-affiliate.md
-/read-only docs/implementation-guides/v5_part_r.md
+/read-only docs/build-orders/part-17a-affiliate-portal.md
+/read-only docs/implementation-guides/v5_part_q.md
 /read-only docs/AFFILIATE-MARKETING-DESIGN.md
 ```
 
 ```
-Build Part 17 Session 1: Affiliate Database & Business Logic
+Build Part 17A: Affiliate Portal (Phases A-D)
 
-Follow the build order in part-17-affiliate.md.
+Follow the build order in part-17a-affiliate-portal.md exactly.
 
 Requirements:
-- Build Files 1-11 only (Database Models + Business Logic)
-- Follow AFFILIATE-MARKETING-DESIGN.md specifications
+- Build all 32 files in sequence (Phases A, B, C, D)
+- Phase A (Files 1-10): Foundation - Database models, business logic, email templates
+- Phase B (Files 11-21): Affiliate Portal Backend - API routes
+- Phase C (Files 22-23): Stripe Integration - Affiliate code discount
+- Phase D (Files 24-32): Affiliate Portal Frontend - Pages and UI
 - QUALITY GATES (MANDATORY):
   * All functions must have explicit return types
   * No 'any' types (use proper TypeScript interfaces)
   * Try-catch blocks in all async functions
   * No console.log() statements (use console.error for errors)
+  * Protected routes must check affiliate JWT
+  * Input validation with Zod schemas for POST/PATCH/PUT
+  * Commission creation ONLY via Stripe webhook
 - Run validation after each file: npm run validate
 - Auto-fix minor issues: npm run fix
 - Auto-commit approved files
+- Report progress after every 5-8 files
 
-Start with File 1/67: prisma/schema-affiliate.prisma
-Stop after File 11/67.
-```
-
-### **Session 2: API Routes (Files 12-30)**
-
-```
-Build Part 17 Session 2: Affiliate API Routes
-
-Continue Part 17 with Files 12-30.
-
-Requirements:
-- Follow part-17-affiliate.md specifications
-- Implement affiliate API endpoints
-- QUALITY GATES (MANDATORY):
-  * All functions must have explicit return types
-  * No 'any' types (use proper TypeScript interfaces)
-  * Try-catch blocks in all async functions
-  * Protected routes must check session
-  * Input validation with Zod schemas
-- Run validation after each file: npm run validate
-- Auto-fix minor issues: npm run fix
-- Auto-commit approved files
-
-Start with File 12/67.
-Stop after File 30/67.
-```
-
-### **Session 3: Portal Pages (Files 31-49)**
-
-```
-Build Part 17 Session 3: Affiliate Portal Pages
-
-Continue Part 17 with Files 31-49.
-
-Requirements:
-- Follow part-17-affiliate.md specifications
-- Build affiliate portal components
-- QUALITY GATES (MANDATORY):
-  * All React components must have explicit return types
-  * No 'any' types (use proper TypeScript interfaces)
-  * Protected pages must check session
-  * Proper error handling in async operations
-- Run validation after each file: npm run validate
-- Auto-fix minor issues: npm run fix
-- Auto-commit approved files
-
-Start with File 31/67.
-Stop after File 49/67.
-```
-
-### **Session 4: Final Components (Files 50-67)**
-
-```
-Build Part 17 Session 4: Final Affiliate Components
-
-Complete Part 17 with Files 50-67.
-
-Requirements:
-- Follow part-17-affiliate.md specifications
-- Build remaining components and utilities
-- QUALITY GATES (MANDATORY):
-  * All functions must have explicit return types
-  * No 'any' types (use proper TypeScript interfaces)
-  * Try-catch blocks in all async functions
-- Run validation after each file: npm run validate
-- Auto-fix minor issues: npm run fix
-- Auto-commit approved files
-
-Start with File 50/67.
-Complete through File 67/67.
+Start with File 1/32: prisma/schema.prisma (UPDATE EXISTING)
+Complete through File 32/32.
 ```
 
 ---
 
-## 📌 Part 18 (dLocal Payments - 45 files) - Multi-Session
-
-### **Session 1: Database & API (Files 1-9)**
+## 📌 Part 17B (Admin Portal & Automation - 35 files)
 
 ```bash
-/drop docs/build-orders/part-17-affiliate.md
-/drop docs/implementation-guides/v5_part_r.md
-/drop docs/AFFILIATE-MARKETING-DESIGN.md
+/drop docs/build-orders/part-17a-affiliate-portal.md
+
+/read-only docs/build-orders/part-17b-admin-automation.md
+/read-only docs/implementation-guides/v5_part_q.md
+```
+
+```
+Build Part 17B: Admin Portal & Automation (Phases E-H)
+
+Follow the build order in part-17b-admin-automation.md exactly.
+
+Requirements:
+- Build all 35 files in sequence (Phases E, F, G, H)
+- Phase E (Files 1-11): Admin Portal Backend - Affiliate management API
+- Phase F (Files 12-17): Admin Portal Frontend - BI reports pages
+- Phase G (Files 18-21): Cron Jobs - Automated code distribution, expiry, reports
+- Phase H (Files 22-35): Components - Reusable UI components
+- QUALITY GATES (MANDATORY):
+  * All functions must have explicit return types
+  * No 'any' types (use proper TypeScript interfaces)
+  * Try-catch blocks in all async functions
+  * No console.log() statements (use console.error for errors)
+  * Admin routes must check admin role
+  * Input validation with Zod schemas for POST/PATCH/PUT
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
+- Auto-commit approved files
+- Report progress after every 5-8 files
+
+Start with File 1/35: app/api/admin/affiliates/route.ts
+Complete through File 35/35.
+```
+
+---
+
+## 📌 Part 18 (dLocal Payments - 37 files) - Multi-Session
+
+### **Session 1: Database & Types & Services (Files 1-9)**
+
+```bash
+/drop docs/build-orders/part-17b-admin-automation.md
+/drop docs/implementation-guides/v5_part_q.md
 
 /read-only docs/build-orders/part-18-dlocal.md
-/read-only docs/implementation-guides/v5_part_s.md
+/read-only docs/implementation-guides/v5_part_r.md
 /read-only docs/dlocal-openapi-endpoints.yaml
 ```
 
 ```
-Build Part 18 Session 1: dLocal Database & API
+Build Part 18 Session 1: dLocal Foundation
 
 Follow the build order in part-18-dlocal.md.
 
 Requirements:
-- Build Files 1-9 (Database + Core API)
+- Build Files 1-9 (Database Layer, Types & Constants, Services)
+- Files 1-2: Database models (Payment, Subscription fields)
+- Files 3-5: Type definitions (dLocal types, country/currency/payment constants)
+- Files 6-9: Services (currency converter, payment methods, dLocal payment, country detector)
 - Follow dlocal-openapi-endpoints.yaml specification
 - Follow 07-dlocal-integration-rules-compress.md
 - QUALITY GATES (MANDATORY):
   * All functions must have explicit return types
   * No 'any' types (use proper TypeScript interfaces)
   * Try-catch blocks in all async functions
-  * Webhook signature verification implemented
-  * No hardcoded API keys
+  * No hardcoded API keys (use environment variables)
 - Run validation after each file: npm run validate
 - Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
-Start with File 1/45.
-Stop after File 9/45.
+Start with File 1/37: prisma/schema.prisma (UPDATE EXISTING)
+Stop after File 9/37.
 ```
 
-### **Session 2: Payment Routes (Files 10-18)**
+### **Session 2: API Routes (Files 10-18)**
 
 ```
-Build Part 18 Session 2: dLocal Payment Routes
+Build Part 18 Session 2: dLocal Payment API Routes
 
 Continue Part 18 with Files 10-18.
 
 Requirements:
-- Implement payment processing routes
-- Follow dlocal-openapi-endpoints.yaml
-- Handle all 8 emerging markets
+- Implement all payment processing API routes
+- Files 10-18: Payment endpoints + webhook handler
+- Follow dlocal-openapi-endpoints.yaml specification
+- Handle all 8 emerging markets (India, Nigeria, Pakistan, Vietnam, Indonesia, Thailand, South Africa, Turkey)
 - QUALITY GATES (MANDATORY):
   * All functions must have explicit return types
   * Protected routes must check session
   * Input validation with Zod schemas
   * Try-catch blocks in all async functions
   * Proper error messages for payment failures
+  * Webhook signature verification implemented
 - Run validation after each file: npm run validate
 - Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
-Start with File 10/45.
-Stop after File 18/45.
+Start with File 10/37.
+Stop after File 18/37.
 ```
 
-### **Session 3: Webhooks & Components (Files 19-25)**
+### **Session 3: Frontend Components & Email & Cron (Files 19-31)**
 
 ```
-Build Part 18 Session 3: Webhooks & UI Components
+Build Part 18 Session 3: UI Components & Automation
 
-Continue Part 18 with Files 19-25.
+Continue Part 18 with Files 19-31.
 
 Requirements:
-- Implement webhook handlers
-- Build payment UI components
+- Build all frontend components, unified checkout, email templates, and cron jobs
+- Files 19-24: Frontend components (country selector, plan selector, payment method grid, price display, discount input, payment button)
+- File 25: Unified checkout (update to support both Stripe + dLocal)
+- Files 26-29: Email templates (confirmation, reminder, expiry, failure)
+- Files 30-31: Cron jobs (renewal reminders, expiry downgrade)
 - QUALITY GATES (MANDATORY):
-  * Webhook signature verification on all webhook routes
-  * All functions must have explicit return types
-  * React components must have proper TypeScript types
-  * Error handling in payment flows
-- Run validation after each file: npm run validate
-- Auto-fix minor issues: npm run fix
-- Auto-commit approved files
-
-Start with File 19/45.
-Stop after File 25/45.
-```
-
-### **Session 4: Final Integration (Files 26-45)**
-
-```
-Build Part 18 Session 4: Final Payment Integration
-
-Complete Part 18 with Files 26-45.
-
-Requirements:
-- Complete all payment utilities
-- Integration testing components
-- QUALITY GATES (MANDATORY):
-  * All functions must have explicit return types
+  * All React components must have explicit return types
   * No 'any' types (use proper TypeScript interfaces)
-  * Try-catch blocks in all async functions
+  * Proper error handling in payment flows
+  * Email templates follow React Email standards
+  * Cron jobs handle errors gracefully
 - Run validation after each file: npm run validate
 - Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
-Start with File 26/45.
-Complete through File 45/45.
+Start with File 19/37.
+Stop after File 31/37.
+```
+
+### **Session 4: Documentation & Configuration (Files 32-37)**
+
+```
+Build Part 18 Session 4: Documentation & Deployment Config
+
+Complete Part 18 with Files 32-37.
+
+Requirements:
+- Complete all documentation and configuration files
+- Files 32-35: Documentation (policy, OpenAPI spec, implementation guide, summary)
+- Files 36-37: Configuration (vercel.json cron config, environment variables)
+- QUALITY GATES (MANDATORY):
+  * Documentation is comprehensive and accurate
+  * Configuration files properly formatted
+  * All environment variables documented
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
+- Auto-commit approved files
+
+Start with File 32/37.
+Complete through File 37/37.
 ```
 
 ---
@@ -734,25 +717,41 @@ ls -la .aider.conf.yml
 
 ---
 
-## 📊 Token Usage Guidelines
+## 📊 Token Usage Guidelines (Updated 2025-11-26)
 
-| Phase          | Expected Tokens | Notes            |
-| -------------- | --------------- | ---------------- |
-| Base Load      | 129k            | Always loaded    |
-| + Part Files   | +6-15k          | Varies by part   |
-| + Conversation | Variable        | Grows over time  |
-| **Safe Limit** | 180k            | Stay below this  |
-| **Max Limit**  | 204k            | Context overflow |
+| Phase          | Expected Tokens | Notes                              |
+| -------------- | --------------- | ---------------------------------- |
+| Base Load      | 147k            | Always loaded (policies + quality) |
+| + Part Files   | +6-28k          | Varies by part (see table below)   |
+| + Conversation | +20-30k         | Grows during build session         |
+| **Safe Limit** | 190k            | Stay below this                    |
+| **Max Limit**  | 204.8k          | Context overflow (MiniMax M2)      |
 
-**If approaching 180k tokens:**
+### Token Load by Part:
+
+| Part    | Files | Docs Load | Total Usage | Margin | Status        |
+| ------- | ----- | --------- | ----------- | ------ | ------------- |
+| 1-16    | 4-25  | 6-13k     | 170-185k    | 20-35k | ✅ Safe       |
+| **17A** | 32    | 14k       | ~186k       | 18.8k  | ⚠️ Tight      |
+| **17B** | 35    | 12k       | ~184k       | 20.8k  | ⚠️ Tight      |
+| **18**  | 37    | 28k       | ~200k       | 4.8k   | 🚨 Very Tight |
+
+**If approaching 190k tokens:**
 
 - Drop previous part files
 - Clear conversation: `/clear`
+- Keep responses brief during escalations
 - Restart Aider if needed
+
+**Part 17A & 17B were split to prevent overflow - build them sequentially!**
+**Part 18 is tight - keep conversations concise, commit frequently.**
 
 ---
 
-**Document Version:** 2.0 (Corrected)  
-**Last Updated:** 2025-11-21  
-**Critical Fix:** `/read-only` instead of `/add`  
-**Status:** ✅ Tested and Verified
+**Document Version:** 3.0 (Part 17 Split + Part 18 Corrected)
+**Last Updated:** 2025-11-26
+**Critical Updates:**
+
+- Part 17 split into 17A (32 files) + 17B (35 files) for token safety
+- Part 18 corrected: 37 files (not 45), sessions realigned
+  **Status:** ✅ Tested and Verified
