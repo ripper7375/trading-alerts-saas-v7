@@ -13,6 +13,7 @@ This document is Aider's "operating manual" - it tells you (Aider with MiniMax M
 When Aider starts (via `.aider.conf.yml`), you automatically load these files:
 
 **Policy Documents (Your Rules) - 9 Total:**
+
 - `docs/policies/00-tier-specifications.md` - Tier system rules (FREE vs PRO)
 - `docs/policies/01-approval-policies.md` - When to approve/fix/escalate
 - `docs/policies/02-quality-standards.md` - What "good code" looks like
@@ -22,8 +23,17 @@ When Aider starts (via `.aider.conf.yml`), you automatically load these files:
 - `docs/policies/06-aider-instructions.md` - THIS FILE (how to work)
 - `docs/policies/07-dlocal-integration-rules.md` - dLocal payment integration (emerging markets)
 - `docs/policies/08-google-oauth-implementation-rules.md` - **NEW:** Google OAuth integration (NextAuth v4)
+- `docs/policies/09-testing-framework-compliance.md` - **NEW:** ESLint, Jest, TypeScript standards (MANDATORY)
+
+**Quality Rules (Context for Code Generation):**
+
+- `.eslintrc.json` - Linting rules (explicit return types, no any, no console.log)
+- `jest.config.js` - Test configuration (coverage thresholds, naming conventions)
+- `tsconfig.json` - TypeScript compiler options (strict mode)
+- `docs/aider-context/quality-rules-summary.md` - Quick reference for all quality gates
 
 **Project Specifications:**
+
 - `docs/v5-structure-division.md` - Part structure overview (18 parts, 170+ files)
 - `docs/build-orders/part-XX-[name].md` - **PRIMARY:** File-by-file build sequences (18 files)
 - `docs/implementation-guides/v5_part_*.md` - **REFERENCE:** Business logic and requirements
@@ -33,9 +43,11 @@ When Aider starts (via `.aider.conf.yml`), you automatically load these files:
 - `docs/OAUTH_IMPLEMENTATION_READY.md` - OAuth handoff document
 
 **Seed Code (Reference Only):**
+
 - `seed-code/market_ai_engine.py` - Flask/MT5 patterns
 
 **Progress Tracking:**
+
 - `PROGRESS.md` - Track completed files, escalations, time
 
 ---
@@ -43,6 +55,7 @@ When Aider starts (via `.aider.conf.yml`), you automatically load these files:
 ### 1.2 Understanding Your Context
 
 You are working with:
+
 - **User:** Beginner developer learning SaaS development
 - **Goal:** Build Trading Alerts SaaS (170+ files)
 - **Your Role:** Autonomous builder with MiniMax M2 (cost-effective AI model)
@@ -50,6 +63,7 @@ You are working with:
 - **Model:** MiniMax M2 API (via OpenAI-compatible endpoint)
 
 **Key Constraints:**
+
 - FREE tier: 5 symbols × 3 timeframes (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × (H1, H4, D1)
 - PRO tier: 15 symbols × 9 timeframes (all symbols) × (M5-D1)
 - Next.js 15 + React 19 + TypeScript + Prisma + PostgreSQL
@@ -65,11 +79,13 @@ You are working with:
 Seed code = **inspiration and patterns**, NOT copy/paste!
 
 **market_ai_engine.py:**
+
 - **Use for:** Part 6 (Flask MT5 Service)
 - **Reference:** Flask route patterns, MT5 API usage, indicator fetching logic
 - **Adapt, don't copy:** Use as pattern reference, customize for our OpenAPI spec
 
 **Important:** Always adapt seed code to:
+
 - Match our OpenAPI contracts (trading_alerts_openapi.yaml, flask_mt5_openapi.yaml)
 - Follow our tier system (FREE: 5×3, PRO: 15×9)
 - Use our specific business logic
@@ -77,7 +93,62 @@ Seed code = **inspiration and patterns**, NOT copy/paste!
 
 ---
 
-## 3. WORKFLOW FOR EACH FILE
+## 3. PRE-GENERATION QUALITY CHECKLIST (MANDATORY)
+
+### 3.1 Before Generating ANY Code File
+
+**⚠️ CRITICAL:** Run through this checklist BEFORE writing code to ensure first-pass CI/CD success.
+
+#### Quality Gates Checklist
+
+- [ ] **Review ESLint Rules** (`.eslintrc.json`)
+  - What return type rules are active?
+  - Are `any` types forbidden?
+  - Are console statements allowed?
+
+- [ ] **Review Jest Config** (`jest.config.js`)
+  - What are current coverage thresholds?
+  - Check existing package names for uniqueness
+  - What naming convention is used?
+
+- [ ] **Review TypeScript Config** (`tsconfig.json`)
+  - Is strict mode enabled?
+  - What compiler options are set?
+
+- [ ] **Plan Function Signatures**
+  - What are all parameter types?
+  - What are all return types?
+  - Are there any async functions?
+
+- [ ] **Identify Required Interfaces**
+  - What TypeScript types need to be defined?
+  - Are there Prisma types to import?
+  - Do we need to create new interfaces?
+
+- [ ] **Consider Testability**
+  - Is the code modular enough to test?
+  - Are functions < 50 lines?
+  - Can dependencies be mocked?
+
+- [ ] **Verify No Debug Code**
+  - Remove all console.log statements
+  - Remove commented-out code
+  - Remove TODO comments (or document them properly)
+
+### 3.2 Quality Rules Quick Reference
+
+See `docs/aider-context/quality-rules-summary.md` for compact reference, or `docs/policies/09-testing-framework-compliance.md` for complete rules.
+
+**Most Common Violations to Avoid:**
+
+1. Missing return types: `function foo()` → `function foo(): Promise<Data>`
+2. Using `any` type: `results: any` → `results: SeedResults`
+3. Console statements: `console.log()` → Remove or use `console.error()`
+4. Duplicate package names: `"my-v0-project"` → `"alert-card-component"`
+
+---
+
+## 4. WORKFLOW FOR EACH FILE
 
 Follow this **exact workflow** for every file you build:
 
@@ -394,6 +465,7 @@ Use **conventional commits** with validation details:
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `refactor`: Code refactoring
@@ -433,16 +505,17 @@ Form includes tier-aware symbol/timeframe selection with inline validation.
 
 ### 5.1 How to Categorize Claude Code Errors
 
-| Severity | Examples | Action |
-|----------|----------|--------|
-| **Critical** | SQL injection, XSS, auth bypass, exposed secrets, tier bypass | ESCALATE immediately |
-| **High** | Missing error handling, wrong types, no tier validation, no input validation | AUTO-FIX (if possible) |
-| **Medium** | Missing JSDoc, suboptimal patterns, missing null checks | AUTO-FIX |
-| **Low** | Formatting, style preferences, variable naming | AUTO-FIX |
+| Severity     | Examples                                                                     | Action                 |
+| ------------ | ---------------------------------------------------------------------------- | ---------------------- |
+| **Critical** | SQL injection, XSS, auth bypass, exposed secrets, tier bypass                | ESCALATE immediately   |
+| **High**     | Missing error handling, wrong types, no tier validation, no input validation | AUTO-FIX (if possible) |
+| **Medium**   | Missing JSDoc, suboptimal patterns, missing null checks                      | AUTO-FIX               |
+| **Low**      | Formatting, style preferences, variable naming                               | AUTO-FIX               |
 
 ### 5.2 Auto-Fix Strategies
 
 **Missing Types:**
+
 ```typescript
 // Before (High issue)
 function createAlert(userId, symbol) {
@@ -456,6 +529,7 @@ function createAlert(userId: string, symbol: string): Promise<Alert> {
 ```
 
 **Missing Error Handling:**
+
 ```typescript
 // Before (High issue)
 export async function GET(req: Request) {
@@ -470,15 +544,13 @@ export async function GET(req: Request) {
     return Response.json(data);
   } catch (error) {
     console.error('GET /api/alerts error:', error);
-    return Response.json(
-      { error: 'Failed to fetch alerts' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Failed to fetch alerts' }, { status: 500 });
   }
 }
 ```
 
 **Missing JSDoc:**
+
 ```typescript
 // Before (Medium issue)
 async function createAlert(userId: string, symbol: string): Promise<Alert> {
@@ -515,12 +587,14 @@ Validation Results:
 ### 6.1 When to Notify
 
 **Notify human when:**
+
 - Starting new part: "Starting Part 5: Authentication (17 files)"
 - Every 3 files completed: "Progress: 9/17 files (53%)"
 - Escalation occurs: Use escalation format from 04-escalation-triggers.md
 - Part completed: "Part 5 complete! All 17 files done. Ready for testing."
 
 **Don't notify for:**
+
 - Each individual file (too verbose)
 - Auto-fix attempts (routine)
 - Successful validations (expected)
@@ -563,6 +637,7 @@ Awaiting human decision...
 
 ```markdown
 ### Part 11: Alerts - ⏳ In Progress
+
 - Completed: 2024-01-15
 - Files: 5/7 (71%)
 - Escalations: 1 (database migration for triggeredAt field - resolved)
@@ -571,6 +646,7 @@ Awaiting human decision...
 - Model: MiniMax M2
 
 Completed files:
+
 - ✅ app/api/alerts/route.ts (GET, POST)
 - ✅ app/api/alerts/[id]/route.ts (GET, PATCH, DELETE)
 - ✅ lib/db/alerts.ts (database utilities)
@@ -722,12 +798,14 @@ Keep track of policy improvements in PROGRESS.md:
 ## Policy Updates
 
 ### Update 1 (2024-01-15)
+
 - File: 01-approval-policies.md
 - Added: "Always check authentication before using userId"
 - Reason: Escalation #1 - TypeScript caught undefined userId
 - Impact: Prevents similar TypeScript errors in all future routes
 
 ### Update 2 (2024-01-16)
+
 - File: 03-architecture-rules.md
 - Added: "Schema changes require local + Railway migration"
 - Reason: Escalation #2 - Database migration for triggeredAt field
@@ -743,6 +821,7 @@ Keep track of policy improvements in PROGRESS.md:
 MiniMax M2 is cost-effective, but still optimize:
 
 **Batch Related Operations:**
+
 ```
 Instead of:
 - Read file 1, validate, commit
@@ -756,11 +835,13 @@ Do:
 ```
 
 **Minimize Redundant API Calls:**
+
 - Load policies once at startup (not per file)
 - Cache OpenAPI schema (don't re-parse each time)
 - Reuse patterns (don't regenerate from scratch)
 
 **Efficient Validation:**
+
 - Run Claude Code validation once per file
 - Don't re-validate unchanged code
 - Auto-fix in batch when possible
@@ -920,13 +1001,14 @@ Part 17 introduces affiliate marketing functionality with unique requirements th
 - **Pattern 10** (Accounting Reports): All reports MUST reconcile balances
 
 **Example - Affiliate Route:**
+
 ```typescript
 // ✅ Good - Uses Pattern 7
 import { getAffiliateFromToken } from '@/lib/auth/affiliate-auth';
 
 export async function GET(req: NextRequest) {
   const token = req.headers.get('authorization')?.replace('Bearer ', '');
-  const affiliate = await getAffiliateFromToken(token);  // ✅ Separate auth
+  const affiliate = await getAffiliateFromToken(token); // ✅ Separate auth
 
   if (!affiliate || affiliate.status !== 'ACTIVE') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -939,7 +1021,7 @@ export async function GET(req: NextRequest) {
 import { getServerSession } from 'next-auth';
 
 export async function GET(req: NextRequest) {
-  const session = await getServerSession();  // ❌ Wrong auth system
+  const session = await getServerSession(); // ❌ Wrong auth system
   // ...
 }
 ```
@@ -982,12 +1064,14 @@ export async function GET(req: NextRequest) {
 **Follow this sequence to minimize dependencies:**
 
 **Phase A: Foundation (10 files, ~6 hours)**
+
 1. lib/auth/affiliate-auth.ts (Pattern 7)
 2. lib/affiliates/code-generator.ts (Pattern 8)
 3. Database models (Affiliate, AffiliateCode, Commission)
 4. Database migrations
 
 **Phase B: Affiliate Portal (25 files, ~15 hours)**
+
 1. Affiliate registration & login
 2. Email verification
 3. Dashboard (stats, codes, commissions)
@@ -995,18 +1079,21 @@ export async function GET(req: NextRequest) {
 5. All affiliate API routes
 
 **Phase C: Integration (12 files, ~8 hours)**
+
 1. Stripe webhook updates (Pattern 9)
 2. User checkout discount code flow
 3. Commission calculation
 4. Code validation
 
 **Phase D: Admin Portal (20 files, ~12 hours)**
+
 1. Affiliate list & details
 2. Code distribution & cancellation
 3. Commission payment processing
 4. 4 BI reports
 
 **Phase E: Automation (10 files, ~6 hours)**
+
 1. Monthly code distribution cron
 2. Code expiry cron
 3. Monthly report cron
@@ -1049,6 +1136,7 @@ export async function GET(req: NextRequest) {
 **Suggested testing approach:**
 
 **Affiliate Registration Flow:**
+
 ```
 1. POST /api/affiliate/auth/register
    - Body: { email, password, fullName, country, paymentMethod: "BANK_TRANSFER", ... }
@@ -1062,6 +1150,7 @@ export async function GET(req: NextRequest) {
 ```
 
 **Commission Creation Flow:**
+
 ```
 1. User upgrades with affiliate code
 2. Stripe webhook triggered
@@ -1077,6 +1166,7 @@ Verify:
 ```
 
 **Admin Payment Flow:**
+
 ```
 1. Admin views commission owings report
 2. Admin selects commissions to pay
@@ -1112,6 +1202,7 @@ RESEND_API_KEY=re_...
 ```
 
 **Validation:**
+
 - AFFILIATE_JWT_SECRET MUST be different from JWT_SECRET
 - CRON_SECRET MUST be checked in cron route handlers
 - STRIPE_WEBHOOK_SECRET MUST be used to verify webhooks
@@ -1124,18 +1215,21 @@ RESEND_API_KEY=re_...
 
 ```markdown
 ### Part 17: Affiliate Marketing Platform - ⏳ In Progress
+
 - Started: 2024-XX-XX
 - Files: 25/67 (37%)
 - Escalations: 2 (code distribution timing, payment processing)
 - Status: Building affiliate dashboard
 
 **Phase A: Foundation** ✅ COMPLETE (10/10 files)
+
 - ✅ lib/auth/affiliate-auth.ts
 - ✅ lib/affiliates/code-generator.ts
 - ✅ Database models migrated
 - ✅ Environment variables configured
 
 **Phase B: Affiliate Portal** ⏳ IN PROGRESS (15/25 files)
+
 - ✅ app/api/affiliate/auth/register/route.ts
 - ✅ app/api/affiliate/auth/login/route.ts
 - ✅ app/api/affiliate/auth/verify-email/route.ts
@@ -1264,6 +1358,7 @@ Part 18 introduces dLocal payment provider as an alternative to Stripe for 8 eme
 ### 13.2 Critical Patterns for Part 18
 
 **When building Part 18 files, ALWAYS reference:**
+
 - **Pattern 11:** Payment Provider Strategy Pattern (lib/payments/subscription-manager.ts)
 - **Pattern 12:** Payment Provider Conditional Rendering (components/payments/payment-provider-selector.tsx)
 - **Section 14:** Payment Gateway Architecture from 03-architecture-rules.md
@@ -1271,12 +1366,12 @@ Part 18 introduces dLocal payment provider as an alternative to Stripe for 8 eme
 
 ### 13.3 Key Differences: Stripe vs dLocal
 
-| Feature | Stripe | dLocal |
-|---------|--------|--------|
-| Auto-Renewal | ✅ Yes | ❌ No (manual) |
-| Trial Period | ✅ 7 days | ❌ None |
-| Plan Types | Monthly only | 3-day + Monthly |
-| Currency | USD only | 8 local currencies |
+| Feature      | Stripe             | dLocal               |
+| ------------ | ------------------ | -------------------- |
+| Auto-Renewal | ✅ Yes             | ❌ No (manual)       |
+| Trial Period | ✅ 7 days          | ❌ None              |
+| Plan Types   | Monthly only       | 3-day + Monthly      |
+| Currency     | USD only           | 8 local currencies   |
 | Cancellation | ✅ User can cancel | ❌ Expires naturally |
 
 ### 13.4 Building Order for Part 18
@@ -1366,6 +1461,7 @@ Build in this order for logical dependencies:
 **Files:** 6 / 52 completed
 
 **Completed:**
+
 - ✅ lib/payments/currency-converter.ts (Pattern 11)
 - ✅ lib/payments/fraud-detector.ts (Section 8.6)
 - ✅ app/api/payments/dlocal/checkout/route.ts (Section 8.3)
@@ -1374,6 +1470,7 @@ Build in this order for logical dependencies:
 - ✅ app/api/cron/check-expirations/route.ts (Section 14.8)
 
 **In Progress:**
+
 - ⏳ app/api/payments/dlocal/renew/route.ts (Early renewal with day stacking)
 
 **Pending:** 45 files
