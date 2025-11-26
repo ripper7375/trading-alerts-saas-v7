@@ -13,11 +13,12 @@
 3. [Automated Validation System](#automated-validation-system)
 4. [What Aider Validates](#what-aider-validates)
 5. [Configuration & Setup](#configuration--setup)
-6. [Validation Workflow](#validation-workflow)
-7. [Decision Criteria](#decision-criteria)
-8. [Best Practices](#best-practices)
-9. [Troubleshooting](#troubleshooting)
-10. [Real-World Examples](#real-world-examples)
+6. [Token Budget Management](#token-budget-management)
+7. [Validation Workflow](#validation-workflow)
+8. [Decision Criteria](#decision-criteria)
+9. [Best Practices](#best-practices)
+10. [Troubleshooting](#troubleshooting)
+11. [Real-World Examples](#real-world-examples)
 
 ---
 
@@ -75,12 +76,14 @@ Phase 3: Building phase
 ### Why It's Critical:
 
 Without automated validation:
+
 - ❌ Manual code review for 170+ files (40+ hours)
 - ❌ Inconsistent quality standards
 - ❌ Type errors slip through
 - ❌ Policy violations undetected
 
 With automated validation:
+
 - ✅ Automatic validation for 170+ files (0 hours manual work)
 - ✅ Consistent quality across entire codebase
 - ✅ Type errors caught immediately
@@ -157,6 +160,7 @@ Aider's automated validation system performs comprehensive quality checks.
 ### 1️⃣ **TypeScript Type Safety**
 
 **What it checks:**
+
 - ✅ No `any` types used
 - ✅ All function parameters typed
 - ✅ All return types specified
@@ -167,15 +171,16 @@ Aider's automated validation system performs comprehensive quality checks.
 
 ```typescript
 // ❌ REJECTED by validation
-export async function createUser(data) {  // No type!
-  const user = await prisma.user.create({ data })
-  return user  // No return type!
+export async function createUser(data) {
+  // No type!
+  const user = await prisma.user.create({ data });
+  return user; // No return type!
 }
 
 // ✅ APPROVED by validation
 export async function createUser(data: CreateUserRequest): Promise<User> {
-  const user: User = await prisma.user.create({ data })
-  return user
+  const user: User = await prisma.user.create({ data });
+  return user;
 }
 ```
 
@@ -184,6 +189,7 @@ export async function createUser(data: CreateUserRequest): Promise<User> {
 ### 2️⃣ **Error Handling**
 
 **What it checks:**
+
 - ✅ Try-catch blocks present
 - ✅ Specific error types caught
 - ✅ User-friendly error messages
@@ -195,27 +201,27 @@ export async function createUser(data: CreateUserRequest): Promise<User> {
 ```typescript
 // ❌ REJECTED - No error handling
 export async function POST(req: NextRequest) {
-  const user = await prisma.user.create({ data: req.body })
-  return NextResponse.json(user)
+  const user = await prisma.user.create({ data: req.body });
+  return NextResponse.json(user);
 }
 
 // ✅ APPROVED - Comprehensive error handling
 export async function POST(req: NextRequest) {
   try {
-    const user = await prisma.user.create({ data: req.body })
-    return NextResponse.json(user, { status: 201 })
+    const user = await prisma.user.create({ data: req.body });
+    return NextResponse.json(user, { status: 201 });
   } catch (error) {
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Email already exists' },
         { status: 409 }
-      )
+      );
     }
-    console.error('User creation failed:', error)
+    console.error('User creation failed:', error);
     return NextResponse.json(
       { error: 'Failed to create user' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
@@ -225,6 +231,7 @@ export async function POST(req: NextRequest) {
 ### 3️⃣ **Authentication & Authorization**
 
 **What it checks:**
+
 - ✅ Protected routes check session
 - ✅ Session validated before use
 - ✅ User ID ownership verified
@@ -235,27 +242,27 @@ export async function POST(req: NextRequest) {
 ```typescript
 // ❌ REJECTED - Missing authentication
 export async function DELETE(req: NextRequest) {
-  await prisma.alert.delete({ where: { id: req.params.id } })
-  return NextResponse.json({ success: true })
+  await prisma.alert.delete({ where: { id: req.params.id } });
+  return NextResponse.json({ success: true });
 }
 
 // ✅ APPROVED - Includes authentication and ownership check
 export async function DELETE(req: NextRequest) {
-  const session = await getServerSession()
+  const session = await getServerSession();
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const alert = await prisma.alert.findUnique({
-    where: { id: req.params.id }
-  })
+    where: { id: req.params.id },
+  });
 
   if (alert.userId !== session.user.id) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  await prisma.alert.delete({ where: { id: req.params.id } })
-  return NextResponse.json({ success: true })
+  await prisma.alert.delete({ where: { id: req.params.id } });
+  return NextResponse.json({ success: true });
 }
 ```
 
@@ -264,6 +271,7 @@ export async function DELETE(req: NextRequest) {
 ### 4️⃣ **Tier Validation**
 
 **What it checks:**
+
 - ✅ Symbol restrictions enforced
 - ✅ Timeframe restrictions checked
 - ✅ Tier validation before operations
@@ -274,26 +282,30 @@ export async function DELETE(req: NextRequest) {
 ```typescript
 // ❌ REJECTED - Missing tier validation
 export async function POST(req: NextRequest) {
-  const alert = await prisma.alert.create({ data: req.body })
-  return NextResponse.json(alert)
+  const alert = await prisma.alert.create({ data: req.body });
+  return NextResponse.json(alert);
 }
 
 // ✅ APPROVED - Includes tier validation
 export async function POST(req: NextRequest) {
-  const session = await getServerSession()
-  const { symbol, timeframe } = await req.json()
+  const session = await getServerSession();
+  const { symbol, timeframe } = await req.json();
 
   // Validate tier access
-  const canAccess = await validateTierAccess(symbol, timeframe, session.user.tier)
+  const canAccess = await validateTierAccess(
+    symbol,
+    timeframe,
+    session.user.tier
+  );
   if (!canAccess) {
     return NextResponse.json(
       { error: 'Symbol/timeframe not allowed for your tier' },
       { status: 403 }
-    )
+    );
   }
 
-  const alert = await prisma.alert.create({ data: req.body })
-  return NextResponse.json(alert)
+  const alert = await prisma.alert.create({ data: req.body });
+  return NextResponse.json(alert);
 }
 ```
 
@@ -302,6 +314,7 @@ export async function POST(req: NextRequest) {
 ### 5️⃣ **Input Validation**
 
 **What it checks:**
+
 - ✅ Zod schemas present for POST/PATCH/PUT
 - ✅ Input validated before processing
 - ✅ Proper 400 responses for invalid input
@@ -312,6 +325,7 @@ export async function POST(req: NextRequest) {
 ### 6️⃣ **Security Patterns**
 
 **What it checks:**
+
 - ✅ No hardcoded secrets
 - ✅ No SQL injection risks
 - ✅ No XSS vulnerabilities
@@ -431,6 +445,111 @@ read:
 
 ---
 
+## 🔋 Token Budget Management
+
+MiniMax M2 has a 204,800 token context window. Proper token budget management prevents system halts during large builds.
+
+### Token Budget Breakdown:
+
+```
+Context Window:        204,800 tokens (MiniMax M2 limit)
+Base Load (fixed):    -147,000 tokens
+  ├─ Policies:          79,000 tokens
+  ├─ Quality gates:      7,000 tokens
+  ├─ OpenAPI spec:      22,000 tokens
+  └─ Architecture:      39,000 tokens
+                      ──────────
+Available:              57,800 tokens
+
+Dynamic Load:         -XX,XXX tokens (varies by part)
+  ├─ Build order:        2-7k tokens
+  ├─ Implementation:     4-19k tokens
+  └─ Design docs:        0-5k tokens
+
+Conversation/Code:     -20-30k tokens
+  ├─ Chat history:       5-15k tokens
+  ├─ Generated code:     5-10k tokens
+  └─ Validation:         2-5k tokens
+```
+
+### Token Safety by Part:
+
+| Part | Files | Docs Size | Total Usage | Margin | Status        |
+| ---- | ----- | --------- | ----------- | ------ | ------------- |
+| 1-16 | 5-25  | 6-13k     | 170-185k    | 20-35k | ✅ Safe       |
+| 17A  | 32    | 14k       | ~186k       | 18.8k  | ⚠️ Tight      |
+| 17B  | 35    | 12k       | ~184k       | 20.8k  | ⚠️ Tight      |
+| 18   | 45    | 28k       | ~200k       | 4.8k   | 🚨 Very Tight |
+
+---
+
+### Part 17 Split Rationale:
+
+**Original Part 17:**
+
+- 67 files (all affiliate system)
+- Documentation: 29k tokens (build-order 6k + implementation 18k + design 5k)
+- **Risk:** 147k + 29k + 25k = 201k tokens (only 3.8k margin!)
+- **Problem:** Extended discussions during build would cause overflow
+
+**Solution: Split into 17A + 17B:**
+
+**Part 17A (Affiliate Portal - Phases A-D):**
+
+- 32 files (affiliate registration, auth, portal, Stripe integration)
+- Documentation: 14k tokens
+- Usage: 147k + 14k + 25k = 186k
+- **Margin: 18.8k tokens** ✅ Safe for 5-8 escalations
+
+**Part 17B (Admin & Automation - Phases E-H):**
+
+- 35 files (admin portal, BI reports, cron jobs, components)
+- Documentation: 12k tokens
+- Usage: 147k + 12k + 25k = 184k
+- **Margin: 20.8k tokens** ✅ Safe for 6-10 escalations
+
+---
+
+### When to Split Parts:
+
+**Split if:**
+
+- ✅ Part docs exceed 25k tokens
+- ✅ Calculated margin < 10k tokens
+- ✅ Part has >50 files
+- ✅ Natural logical boundary exists (e.g., user portal vs admin portal)
+
+**How to split:**
+
+1. Identify natural phases or boundaries
+2. Create two build-order files (part-Xa and part-Xb)
+3. Update `.aider.conf.yml` with separate entries
+4. Document token budgets for both parts
+5. Build sequentially (A then B)
+
+---
+
+### Monitoring Token Usage:
+
+**During build, watch for:**
+
+```
+⚠️ Warning signs of overflow:
+- Conversation has >10 back-and-forth exchanges
+- Multiple validation failures with verbose output
+- Aider generating 5+ files before committing
+- Complex refactoring across multiple files
+```
+
+**Prevention strategies:**
+
+1. **Keep conversations concise** - Answer escalations briefly
+2. **Commit frequently** - Don't batch multiple files
+3. **Clear history** - Use `/clear` if conversation gets long
+4. **Split sessions** - If needed, finish part in multiple Aider sessions
+
+---
+
 ## 🔄 Validation Workflow
 
 Here's exactly how Aider validates each file during Phase 3 building.
@@ -541,6 +660,7 @@ Aider triggers **auto-fix** when:
 4. **🔧 Import organization** (ESLint --fix)
 
 **Auto-fix command:**
+
 ```bash
 npm run fix  # Runs lint:fix + format
 ```
@@ -588,6 +708,7 @@ npm run fix
 ### 2️⃣ **Trust the Automated Validation**
 
 **Statistics:**
+
 - ✅ 99% accurate in catching type errors
 - ✅ 95% accurate in catching security issues
 - ✅ 100% accurate in catching formatting issues
@@ -636,6 +757,7 @@ git commit -m "docs: add pattern for X"
 ### Issue 1: Validation Fails with TypeScript Errors
 
 **Symptoms:**
+
 ```
 error TS2304: Cannot find name 'User'
 error TS2345: Argument of type 'unknown' not assignable
@@ -656,6 +778,7 @@ npm run validate:types
 ### Issue 2: ESLint Max Warnings Exceeded
 
 **Symptoms:**
+
 ```
 ✖ Problems (0 errors, 5 warnings)
 ESLint found too many warnings (maximum: 0)
@@ -676,6 +799,7 @@ npm run validate:lint
 ### Issue 3: Policy Validation Finds Critical Issues
 
 **Symptoms:**
+
 ```
 🔴 Critical Issues (2):
 1. app/api/alerts/route.ts:1
@@ -751,12 +875,12 @@ Next step: Run auto-fix
 
 ### Target Metrics:
 
-| Metric | Target | Indicates |
-|--------|--------|-----------|
-| **Auto-Approve Rate** | 85-92% | Validation working well |
-| **Auto-Fix Rate** | 6-12% | Minor issues caught |
-| **Escalation Rate** | 2-5% | Major issues flagged |
-| **Validation Time** | <10 sec/file | System is fast |
+| Metric                | Target       | Indicates               |
+| --------------------- | ------------ | ----------------------- |
+| **Auto-Approve Rate** | 85-92%       | Validation working well |
+| **Auto-Fix Rate**     | 6-12%        | Minor issues caught     |
+| **Escalation Rate**   | 2-5%         | Major issues flagged    |
+| **Validation Time**   | <10 sec/file | System is fast          |
 
 ---
 
