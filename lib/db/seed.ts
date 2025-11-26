@@ -10,6 +10,18 @@ import bcrypt from 'bcryptjs';
  */
 
 /**
+ * Created admin user result
+ */
+interface SeedAdminResult {
+  id: string;
+  email: string;
+  name: string | null;
+  tier: UserTier;
+  role: string;
+  createdAt: Date;
+}
+
+/**
  * Creates an admin user with PRO tier access
  * @param prisma - PrismaClient instance
  * @param email - Admin email address
@@ -22,7 +34,7 @@ export async function seedAdmin(
   email: string,
   password: string,
   name: string = 'Admin User'
-) {
+): Promise<SeedAdminResult> {
   // Validate input parameters
   if (!email || !password) {
     throw new Error('Email and password are required');
@@ -69,6 +81,15 @@ export async function seedAdmin(
 }
 
 /**
+ * Created watchlist result
+ */
+interface SeedWatchlistResult {
+  id: string;
+  name: string;
+  createdAt: Date;
+}
+
+/**
  * Creates a default watchlist for a user
  * @param prisma - PrismaClient instance
  * @param userId - User ID to create watchlist for
@@ -79,7 +100,7 @@ export async function seedDefaultWatchlist(
   prisma: PrismaClient,
   userId: string,
   name: string = 'My Watchlist'
-) {
+): Promise<SeedWatchlistResult> {
   const watchlist = await prisma.watchlist.upsert({
     where: {
       userId_name: {
@@ -104,6 +125,17 @@ export async function seedDefaultWatchlist(
 }
 
 /**
+ * Created watchlist item result
+ */
+interface SeedWatchlistItemResult {
+  id: string;
+  symbol: string;
+  timeframe: string;
+  order: number;
+  createdAt: Date;
+}
+
+/**
  * Adds sample watchlist items for FREE tier symbols
  * @param prisma - PrismaClient instance
  * @param watchlistId - Watchlist ID to add items to
@@ -114,7 +146,7 @@ export async function seedSampleWatchlistItems(
   prisma: PrismaClient,
   watchlistId: string,
   userId: string
-) {
+): Promise<SeedWatchlistItemResult[]> {
   // FREE tier symbols as defined in tier specifications
   const freeTierSymbols = [
     { symbol: 'BTCUSD', timeframe: 'H1' },
@@ -151,12 +183,27 @@ export async function seedSampleWatchlistItems(
 }
 
 /**
+ * Created alert result
+ */
+interface SeedAlertResult {
+  id: string;
+  symbol: string;
+  timeframe: string;
+  name: string | null;
+  isActive: boolean;
+  createdAt: Date;
+}
+
+/**
  * Creates sample demonstration alerts for a user
  * @param prisma - PrismaClient instance
  * @param userId - User ID to create alerts for
  * @returns Promise resolving to array of created alerts
  */
-export async function seedSampleAlerts(prisma: PrismaClient, userId: string) {
+export async function seedSampleAlerts(
+  prisma: PrismaClient,
+  userId: string
+): Promise<SeedAlertResult[]> {
   const sampleAlerts = [
     {
       symbol: 'BTCUSD',
@@ -213,6 +260,16 @@ export async function seedSampleAlerts(prisma: PrismaClient, userId: string) {
 }
 
 /**
+ * Complete seeding setup results
+ */
+interface SeedCompleteSetupResult {
+  admin: SeedAdminResult | null;
+  watchlist: SeedWatchlistResult | null;
+  watchlistItems: SeedWatchlistItemResult[];
+  alerts: SeedAlertResult[];
+}
+
+/**
  * Complete seeding setup for a new admin user
  * Creates admin user, default watchlist, sample items, and demonstration alerts
  * @param prisma - PrismaClient instance
@@ -226,22 +283,20 @@ export async function seedCompleteSetup(
   email: string,
   password: string,
   name: string = 'Admin User'
-) {
-  const results = {
-    admin: null as any,
-    watchlist: null as any,
-    watchlistItems: [] as any[],
-    alerts: [] as any[],
+): Promise<SeedCompleteSetupResult> {
+  const results: SeedCompleteSetupResult = {
+    admin: null,
+    watchlist: null,
+    watchlistItems: [],
+    alerts: [],
   };
 
   try {
     // Step 1: Create admin user
     results.admin = await seedAdmin(prisma, email, password, name);
-    console.log(`✅ Admin user created: ${results.admin.email}`);
 
     // Step 2: Create default watchlist
     results.watchlist = await seedDefaultWatchlist(prisma, results.admin.id);
-    console.log(`✅ Default watchlist created: ${results.watchlist.name}`);
 
     // Step 3: Add sample watchlist items
     results.watchlistItems = await seedSampleWatchlistItems(
@@ -249,13 +304,10 @@ export async function seedCompleteSetup(
       results.watchlist.id,
       results.admin.id
     );
-    console.log(`✅ Sample watchlist items created: ${results.watchlistItems.length} items`);
 
     // Step 4: Create sample alerts
     results.alerts = await seedSampleAlerts(prisma, results.admin.id);
-    console.log(`✅ Sample alerts created: ${results.alerts.length} alerts`);
 
-    console.log('🎉 Complete seeding setup finished successfully!');
     return results;
 
   } catch (error) {
@@ -270,7 +322,10 @@ export async function seedCompleteSetup(
  * @param email - Email of admin user to clean up
  * @returns Promise resolving when cleanup is complete
  */
-export async function cleanupTestData(prisma: PrismaClient, email: string) {
+export async function cleanupTestData(
+  prisma: PrismaClient,
+  email: string
+): Promise<void> {
   try {
     const user = await prisma.user.findUnique({
       where: { email },
@@ -287,7 +342,6 @@ export async function cleanupTestData(prisma: PrismaClient, email: string) {
     });
 
     if (!user) {
-      console.log(`No test data found for email: ${email}`);
       return;
     }
 
@@ -304,8 +358,6 @@ export async function cleanupTestData(prisma: PrismaClient, email: string) {
     
     // Delete user last
     await prisma.user.delete({ where: { id: user.id } });
-
-    console.log(`✅ Test data cleaned up for: ${email}`);
 
   } catch (error) {
     console.error('❌ Cleanup failed:', error);
