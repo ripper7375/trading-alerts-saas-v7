@@ -67,32 +67,52 @@ read:
   # ========== COMPRESSED POLICY FILES (79k tokens) ==========
   # These were compressed by Claude Code to reduce token usage
   # Original: 139k → Compressed: 79k (43% reduction)
-  
-  - docs/policies/01-approval-policies-compress.md        # 9,491 tokens
-  - docs/policies/02-quality-standards.md                 # 9,818 tokens (not compressed, small)
-  - docs/policies/03-architecture-rules-compress.md       # 11,326 tokens
-  - docs/policies/04-escalation-triggers-compress.md      # 7,430 tokens
-  - docs/policies/05-coding-patterns-compress.md          # 20,999 tokens
-  - docs/policies/06-aider-instructions.md                # 10,966 tokens (not compressed)
+
+  - docs/policies/01-approval-policies-compress.md # 9,491 tokens
+  - docs/policies/02-quality-standards.md # 9,818 tokens (not compressed, small)
+  - docs/policies/03-architecture-rules-compress.md # 11,326 tokens
+  - docs/policies/04-escalation-triggers-compress.md # 7,430 tokens
+  - docs/policies/05-coding-patterns-compress.md # 22,999 tokens (UPDATED 2025-11-26 - now includes quality gates)
+  - docs/policies/06-aider-instructions.md # 12,966 tokens (UPDATED 2025-11-26 - includes pre-generation checklist)
   - docs/policies/07-dlocal-integration-rules-compress.md # 6,870 tokens
-  - docs/policies/00-tier-specifications.md               # 2,479 tokens (not compressed, tiny)
-  
+  - docs/policies/00-tier-specifications.md # 2,479 tokens (not compressed, tiny)
+
+  # ========== NEW: SHIFT-LEFT TESTING POLICIES (2025-11-26) ==========
+  # Added as part of Three-Layer Protection System implementation
+
+  - docs/policies/09-testing-framework-compliance.md # 10,000 tokens (NEW - mandatory quality standards)
+
+  # ========== NEW: QUALITY RULES CONTEXT (2025-11-26) ==========
+  # Enables Layer 1: Policy-Aware Code Generation
+  # This file is loaded to give Aider quality awareness during generation
+
+  - docs/aider-context/quality-rules-summary.md # ~5,000 tokens (NEW - quick reference <5KB)
+
   # ========== COMPRESSED OPENAPI SPEC (22k tokens) ==========
   # Primary API contract - always available
-  
-  - docs/trading_alerts_openapi_compress.yaml             # 21,690 tokens
-  
+
+  - docs/trading_alerts_openapi_compress.yaml # 21,690 tokens
+
   # ========== ARCHITECTURE & STRUCTURE (28k tokens) ==========
   # Project structure and architecture documentation
-  
-  - ARCHITECTURE.md                                        # ~10,000 tokens
-  - README.md                                              # ~5,000 tokens
-  - docs/v5-structure-division.md                          # ~10,000 tokens
-  - docs/build-orders/README.md                            # ~3,000 tokens
-  
+
+  - ARCHITECTURE.md # ~10,000 tokens
+  - README.md # ~5,000 tokens
+  - docs/v5-structure-division.md # ~10,000 tokens
+  - docs/build-orders/README.md # ~3,000 tokens
+
   # --------------------------------------------------------------------------
-  # TOTAL BASE LOAD: ~129,000 tokens
-  # AVAILABLE FOR DYNAMIC LOADING: ~75,000 tokens
+  # TOTAL BASE LOAD: ~147,000 tokens (Updated 2025-11-26)
+  # Breakdown:
+  #   - Original policies: ~79k tokens
+  #   - Updated coding patterns: +2k tokens (quality gates added)
+  #   - Updated instructions: +2k tokens (pre-generation checklist)
+  #   - New quality policy: +10k tokens
+  #   - New quality summary: +5k tokens
+  #   - OpenAPI + Architecture: ~50k tokens
+  #
+  # AVAILABLE FOR DYNAMIC LOADING: ~57,000 tokens
+  # (Still sufficient for largest parts: Part 17 ~25k, Part 18 ~20k)
   # --------------------------------------------------------------------------
 
   # ========== ROTATION STRATEGY: PART-BY-PART LOADING ==========
@@ -101,35 +121,35 @@ read:
   #
   # CRITICAL: Do NOT uncomment multiple parts at once!
   # Load ONE part at a time, complete it, then move to next
-  
+
   # ==========================================================================
   # PART 1: FOUNDATION & ROOT CONFIG (~11k tokens)
   # ==========================================================================
   # When building: 12 configuration files
   # /read-only docs/build-orders/part-01-foundation.md              # ~5k
   # /read-only docs/implementation-guides/v5_part_a.md              # ~6k
-  
+
   # ==========================================================================
   # PART 2: DATABASE SCHEMA (~7k tokens)
   # ==========================================================================
   # When building: 4 database files
   # /read-only docs/build-orders/part-02-database.md                # ~3k
   # /read-only docs/implementation-guides/v5_part_b.md              # ~4k
-  
+
   # ==========================================================================
   # PART 3: TYPE DEFINITIONS (~13k tokens)
   # ==========================================================================
   # When building: 6 type files
   # /read-only docs/build-orders/part-03-types.md                   # ~8k
   # /read-only docs/implementation-guides/v5_part_c.md              # ~5k
-  
+
   # ==========================================================================
   # PART 4: TIER SYSTEM (~7k tokens)
   # ==========================================================================
   # When building: 4 tier management files
   # /read-only docs/build-orders/part-04-tier-system.md             # ~4k
   # /read-only docs/implementation-guides/v5_part_d.md              # ~3k
-  
+
   # ==========================================================================
   # PART 5: AUTHENTICATION (~13k tokens)
   # ==========================================================================
@@ -138,7 +158,7 @@ read:
   # /read-only docs/implementation-guides/v5_part_e.md              # ~5k
   # /read-only docs/policies/08-google-oauth-implementation-rules.md # ~4k
   # /read-only docs/OAUTH_IMPLEMENTATION_READY.md                   # ~2k
-  
+
   # ==========================================================================
   # PART 6: FLASK MT5 SERVICE (~16k tokens)
   # ==========================================================================
@@ -146,77 +166,77 @@ read:
   # /read-only docs/build-orders/part-06-flask-mt5.md               # ~2k
   # /read-only docs/implementation-guides/v5_part_f.md              # ~4k
   # /read-only docs/flask_mt5_openapi.yaml                          # ~10k
-  
+
   # ==========================================================================
   # PART 7: INDICATORS API (~6k tokens)
   # ==========================================================================
   # When building: 6 API route files
   # /read-only docs/build-orders/part-07-indicators-api.md          # ~2k
   # /read-only docs/implementation-guides/v5_part_g.md              # ~4k
-  
+
   # ==========================================================================
   # PART 8: DASHBOARD (~6k tokens)
   # ==========================================================================
   # When building: 9 dashboard component files
   # /read-only docs/build-orders/part-08-dashboard.md               # ~2k
   # /read-only docs/implementation-guides/v5_part_h.md              # ~4k
-  
+
   # ==========================================================================
   # PART 9: CHARTS (~6k tokens)
   # ==========================================================================
   # When building: 8 chart component files
   # /read-only docs/build-orders/part-09-charts.md                  # ~2k
   # /read-only docs/implementation-guides/v5_part_i.md              # ~4k
-  
+
   # ==========================================================================
   # PART 10: WATCHLIST (~6k tokens)
   # ==========================================================================
   # When building: 8 watchlist files
   # /read-only docs/build-orders/part-10-watchlist.md               # ~2k
   # /read-only docs/implementation-guides/v5_part_j.md              # ~4k
-  
+
   # ==========================================================================
   # PART 11: ALERTS (~6k tokens)
   # ==========================================================================
   # When building: 10 alert system files
   # /read-only docs/build-orders/part-11-alerts.md                  # ~2k
   # /read-only docs/implementation-guides/v5_part_k.md              # ~4k
-  
+
   # ==========================================================================
   # PART 12: E-COMMERCE & BILLING (~7k tokens)
   # ==========================================================================
   # When building: 11 Stripe integration files
   # /read-only docs/build-orders/part-12-ecommerce.md               # ~2k
   # /read-only docs/implementation-guides/v5_part_l.md              # ~5k
-  
+
   # ==========================================================================
   # PART 13: SETTINGS (~6k tokens)
   # ==========================================================================
   # When building: 17 settings page files
   # /read-only docs/build-orders/part-13-settings.md                # ~2k
   # /read-only docs/implementation-guides/v5_part_m.md              # ~4k
-  
+
   # ==========================================================================
   # PART 14: ADMIN DASHBOARD (~6k tokens)
   # ==========================================================================
   # When building: 9 admin portal files
   # /read-only docs/build-orders/part-14-admin.md                   # ~2k
   # /read-only docs/implementation-guides/v5_part_n.md              # ~4k
-  
+
   # ==========================================================================
   # PART 15: NOTIFICATIONS (~6k tokens)
   # ==========================================================================
   # When building: 9 notification system files
   # /read-only docs/build-orders/part-15-notifications.md           # ~2k
   # /read-only docs/implementation-guides/v5_part_o.md              # ~4k
-  
+
   # ==========================================================================
   # PART 16: UTILITIES (~6k tokens)
   # ==========================================================================
   # When building: 25 utility files
   # /read-only docs/build-orders/part-16-utilities.md               # ~2k
   # /read-only docs/implementation-guides/v5_part_p.md              # ~4k
-  
+
   # ==========================================================================
   # PART 17: AFFILIATE MARKETING (~8k tokens)
   # ==========================================================================
@@ -227,7 +247,7 @@ read:
   #
   # Note: Build-order now has file-by-file instructions (67 files detailed)
   # No sub-sessions needed - Aider can build sequentially through all phases
-  
+
   # ==========================================================================
   # PART 18: DLOCAL PAYMENTS (~12k tokens)
   # ==========================================================================
@@ -238,19 +258,19 @@ read:
   #
   # Note: v5_part_r.md is the primary implementation guide for Part 18
   # (v5_part_s.md also exists as a shorter summary - 611 lines vs 2680 lines)
-  
+
   # ========== OTHER OPTIONAL FILES (Load when needed) ==========
   # These files can be loaded on-demand for reference
-  
+
   # Other OpenAPI specs (load when working on specific APIs):
   # /read-only docs/flask_mt5_openapi.yaml                          # ~10k
   # /read-only docs/dlocal-openapi-endpoints.yaml                   # ~7k
-  
+
   # Seed code (load specific files when referencing patterns):
   # /read-only seed-code/saas-starter/app/(login)/actions.ts
   # /read-only seed-code/v0-components/layouts/dashboard-layout.tsx
   # etc.
-  
+
   # Progress tracking (automatically updated by Aider):
   - PROGRESS.md
 
@@ -266,7 +286,7 @@ show-diffs: true
 # ============================================================================
 edit-format: diff
 stream: true
-map-tokens: 512  # REDUCED to save context space
+map-tokens: 512 # REDUCED to save context space
 
 # ============================================================================
 # CHAT SETTINGS
@@ -282,7 +302,6 @@ show-model-warnings: true
 max-chat-history: 100
 suggest-shell-commands: true
 dark-mode: true
-
 # ============================================================================
 # USAGE INSTRUCTIONS - ROTATION WORKFLOW
 # ============================================================================

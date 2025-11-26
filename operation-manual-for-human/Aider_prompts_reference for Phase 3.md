@@ -20,7 +20,15 @@ Follow the build order in part-01-foundation.md exactly.
 Requirements:
 - Build all 12 files in sequence
 - Use patterns from 05-coding-patterns-compress.md
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * All functions must have explicit return types
+  * No 'any' types (use proper TypeScript interfaces)
+  * Try-catch blocks in all async functions
+  * No console.log() statements (use console.error for errors)
+  * Protected routes must check session
+  * Input validation with Zod schemas for POST/PATCH/PUT
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
 - Auto-commit each file if approved
 - Report progress after every 3 files
 
@@ -63,7 +71,13 @@ Requirements:
 - Build all 4 files in sequence
 - Generate Prisma schema with 2-tier system (FREE/PRO)
 - Run prisma generate after schema created
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * All functions must have explicit return types
+  * No 'any' types (use proper TypeScript interfaces)
+  * Try-catch blocks in all async functions
+  * No console.log() statements (use console.error for errors)
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
 Start with File 1/4: prisma/schema.prisma
@@ -92,7 +106,13 @@ Requirements:
 - Build all 6 type files in sequence
 - Ensure strict TypeScript compliance
 - Match OpenAPI specifications
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * All functions must have explicit return types
+  * No 'any' types (use proper TypeScript interfaces)
+  * All exports properly typed
+  * Import from generated OpenAPI types where applicable
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
 Start with File 1/6: types/user.ts
@@ -118,8 +138,15 @@ Follow the build order in part-04-tier-system.md exactly.
 Requirements:
 - Build all 4 tier management files
 - Implement FREE and PRO tier logic
-- Include tier validation middleware
-- Validate against all policies
+- TIER VALIDATION QUALITY GATES (MANDATORY):
+  * Symbol/timeframe restrictions enforced
+  * Tier checks before all operations
+  * Return 403 with clear message if tier insufficient
+  * Use validateTierAccess() helper consistently
+  * All functions have explicit return types
+  * No 'any' types
+  * Try-catch blocks in all async functions
+- Run validation after each file: npm run validate
 - Auto-commit approved files
 
 Start with File 1/4: lib/tier-validation.ts
@@ -148,7 +175,16 @@ Requirements:
 - Build all 19 authentication files
 - Implement Google OAuth + Email/Password
 - Follow 08-google-oauth-implementation-rules.md
-- Validate against all policies
+- SECURITY QUALITY GATES (MANDATORY):
+  * Session validation on every protected route
+  * Return 401 for missing auth, 403 for forbidden
+  * Verify resource ownership (userId matches session.user.id)
+  * No hardcoded secrets or credentials
+  * Proper error messages (user-friendly)
+  * All functions have explicit return types
+  * No 'any' types
+  * Try-catch blocks in all async functions
+- Run validation after each file: npm run validate
 - Auto-commit approved files
 
 Start with File 1/19: lib/auth.ts
@@ -179,7 +215,13 @@ Requirements:
 - Follow flask_mt5_openapi.yaml specification
 - Implement MT5 integration
 - Include error handling and logging
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * All functions must have explicit return types (Python type hints)
+  * Try-except blocks in all async functions
+  * No print() statements (use logging.error for errors)
+  * Protected endpoints must check authentication
+  * Input validation with Pydantic models
+- Run validation after each file: npm run validate
 - Auto-commit approved files
 
 Start with File 1/15: mt5-service/app.py
@@ -191,26 +233,26 @@ Start with File 1/15: mt5-service/app.py
 
 **IMPORTANT:** Use this table to load the correct implementation guide for each part.
 
-| Part | Build Order File | Implementation Guide | Status |
-|------|------------------|---------------------|--------|
-| 1 | part-01-foundation.md | v5_part_a.md | ✅ Exists |
-| 2 | part-02-database.md | v5_part_b.md | ✅ Exists |
-| 3 | part-03-types.md | v5_part_c.md | ✅ Exists |
-| 4 | part-04-tier-system.md | v5_part_d.md | ✅ Exists |
-| 5 | part-05-authentication.md | v5_part_e.md | ✅ Exists |
-| 6 | part-06-flask-mt5.md | v5_part_f.md | ✅ Exists |
-| 7 | part-07-indicators-api.md | v5_part_g.md | ✅ Exists |
-| 8 | part-08-dashboard.md | v5_part_h.md | ✅ Exists |
-| 9 | part-09-charts.md | v5_part_i.md | ✅ Exists |
-| 10 | part-10-watchlist.md | v5_part_j.md | ✅ Exists |
-| 11 | part-11-alerts.md | v5_part_k.md | ✅ Exists |
-| 12 | part-12-ecommerce.md | v5_part_l.md | ✅ Exists |
-| 13 | part-13-settings.md | v5_part_m.md | ✅ Exists |
-| 14 | part-14-admin.md | v5_part_n.md | ✅ Exists |
-| 15 | part-15-notifications.md | v5_part_o.md | ✅ Exists |
-| 16 | part-16-utilities.md | v5_part_p.md | ✅ Exists |
-| 17 | part-17-affiliate.md | v5_part_q.md | ✅ Exists (created 2025-11-21) |
-| 18 | part-18-dlocal.md | v5_part_r.md | ✅ Exists (comprehensive - 2680 lines) |
+| Part | Build Order File          | Implementation Guide | Status                                 |
+| ---- | ------------------------- | -------------------- | -------------------------------------- |
+| 1    | part-01-foundation.md     | v5_part_a.md         | ✅ Exists                              |
+| 2    | part-02-database.md       | v5_part_b.md         | ✅ Exists                              |
+| 3    | part-03-types.md          | v5_part_c.md         | ✅ Exists                              |
+| 4    | part-04-tier-system.md    | v5_part_d.md         | ✅ Exists                              |
+| 5    | part-05-authentication.md | v5_part_e.md         | ✅ Exists                              |
+| 6    | part-06-flask-mt5.md      | v5_part_f.md         | ✅ Exists                              |
+| 7    | part-07-indicators-api.md | v5_part_g.md         | ✅ Exists                              |
+| 8    | part-08-dashboard.md      | v5_part_h.md         | ✅ Exists                              |
+| 9    | part-09-charts.md         | v5_part_i.md         | ✅ Exists                              |
+| 10   | part-10-watchlist.md      | v5_part_j.md         | ✅ Exists                              |
+| 11   | part-11-alerts.md         | v5_part_k.md         | ✅ Exists                              |
+| 12   | part-12-ecommerce.md      | v5_part_l.md         | ✅ Exists                              |
+| 13   | part-13-settings.md       | v5_part_m.md         | ✅ Exists                              |
+| 14   | part-14-admin.md          | v5_part_n.md         | ✅ Exists                              |
+| 15   | part-15-notifications.md  | v5_part_o.md         | ✅ Exists                              |
+| 16   | part-16-utilities.md      | v5_part_p.md         | ✅ Exists                              |
+| 17   | part-17-affiliate.md      | v5_part_q.md         | ✅ Exists (created 2025-11-21)         |
+| 18   | part-18-dlocal.md         | v5_part_r.md         | ✅ Exists (comprehensive - 2680 lines) |
 
 **All 18 implementation guides now exist and are ready for use!**
 
@@ -233,6 +275,7 @@ Start with File 1/15: mt5-service/app.py
 ```
 
 **Quick Reference for Parts 7-16:**
+
 - Part 7: v5_part_g.md (Indicators API)
 - Part 8: v5_part_h.md (Dashboard)
 - Part 9: v5_part_i.md (Charts)
@@ -252,7 +295,15 @@ Follow the build order in part-0X-[name].md exactly.
 Requirements:
 - Build all files in sequence
 - Use patterns from 05-coding-patterns-compress.md
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * All functions must have explicit return types
+  * No 'any' types (use proper TypeScript interfaces)
+  * Try-catch blocks in all async functions
+  * No console.log() statements (use console.error for errors)
+  * Protected routes must check session
+  * Input validation with Zod schemas for POST/PATCH/PUT
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 - Report progress regularly
 
@@ -282,7 +333,13 @@ Follow the build order in part-17-affiliate.md.
 Requirements:
 - Build Files 1-11 only (Database Models + Business Logic)
 - Follow AFFILIATE-MARKETING-DESIGN.md specifications
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * All functions must have explicit return types
+  * No 'any' types (use proper TypeScript interfaces)
+  * Try-catch blocks in all async functions
+  * No console.log() statements (use console.error for errors)
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
 Start with File 1/67: prisma/schema-affiliate.prisma
@@ -299,7 +356,14 @@ Continue Part 17 with Files 12-30.
 Requirements:
 - Follow part-17-affiliate.md specifications
 - Implement affiliate API endpoints
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * All functions must have explicit return types
+  * No 'any' types (use proper TypeScript interfaces)
+  * Try-catch blocks in all async functions
+  * Protected routes must check session
+  * Input validation with Zod schemas
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
 Start with File 12/67.
@@ -316,7 +380,13 @@ Continue Part 17 with Files 31-49.
 Requirements:
 - Follow part-17-affiliate.md specifications
 - Build affiliate portal components
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * All React components must have explicit return types
+  * No 'any' types (use proper TypeScript interfaces)
+  * Protected pages must check session
+  * Proper error handling in async operations
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
 Start with File 31/67.
@@ -333,7 +403,12 @@ Complete Part 17 with Files 50-67.
 Requirements:
 - Follow part-17-affiliate.md specifications
 - Build remaining components and utilities
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * All functions must have explicit return types
+  * No 'any' types (use proper TypeScript interfaces)
+  * Try-catch blocks in all async functions
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
 Start with File 50/67.
@@ -365,7 +440,14 @@ Requirements:
 - Build Files 1-9 (Database + Core API)
 - Follow dlocal-openapi-endpoints.yaml specification
 - Follow 07-dlocal-integration-rules-compress.md
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * All functions must have explicit return types
+  * No 'any' types (use proper TypeScript interfaces)
+  * Try-catch blocks in all async functions
+  * Webhook signature verification implemented
+  * No hardcoded API keys
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
 Start with File 1/45.
@@ -383,7 +465,14 @@ Requirements:
 - Implement payment processing routes
 - Follow dlocal-openapi-endpoints.yaml
 - Handle all 8 emerging markets
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * All functions must have explicit return types
+  * Protected routes must check session
+  * Input validation with Zod schemas
+  * Try-catch blocks in all async functions
+  * Proper error messages for payment failures
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
 Start with File 10/45.
@@ -400,7 +489,13 @@ Continue Part 18 with Files 19-25.
 Requirements:
 - Implement webhook handlers
 - Build payment UI components
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * Webhook signature verification on all webhook routes
+  * All functions must have explicit return types
+  * React components must have proper TypeScript types
+  * Error handling in payment flows
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
 Start with File 19/45.
@@ -417,12 +512,67 @@ Complete Part 18 with Files 26-45.
 Requirements:
 - Complete all payment utilities
 - Integration testing components
-- Validate against all policies
+- QUALITY GATES (MANDATORY):
+  * All functions must have explicit return types
+  * No 'any' types (use proper TypeScript interfaces)
+  * Try-catch blocks in all async functions
+- Run validation after each file: npm run validate
+- Auto-fix minor issues: npm run fix
 - Auto-commit approved files
 
 Start with File 26/45.
 Complete through File 45/45.
 ```
+
+---
+
+## 📌 Validation Workflow (NEW - 2025-11-26)
+
+### **After Each File Generated:**
+
+Aider should automatically:
+
+1. Generate code following quality gates
+2. (Optional) Run `npm run validate` if uncertain
+3. Auto-approve if all checks pass
+4. Auto-fix with `npm run fix` if minor issues
+5. Escalate if critical issues found
+
+### **After Each Part Complete:**
+
+YOU must manually run:
+
+```bash
+npm run validate
+```
+
+If it fails:
+
+```bash
+npm run fix       # Auto-fix
+npm run validate  # Verify fixed
+```
+
+### **Before Git Push:**
+
+Pre-push hook will automatically:
+
+- Run TypeScript type checking
+- Run quick Jest tests
+- Block push if failures
+
+This is GOOD - it prevents CI/CD failures!
+
+### **Validation Commands Quick Reference:**
+
+| Command                   | What It Does           | When to Use       |
+| ------------------------- | ---------------------- | ----------------- |
+| `npm run validate`        | All checks             | After each part   |
+| `npm run validate:types`  | TypeScript only        | Debug type errors |
+| `npm run validate:lint`   | ESLint only            | Debug lint errors |
+| `npm run validate:format` | Prettier only          | Check formatting  |
+| `npm run fix`             | Auto-fix lint + format | Fix minor issues  |
+| `npm test`                | Run all tests          | Before final push |
 
 ---
 
@@ -444,16 +594,19 @@ Proceed with your best interpretation based on policies.
 ## 📌 When Aider Escalates
 
 **Option 1: Approve**
+
 ```
 Approved. Proceed with this implementation.
 ```
 
 **Option 2: Changes Needed**
+
 ```
 Make this change: [specific instruction]. Then proceed.
 ```
 
 **Option 3: Major Issue**
+
 ```
 Stop. Let me review the requirements. [Provide guidance]
 ```
@@ -509,6 +662,7 @@ If you cannot fix it, escalate with detailed explanation.
 ## 🎯 CRITICAL REMINDERS
 
 ### **✅ ALWAYS DO:**
+
 - Use `/read-only` for build order files (NOT `/add`)
 - Load implementation guides with `/read-only`
 - Let Aider complete each file without interruption
@@ -516,6 +670,7 @@ If you cannot fix it, escalate with detailed explanation.
 - Check progress reports
 
 ### **❌ NEVER DO:**
+
 - Use `/add` for build orders (they become editable!)
 - Interrupt Aider mid-file
 - Skip verification tests
@@ -529,10 +684,12 @@ If you cannot fix it, escalate with detailed explanation.
 ### **Issue: "Cannot find v5_part_X.md"**
 
 **Symptoms:**
+
 - Aider says it cannot find an implementation guide
 - Error: "File not found: docs/implementation-guides/v5_part_k.md"
 
 **Solution:**
+
 ```bash
 # Check if all 18 guides exist
 cd docs/implementation-guides
@@ -544,6 +701,7 @@ ls -1 v5_part_{a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s}.md | wc -l
 ```
 
 **All 18 guides now exist:**
+
 - Parts 1-10: v5_part_a.md through v5_part_j.md ✅
 - Parts 11-16: v5_part_k.md through v5_part_p.md ✅
 - Part 17: v5_part_r.md ✅
@@ -552,6 +710,7 @@ ls -1 v5_part_{a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s}.md | wc -l
 ### **Issue: Token limit exceeded**
 
 **Solution:**
+
 ```bash
 # Drop unused files
 /drop docs/build-orders/part-XX-previous.md
@@ -564,6 +723,7 @@ ls -1 v5_part_{a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,r,s}.md | wc -l
 ### **Issue: Aider doesn't load policy files**
 
 **Solution:**
+
 ```bash
 # Verify .aider.conf.yml exists in project root
 ls -la .aider.conf.yml
@@ -576,15 +736,16 @@ ls -la .aider.conf.yml
 
 ## 📊 Token Usage Guidelines
 
-| Phase | Expected Tokens | Notes |
-|-------|----------------|-------|
-| Base Load | 129k | Always loaded |
-| + Part Files | +6-15k | Varies by part |
-| + Conversation | Variable | Grows over time |
-| **Safe Limit** | 180k | Stay below this |
-| **Max Limit** | 204k | Context overflow |
+| Phase          | Expected Tokens | Notes            |
+| -------------- | --------------- | ---------------- |
+| Base Load      | 129k            | Always loaded    |
+| + Part Files   | +6-15k          | Varies by part   |
+| + Conversation | Variable        | Grows over time  |
+| **Safe Limit** | 180k            | Stay below this  |
+| **Max Limit**  | 204k            | Context overflow |
 
 **If approaching 180k tokens:**
+
 - Drop previous part files
 - Clear conversation: `/clear`
 - Restart Aider if needed
