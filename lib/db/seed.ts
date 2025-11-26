@@ -125,16 +125,16 @@ export async function seedSampleWatchlistItems(
   ];
 
   const createdItems = [];
+  let orderIndex = 0;
 
-  for (let i = 0; i < freeTierSymbols.length; i++) {
-    const item = freeTierSymbols[i];
+  for (const item of freeTierSymbols) {
     const createdItem = await prisma.watchlistItem.create({
       data: {
         watchlistId,
         userId,
         symbol: item.symbol,
         timeframe: item.timeframe,
-        order: i,
+        order: orderIndex++,
       },
       select: {
         id: true,

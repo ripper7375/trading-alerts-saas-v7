@@ -176,6 +176,7 @@ model Watchlist {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userId, name])  // <-- ADD THIS LINE
   @@index([userId])
 }
 

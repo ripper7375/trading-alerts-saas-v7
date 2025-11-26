@@ -15,9 +15,9 @@ async function main() {
   console.log('🌱 Starting database seed...');
 
   // Get admin credentials from environment variables
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@tradingalerts.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
-  const adminName = process.env.ADMIN_NAME || 'Admin User';
+  const adminEmail = process.env['ADMIN_EMAIL'] || 'admin@tradingalerts.com';
+  const adminPassword = process.env['ADMIN_PASSWORD'] || 'ChangeMe123!';
+  const adminName = process.env['ADMIN_NAME'] || 'Admin User';
 
   // Validate environment variables
   if (!adminEmail || !adminPassword) {
@@ -103,15 +103,15 @@ async function main() {
       { symbol: 'XAUUSD', timeframe: 'H1' },
     ];
 
-    for (let i = 0; i < sampleItems.length; i++) {
-      const item = sampleItems[i];
+    let orderIndex = 0;
+    for (const item of sampleItems) {
       await prisma.watchlistItem.create({
         data: {
           watchlistId: defaultWatchlist.id,
           userId: admin.id,
           symbol: item.symbol,
           timeframe: item.timeframe,
-          order: i,
+          order: orderIndex++,
         },
       });
     }
@@ -169,7 +169,7 @@ async function main() {
     console.log(`   Watchlist: ${defaultWatchlist.name} (5 items)`);
     console.log(`   Sample Alerts: 2 demonstration alerts`);
     console.log('');
-    console.log('🔑 Login Credentials:');
+    console.log('🔐 Login Credentials:');
     console.log(`   Email: ${adminEmail}`);
     console.log(`   Password: ${adminPassword}`);
     console.log('');
