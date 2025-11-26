@@ -25,6 +25,14 @@ enum SubscriptionStatus {
   TRIALING
 }
 
+enum TrialStatus {
+  NOT_STARTED
+  ACTIVE
+  EXPIRED
+  CONVERTED
+  CANCELLED
+}
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // MODELS
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -39,11 +47,19 @@ model User {
   tier          UserTier @default(FREE)
   role          String   @default("USER")
   isActive      Boolean  @default(true)
-  
+
+  // General Trial Period Management (7-day PRO trial)
+  trialStatus       TrialStatus  @default(NOT_STARTED)
+  trialStartDate    DateTime?    // When user started 7-day trial
+  trialEndDate      DateTime?    // When trial expires (trialStartDate + 7 days)
+  trialConvertedAt  DateTime?    // When trial converted to paid subscription
+  trialCancelledAt  DateTime?    // When user cancelled trial
+  hasUsedFreeTrial  Boolean      @default(false)  // Prevent multiple 7-day trials
+
   // Stripe Trial fields (Part 18: Anti-abuse)
   hasUsedStripeTrial      Boolean  @default(false)
   stripeTrialStartedAt    DateTime?
-  
+
   // dLocal 3-day plan fields (Part 18: Anti-abuse)
   hasUsedThreeDayPlan     Boolean  @default(false)
   threeDayPlanUsedAt      DateTime?
@@ -67,6 +83,8 @@ model User {
 
   @@index([email])
   @@index([tier])
+  @@index([trialStatus])
+  @@index([trialEndDate])
 }
 
 model Account {

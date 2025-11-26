@@ -19,6 +19,262 @@
 - **Max Watchlist Items:** 50 (symbol+timeframe combinations)
 - **API Rate Limit:** 300 requests/hour (5 per minute average)
 - **Price:** $29/month
+- **Trial Period:** 7-day free trial (no credit card required during trial)
+- **Trial Features:** Full PRO tier access during trial period
+
+## Trial Period Specifications
+
+### Trial Activation
+- **Trigger:** User clicks "Start 7-Day Trial" button on pricing page
+- **Duration:** 7 days (168 hours) from activation
+- **Credit Card:** Not required during trial period (optional)
+- **Access:** Full PRO tier features immediately upon activation
+- **Conversion:** Auto-converts to paid PRO subscription ($29/month) after trial expires (if payment method added)
+- **Cancellation:** User can cancel anytime during trial with no charge
+
+### Trial User States
+```typescript
+enum TrialStatus {
+  NOT_STARTED = "NOT_STARTED"     // User has not started trial yet
+  ACTIVE = "ACTIVE"                // Trial is currently active (within 7 days)
+  EXPIRED = "EXPIRED"              // Trial period ended, no payment method
+  CONVERTED = "CONVERTED"          // Trial converted to paid subscription
+  CANCELLED = "CANCELLED"          // User cancelled trial before expiration
+}
+```
+
+### Trial Database Fields
+The following fields should be added to the User model in Prisma schema:
+
+```typescript
+model User {
+  // ... existing fields ...
+
+  // Trial Period Management
+  trialStatus       TrialStatus  @default(NOT_STARTED)
+  trialStartDate    DateTime?    // When user started trial
+  trialEndDate      DateTime?    // When trial expires (trialStartDate + 7 days)
+  trialConvertedAt  DateTime?    // When trial converted to paid
+  trialCancelledAt  DateTime?    // When user cancelled trial
+  hasUsedFreeTrial  Boolean      @default(false)  // Prevent multiple trials
+
+  // ... rest of fields ...
+}
+```
+
+**Note:** The User model already has `hasUsedStripeTrial` and `stripeTrialStartedAt` fields for Stripe-specific trials. The above fields provide a provider-agnostic trial system.
+
+### Trial Access Control Logic
+
+#### Check if User is in Active Trial
+```typescript
+function isInActiveTrial(user: User): boolean {
+  if (user.trialStatus !== "ACTIVE") {
+    return false;
+  }
+
+  if (!user.trialStartDate || !user.trialEndDate) {
+    return false;
+  }
+
+  const now = new Date();
+  return now >= user.trialStartDate && now <= user.trialEndDate;
+}
+```
+
+#### Get Effective User Tier (Includes Trial)
+```typescript
+function getEffectiveTier(user: User): UserTier {
+  // If user is in active trial, grant PRO access
+  if (isInActiveTrial(user)) {
+    return "PRO";
+  }
+
+  // Otherwise, use actual tier
+  return user.tier;
+}
+```
+
+#### Validate Trial Eligibility
+```typescript
+function canStartTrial(user: User): boolean {
+  // User must not have used free trial before
+  if (user.hasUsedFreeTrial) {
+    return false;
+  }
+
+  // User must not already be on PRO tier
+  if (user.tier === "PRO") {
+    return false;
+  }
+
+  // User must not have active trial
+  if (user.trialStatus === "ACTIVE") {
+    return false;
+  }
+
+  return true;
+}
+```
+
+#### Start Trial
+```typescript
+async function startTrial(userId: string): Promise<void> {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+
+  if (!canStartTrial(user)) {
+    throw new ForbiddenError("User is not eligible for trial");
+  }
+
+  const now = new Date();
+  const trialEndDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000); // +7 days
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      trialStatus: "ACTIVE",
+      trialStartDate: now,
+      trialEndDate: trialEndDate,
+      hasUsedFreeTrial: true,
+    },
+  });
+}
+```
+
+#### Check for Expired Trials (Cron Job)
+```typescript
+async function checkExpiredTrials(): Promise<void> {
+  const now = new Date();
+
+  // Find all active trials that have expired
+  const expiredTrials = await prisma.user.findMany({
+    where: {
+      trialStatus: "ACTIVE",
+      trialEndDate: {
+        lte: now,
+      },
+    },
+    include: {
+      subscription: true,
+    },
+  });
+
+  for (const user of expiredTrials) {
+    // If user has active paid subscription, convert trial
+    if (user.subscription && user.subscription.status === "ACTIVE") {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          trialStatus: "CONVERTED",
+          trialConvertedAt: now,
+          tier: "PRO", // Ensure tier is PRO
+        },
+      });
+    } else {
+      // No payment method - trial expired, downgrade to FREE
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          trialStatus: "EXPIRED",
+          tier: "FREE", // Downgrade to FREE tier
+        },
+      });
+    }
+  }
+}
+```
+
+### Trial Conversion Flow
+
+#### Scenario 1: User Adds Payment During Trial
+1. User starts 7-day trial → `trialStatus = ACTIVE`, full PRO access
+2. User adds payment method during trial → Subscription created, `status = TRIALING`
+3. After 7 days → Cron job converts trial → `trialStatus = CONVERTED`, `tier = PRO`, subscription charged
+
+#### Scenario 2: User Does Not Add Payment
+1. User starts 7-day trial → `trialStatus = ACTIVE`, full PRO access
+2. User does not add payment method
+3. After 7 days → Cron job expires trial → `trialStatus = EXPIRED`, `tier = FREE`
+
+#### Scenario 3: User Cancels Trial Early
+1. User starts 7-day trial → `trialStatus = ACTIVE`, full PRO access
+2. User clicks "Cancel Trial" → `trialStatus = CANCELLED`, `tier = FREE`
+
+### Trial Business Rules
+
+**Rule 1: One Trial Per User**
+- Each user can only start ONE free trial ever
+- Tracked via `hasUsedFreeTrial` field
+- Applies even if user creates new account with same email (fraud prevention)
+
+**Rule 2: Trial Access Level**
+- During trial: Full PRO tier access (all 15 symbols, all 9 timeframes, 20 alerts, etc.)
+- After trial expires without payment: Immediate downgrade to FREE tier
+- After trial converts to paid: Continue PRO tier access
+
+**Rule 3: Trial Cancellation**
+- User can cancel trial anytime before expiration
+- Immediate downgrade to FREE tier upon cancellation
+- No charges if cancelled before trial ends
+- Cannot restart trial after cancellation
+
+**Rule 4: Trial Notifications**
+- Day 1: "Welcome to your 7-day PRO trial!"
+- Day 5: "2 days left in your trial. Add payment to continue PRO access."
+- Day 7: "Trial ending today. Add payment to keep PRO features."
+- Day 8 (if no payment): "Your trial has ended. Downgraded to FREE tier."
+
+### Trial UI/UX Requirements
+
+**Pricing Page:**
+- PRO tier card shows: "Start 7-Day Trial" button
+- Subtext: "7-day free trial, then $29/month"
+- Note: "No credit card required"
+
+**During Trial (Dashboard):**
+- Show banner: "🎉 You're on a PRO trial! X days remaining. [Add Payment Method] [Cancel Trial]"
+- User tier display: "PRO (Trial)" with countdown
+
+**Trial Expiring (Last 2 Days):**
+- Show urgent banner: "⏰ Your trial ends in X days. Add payment to keep PRO access."
+- Highlight "Add Payment Method" button
+
+**After Trial Expires:**
+- Show banner: "Your trial has ended. Upgrade to PRO to regain access to 15 symbols and advanced features."
+- User tier display: "FREE"
+
+### Trial Validation in API Endpoints
+
+All tier-restricted endpoints must use `getEffectiveTier()` instead of directly checking `user.tier`:
+
+```typescript
+// ❌ BAD - Does not account for trials
+export async function POST(req: NextRequest) {
+  const session = await getServerSession();
+  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+
+  if (user.tier !== "PRO") {
+    return NextResponse.json({ error: "PRO tier required" }, { status: 403 });
+  }
+  // ...
+}
+
+// ✅ GOOD - Accounts for trials
+export async function POST(req: NextRequest) {
+  const session = await getServerSession();
+  const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+
+  const effectiveTier = getEffectiveTier(user);
+  if (effectiveTier !== "PRO") {
+    return NextResponse.json({ error: "PRO tier required" }, { status: 403 });
+  }
+  // ...
+}
+```
 
 ## Symbol List (Alphabetically Ordered)
 
@@ -234,10 +490,24 @@ function canAddWatchlistItem(tier: UserTier, currentItemCount: number): boolean 
 - [ ] Implement `canAccessSymbol()` in tier service
 - [ ] Implement `canAccessTimeframe()` in tier service
 - [ ] Implement `validateChartAccess()` in tier service
+- [ ] Implement `getEffectiveTier()` in tier service (accounts for trials)
+- [ ] Implement `isInActiveTrial()` in tier service
+- [ ] Implement `canStartTrial()` in tier service
+- [ ] Implement `startTrial()` in tier service
 - [ ] Add middleware for `/api/indicators/{symbol}/{timeframe}` endpoint
 - [ ] Add middleware for watchlist item creation
 - [ ] Add middleware for alert creation
 - [ ] Validate on BOTH Next.js API routes AND Flask MT5 service
+- [ ] Update ALL tier checks to use `getEffectiveTier()` instead of `user.tier`
+
+### Trial Period Management
+- [ ] Add trial database fields to User model (trialStatus, trialStartDate, trialEndDate, etc.)
+- [ ] Create `/api/trial/start` endpoint to start trial
+- [ ] Create `/api/trial/cancel` endpoint to cancel trial
+- [ ] Implement cron job to check for expired trials daily
+- [ ] Implement trial-to-paid conversion logic
+- [ ] Implement trial expiration and downgrade logic
+- [ ] Add trial notification system (Day 1, Day 5, Day 7, Day 8)
 
 ### Frontend UI (User Experience)
 - [ ] Disable PRO-only symbols in FREE tier dropdowns
@@ -245,12 +515,19 @@ function canAddWatchlistItem(tier: UserTier, currentItemCount: number): boolean 
 - [ ] Show "Upgrade to PRO" badge on locked options
 - [ ] Display current tier limits in Settings page
 - [ ] Show upgrade prompt when limit reached
+- [ ] Add "Start 7-Day Trial" button on pricing page
+- [ ] Show trial countdown banner during active trial
+- [ ] Show trial expiring warning (last 2 days)
+- [ ] Show trial expired notification
+- [ ] Display "PRO (Trial)" badge during trial period
 
 ### Error Messages
 - [ ] Symbol access denied: "FREE tier cannot access {symbol}. Upgrade to PRO for access to all 15 symbols."
 - [ ] Timeframe access denied: "FREE tier cannot access {timeframe} timeframe. Upgrade to PRO for access to all 9 timeframes."
 - [ ] Alert limit reached: "FREE tier allows maximum 5 alerts. Upgrade to PRO for 20 alerts."
 - [ ] Watchlist limit reached: "FREE tier allows maximum 5 watchlist items. Upgrade to PRO for 50 items."
+- [ ] Trial already used: "You have already used your free trial. Upgrade to PRO for $29/month."
+- [ ] Trial not eligible: "You are not eligible for a free trial. Contact support for assistance."
 
 ## Testing Scenarios
 
@@ -296,4 +573,52 @@ expect(() => validateChartAccess("FREE", "AUDJPY", "M5")).toThrow(); // Both inv
 // PRO tier all valid
 expect(() => validateChartAccess("PRO", "AUDJPY", "M5")).not.toThrow();
 expect(() => validateChartAccess("PRO", "GBPJPY", "H12")).not.toThrow();
+```
+
+### Trial Period Tests
+```typescript
+// Trial eligibility tests
+const freeUser = { tier: "FREE", hasUsedFreeTrial: false, trialStatus: "NOT_STARTED" };
+const usedTrialUser = { tier: "FREE", hasUsedFreeTrial: true, trialStatus: "EXPIRED" };
+const proUser = { tier: "PRO", hasUsedFreeTrial: false, trialStatus: "NOT_STARTED" };
+
+expect(canStartTrial(freeUser)).toBe(true);   // FREE user, never used trial
+expect(canStartTrial(usedTrialUser)).toBe(false); // Already used trial
+expect(canStartTrial(proUser)).toBe(false);   // Already PRO
+
+// Active trial tests
+const now = new Date();
+const activeTrialUser = {
+  tier: "FREE",
+  trialStatus: "ACTIVE",
+  trialStartDate: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+  trialEndDate: new Date(now.getTime() + 4 * 24 * 60 * 60 * 1000),   // 4 days from now
+};
+const expiredTrialUser = {
+  tier: "FREE",
+  trialStatus: "ACTIVE",
+  trialStartDate: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
+  trialEndDate: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),    // 3 days ago
+};
+
+expect(isInActiveTrial(activeTrialUser)).toBe(true);
+expect(isInActiveTrial(expiredTrialUser)).toBe(false);
+
+// Effective tier tests
+expect(getEffectiveTier(activeTrialUser)).toBe("PRO");   // Trial gives PRO access
+expect(getEffectiveTier(expiredTrialUser)).toBe("FREE"); // Expired trial = FREE
+expect(getEffectiveTier(proUser)).toBe("PRO");           // PRO user stays PRO
+
+// Trial access tests (FREE user on trial should access PRO features)
+const trialUser = {
+  tier: "FREE",
+  trialStatus: "ACTIVE",
+  trialStartDate: now,
+  trialEndDate: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
+};
+
+const effectiveTier = getEffectiveTier(trialUser);
+expect(canAccessSymbol(effectiveTier, "AUDJPY")).toBe(true);  // PRO-only symbol
+expect(canAccessTimeframe(effectiveTier, "M5")).toBe(true);   // PRO-only timeframe
+expect(() => validateChartAccess(effectiveTier, "GBPJPY", "M5")).not.toThrow();
 ```

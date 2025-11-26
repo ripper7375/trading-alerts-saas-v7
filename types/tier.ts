@@ -17,6 +17,16 @@
  */
 export type Tier = 'FREE' | 'PRO';
 
+/**
+ * Trial status for 7-day PRO trial
+ */
+export type TrialStatus =
+  | 'NOT_STARTED'  // User has not started trial yet
+  | 'ACTIVE'       // Trial is currently active (within 7 days)
+  | 'EXPIRED'      // Trial period ended, no payment method
+  | 'CONVERTED'    // Trial converted to paid subscription
+  | 'CANCELLED';   // User cancelled trial before expiration
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // TIER LIMITS
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -29,6 +39,12 @@ export interface TierLimits {
   maxWatchlists: number;
   allowedSymbols: string[];
   allowedTimeframes: Timeframe[];
+  pricing: {
+    monthlyPrice: number;    // in USD
+    yearlyPrice?: number;    // in USD (if available)
+    hasFreeTrial: boolean;   // 7-day free trial for PRO
+    trialDays?: number;      // number of trial days
+  };
   features: {
     advancedCharts: boolean;
     exportData: boolean;
@@ -150,6 +166,10 @@ export const TIER_CONFIG: Record<Tier, TierLimits> = {
     maxWatchlists: 1,
     allowedSymbols: [...FREE_TIER_SYMBOLS],
     allowedTimeframes: FREE_TIER_TIMEFRAMES,
+    pricing: {
+      monthlyPrice: 0,
+      hasFreeTrial: false,
+    },
     features: {
       advancedCharts: false,
       exportData: false,
@@ -162,6 +182,12 @@ export const TIER_CONFIG: Record<Tier, TierLimits> = {
     maxWatchlists: 5,
     allowedSymbols: [...PRO_TIER_SYMBOLS],
     allowedTimeframes: PRO_TIER_TIMEFRAMES,
+    pricing: {
+      monthlyPrice: 29,
+      yearlyPrice: 290,
+      hasFreeTrial: true,
+      trialDays: 7,
+    },
     features: {
       advancedCharts: true,
       exportData: true,
@@ -204,3 +230,42 @@ export interface TierAccessResult {
   upgradeRequired?: boolean;
   requiredTier?: Tier;
 }
+
+/**
+ * Trial information for a user
+ */
+export interface TrialInfo {
+  status: TrialStatus;
+  startDate: Date | null;
+  endDate: Date | null;
+  daysRemaining: number | null;
+  isActive: boolean;
+  hasUsedTrial: boolean;
+  canStartTrial: boolean;
+}
+
+/**
+ * User with trial information
+ */
+export interface UserWithTrial {
+  id: string;
+  email: string;
+  tier: Tier;
+  trialStatus: TrialStatus;
+  trialStartDate: Date | null;
+  trialEndDate: Date | null;
+  trialConvertedAt: Date | null;
+  trialCancelledAt: Date | null;
+  hasUsedFreeTrial: boolean;
+}
+
+/**
+ * Subscription status (matches Prisma enum)
+ */
+export type SubscriptionStatus =
+  | 'ACTIVE'
+  | 'INACTIVE'
+  | 'CANCELED'
+  | 'PAST_DUE'
+  | 'UNPAID'
+  | 'TRIALING';
