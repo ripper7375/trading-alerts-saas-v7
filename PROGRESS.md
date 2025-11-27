@@ -13,6 +13,7 @@
 **Status:** ✅ Fully Operational
 
 ### Aider Configuration
+
 - **Role:** Autonomous Builder & Validator
 - **Model:** MiniMax M2
 - **Configuration:** `.aider.conf.yml` updated
@@ -20,13 +21,13 @@
 
 ### Validation Tools Configured
 
-| Tool | Configuration | Command | Status |
-|------|--------------|---------|--------|
-| **TypeScript** | `tsconfig.json` | `npm run validate:types` | ✅ Ready |
-| **ESLint** | `.eslintrc.json` | `npm run validate:lint` | ✅ Ready |
-| **Prettier** | `.prettierrc` | `npm run validate:format` | ✅ Ready |
+| Tool                 | Configuration              | Command                     | Status   |
+| -------------------- | -------------------------- | --------------------------- | -------- |
+| **TypeScript**       | `tsconfig.json`            | `npm run validate:types`    | ✅ Ready |
+| **ESLint**           | `.eslintrc.json`           | `npm run validate:lint`     | ✅ Ready |
+| **Prettier**         | `.prettierrc`              | `npm run validate:format`   | ✅ Ready |
 | **Policy Validator** | `scripts/validate-file.js` | `npm run validate:policies` | ✅ Ready |
-| **Jest Tests** | `jest.config.js` | `npm test` | ✅ Ready |
+| **Jest Tests**       | `jest.config.js`           | `npm test`                  | ✅ Ready |
 
 ### Validation Scripts
 
@@ -48,12 +49,12 @@ npm test              # Run tests
 
 ### Success Metrics (Target)
 
-| Metric | Target | Purpose |
-|--------|--------|---------|
-| Auto-Approve Rate | 85-92% | Files pass validation first time |
-| Auto-Fix Rate | 6-12% | Minor issues auto-fixed |
-| Escalation Rate | 2-5% | Major issues requiring human input |
-| Validation Time | <10 sec | Fast feedback loop |
+| Metric            | Target  | Purpose                            |
+| ----------------- | ------- | ---------------------------------- |
+| Auto-Approve Rate | 85-92%  | Files pass validation first time   |
+| Auto-Fix Rate     | 6-12%   | Minor issues auto-fixed            |
+| Escalation Rate   | 2-5%    | Major issues requiring human input |
+| Validation Time   | <10 sec | Fast feedback loop                 |
 
 ### Documentation Created
 
@@ -90,6 +91,7 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 6. ✅ **Test as you build** - Use testing tools at the right times
 
 **Key Tools You'll Use:**
+
 - **OpenAPI Scripts** (Milestone 1.2) → Used ONCE in Phase 2 Step 2 (before building starts)
 - **Postman Testing** (Milestone 1.3) → Used after completing Parts 5, 7, 11, 12 in Phase 3
 - **Aider with MiniMax M2** → Used throughout Phase 3 for autonomous building
@@ -98,14 +100,14 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 
 ## 📊 Overall Progress
 
-| Metric | Status | Notes |
-|--------|--------|-------|
-| **Current Phase** | Phase 1 | Documentation & Policy Creation + Affiliate + dLocal Payment |
-| **Total Files** | 0 / 289 (0%) | Phase 3: 170 base + 67 affiliate + 52 dLocal |
-| **Parts Completed** | 0 / 18 (0%) | 18 parts (Part 17: Affiliate, Part 18: dLocal Payment) |
-| **Milestones Done** | 9 / 9 Phase 1 | Milestones 1.0-1.9 complete ✅ |
-| **Estimated Time Remaining** | ~293 hours | Phase 2-4 (~10h) + Part 17 (120h) + Part 18 (120h) |
-| **Ready for Phase 2?** | ⚠️ Pending | Complete readiness check first |
+| Metric                       | Status        | Notes                                                        |
+| ---------------------------- | ------------- | ------------------------------------------------------------ |
+| **Current Phase**            | Phase 1       | Documentation & Policy Creation + Affiliate + dLocal Payment |
+| **Total Files**              | 0 / 289 (0%)  | Phase 3: 170 base + 67 affiliate + 52 dLocal                 |
+| **Parts Completed**          | 0 / 18 (0%)   | 18 parts (Part 17: Affiliate, Part 18: dLocal Payment)       |
+| **Milestones Done**          | 9 / 9 Phase 1 | Milestones 1.0-1.9 complete ✅                               |
+| **Estimated Time Remaining** | ~293 hours    | Phase 2-4 (~10h) + Part 17 (120h) + Part 18 (120h)           |
+| **Ready for Phase 2?**       | ⚠️ Pending    | Complete readiness check first                               |
 
 ---
 
@@ -120,6 +122,7 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 **Timeline:** Day 1
 
 ### Step 1: Install Core Tools (1 hour) ✅
+
 - [x] Python 3.11 installed
 - [x] Node.js 18+ installed
 - [x] PostgreSQL installed
@@ -127,16 +130,19 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 - [x] VS Code installed
 
 ### Step 2: Install Development Tools (30 minutes) ✅
+
 - [x] Git installed and configured
 - [x] Aider installed (`pip install aider-chat`)
 - [x] Postman installed
 
 ### Step 3: Configure MiniMax M2 API (30 minutes) ✅
+
 - [x] Get MiniMax M2 API key
 - [x] Set `ANTHROPIC_API_KEY` environment variable
 - [x] Test API connection
 
 ### Step 4: Test All Tools (30 minutes) ✅
+
 - [x] Verify Python: `python --version`
 - [x] Verify Node: `node --version`
 - [x] Verify PostgreSQL: `psql --version`
@@ -161,15 +167,18 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 ### MILESTONE 1.0: Setup Project Repository (1.5 hours) ✅ COMPLETE
 
 #### Step 1: Create GitHub Repository (15 minutes) ✅
+
 - [x] Created repository: `trading-alerts-saas-v7`
 - [x] Initialized with README
 - [x] Set visibility (Public/Private)
 
 #### Step 2: Clone Repository Locally (5 minutes) ✅
+
 - [x] Cloned to local machine
 - [x] Verified folder structure
 
 #### Step 3: Create Folder Structure (10 minutes) ✅
+
 - [x] `docs/` folder created
 - [x] `docs/policies/` folder created
 - [x] `docs/v7/` folder created
@@ -178,11 +187,13 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 - [x] `seed-code/` folder created
 
 #### Step 4: Copy Essential Documents (20 minutes) ✅
+
 - [x] Copied v5 documentation files
 - [x] Copied OpenAPI specifications
 - [x] Copied seed code repositories
 
 #### Step 5: Initial Commit (10 minutes) ✅
+
 - [x] Committed all documentation
 - [x] Pushed to GitHub
 
@@ -195,6 +206,7 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 **What:** Create 7 comprehensive policy documents that tell Aider how to work.
 
 #### Policy Files Created:
+
 - [x] `00-tier-specifications.md` - FREE/PRO tier definitions
 - [x] `01-approval-policies.md` - When to auto-approve, fix, or escalate
 - [x] `02-quality-standards.md` - TypeScript, error handling, documentation standards
@@ -204,6 +216,7 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 - [x] `06-aider-instructions.md` - How Aider should operate with MiniMax M2
 
 **Commits:**
+
 - f2017d9: Policies 01-04
 - 9f843c7: Policies 05-06
 - Additional commits for tier specifications and policy audit
@@ -219,6 +232,7 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 **Why:** Ensures type safety and keeps code in sync with API specifications.
 
 #### Files Created:
+
 - [x] `scripts/openapi/generate-nextjs-types.sh` - Generates types for Next.js API
 - [x] `scripts/openapi/generate-flask-types.sh` - Generates types for Flask MT5 API
 - [x] `scripts/openapi/README.md` - Comprehensive usage documentation
@@ -226,6 +240,7 @@ This document is your **complete step-by-step guide** from start to finish. Foll
 **When These Scripts Will Be Used:**
 
 📍 **FIRST USE: Phase 3, Before Building Parts 1-4**
+
 ```bash
 # Step 1 of Phase 3 Foundation Setup
 cd trading-alerts-saas-v7
@@ -234,11 +249,13 @@ sh scripts/openapi/generate-flask-types.sh
 ```
 
 📍 **ONGOING USE: Whenever OpenAPI specs change**
+
 - After updating `trading_alerts_openapi.yaml`
 - After updating `flask_mt5_openapi.yaml`
 - Run scripts to regenerate types
 
 **Output Locations:**
+
 - Next.js types: `lib/api-client/`
 - Flask types: `lib/mt5-client/`
 
@@ -255,12 +272,14 @@ sh scripts/openapi/generate-flask-types.sh
 **Why:** Test your APIs as you build them to catch bugs early.
 
 #### Files Created:
+
 - [x] `postman/README.md` - Complete Postman setup guide
 - [x] `postman/TESTING-GUIDE.md` - Detailed test scenarios for all endpoints
 
 **When Postman Testing Will Be Used:**
 
 📍 **SETUP: Phase 2 (After creating Next.js project)**
+
 ```bash
 # Import OpenAPI specs into Postman
 1. Open Postman
@@ -270,18 +289,21 @@ sh scripts/openapi/generate-flask-types.sh
 ```
 
 📍 **USE #1: Phase 3, After Building Part 5 (Authentication)**
+
 - Test: POST /api/auth/signup
 - Test: POST /api/auth/login
 - Test: GET /api/users/profile
 - Refer to: `postman/TESTING-GUIDE.md` → Scenario 1
 
 📍 **USE #2: Phase 3, After Building Part 7 (Indicators API)**
+
 - Test: GET /api/indicators
 - Test: GET /api/indicators/[symbol]/[timeframe]
 - Test: GET /api/tier/symbols
 - Refer to: `postman/TESTING-GUIDE.md` → Scenario 4
 
 📍 **USE #3: Phase 3, After Building Part 11 (Alerts)**
+
 - Test: POST /api/alerts (create alert)
 - Test: GET /api/alerts (list alerts)
 - Test: PUT /api/alerts/[id] (update alert)
@@ -290,12 +312,14 @@ sh scripts/openapi/generate-flask-types.sh
 - Refer to: `postman/TESTING-GUIDE.md` → Scenario 2
 
 📍 **USE #4: Phase 3, After Building Part 12 (E-commerce)**
+
 - Test: GET /api/subscriptions/current
 - Test: POST /api/subscriptions/checkout
 - Test: POST /api/webhooks/stripe
 - Refer to: `postman/TESTING-GUIDE.md` → Scenario 3
 
 📍 **ONGOING USE: After Every API Endpoint**
+
 - Build endpoint with Aider
 - Test immediately in Postman
 - Verify response matches OpenAPI spec
@@ -303,6 +327,7 @@ sh scripts/openapi/generate-flask-types.sh
 - Document any issues
 
 **Test Scenarios Available:**
+
 1. New User Registration and Login
 2. Alert Management (FREE Tier)
 3. Subscription Management
@@ -318,6 +343,7 @@ sh scripts/openapi/generate-flask-types.sh
 ### MILESTONE 1.4: Architecture Documentation (1.5 hours) ✅ COMPLETE
 
 #### STEP 1: Create ARCHITECTURE.md (30 minutes) ✅
+
 - [x] System overview documented
 - [x] Tech stack defined (Next.js 15, Flask, PostgreSQL, MT5)
 - [x] High-level architecture diagram described
@@ -328,6 +354,7 @@ sh scripts/openapi/generate-flask-types.sh
 - [x] Deployment architecture (Vercel + Railway)
 
 #### STEP 2: Create IMPLEMENTATION-GUIDE.md (30 minutes) ✅
+
 - [x] V7 development process explained
 - [x] Policy-driven development documented
 - [x] Working with Aider (MiniMax M2) guide
@@ -337,16 +364,19 @@ sh scripts/openapi/generate-flask-types.sh
 - [x] Troubleshooting common issues
 
 #### STEP 3: Create DOCKER.md (15 minutes) ✅
+
 - [x] Docker concepts for beginners
 - [x] Dockerfile structure explanation
 - [x] docker-compose.yml guide
 - [x] Common Docker commands
 
 #### STEP 4: Create Additional Docs (15 minutes) ✅
+
 - [x] `MINIMAX-TROUBLESHOOTING.md` - MiniMax M2 API troubleshooting
 - [x] `POLICY_AUDIT_REPORT.md` - Policy consistency audit
 
 **Commits:**
+
 - Multiple commits for architecture documentation
 - 7c34375: Implementation guide
 
@@ -359,9 +389,11 @@ sh scripts/openapi/generate-flask-types.sh
 **What:** Setup Aider to automatically load policies and work with MiniMax M2.
 
 #### Configuration File Created:
+
 - [x] `.aider.conf.yml` created in project root
 
 #### Configuration Includes:
+
 - [x] Model set to `anthropic/MiniMax-M2`
 - [x] All 7 policy files in `read:` section
 - [x] v5-structure-division.md included
@@ -372,6 +404,7 @@ sh scripts/openapi/generate-flask-types.sh
 - [x] Environment variables documented (ANTHROPIC_API_KEY)
 
 #### Verification Test:
+
 ```bash
 py -3.11 -m aider --model anthropic/MiniMax-M2
 # Should show all files loading with ✓ checkmarks
@@ -391,9 +424,11 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 **Why:** Catching knowledge gaps now saves hours of debugging later.
 
 #### Comprehensive Test Suite Created:
+
 - [x] `docs/v7/AIDER-COMPREHENSION-TESTS.md` - 46 comprehensive tests
 
 #### Test Categories (8 categories):
+
 - [x] Policy Understanding (6 tests)
 - [x] Architecture Knowledge (8 tests)
 - [x] Tier System Mastery (5 tests)
@@ -408,30 +443,35 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 **TO BE COMPLETED BY USER:**
 
 1. [ ] **Test 1: Policy Understanding**
+
    ```
    Command: "Summarize the approval policies for this project."
    Expected: Explains auto-approve, auto-fix, escalate conditions
    ```
 
 2. [ ] **Test 2: Tier System Understanding**
+
    ```
    Command: "What are the tier restrictions in this project?"
    Expected: FREE: 5 symbols × 3 timeframes, PRO: 15 symbols × 9 timeframes
    ```
 
 3. [ ] **Test 3: File Location Knowledge**
+
    ```
    Command: "Where should the POST /api/alerts endpoint file be located?"
    Expected: app/api/alerts/route.ts
    ```
 
 4. [ ] **Test 4: Architecture Understanding**
+
    ```
    Command: "Explain the data flow when a user creates an alert."
    Expected: User → Form → API route → Auth → Tier check → Prisma → Database
    ```
 
 5. [ ] **Test 5: Pattern Knowledge**
+
    ```
    Command: "What coding pattern should I use for a Next.js API route?"
    Expected: References Pattern 1 from 05-coding-patterns.md
@@ -444,6 +484,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
    ```
 
 **How to Run Tests:**
+
 1. Start Aider: `py -3.11 -m aider --model anthropic/MiniMax-M2`
 2. Run each test command
 3. Verify Aider's response matches expected answer
@@ -461,6 +502,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 **What:** Final verification that Phase 1 is complete and you're ready for Phase 2.
 
 #### Readiness Check Document Created:
+
 - [x] `docs/v7/PHASE-1-READINESS-CHECK.md`
 
 #### Official Readiness Criteria (6 items):
@@ -489,6 +531,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
    - Test: Start Aider and verify API works
 
 **How to Complete Readiness Check:**
+
 1. Open: `docs/v7/PHASE-1-READINESS-CHECK.md`
 2. Go through all checklist items
 3. Mark completion status
@@ -503,9 +546,11 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 ### MILESTONE 1.8: Phase 1 Completion Summary (30 minutes) ✅ COMPLETE
 
 #### Summary Document Created:
+
 - [x] `PHASE-1-COMPLETION-SUMMARY.md`
 
 #### Contents:
+
 - [x] All milestone completion status
 - [x] Files created summary (10 files)
 - [x] Next steps for Phase 2 and Phase 3
@@ -527,6 +572,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 #### Files Updated/Created:
 
 **1. seed-code/v0-components/README.md (Updated)**
+
 - [x] Complete 20-component mapping guide
 - [x] Recommended folder structure (public-pages/, auth/, dashboard/, components/)
 - [x] Detailed component inventory with production locations
@@ -537,6 +583,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 - [x] Aider adaptation checklist
 
 **2. docs/ui-components-map.md (NEW FILE - Created)**
+
 - [x] Complete component-by-component mapping (17 new + 3 existing)
 - [x] Production file locations for all components
 - [x] API endpoints required (21 endpoints documented)
@@ -546,6 +593,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 - [x] Progress tracking table
 
 **3. docs/v5-structure-division.md (Updated)**
+
 - [x] Enhanced SEED CODE section with all 20 components
 - [x] Complete folder structure visualization
 - [x] Component categories table (Public Pages: 3, Auth: 2, Dashboard: 8, Components: 4, Existing: 3)
@@ -557,6 +605,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 - [x] Updated summary statistics (~50 seed files)
 
 **4. .aider.conf.yml (Updated)**
+
 - [x] Added V0 components section headers (20 total components documented)
 - [x] Organized by category: public-pages, auth, dashboard, components
 - [x] Commented placeholders for 17 new components (uncomment when generated)
@@ -564,6 +613,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 - [x] Added documentation cross-references
 
 **5. package.json (Verified)**
+
 - [x] All 44 dependencies confirmed present
 - [x] All 13 dev dependencies confirmed present
 - [x] No additional dependencies needed for v0.dev components
@@ -602,6 +652,7 @@ seed-code/v0-components/
 #### Documentation Deliverables:
 
 **20-Component Structure:**
+
 - Public Pages: 3 (Homepage, Pricing, Registration)
 - Authentication: 2 (Login, Forgot Password)
 - Dashboard Pages: 8 (Overview, Watchlist, Alerts, Settings, etc.)
@@ -609,6 +660,7 @@ seed-code/v0-components/
 - Existing Seed: 3 (Layouts, Charts, Alerts)
 
 **Production Mapping:**
+
 - 11 app pages mapped
 - 9 reusable components mapped
 - 21 API endpoints documented
@@ -617,12 +669,14 @@ seed-code/v0-components/
 #### Aider Integration:
 
 **How Aider Will Use These:**
+
 1. **Pattern 1:** Direct page adaptation (public pages, auth, dashboard)
 2. **Pattern 2:** Component extraction (reusable components)
 3. **Pattern 3:** Modal/dialog components (alert modal)
 4. **Pattern 4:** Layout wrappers (settings layout)
 
 **When v0.dev components are generated:**
+
 - Place in appropriate category folders
 - Uncomment lines in .aider.conf.yml
 - Aider will automatically reference during Phase 3 building
@@ -642,8 +696,9 @@ seed-code/v0-components/
 #### Dependencies Verification:
 
 All required dependencies already in package.json ✅:
+
 - Core: Next.js 15, React 19
-- UI: @radix-ui/* (14 components), lucide-react
+- UI: @radix-ui/\* (14 components), lucide-react
 - Forms: react-hook-form, zod, @hookform/resolvers
 - Charts: lightweight-charts
 - Payment: stripe, @stripe/stripe-js
@@ -654,21 +709,27 @@ All required dependencies already in package.json ✅:
 #### Build Order Recommendation:
 
 **Phase 2: Public Pages (Week 1)**
+
 - Homepage → Pricing → Registration
 
 **Phase 3: Auth Pages (Week 1)**
+
 - Login → Forgot Password
 
 **Phase 4: Core Dashboard (Week 2)**
+
 - Dashboard Overview → Watchlist → Alerts List
 
 **Phase 5: Components (Week 2)**
+
 - Chart Controls → Empty States → Notification Bell → User Menu → Footer
 
 **Phase 6: Settings & Billing (Week 3)**
+
 - Billing → Settings Layout → Profile Settings → Alert Modal
 
 **Commits:**
+
 - Updated seed-code/v0-components/README.md (complete 20-component guide)
 - Created docs/ui-components-map.md (comprehensive mapping)
 - Updated docs/v5-structure-division.md (enhanced SEED CODE section)
@@ -678,6 +739,7 @@ All required dependencies already in package.json ✅:
 **Status:** ✅ **COMPLETE**
 
 **Next Steps:**
+
 1. Generate all 17 components using v0.dev with provided prompts
 2. Save components to appropriate folders (public-pages/, auth/, dashboard/, components/)
 3. Uncomment relevant lines in .aider.conf.yml
@@ -685,6 +747,7 @@ All required dependencies already in package.json ✅:
 5. Claude Code will validate against seed patterns
 
 **Time Saved in Phase 3:**
+
 - Without seed components: Guessing UI structure (~10 hours)
 - With seed components: Visual reference + patterns (~0 hours)
 - **Total time saved:** ~10 hours ⚡
@@ -700,6 +763,7 @@ All required dependencies already in package.json ✅:
 #### Decision Document Created:
 
 **docs/decisions/google-oauth-decisions.md** (1,487 lines)
+
 - [x] 12 critical OAuth decisions with full reasoning
 - [x] Decision #1: NextAuth v4 (already installed)
 - [x] Decision #2: JWT Sessions (serverless-friendly, 27% faster)
@@ -712,23 +776,27 @@ All required dependencies already in package.json ✅:
 #### Documentation Files Created (4 new files):
 
 **1. docs/setup/google-oauth-setup.md** (498 lines)
+
 - [x] Step-by-step Google Cloud Console setup
 - [x] OAuth client creation guide
 - [x] Environment variables configuration
 - [x] Production deployment checklist
 
 **2. docs/policies/08-google-oauth-implementation-rules.md** (572 lines)
+
 - [x] Aider Policy 08 for OAuth implementation
 - [x] Verified-only linking security rule
 - [x] Prisma schema templates
 - [x] NextAuth configuration examples
 
 **3. docs/OAUTH_IMPLEMENTATION_READY.md** (494 lines)
+
 - [x] Handoff document for Aider implementation
 - [x] 126-point testing checklist
 - [x] Complete implementation roadmap
 
 **4. docs/google-oauth-integration-summary.md** (660 lines)
+
 - [x] Executive summary
 - [x] All 12 decisions in table format
 - [x] Security analysis
@@ -736,27 +804,32 @@ All required dependencies already in package.json ✅:
 #### System Files Updated (6 files):
 
 **1. docs/trading_alerts_openapi.yaml** (v7.0.0 → v7.1.0)
+
 - [x] Added 3 OAuth endpoints (signin, callback, providers)
 - [x] Updated User schema (authMethod field)
 - [x] Added Account schema for OAuth linking
 - [x] Updated UserAdmin schema (nullable passwordHash)
 
 **2. ARCHITECTURE.md** (Section 6 - Authentication Flow)
+
 - [x] Added Google OAuth login flow
 - [x] Documented verified-only account linking
 - [x] Complete NextAuth v4 configuration
 - [x] Attack scenario prevention examples
 
 **3. docs/v5-structure-division.md** (Part 5)
+
 - [x] Updated authentication scope
 - [x] Added OAuth-specific files
 - [x] File count: 17 → 19 files
 
 **4. .aider.conf.yml**
+
 - [x] Added Policy 08 to read section
 - [x] Added OAuth decision documents
 
 **5-6. Policy Files** (03, 06)
+
 - [x] Updated architecture rules with OAuth
 - [x] Updated Aider instructions (9 total policies)
 
@@ -765,6 +838,7 @@ All required dependencies already in package.json ✅:
 🔒 **Verified-Only Account Linking** (Decision #3)
 
 Prevents the #1 OAuth attack:
+
 ```
 Attack Prevented:
 1. Attacker registers victim@gmail.com (unverified)
@@ -774,6 +848,7 @@ Attack Prevented:
 ```
 
 Implementation:
+
 ```typescript
 if (existingUser && !existingUser.emailVerified) {
   return false; // REJECT linking
@@ -809,6 +884,7 @@ model Account {
 - **Commits:** 10 documentation commits
 
 **Commits:**
+
 - docs: add comprehensive Google OAuth integration decision document
 - docs: add Aider Policy 08 - Google OAuth implementation rules
 - docs: add comprehensive Google Cloud Console setup guide
@@ -823,6 +899,7 @@ model Account {
 **Status:** ✅ **COMPLETE**
 
 **Next Steps:**
+
 1. User completes Google Cloud Console setup (10-15 min)
 2. Phase 3: Aider implements OAuth following Policy 08
 3. Test with 126-point checklist
@@ -839,6 +916,7 @@ model Account {
 #### Files Updated/Created:
 
 **1. docs/AFFILIATE-MARKETING-DESIGN.md (NEW FILE - 3,354 lines)**
+
 - [x] Executive summary for 2-sided marketplace platform
 - [x] 8 business requirement sections (registration, codes, inventory, commissions, payments)
 - [x] Complete system architecture (3 sections: affiliate portal, admin panel, automation)
@@ -851,6 +929,7 @@ model Account {
 - [x] 8 implementation phases (120 hours estimated)
 
 **2. docs/AFFILIATE-MARKETING-INTEGRATION-CHECKLIST.md (NEW FILE)**
+
 - [x] 10 documents requiring updates listed
 - [x] User journey documentation requirements (3 new sections)
 - [x] 3 new mermaid diagrams specifications
@@ -859,6 +938,7 @@ model Account {
 - [x] 27.5 hours total integration effort documented
 
 **3. docs/AFFILIATE-ADMIN-JOURNEY.md (NEW FILE - 1,500+ lines)**
+
 - [x] Complete affiliate registration & onboarding flow
 - [x] Email verification process documentation
 - [x] First login & dashboard walkthrough
@@ -873,12 +953,14 @@ model Account {
 - [x] 8 error scenario handlers with resolutions
 
 **4. ui-frontend-user-journey/journey-4-affiliate-registration.mermaid (NEW FILE)**
+
 - [x] Complete registration flow diagram
 - [x] Email verification process
 - [x] Automated 15-code distribution
 - [x] First login to dashboard
 
 **5. ui-frontend-user-journey/journey-5-affiliate-dashboard.mermaid (NEW FILE)**
+
 - [x] Dashboard login and authentication
 - [x] Commission report viewing with drill-downs
 - [x] Code inventory tracking workflow
@@ -887,6 +969,7 @@ model Account {
 - [x] Monthly automated code distribution visualization
 
 **6. ui-frontend-user-journey/journey-6-admin-affiliate-management.mermaid (NEW FILE)**
+
 - [x] Affiliate list and details workflow
 - [x] Manual code distribution process
 - [x] Account suspension workflow
@@ -896,6 +979,7 @@ model Account {
 - [x] Monthly automation (cron jobs) depicted
 
 **7. ui-frontend-user-journey/saas-user-journey-updated.md (UPDATED)**
+
 - [x] Added discount code section to checkout page
 - [x] Optional discount code input field documented
 - [x] Apply button with validation flow
@@ -904,6 +988,7 @@ model Account {
 - [x] Commission creation and affiliate notification flow
 
 **8. ui-frontend-user-journey/mermaid-diagrams/journey-2-upgrade-pro.mermaid (UPDATED)**
+
 - [x] Added discount code flow to upgrade journey
 - [x] Discount code entry node (optional path)
 - [x] Validation decision (Valid? Yes/No)
@@ -912,6 +997,7 @@ model Account {
 - [x] Affiliate email notification trigger included
 
 **9. docs/diagrams/diagram-06-db-schema.mermaid (UPDATED)**
+
 - [x] Added Affiliate model (27 fields including payment preferences)
 - [x] Added AffiliateCode model (with status lifecycle tracking)
 - [x] Added Commission model (with affiliate relationship)
@@ -920,6 +1006,7 @@ model Account {
 - [x] All relationships documented (1:M, M:1)
 
 **10. docs/trading_alerts_openapi.yaml (UPDATED - added 800+ lines)**
+
 - [x] Added 2 new tags (Affiliate, Affiliate Admin)
 - [x] Added 5 affiliate authentication endpoints
 - [x] Added 5 affiliate dashboard endpoints (stats, inventory, commissions, codes, profile)
@@ -931,6 +1018,7 @@ model Account {
 - [x] Security definitions (bearerAuth for protected routes)
 
 **11. docs/policies/03-architecture-rules.md (UPDATED - Section 13 added)**
+
 - [x] 2-sided marketplace structure documented
 - [x] Database schema relationships defined
 - [x] Separate authentication systems explained
@@ -944,6 +1032,7 @@ model Account {
 - [x] Updated summary with affiliate DO/DON'T rules
 
 **12. docs/v5-structure-division.md (UPDATED - Part 17 added)**
+
 - [x] Complete Part 17: Affiliate Marketing Platform (2-Sided Marketplace)
 - [x] Affiliate portal frontend structure (8 pages)
 - [x] Affiliate API routes (11 endpoints)
@@ -959,6 +1048,7 @@ model Account {
 - [x] Updated summary table (17 parts total, 237 total files)
 
 **13. PROGRESS.md (UPDATED)**
+
 - [x] Updated overall progress table (17 parts, 237 files, 173 hours remaining)
 - [x] Added Milestone 1.10 documentation
 - [x] Updated Phase 1 final status
@@ -968,6 +1058,7 @@ model Account {
 **Decision Made:** Option A - Build affiliate platform integrated within main SaaS codebase
 
 **Rationale:**
+
 - Faster time to market (3 months vs 5-6 months for separate systems)
 - Validate both product and affiliate model before architectural commitment
 - Learn real requirements from usage patterns
@@ -979,26 +1070,31 @@ model Account {
 #### Key Implementation Details:
 
 **Scope:** 2-sided marketplace platform with three distinct user types
+
 - **Side 1:** Affiliates (self-service portal with registration, dashboard, reports)
 - **Side 2:** End Users (checkout with optional discount codes)
 - **Platform Operator:** Admin (affiliate management + 4 BI reports)
 
 **Database Changes:**
+
 - 3 new models: Affiliate (27 fields), AffiliateCode (13 fields), Commission (12 fields)
 - 4 new enums: PaymentMethod, AffiliateStatus, CodeStatus, CommissionStatus
 - 1 modified model: Subscription (added affiliateCodeId nullable foreign key)
 
 **API Surface:**
+
 - 30+ new endpoints across affiliate portal, admin panel, and checkout integration
 - Separate authentication system using AFFILIATE_JWT_SECRET
 - All endpoints documented in OpenAPI spec
 
 **Automation:**
+
 - Monthly code distribution (1st of month, 00:00 UTC via Vercel Cron)
 - Monthly code expiry (last day of month, 23:59 UTC)
 - 8 email notification types (registration, welcome, code used, payment, etc.)
 
 **Security:**
+
 - Cryptographically secure code generation (crypto.randomBytes)
 - Separate JWT authentication (no shared sessions)
 - Code validation (ACTIVE, not expired, not used)
@@ -1006,6 +1102,7 @@ model Account {
 - Payment data encryption at rest
 
 **Time Investment:**
+
 - Documentation & Design: ~6 hours (Phase 1)
 - Implementation: ~120 hours (Part 17 in Phase 3)
 - Total: ~126 hours for complete affiliate platform
@@ -1013,6 +1110,7 @@ model Account {
 **Status:** ✅ **COMPLETE** (Design & Documentation Phase)
 
 **Next Steps:**
+
 - Implement Part 17 after completing Parts 1-16 (recommended before scaling)
 - Week 10 timeline: Just before Part 18 begins
 - Can be implemented earlier if affiliate marketing is prioritized
@@ -1028,6 +1126,7 @@ model Account {
 **Files Created in Phase 1:** 16 documentation files (including UI components mapping + affiliate marketing platform)
 
 **Ready for Phase 2:** ⚠️ **After user completes:**
+
 1. Aider comprehension tests (Milestone 1.6)
 2. MiniMax M2 API configuration
 3. Readiness check sign-off (Milestone 1.7)
@@ -1043,6 +1142,7 @@ model Account {
 **Timeline:** Week 2, Day 1
 
 **Prerequisites:**
+
 - ✅ Phase 1 complete
 - ✅ Aider comprehension tests passed
 - ✅ MiniMax M2 API working
@@ -1054,18 +1154,21 @@ model Account {
 **What:** Initialize Next.js 15 project with TypeScript and Tailwind CSS.
 
 **Commands:**
+
 ```bash
 cd trading-alerts-saas-v7
 npx create-next-app@latest . --typescript --tailwind --app --src-dir=false --import-alias="@/*"
 ```
 
 **Verify:**
+
 - [ ] `app/` directory created
 - [ ] `package.json` created with Next.js 15
 - [ ] `tsconfig.json` created
 - [ ] `tailwind.config.ts` created
 
 **Test:**
+
 ```bash
 npm run dev
 # Visit http://localhost:3000
@@ -1083,6 +1186,7 @@ npm run dev
 **Why:** Generate TypeScript types before writing any code.
 
 **Commands:**
+
 ```bash
 # Generate Next.js API types
 sh scripts/openapi/generate-nextjs-types.sh
@@ -1092,20 +1196,23 @@ sh scripts/openapi/generate-flask-types.sh
 ```
 
 **Expected Output:**
+
 ```
 ✅ Next.js API types generated in lib/api-client/
 ✅ Flask MT5 types generated in lib/mt5-client/
 ```
 
 **Verify:**
+
 - [ ] `lib/api-client/` directory created with TypeScript files
 - [ ] `lib/mt5-client/` directory created with TypeScript files
 - [ ] Types include: Alert, User, IndicatorData, etc.
 
 **Usage in Code:**
+
 ```typescript
-import { Alert, CreateAlertRequest } from '@/lib/api-client'
-import { IndicatorData } from '@/lib/mt5-client'
+import { Alert, CreateAlertRequest } from '@/lib/api-client';
+import { IndicatorData } from '@/lib/mt5-client';
 ```
 
 **Documentation:** `scripts/openapi/README.md`
@@ -1117,6 +1224,7 @@ import { IndicatorData } from '@/lib/mt5-client'
 **What:** Configure database connection and create schema.
 
 #### 3.1: Install Prisma (10 minutes)
+
 ```bash
 npm install prisma @prisma/client
 npx prisma init
@@ -1125,6 +1233,7 @@ npx prisma init
 #### 3.2: Configure Database URL (10 minutes)
 
 **Create `.env` file:**
+
 ```env
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/trading_alerts"
@@ -1146,6 +1255,7 @@ STRIPE_WEBHOOK_SECRET="whsec_..."
 **File:** `prisma/schema.prisma`
 
 **Use Aider to create schema from Part 2 requirements:**
+
 ```bash
 py -3.11 -m aider --model anthropic/MiniMax-M2
 
@@ -1156,12 +1266,14 @@ Use the 2-tier system (FREE/PRO).
 ```
 
 #### 3.4: Run First Migration (10 minutes)
+
 ```bash
 npx prisma migrate dev --name init
 npx prisma generate
 ```
 
 **Verify:**
+
 - [ ] `prisma/migrations/` directory created
 - [ ] Database tables created in PostgreSQL
 - [ ] Prisma Client generated
@@ -1186,6 +1298,7 @@ npm install -D eslint eslint-config-next
 ```
 
 **Verify:**
+
 - [ ] All packages installed without errors
 - [ ] `node_modules/` directory created
 - [ ] `package-lock.json` updated
@@ -1197,6 +1310,7 @@ npm install -D eslint eslint-config-next
 **What:** Setup all required environment variables for development.
 
 **Create `.env.local`:**
+
 ```env
 # App
 NODE_ENV=development
@@ -1219,6 +1333,7 @@ FLASK_MT5_URL="http://localhost:5001"
 ```
 
 **Verify:**
+
 - [ ] `.env.local` file created
 - [ ] All required variables set
 - [ ] `.env` and `.env.local` in `.gitignore`
@@ -1234,6 +1349,7 @@ FLASK_MT5_URL="http://localhost:5001"
 **Follow:** `postman/README.md`
 
 **Steps:**
+
 1. Open Postman
 2. Click "Import" → "Files"
 3. Select `docs/trading_alerts_openapi.yaml`
@@ -1241,6 +1357,7 @@ FLASK_MT5_URL="http://localhost:5001"
 5. Repeat for `docs/flask_mt5_openapi.yaml`
 
 **Configure Variables:**
+
 - Collection: "Trading Alerts API"
   - `baseUrl` = `http://localhost:3000`
   - `authToken` = (empty for now)
@@ -1249,6 +1366,7 @@ FLASK_MT5_URL="http://localhost:5001"
   - `userTier` = `FREE`
 
 **Verify:**
+
 - [ ] Both collections imported successfully
 - [ ] All ~50 endpoints visible in Postman
 - [ ] Variables configured
@@ -1262,6 +1380,7 @@ FLASK_MT5_URL="http://localhost:5001"
 **What:** Test that everything is working before starting Part 1.
 
 #### 7.1: Test Next.js Dev Server
+
 ```bash
 npm run dev
 # Visit http://localhost:3000
@@ -1269,6 +1388,7 @@ npm run dev
 ```
 
 #### 7.2: Test Prisma Connection
+
 ```bash
 npx prisma studio
 # Should open Prisma Studio at http://localhost:5555
@@ -1276,12 +1396,14 @@ npx prisma studio
 ```
 
 #### 7.3: Test TypeScript Types
+
 ```bash
 npm run build
 # Should compile without TypeScript errors
 ```
 
 #### 7.4: Test Aider with Foundation
+
 ```bash
 py -3.11 -m aider --model anthropic/MiniMax-M2
 # Ask: "What files are in the project now?"
@@ -1290,6 +1412,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 **Checklist:**
+
 - [ ] Next.js dev server runs
 - [ ] Database connection works
 - [ ] TypeScript compiles
@@ -1301,6 +1424,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 ## 📊 PHASE 2 COMPLETION CRITERIA
 
 **When Phase 2 is complete, you'll have:**
+
 - ✅ Next.js 15 project created
 - ✅ TypeScript types generated from OpenAPI specs
 - ✅ Prisma schema created and migrated
@@ -1340,6 +1464,7 @@ Phase 3 uses **TWO different types of validation** at **TWO different scales**:
 **Automated:** Yes - happens automatically
 
 **The Process:**
+
 ```
 Aider builds: app/api/auth/signup/route.ts
     ↓
@@ -1352,6 +1477,7 @@ Decision:
 ```
 
 **What it catches:**
+
 - ✅ Syntax errors, type errors
 - ✅ Code pattern violations
 - ✅ Missing error handling
@@ -1368,6 +1494,7 @@ Decision:
 **Automated:** No - you run these tests manually
 
 **The Process:**
+
 ```
 Aider completes ALL files in Part 5 (Authentication)
   ├─ route.ts (Claude validated ✅)
@@ -1389,6 +1516,7 @@ Decision:
 ```
 
 **What it catches:**
+
 - ✅ Actual HTTP requests/responses work
 - ✅ Database operations function correctly
 - ✅ Authentication flows are secure
@@ -1400,14 +1528,14 @@ Decision:
 
 #### 📊 VALIDATION COMPARISON
 
-| Aspect | Claude Code (File-Level) | Postman (Part-Level) |
-|--------|-------------------------|---------------------|
-| **When** | After each file | After Parts 5, 7, 11, 12 |
-| **Tool** | Claude Code (automated) | Postman (manual) |
-| **Speed** | Fast (seconds) | Slower (30 min per part) |
-| **What** | Code quality, types | API functionality |
-| **Who** | Aider (automatic) | You (manual testing) |
-| **Frequency** | 170+ times | 4 times in Phase 3 |
+| Aspect        | Claude Code (File-Level) | Postman (Part-Level)     |
+| ------------- | ------------------------ | ------------------------ |
+| **When**      | After each file          | After Parts 5, 7, 11, 12 |
+| **Tool**      | Claude Code (automated)  | Postman (manual)         |
+| **Speed**     | Fast (seconds)           | Slower (30 min per part) |
+| **What**      | Code quality, types      | API functionality        |
+| **Who**       | Aider (automatic)        | You (manual testing)     |
+| **Frequency** | 170+ times               | 4 times in Phase 3       |
 
 ---
 
@@ -1416,12 +1544,14 @@ Decision:
 **Total Phase 3 Time:** 38 hours
 
 **Aider's Autonomous Work:** ~36 hours (96%)
+
 - Building 170+ files
 - Claude Code validation after each file
 - Auto-fixes and commits
 - Progress reporting
 
 **Your Manual Work:** ~2-3 hours (4%)
+
 - Postman testing: ~2 hours (4 sessions × 30 min)
 - Handling escalations: ~30-60 min (if any occur)
 
@@ -1540,6 +1670,7 @@ Aider: "Thanks! Now continuing with updated types..."
 ```
 
 **Summary:**
+
 - **OpenAPI scripts run ONCE** in Phase 2 Step 2 (or auto-run via GitHub Actions)
 - **Aider uses generated types** in all 170+ files during Phase 3
 - **Claude Code validates** types match during Phase 3
@@ -1608,16 +1739,17 @@ Aider: "Thanks! Now continuing with updated types..."
 
 #### 📊 AUTOMATION SUMMARY TABLE
 
-| Step | Task | Local | GitHub Actions | Who/What | Manual Effort |
-|------|------|-------|----------------|----------|---------------|
-| **(A)** | Create OpenAPI docs | ✅ | ❌ | YOU (one-time) | 100% (done!) |
-| **(B)** | Generate types | 📝 Optional | ✅ **AUTO** | GitHub Actions | 0% 🎉 |
-| **(C)** | Aider builds files | ✅ Required | ❌ | YOU + Aider | 4% (escalations) |
-| **(D)** | Claude validates | ✅ Auto | ❌ | Aider (auto) | 0% 🎉 |
-| **(E)** | Commit files | ✅ | ❌ | YOU (push) | 1% (review + push) |
-| **(F)** | API testing | 📝 Optional | ✅ **AUTO** | GitHub Actions | 0% 🎉 |
+| Step    | Task                | Local       | GitHub Actions | Who/What       | Manual Effort      |
+| ------- | ------------------- | ----------- | -------------- | -------------- | ------------------ |
+| **(A)** | Create OpenAPI docs | ✅          | ❌             | YOU (one-time) | 100% (done!)       |
+| **(B)** | Generate types      | 📝 Optional | ✅ **AUTO**    | GitHub Actions | 0% 🎉              |
+| **(C)** | Aider builds files  | ✅ Required | ❌             | YOU + Aider    | 4% (escalations)   |
+| **(D)** | Claude validates    | ✅ Auto     | ❌             | Aider (auto)   | 0% 🎉              |
+| **(E)** | Commit files        | ✅          | ❌             | YOU (push)     | 1% (review + push) |
+| **(F)** | API testing         | 📝 Optional | ✅ **AUTO**    | GitHub Actions | 0% 🎉              |
 
 **Legend:**
+
 - ✅ = Available
 - ❌ = Not available
 - 📝 = Optional (can do if needed)
@@ -1630,6 +1762,7 @@ Aider: "Thanks! Now continuing with updated types..."
 **Phase 3 Building (38 hours):**
 
 **What YOU Do (Local):**
+
 - Run Aider: `py -3.11 -m aider --model anthropic/MiniMax-M2` (1 command)
 - Tell Aider: "Build Part 5: Authentication" (1 command per Part)
 - Handle escalations: When Aider asks for help (~4% of time)
@@ -1659,6 +1792,7 @@ Aider: "Thanks! Now continuing with updated types..."
 #### 💡 KEY INSIGHT: Semi-Autonomous vs Fully Autonomous
 
 **Semi-Autonomous (Current Setup):**
+
 - ✅ Aider builds autonomously (96% of time)
 - ✅ Types auto-generate (100%)
 - ✅ Tests auto-run (100%)
@@ -1666,6 +1800,7 @@ Aider: "Thanks! Now continuing with updated types..."
 - 🔴 You push code manually
 
 **Why not 100% autonomous?**
+
 - Aider needs human judgment for:
   - Architectural decisions
   - Breaking changes
@@ -1674,6 +1809,7 @@ Aider: "Thanks! Now continuing with updated types..."
   - Cross-part dependencies
 
 **This is GOOD for beginners:**
+
 - ✅ You learn as you watch Aider work
 - ✅ You approve before production
 - ✅ You understand the codebase
@@ -1711,6 +1847,7 @@ After Phase 2 setup, these run automatically forever:
 #### 📈 TIME SAVINGS WITH AUTOMATION
 
 **Without GitHub Actions Automation:**
+
 ```
 Every OpenAPI change:
 - Manual: sh generate-nextjs-types.sh (2 min)
@@ -1722,6 +1859,7 @@ Total per change: 25 minutes × 10 changes = 4.2 hours 😫
 ```
 
 **With GitHub Actions Automation:**
+
 ```
 Every OpenAPI change:
 - Edit YAML file (2 min)
@@ -1751,6 +1889,7 @@ Time saved: 3.3 hours per 10 changes! ⚡
 7. **Repeat:** Move to next part
 
 **Typical Session:**
+
 - Aider builds 3 files → Reports progress
 - Aider builds 3 more files → Reports progress
 - Aider encounters issue → Escalates to you
@@ -1771,6 +1910,7 @@ Build in this order for proper dependencies:
 **What:** Core infrastructure, types, tier system.
 
 #### Part 1: Foundation & Root Configuration (2 hours)
+
 - [ ] Files: 12 files (config files, package.json, etc.)
 - [ ] Start Aider: `py -3.11 -m aider --model anthropic/MiniMax-M2`
 - [ ] Command: `Build Part 1: Foundation from v5_part_a.md`
@@ -1778,22 +1918,26 @@ Build in this order for proper dependencies:
 - [ ] Test: `npm run dev` should work
 
 #### Part 2: Database Schema & Migrations (2 hours)
+
 - [ ] Files: 4 files (Prisma schema, seed scripts)
 - [ ] Command: `Build Part 2: Database from v5_part_b.md`
 - [ ] Test: `npx prisma migrate dev`
 - [ ] Test: `npx prisma studio` - verify tables
 
 #### Part 3: Type Definitions (2 hours)
+
 - [ ] Files: 6 files (TypeScript type definitions)
 - [ ] Command: `Build Part 3: Types from v5_part_c.md`
 - [ ] Test: `npm run build` - no TypeScript errors
 
 #### Part 4: Tier System & Constants (4 hours)
+
 - [ ] Files: 4 files (tier validation, middleware, constants)
 - [ ] Command: `Build Part 4: Tier System from v5_part_d.md`
 - [ ] Test: Import tier functions, test validation logic
 
 **After Parts 1-4:**
+
 - [ ] Run: `npm run build` - should compile successfully
 - [ ] Commit all changes
 - [ ] Take a break! 🎉 Foundation complete!
@@ -1807,6 +1951,7 @@ Build in this order for proper dependencies:
 **Files:** 18 files
 
 **Command:**
+
 ```bash
 py -3.11 -m aider --model anthropic/MiniMax-M2
 
@@ -1821,6 +1966,7 @@ Follow the workflow:
 ```
 
 **Aider will build:**
+
 - [ ] Auth pages (login, register, forgot-password, etc.)
 - [ ] API routes (NextAuth, registration, verification)
 - [ ] Auth components (forms, social auth buttons)
@@ -1838,7 +1984,6 @@ After Aider completes Part 5:
 3. **Test Authentication (Scenario 1):**
 
    📖 **Follow:** `postman/TESTING-GUIDE.md` → Scenario 1
-
    - [ ] Test: POST /api/auth/signup
      - Body: `{ "email": "test@example.com", "password": "SecurePass123!", "name": "Test User" }`
      - Expected: 201 Created, user object, token returned
@@ -1863,11 +2008,13 @@ After Aider completes Part 5:
    - [ ] Found any bugs? (Document in PROGRESS.md)
 
 **If tests fail:**
+
 1. Check Aider's commits for the file with issues
 2. Ask Aider to fix: "The POST /api/auth/login endpoint returns 500 error. Please investigate and fix."
 3. Retest after fix
 
 **Estimated Time:**
+
 - Aider builds: 5 hours
 - Your testing: 1 hour
 
@@ -1880,6 +2027,7 @@ After Aider completes Part 5:
 **Files:** 15 files
 
 **Command:**
+
 ```bash
 Build Part 6: Flask MT5 Service from v5_part_f.md
 
@@ -1889,6 +2037,7 @@ Build all 15 Python files.
 ```
 
 **Aider will build:**
+
 - [ ] Flask app structure
 - [ ] MT5 connection service
 - [ ] Tier validation service
@@ -1901,6 +2050,7 @@ Build all 15 Python files.
 After Aider completes Part 6:
 
 1. Start Flask service:
+
    ```bash
    cd mt5-service
    pip install -r requirements.txt
@@ -1911,7 +2061,6 @@ After Aider completes Part 6:
 2. Open Postman → "Flask MT5 Service" collection
 
 3. **Test Flask Endpoints:**
-
    - [ ] Test: GET /api/mt5/symbols/BTCUSD
      - Header: `X-User-Tier: FREE`
      - Expected: 200 OK, symbol info returned
@@ -1926,6 +2075,7 @@ After Aider completes Part 6:
      - Expected: 403 Forbidden (GBPUSD not allowed for FREE)
 
 **Estimated Time:**
+
 - Aider builds: 5 hours
 - Your testing: 1 hour
 
@@ -1938,6 +2088,7 @@ After Aider completes Part 6:
 **Files:** 6 files
 
 **Command:**
+
 ```bash
 Build Part 7: Indicators API from v5_part_g.md
 
@@ -1946,6 +2097,7 @@ Validate tier before calling Flask service.
 ```
 
 **Aider will build:**
+
 - [ ] GET /api/tier/symbols - Get allowed symbols for user's tier
 - [ ] GET /api/tier/check/[symbol] - Check if symbol is allowed
 - [ ] GET /api/tier/combinations - Get all allowed symbol+timeframe combos
@@ -1964,7 +2116,6 @@ After Aider completes Part 7:
    - Flask: `python mt5-service/run.py` (port 5001)
 
 2. **Test Tier Routes:**
-
    - [ ] Test: GET /api/tier/symbols
      - Header: `Authorization: Bearer {token}` (from Part 5 testing)
      - Expected: 200 OK, array of 5 symbols (if FREE user)
@@ -1976,7 +2127,6 @@ After Aider completes Part 7:
      - Expected: 200 OK, `{ "allowed": false }` (for FREE user)
 
 3. **Test Indicators API:**
-
    - [ ] Test: GET /api/indicators/BTCUSD/H1
      - Expected: 200 OK, indicator data from Flask
 
@@ -1984,6 +2134,7 @@ After Aider completes Part 7:
      - Expected: 403 Forbidden (FREE user, invalid symbol+timeframe)
 
 **Estimated Time:**
+
 - Aider builds: 3 hours
 - Your testing: 1 hour
 
@@ -1994,24 +2145,28 @@ After Aider completes Part 7:
 **What:** Dashboard, charts, watchlist UI components.
 
 #### Part 8: Dashboard & Layout Components (3 hours)
+
 - [ ] Files: 9 files
 - [ ] Command: `Build Part 8: Dashboard from v5_part_h.md`
 - [ ] Reference: seed-code/next-shadcn-dashboard-starter/
 - [ ] Test: Visit http://localhost:3000/dashboard
 
 #### Part 9: Charts & Visualization (4 hours)
+
 - [ ] Files: 8 files
 - [ ] Command: `Build Part 9: Charts from v5_part_i.md`
 - [ ] Test: Visit http://localhost:3000/charts
 - [ ] Verify: Timeframe selector shows only H1, H4, D1 for FREE user
 
 #### Part 10: Watchlist System (3 hours)
+
 - [ ] Files: 8 files
 - [ ] Command: `Build Part 10: Watchlist from v5_part_j.md`
 - [ ] Test: Visit http://localhost:3000/watchlist
 - [ ] Verify: Can add symbol+timeframe combinations
 
 **Testing UI Components:**
+
 - Test in browser (visual testing)
 - No Postman needed for UI
 - Check responsiveness (mobile, tablet, desktop)
@@ -2026,6 +2181,7 @@ After Aider completes Part 7:
 **Files:** 10 files
 
 **Command:**
+
 ```bash
 Build Part 11: Alerts from v5_part_k.md
 
@@ -2040,7 +2196,6 @@ Implement alert checking job.
 After Aider completes Part 11:
 
 1. **Test Alert Creation:**
-
    - [ ] Test: POST /api/alerts
      - Body:
        ```json
@@ -2059,7 +2214,6 @@ After Aider completes Part 11:
      - Expected: 403 Forbidden, helpful error message
 
 2. **Test Alert Management:**
-
    - [ ] Test: GET /api/alerts
      - Expected: 200 OK, array of alerts
 
@@ -2077,6 +2231,7 @@ After Aider completes Part 11:
    - [ ] Test edit and delete
 
 **Estimated Time:**
+
 - Aider builds: 3 hours
 - Your testing: 1 hour
 
@@ -2095,18 +2250,15 @@ After Aider completes Part 11:
 After Aider completes Part 12:
 
 1. **Test Subscription Check:**
-
    - [ ] Test: GET /api/subscriptions/current
      - Expected: 200 OK, shows current tier (FREE)
 
 2. **Test Checkout Session:**
-
    - [ ] Test: POST /api/subscriptions/checkout
      - Body: `{ "tier": "PRO", "priceId": "price_test_123" }`
      - Expected: 200 OK, Stripe checkout URL returned
 
 3. **Test Upgrade:**
-
    - Complete Stripe checkout with test card: 4242 4242 4242 4242
    - Webhook should fire and upgrade user to PRO
 
@@ -2117,11 +2269,11 @@ After Aider completes Part 12:
      - Expected: Now returns all 15 symbols
 
 4. **Test New Access:**
-
    - [ ] Test: POST /api/alerts with GBPUSD symbol
      - Expected: 201 Created (now allowed!)
 
 **Estimated Time:**
+
 - Aider builds: 4 hours
 - Your testing: 1 hour
 
@@ -2130,21 +2282,25 @@ After Aider completes Part 12:
 ### PART 13-16: Polish & Final Features (Week 9-10, 13 hours)
 
 #### Part 13: Settings System (3 hours)
+
 - [ ] Files: 17 files
 - [ ] Command: `Build Part 13: Settings from v5_part_m.md`
 - [ ] Test: All settings pages load and work
 
 #### Part 14: Admin Dashboard (3 hours)
+
 - [ ] Files: 9 files (optional for MVP)
 - [ ] Command: `Build Part 14: Admin from v5_part_n.md`
 - [ ] Test: Admin pages accessible for admin user
 
 #### Part 15: Notifications & Real-time (4 hours)
+
 - [ ] Files: 9 files
 - [ ] Command: `Build Part 15: Notifications from v5_part_o.md`
 - [ ] Test: Notification bell shows alerts
 
 #### Part 16: Utilities & Infrastructure (3 hours)
+
 - [ ] Files: 25 files
 - [ ] Command: `Build Part 16: Utilities from v5_part_p.md`
 - [ ] Test: Email sending, error logging, caching work
@@ -2154,6 +2310,7 @@ After Aider completes Part 12:
 ## 📊 PHASE 3 COMPLETION CRITERIA
 
 **When Phase 3 is complete, you'll have:**
+
 - ✅ All 170+ files built by Aider
 - ✅ All 16 parts tested
 - ✅ All API endpoints tested in Postman
@@ -2180,27 +2337,32 @@ After Aider completes Part 12:
 **Timeline:** Week 11
 
 ### Step 1: Prepare for Deployment (1 hour)
+
 - [ ] Set production environment variables
 - [ ] Create production Stripe products
 - [ ] Setup production PostgreSQL database
 
 ### Step 2: Deploy to Vercel (Next.js) (2 hours)
+
 - [ ] Connect GitHub repository to Vercel
 - [ ] Configure environment variables in Vercel
 - [ ] Deploy and verify
 
 ### Step 3: Deploy to Railway (Flask + PostgreSQL) (2 hours)
+
 - [ ] Create Railway project
 - [ ] Deploy PostgreSQL database
 - [ ] Deploy Flask MT5 service
 - [ ] Connect to deployed database
 
 ### Step 4: Configure Custom Domain (1 hour)
+
 - [ ] Add custom domain to Vercel
 - [ ] Configure DNS records
 - [ ] Enable SSL certificate
 
 **Verification:**
+
 - [ ] Visit production URL
 - [ ] Test user registration and login
 - [ ] Test alert creation
@@ -2215,31 +2377,32 @@ After Aider completes Part 12:
 
 ### Overall Metrics
 
-| Metric | Current | Target | Progress |
-|--------|---------|--------|----------|
-| **Files Built** | 0 | 170 | 0% |
-| **Parts Completed** | 0 | 16 | 0% |
-| **API Endpoints** | 0 | ~50 | 0% |
-| **UI Pages** | 0 | ~20 | 0% |
-| **Tests Written** | 0 | 100+ | 0% |
-| **Documentation** | 10+ files | Complete | ~80% |
+| Metric              | Current   | Target   | Progress |
+| ------------------- | --------- | -------- | -------- |
+| **Files Built**     | 0         | 170      | 0%       |
+| **Parts Completed** | 0         | 16       | 0%       |
+| **API Endpoints**   | 0         | ~50      | 0%       |
+| **UI Pages**        | 0         | ~20      | 0%       |
+| **Tests Written**   | 0         | 100+     | 0%       |
+| **Documentation**   | 10+ files | Complete | ~80%     |
 
 ### Phase Completion
 
-| Phase | Status | Time Spent | Time Remaining |
-|-------|--------|------------|----------------|
-| Phase 0: Setup | ✅ Complete | 4h | 0h |
-| Phase 1: Documentation | 🔄 90% | ~14h | ~1h (user tests) |
-| Phase 2: Foundation | ⏳ Not Started | 0h | 5h |
-| Phase 3: Building | ⏳ Not Started | 0h | 38h |
-| Phase 4: Deployment | ⏳ Not Started | 0h | 6h |
-| **TOTAL** | **25% Complete** | **~18h** | **~50h** |
+| Phase                  | Status           | Time Spent | Time Remaining   |
+| ---------------------- | ---------------- | ---------- | ---------------- |
+| Phase 0: Setup         | ✅ Complete      | 4h         | 0h               |
+| Phase 1: Documentation | 🔄 90%           | ~14h       | ~1h (user tests) |
+| Phase 2: Foundation    | ⏳ Not Started   | 0h         | 5h               |
+| Phase 3: Building      | ⏳ Not Started   | 0h         | 38h              |
+| Phase 4: Deployment    | ⏳ Not Started   | 0h         | 6h               |
+| **TOTAL**              | **25% Complete** | **~18h**   | **~50h**         |
 
 ---
 
 ## 🎯 SUCCESS METRICS
 
 ### Functionality Checklist
+
 - [ ] User can register and login
 - [ ] FREE user can access 5 symbols × 3 timeframes
 - [ ] PRO user can access 15 symbols × 9 timeframes
@@ -2252,6 +2415,7 @@ After Aider completes Part 12:
 - [ ] Tier restrictions enforced in API and UI
 
 ### Quality Checklist
+
 - [ ] 0 Critical security issues
 - [ ] ≤2 High issues per file
 - [ ] 100% TypeScript coverage (no 'any' types)
@@ -2264,6 +2428,7 @@ After Aider completes Part 12:
 - [ ] SQL injection prevention (Prisma ORM)
 
 ### Performance Checklist
+
 - [ ] Page load < 2 seconds
 - [ ] API response < 500ms
 - [ ] Chart data loads < 1 second
@@ -2275,15 +2440,18 @@ After Aider completes Part 12:
 ## 📝 DEVELOPMENT NOTES
 
 ### Decisions Made
+
 1. **2025-11-09**: Using MiniMax M2 API (Anthropic-compatible) for cost-effective autonomous building
 2. **2025-11-09**: Created 7 comprehensive policy documents for Aider guidance
 3. **2025-11-09**: Confirmed 2-tier system (FREE/PRO) - no ENTERPRISE
 4. **2025-11-11**: Migrated from OpenAI to Anthropic compatibility API for MiniMax M2
 
 ### Issues Encountered
-*None yet - documentation phase*
+
+_None yet - documentation phase_
 
 ### Learnings
+
 - Policy-driven development requires upfront investment but saves time later
 - Clear tier specifications prevent confusion during implementation
 - Comprehensive testing documentation is essential for beginners
@@ -2293,25 +2461,30 @@ After Aider completes Part 12:
 ## 🔗 QUICK REFERENCE - KEY DOCUMENTS
 
 ### For Building (You'll use constantly)
+
 - **IMPLEMENTATION-GUIDE.md** - V7 workflow, how to work with Aider
 - **docs/policies/05-coding-patterns.md** - Copy-paste code examples
 - **docs/v5-structure-division.md** - Where each file goes
 
 ### For Testing
+
 - **postman/TESTING-GUIDE.md** - Test scenarios for all endpoints
 - **postman/README.md** - Postman setup guide
 - **scripts/openapi/README.md** - Type generation guide
 
 ### For Troubleshooting
+
 - **MINIMAX-TROUBLESHOOTING.md** - MiniMax M2 API issues
 - **IMPLEMENTATION-GUIDE.md** (Section 7) - Common problems
 - **DOCKER.md** - Docker setup for Flask
 
 ### For Verification
+
 - **docs/v7/AIDER-COMPREHENSION-TESTS.md** - Test Aider's understanding
 - **docs/v7/PHASE-1-READINESS-CHECK.md** - Phase 1 completion check
 
 ### For Architecture
+
 - **ARCHITECTURE.md** - System design overview
 - **docs/policies/03-architecture-rules.md** - Architectural constraints
 
@@ -2322,12 +2495,14 @@ After Aider completes Part 12:
 **You are here:** Phase 1, Milestone 1.6-1.7
 
 **Next steps:**
+
 1. [ ] Run Aider comprehension tests (`docs/v7/AIDER-COMPREHENSION-TESTS.md`)
 2. [ ] Complete readiness check (`docs/v7/PHASE-1-READINESS-CHECK.md`)
 3. [ ] Sign off on Phase 1 completion
 4. [ ] Begin Phase 2: Foundation Setup
 
 **Command to start:**
+
 ```bash
 cd trading-alerts-saas-v7
 py -3.11 -m aider --model anthropic/MiniMax-M2
@@ -2338,6 +2513,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 ## 📞 HELP & SUPPORT
 
 **If you're stuck:**
+
 1. Check this PROGRESS.md for your current step
 2. Read the linked documentation
 3. Check troubleshooting guides
@@ -2356,13 +2532,16 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 **Next Update:** After Phase 2 completion
 
 ### Part 2: Database Schema - ✅ COMPLETE (2025-11-26)
+
 **Files Created:**
+
 - prisma/schema.prisma (2-tier system with 10 models)
 - lib/db/prisma.ts (Prisma client singleton)
 - prisma/seed.ts (Database seed script)
 - lib/db/seed.ts (Seed helper functions)
 
 **Database Status:**
+
 - ✅ Schema pushed to Railway PostgreSQL successfully
 - ✅ All 10 tables created and verified in Prisma Studio
 - ✅ Prisma Client generated (v5.22.0)
@@ -2375,6 +2554,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 ---
 
 ### Part 3: Type Definitions - ✅ Complete
+
 - Completed: 2025-11-26
 - Files: 8/8 (6 planned + 2 smart additions)
   - types/index.ts (barrel export)
@@ -2394,8 +2574,26 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 
 ---
 
-### Part 4: Tier System - 🚧 Ready to Start
+### Part 4: Tier System - ✅ Complete
+
+- Completed: $(date +%Y-%m-%d)
+- Files: 4/4
+  - lib/tier-config.ts (tier constants)
+  - lib/tier-validation.ts (validation logic)
+  - lib/tier-helpers.ts (helper utilities)
+  - middleware/tier-check.ts (access control)
+- Escalations: 2 (Aider crash + ESLint require() errors)
+- Tests: Zero TypeScript errors, zero ESLint errors
+- Time: 2 hours
+- Model: MiniMax M2
+- Commits: 9739504, 3739038
+- Notes: Had to manually fix ESLint errors (require → import), learned to use shorter prompts for Aider
+
+---
+
+### Part 5: Authentication - 🚧 Ready to Start
+
 - Status: Not started
-- Files: 0/4
-- Expected time: 1-1.5 hours
-- Expected escalations: 0-1
+- Files: 0/19
+- Expected time: 4 hours
+- Expected escalations: 2-3
