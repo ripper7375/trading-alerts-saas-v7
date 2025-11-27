@@ -17,10 +17,10 @@
 # - Prettier (prettier --check) - Formatting
 # - Custom Policy Validator (scripts/validate-file.js) - Policy compliance
 #
-# Last Updated: 2025-11-26
+# Last Updated: 2025-11-27 (Optimized: dLocal rules moved to Part 18 only)
 # Context Window: 204,800 tokens (MiniMax M2)
-# Base Load: ~147,000 tokens (policies + quality gates + architecture)
-# Available for Dynamic Loading: ~57,800 tokens
+# Base Load: ~140,130 tokens (policies + quality gates + architecture)
+# Available for Dynamic Loading: ~64,670 tokens (↑6,870 from optimization)
 #
 # NOTE: Token estimates were verified on 2025-11-26. All 18 implementation
 # guides exist (v5_part_a through v5_part_s). Build orders now split into
@@ -75,8 +75,8 @@ read:
   - docs/policies/04-escalation-triggers-compress.md # 7,430 tokens
   - docs/policies/05-coding-patterns-compress.md # 22,999 tokens (UPDATED 2025-11-26 - now includes quality gates)
   - docs/policies/06-aider-instructions.md # 12,966 tokens (UPDATED 2025-11-26 - includes pre-generation checklist)
-  - docs/policies/07-dlocal-integration-rules-compress.md # 6,870 tokens
   - docs/policies/00-tier-specifications.md # 2,479 tokens (not compressed, tiny)
+  # NOTE: 07-dlocal-integration-rules-compress.md moved to Part 18 only (saves 6,870 tokens)
 
   # ========== NEW: SHIFT-LEFT TESTING POLICIES (2025-11-26) ==========
   # Added as part of Three-Layer Protection System implementation
@@ -103,17 +103,20 @@ read:
   - docs/build-orders/README.md # ~3,000 tokens
 
   # --------------------------------------------------------------------------
-  # TOTAL BASE LOAD: ~147,000 tokens (Updated 2025-11-26)
+  # TOTAL BASE LOAD: ~140,130 tokens (Updated 2025-11-27)
   # Breakdown:
-  #   - Original policies: ~79k tokens
+  #   - Core policies (01-06, 00): ~72k tokens (removed dLocal rules)
   #   - Updated coding patterns: +2k tokens (quality gates added)
   #   - Updated instructions: +2k tokens (pre-generation checklist)
   #   - New quality policy: +10k tokens
   #   - New quality summary: +5k tokens
   #   - OpenAPI + Architecture: ~50k tokens
   #
-  # AVAILABLE FOR DYNAMIC LOADING: ~57,000 tokens
-  # (Still sufficient for largest parts: Part 17 ~25k, Part 18 ~20k)
+  # OPTIMIZATION: Removed dLocal rules from base load (-6,870 tokens)
+  # Now loaded only for Part 18, improving margins for all other parts
+  #
+  # AVAILABLE FOR DYNAMIC LOADING: ~64,670 tokens
+  # Improved margins: Part 17A +25.67k, Part 17B +27.67k (vs previous 18.8k/20.8k)
   # --------------------------------------------------------------------------
 
   # ========== ROTATION STRATEGY: PART-BY-PART LOADING ==========
@@ -266,15 +269,20 @@ read:
   # Note: Includes admin portal, BI reports, cron jobs, components
 
   # ==========================================================================
-  # PART 18: DLOCAL PAYMENTS (~12k tokens)
+  # PART 18: DLOCAL PAYMENTS (~19k tokens)
   # ==========================================================================
   # When building: 45 payment integration files
   # /read-only docs/build-orders/part-18-dlocal.md                  # ~2k
   # /read-only docs/implementation-guides/v5_part_r.md              # ~19k (comprehensive)
   # /read-only docs/dlocal-openapi-endpoints.yaml                   # ~7k
+  # /read-only docs/policies/07-dlocal-integration-rules-compress.md # ~7k (dLocal-specific policies)
+  #
+  # Token Budget: 140k (base) + 19k (part) + 25k (conversation/code) = 184k
+  # Margin: 20.8k tokens ✅ SAFE
   #
   # Note: v5_part_r.md is the primary implementation guide for Part 18
   # (v5_part_s.md also exists as a shorter summary - 611 lines vs 2680 lines)
+  # dLocal integration rules are ONLY loaded for this part to save tokens
 
   # ========== OTHER OPTIONAL FILES (Load when needed) ==========
   # These files can be loaded on-demand for reference
