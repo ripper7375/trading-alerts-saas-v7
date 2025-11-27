@@ -1,6 +1,6 @@
 ## PHASE 3: AUTONOMOUS IMPLEMENTATION WITH AIDER
-### Timeline: Weeks 3-13 (62 hours over 11 weeks)
-### Goal: Build 282 files (170 core + 67 affiliate + 45 dLocal) using MiniMax M2 policy-driven autonomous development
+### Timeline: Weeks 3-13 (60 hours over 11 weeks)
+### Goal: Build 274 files (170 core + 67 affiliate + 37 dLocal) in 19 build sessions using MiniMax M2 policy-driven autonomous development
 
 💡 BEGINNER TIP: This is where V7 shines! You give simple commands, Aider 
 with MiniMax M2 builds autonomously. You only step in for exceptions.
@@ -147,11 +147,11 @@ and 4 Flask endpoints. Auto-generated from OpenAPI specs!
 
 ---
 
-### 🚀 MILESTONE 3.2-3.17: BUILD ALL 16 PARTS WITH AIDER
+### 🚀 MILESTONE 3.2-3.19: BUILD ALL PARTS WITH AIDER (19 BUILD SESSIONS)
 
 **This is it! The autonomous building phase with MiniMax M2!**
 
-For each of the 16 parts, you'll follow the **same simple process**:
+For each of the 19 build sessions (Parts 1-16, 17A, 17B, 18), you'll follow the **same simple process**:
 
 1. Start Aider (if not running)
 2. Give simple command
@@ -160,8 +160,8 @@ For each of the 16 parts, you'll follow the **same simple process**:
 5. Test the completed part
 6. Move to next part
 
-💡 BEGINNER TIP: I'll show you Part 1 in COMPLETE detail, then Parts 2-16 
-follow the same pattern!
+💡 BEGINNER TIP: I'll show you Part 1 in COMPLETE detail, then Parts 2-18
+follow the same pattern! (Note: Part 17 is split into 17A and 17B for token safety)
 
 ---
 
@@ -187,8 +187,9 @@ follow the same pattern!
 | Part 14 | Admin UI | seed-code/next-shadcn-dashboard-starter/ (dashboard) |
 | Part 15 | Notifications | seed-code/saas-starter/ (email patterns) |
 | Part 16 | Utilities | (helper functions) |
-| **Part 17** | **Affiliate Marketing (67 files)** | **seed-code/saas-starter/ (Stripe webhooks) + next-shadcn-dashboard-starter/ (analytics dashboards, admin tables)** |
-| **Part 18** | **dLocal Payment Integration (45 files)** | **docs/implementation-guides/v5_part_r.md (comprehensive) + docs/policies/07-dlocal-integration-rules.md + docs/dlocal-openapi-endpoints.yaml** |
+| **Part 17A** | **Affiliate Portal (32 files - Phases A-D)** | **seed-code/saas-starter/ (Stripe webhooks, auth patterns) + next-shadcn-dashboard-starter/ (dashboard layouts)** |
+| **Part 17B** | **Admin Portal & Automation (35 files - Phases E-H)** | **seed-code/saas-starter/ (Stripe webhooks) + next-shadcn-dashboard-starter/ (analytics dashboards, admin tables)** |
+| **Part 18** | **dLocal Payment Integration (37 files)** | **docs/implementation-guides/v5_part_r.md (comprehensive) + docs/policies/07-dlocal-integration-rules.md + docs/dlocal-openapi-endpoints.yaml** |
 
 💡 **Important:** Aider uses these as **reference/inspiration**, not copy/paste!
 
@@ -598,9 +599,9 @@ Work autonomously.
 
 ---
 
-### 📋 PARTS 2-16: SIMPLIFIED WORKFLOW
+### 📋 PARTS 2-18: SIMPLIFIED WORKFLOW
 
-For remaining parts, follow this SAME pattern:
+For remaining parts (Parts 2-16, 17A, 17B, 18), follow this SAME pattern:
 
 ```
 FOR EACH PART:
@@ -663,11 +664,13 @@ you're using MiniMax M2 API which is cost-effective!
 | Part 14: Admin | 11 | 2.5h | 1 | Admin dashboard |
 | Part 15: Notifications | 8 | 2h | 1 | Email, in-app alerts |
 | Part 16: Utilities | 5 | 1.5h | 0 | Helper functions |
-| **Part 17: Affiliate Marketing** | **67** | **4h** | **2** | **2-sided marketplace, commissions** |
-| **Part 18: dLocal Integration** | **45** | **20h** | **3** | **Emerging markets, local payments, multi-provider checkout** |
+| **Part 17A: Affiliate Portal** | **32** | **2.5h** | **1** | **Registration, codes, commissions** |
+| **Part 17B: Admin & Automation** | **35** | **2.5h** | **1** | **Admin portal, BI reports, cron jobs** |
+| **Part 18: dLocal Integration** | **37** | **3h** | **2** | **Emerging markets, local payments, multi-provider checkout** |
 
-**Total: 62 hours over 13 weeks**
-**Total Files: 282 (170 core + 67 affiliate + 45 dLocal)**
+**Total: 60 hours over 11 weeks**
+**Total Files: 274 (170 core + 67 affiliate + 37 dLocal)**
+**Total Parts: 19 build sessions (Parts 1-16, 17A, 17B, 18)**
 **Model: MiniMax M2 for cost-effective autonomous building**
 
 ---
@@ -771,7 +774,7 @@ Test subscription flow completely!
 
 ☐ Next.js 15 project initialized
 ☐ OpenAPI types generated (100% type-safe!)
-☐ All 17 parts built with MiniMax M2 (237 files total!)
+☐ All 19 build sessions completed with MiniMax M2 (274 files total!)
 ☐ All 38 Next.js API endpoints implemented
 ☐ All 4 Flask MT5 endpoints implemented
 ☐ All UI components created
@@ -781,8 +784,9 @@ Test subscription flow completely!
 ☐ Stripe payments integrated
 ☐ Charts with live MT5 data
 ☐ Watchlists and alerts functional
-☐ **Affiliate marketing program with commission tracking**
-☐ **Admin dashboard for affiliate management**
+☐ **Affiliate marketing program with commission tracking (Part 17A)**
+☐ **Admin dashboard for affiliate management (Part 17B)**
+☐ **dLocal payment integration for emerging markets (Part 18)**
 
 ### What You Learned:
 
@@ -802,19 +806,19 @@ Test subscription flow completely!
 ✓ **Cost-effective AI development with MiniMax M2**
 ✓ **Handling edge cases (escalations)**
 
-### Time Invested: 42 hours over 8 weeks
+### Time Invested: 60 hours over 11 weeks
 
 ### Your Involvement:
 - 20% (escalations + testing)
-- Handled ~22 escalations (10-15 min each)
-- Tested 17 parts (15-30 min each)
+- Handled ~25 escalations (10-15 min each)
+- Tested 19 build sessions (15-30 min each)
 - Learned through exceptions, not repetition!
 
 ### Aider's Work with MiniMax M2:
 - 80% (autonomous building + validation)
-- Generated 237 files cost-effectively (170 core + 67 affiliate/admin)
-- Ran 237 Claude Code validations
-- Applied 60+ auto-fixes
+- Generated 274 files cost-effectively (170 core + 67 affiliate + 37 dLocal)
+- Ran 274 Claude Code validations
+- Applied 70+ auto-fixes
 - Made all repetitive decisions
 - Significant cost savings vs. Anthropic API
 
@@ -823,20 +827,21 @@ Test subscription flow completely!
 
 ### Readiness Check:
 
-☐ All 17 parts complete (including affiliate marketing)
+☐ All 19 build sessions complete (Parts 1-16, 17A, 17B, 18)
 ☐ All endpoints tested in Postman
 ☐ All features working in browser
 ☐ Database migrations on Railway successful
 ☐ No TypeScript errors
 ☐ All tests passing
-☐ **Affiliate portal and admin dashboard functional**
+☐ **Affiliate portal and admin dashboard functional (Parts 17A + 17B)**
+☐ **dLocal payment integration working for emerging markets (Part 18)**
 ☐ Ready to deploy!
 
 If all checked ✅ → **READY FOR PHASE 4!** 🌐
 
-💡 BEGINNER VICTORY: You just built a professional SaaS with a 2-sided affiliate
-marketplace in 42 hours using MiniMax M2! What would take 160+ hours manually took
-42 hours with policy-driven AI at a fraction of the API cost. AND you learned more
-by handling escalations than by micromanaging every file!
+💡 BEGINNER VICTORY: You just built a professional SaaS with affiliate marketing
+AND emerging market payments in 60 hours using MiniMax M2! What would take 200+ hours
+manually took 60 hours with policy-driven AI at a fraction of the API cost. AND you
+learned more by handling escalations than by micromanaging every file!
 
 ---
