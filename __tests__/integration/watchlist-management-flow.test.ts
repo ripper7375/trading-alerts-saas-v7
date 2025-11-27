@@ -3,7 +3,8 @@
  * Tests adding, viewing, and removing symbols from watchlist
  */
 
-import { describe, it, expect, beforeAll } from '@jest/globals';
+import { describe, it, expect } from '@jest/globals';
+
 import { validateTierAccess, canAccessSymbol } from '@/lib/tier-validation';
 
 describe('Integration: Watchlist Management Flow', () => {
@@ -25,14 +26,30 @@ describe('Integration: Watchlist Management Flow', () => {
       expect(result.allowed).toBe(true);
     });
 
-    it('should block FREE user from accessing EURUSD', () => {
+    it('should allow FREE user to access EURUSD (part of 5 FREE symbols)', () => {
       const result = validateTierAccess(freeUser.tier, 'EURUSD');
-      expect(result.allowed).toBe(false);
-      expect(result.reason).toContain('upgrade');
+      expect(result.allowed).toBe(true);
+    });
+
+    it('should allow FREE user to access all 5 FREE tier symbols', () => {
+      const freeSymbols = ['BTCUSD', 'EURUSD', 'USDJPY', 'US30', 'XAUUSD'];
+      freeSymbols.forEach((symbol) => {
+        const result = validateTierAccess(freeUser.tier, symbol);
+        expect(result.allowed).toBe(true);
+      });
+    });
+
+    it('should block FREE user from accessing PRO-only symbols', () => {
+      const proOnlySymbols = ['GBPUSD', 'AUDUSD', 'ETHUSD', 'XAGUSD'];
+      proOnlySymbols.forEach((symbol) => {
+        const result = validateTierAccess(freeUser.tier, symbol);
+        expect(result.allowed).toBe(false);
+        expect(result.reason).toContain('PRO');
+      });
     });
 
     it('should allow PRO user to access any symbol', () => {
-      const symbols = ['XAUUSD', 'EURUSD', 'BTCUSD', 'GBPUSD'];
+      const symbols = ['XAUUSD', 'EURUSD', 'BTCUSD', 'GBPUSD', 'AUDUSD'];
       symbols.forEach((symbol) => {
         const result = validateTierAccess(proUser.tier, symbol);
         expect(result.allowed).toBe(true);
@@ -61,50 +78,51 @@ describe('Integration: Watchlist Management Flow', () => {
       expect(watchlist[0].symbol).toBe('XAUUSD');
     });
 
-    it('should prevent FREE user from adding second symbol', () => {
+    it('should prevent FREE user from exceeding 5 watchlist items', () => {
       const watchlist = [
-        {
-          id: 'watchlist-entry-1',
-          userId: freeUser.id,
-          symbol: 'XAUUSD',
-          addedAt: new Date(),
-        },
+        { id: '1', userId: freeUser.id, symbol: 'XAUUSD', addedAt: new Date() },
+        { id: '2', userId: freeUser.id, symbol: 'EURUSD', addedAt: new Date() },
+        { id: '3', userId: freeUser.id, symbol: 'USDJPY', addedAt: new Date() },
+        { id: '4', userId: freeUser.id, symbol: 'US30', addedAt: new Date() },
+        { id: '5', userId: freeUser.id, symbol: 'BTCUSD', addedAt: new Date() },
       ];
 
-      // FREE tier limit is 1 symbol
-      const maxSymbols = 1;
-      const canAddMore = watchlist.length < maxSymbols;
+      // FREE tier limit is 5 watchlist items
+      const maxWatchlistItems = 5;
+      const canAddMore = watchlist.length < maxWatchlistItems;
 
       expect(canAddMore).toBe(false);
+      expect(watchlist).toHaveLength(5);
     });
 
-    it('should allow PRO user to add multiple symbols', () => {
-      const watchlist: Array<{ symbol: string }> = [];
+    it('should allow PRO user to add up to 50 watchlist items', () => {
+      const watchlist: Array<{ symbol: string; timeframe: string }> = [];
       const symbolsToAdd = ['XAUUSD', 'EURUSD', 'GBPUSD', 'BTCUSD'];
+      const timeframes = ['H1', 'H4', 'D1'];
 
-      symbolsToAdd.forEach((symbol, index) => {
-        // Check PRO access
-        expect(canAccessSymbol(proUser.tier, symbol)).toBe(true);
-
-        // Add to watchlist
-        watchlist.push({
-          symbol,
+      // PRO can add multiple symbol+timeframe combinations
+      symbolsToAdd.forEach((symbol) => {
+        timeframes.forEach((timeframe) => {
+          expect(canAccessSymbol(proUser.tier, symbol)).toBe(true);
+          watchlist.push({ symbol, timeframe });
         });
       });
 
-      expect(watchlist).toHaveLength(4);
-      expect(watchlist.map((w) => w.symbol)).toEqual(symbolsToAdd);
+      expect(watchlist).toHaveLength(12); // 4 symbols × 3 timeframes
+      expect(watchlist.length).toBeLessThan(50); // PRO limit is 50
     });
 
-    it('should prevent duplicate symbols in watchlist', () => {
-      const watchlist = [{ symbol: 'XAUUSD' }];
+    it('should prevent duplicate symbol+timeframe combinations in watchlist', () => {
+      const watchlist = [{ symbol: 'XAUUSD', timeframe: 'H1' }];
 
-      const alreadyExists = watchlist.some((w) => w.symbol === 'XAUUSD');
+      const alreadyExists = watchlist.some(
+        (w) => w.symbol === 'XAUUSD' && w.timeframe === 'H1'
+      );
       expect(alreadyExists).toBe(true);
 
       // Should not add duplicate
       if (!alreadyExists) {
-        watchlist.push({ symbol: 'XAUUSD' });
+        watchlist.push({ symbol: 'XAUUSD', timeframe: 'H1' });
       }
 
       expect(watchlist).toHaveLength(1);
@@ -117,6 +135,7 @@ describe('Integration: Watchlist Management Flow', () => {
         {
           id: 'entry-1',
           symbol: 'XAUUSD',
+          timeframe: 'H1',
           addedAt: new Date('2024-01-15'),
           notes: 'Gold trading',
         },
@@ -138,6 +157,7 @@ describe('Integration: Watchlist Management Flow', () => {
       const watchlistEntry = {
         id: 'entry-1',
         symbol: 'XAUUSD',
+        timeframe: 'H1',
         addedAt: new Date(),
         notes: 'Test notes',
         currentPrice: 2050.5,
@@ -146,6 +166,7 @@ describe('Integration: Watchlist Management Flow', () => {
       };
 
       expect(watchlistEntry).toHaveProperty('symbol');
+      expect(watchlistEntry).toHaveProperty('timeframe');
       expect(watchlistEntry).toHaveProperty('addedAt');
       expect(watchlistEntry).toHaveProperty('currentPrice');
     });
@@ -156,6 +177,7 @@ describe('Integration: Watchlist Management Flow', () => {
       const entry = {
         id: 'entry-1',
         symbol: 'XAUUSD',
+        timeframe: 'H1',
         notes: 'Original notes',
       };
 
@@ -165,23 +187,26 @@ describe('Integration: Watchlist Management Flow', () => {
       expect(entry.notes).toBe('Updated notes with analysis');
     });
 
-    it('should not update symbol (immutable)', () => {
+    it('should not update symbol or timeframe (immutable)', () => {
       const entry = {
         id: 'entry-1',
         symbol: 'XAUUSD',
+        timeframe: 'H1',
       };
 
-      // Symbol should not be updatable
+      // Symbol and timeframe should not be updatable
       const originalSymbol = entry.symbol;
+      const originalTimeframe = entry.timeframe;
       expect(originalSymbol).toBe('XAUUSD');
+      expect(originalTimeframe).toBe('H1');
     });
   });
 
   describe('Step 5: Remove from Watchlist', () => {
     it('should remove symbol from watchlist', () => {
       const watchlist = [
-        { id: 'entry-1', symbol: 'XAUUSD' },
-        { id: 'entry-2', symbol: 'EURUSD' },
+        { id: 'entry-1', symbol: 'XAUUSD', timeframe: 'H1' },
+        { id: 'entry-2', symbol: 'EURUSD', timeframe: 'H4' },
       ];
 
       // Remove XAUUSD
@@ -197,6 +222,7 @@ describe('Integration: Watchlist Management Flow', () => {
         id: 'entry-1',
         userId: freeUser.id,
         symbol: 'XAUUSD',
+        timeframe: 'H1',
       };
 
       const differentUserId = 'different-user-id';
@@ -207,9 +233,9 @@ describe('Integration: Watchlist Management Flow', () => {
 
     it('should clear entire watchlist', () => {
       let watchlist = [
-        { id: 'entry-1', symbol: 'XAUUSD' },
-        { id: 'entry-2', symbol: 'EURUSD' },
-        { id: 'entry-3', symbol: 'GBPUSD' },
+        { id: 'entry-1', symbol: 'XAUUSD', timeframe: 'H1' },
+        { id: 'entry-2', symbol: 'EURUSD', timeframe: 'H4' },
+        { id: 'entry-3', symbol: 'GBPUSD', timeframe: 'D1' },
       ];
 
       // Clear all
@@ -222,37 +248,49 @@ describe('Integration: Watchlist Management Flow', () => {
   describe('Step 6: Watchlist Statistics', () => {
     it('should calculate watchlist statistics', () => {
       const watchlist = [
-        { symbol: 'XAUUSD', currentPrice: 2050, change: 15 },
-        { symbol: 'EURUSD', currentPrice: 1.1, change: -0.002 },
-        { symbol: 'GBPUSD', currentPrice: 1.27, change: 0.005 },
+        { symbol: 'XAUUSD', timeframe: 'H1', currentPrice: 2050, change: 15 },
+        {
+          symbol: 'EURUSD',
+          timeframe: 'H4',
+          currentPrice: 1.1,
+          change: -0.002,
+        },
+        {
+          symbol: 'GBPUSD',
+          timeframe: 'D1',
+          currentPrice: 1.27,
+          change: 0.005,
+        },
       ];
 
       const stats = {
-        totalSymbols: watchlist.length,
+        totalItems: watchlist.length,
         gainers: watchlist.filter((w) => w.change > 0).length,
         losers: watchlist.filter((w) => w.change < 0).length,
       };
 
-      expect(stats.totalSymbols).toBe(3);
+      expect(stats.totalItems).toBe(3);
       expect(stats.gainers).toBe(2);
       expect(stats.losers).toBe(1);
     });
 
     it('should respect tier limits in stats', () => {
       const freeUserStats = {
-        currentSymbols: 1,
-        maxSymbols: 1,
-        canAddMore: false,
-      };
-
-      const proUserStats = {
-        currentSymbols: 5,
-        maxSymbols: 10,
+        currentItems: 3,
+        maxItems: 5,
         canAddMore: true,
       };
 
-      expect(freeUserStats.canAddMore).toBe(false);
+      const proUserStats = {
+        currentItems: 25,
+        maxItems: 50,
+        canAddMore: true,
+      };
+
+      expect(freeUserStats.canAddMore).toBe(true);
+      expect(freeUserStats.maxItems).toBe(5);
       expect(proUserStats.canAddMore).toBe(true);
+      expect(proUserStats.maxItems).toBe(50);
     });
   });
 });
