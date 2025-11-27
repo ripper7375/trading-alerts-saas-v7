@@ -1,7 +1,7 @@
 # Part 18: dLocal Payment Integration - Build Order
 
 **From:** `docs/v5-structure-division.md` Part 18
-**Total Files:** 45 files (34 new + 11 updates)
+**Total Files:** 37 files
 **Estimated Time:** 20 hours (2.5 weeks)
 **Priority:** ⭐⭐ Medium (Post-MVP)
 **Complexity:** High
@@ -13,6 +13,7 @@
 **Scope:** Payment processing for emerging markets (India, Nigeria, Pakistan, Vietnam, Indonesia, Thailand, South Africa, Turkey) using local payment methods without international cards.
 
 **Implementation Guide References:**
+
 - `docs/implementation-guides/v5_part_r.md` - dLocal payment integration business requirements and workflows (comprehensive - 2680 lines)
 - `docs/policies/06-aider-instructions.md` Section 13 (Step 1.7) - dLocal implementation architecture and specifications
 - `docs/policies/07-dlocal-integration-rules.md` - dLocal-specific integration rules and policies
@@ -21,6 +22,7 @@
 **Why:** Stripe requires international cards. dLocal supports 50+ local payment methods (UPI, Paytm, JazzCash, GoPay, etc.).
 
 **Key Features:**
+
 - 8 supported countries
 - 50+ local payment methods
 - Unified checkout (Stripe + dLocal together)
@@ -32,6 +34,7 @@
 - Discount codes on monthly ONLY
 
 **Dependencies:**
+
 - Part 2 complete (Prisma schema updates for Payment model, Subscription fields)
 - Part 12 complete (Stripe integration)
 
@@ -39,22 +42,26 @@
 
 ## Build Summary
 
-Due to the large number of files (45), this build order provides a high-level structure:
+Due to the large number of files (37), this build order provides a high-level structure:
 
 ### Database Models (2 files)
+
 - Prisma schema updates: Payment model, Subscription fields for dLocal
 - Migration file
 
 ### Type Definitions (1 file)
+
 - dLocal types
 
 ### Services (4 files)
+
 - Currency converter service
 - Payment methods service
 - dLocal payment service
 - Country detection service
 
 ### API Routes (9 files)
+
 - Payment methods endpoint
 - Exchange rate endpoint
 - Currency conversion endpoint
@@ -65,6 +72,7 @@ Due to the large number of files (45), this build order provides a high-level st
 - 2 cron jobs (renewal reminders, expiry)
 
 ### Frontend Components (6 files)
+
 - Country selector
 - Plan selector (3-day vs Monthly)
 - Payment method selector
@@ -73,25 +81,30 @@ Due to the large number of files (45), this build order provides a high-level st
 - Payment button
 
 ### Unified Checkout (1 file)
+
 - Update checkout page to support both Stripe and dLocal
 
 ### Email Templates (4 files)
+
 - Payment confirmation
 - Renewal reminder (3-day, 1-day)
 - Subscription expired
 - Payment failure
 
 ### Cron Jobs (2 files)
+
 - Check expiring subscriptions (renewal reminders)
 - Downgrade expired subscriptions
 
 ### Documentation (4 files)
+
 - Policy: 07-dlocal-integration-rules.md
 - OpenAPI spec: dlocal-openapi-endpoints.yaml
 - Implementation guide: v5_part_r.md
 - Summary: DLOCAL-INTEGRATION-SUMMARY.md
 
 ### Configuration (2 files)
+
 - vercel.json (cron jobs)
 - .env updates
 
@@ -164,7 +177,7 @@ Due to the large number of files (45), this build order provides a high-level st
 
 ## Success Criteria
 
-- ✅ All 45 files created/updated
+- ✅ All 37 files created/updated
 - ✅ Single checkout shows both Stripe and dLocal
 - ✅ Country detection works
 - ✅ Payment methods load for 8 countries
