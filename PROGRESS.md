@@ -2582,12 +2582,13 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
   - lib/tier-validation.ts (validation logic)
   - lib/tier-helpers.ts (helper utilities)
   - middleware/tier-check.ts (access control)
-- Escalations: 2 (Aider crash + ESLint require() errors)
-- Tests: Zero TypeScript errors, zero ESLint errors
+- Escalations: 3 (Aider crash, ESLint require→import, test updates)
+- Tests: 108/108 passing
 - Time: 2 hours
 - Model: MiniMax M2
-- Commits: 9739504, 3739038
-- Notes: Had to manually fix ESLint errors (require → import), learned to use shorter prompts for Aider
+- Commits: 9739504, 3739038, 67f64d7
+- Notes: Had to manually fix ESLint errors (require → import), learned to use shorter prompts for Aider, fixed circular dependencies, updated test specs
+- Lessons: Always verify tests match current tier specs before pushing
 
 ---
 
