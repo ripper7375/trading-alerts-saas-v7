@@ -17,7 +17,7 @@
 
 ### This Guide Covers:
 1. ✅ **Before Phase 3** - Preparation checklist
-2. ✅ **During Phase 3** - Building 18 parts (170+ files)
+2. ✅ **During Phase 3** - Building 19 build sessions (274 files: 170 core + 67 affiliate + 37 dLocal)
 3. ✅ **Before Phase 3.5** - Testing preparation
 4. ✅ **During Phase 3.5** - Setting up automated tests
 5. ✅ **Before Phase 4** - Deployment preparation
@@ -50,7 +50,9 @@ ls docs/policies/
 
 # 4. Verify all build-order files exist
 ls docs/build-orders/
-# Expected: See part-01-foundation.md through part-18-dlocal.md
+# Expected: See part-01-foundation.md through part-16-utilities.md,
+#           part-17a-affiliate-portal.md, part-17b-admin-automation.md, part-18-dlocal.md
+#           (19 build order files total)
 
 # 5. Verify Aider configuration exists
 ls .aider.conf.yml
@@ -106,15 +108,15 @@ Before starting, quickly skim these:
 
 ## 🚀 SECTION 2: DURING PHASE 3 (Building Code)
 
-**Goal:** Build all 18 parts (170+ files)
-**Time:** 20-25 hours (mostly Aider working autonomously)
-**Your Active Time:** 2-3 hours (part transitions + verifications)
+**Goal:** Build all 19 build sessions (274 files: 170 core + 67 affiliate + 37 dLocal)
+**Time:** 60 hours (mostly Aider working autonomously)
+**Your Active Time:** 8-10 hours (build session transitions + verifications)
 
 ---
 
-### 🔄 THE STANDARD WORKFLOW (Repeat for Each Part)
+### 🔄 THE STANDARD WORKFLOW (Repeat for Each Build Session)
 
-**You'll do this 18 times (once per part):**
+**You'll do this 19 times (once per build session - Parts 1-16, 17A, 17B, 18):**
 
 #### Step 1: Start Aider (if not running)
 
@@ -463,11 +465,11 @@ npx tsc --noEmit
 
 ---
 
-#### 🟡 RECOMMENDED #6: Part 17 Pre-Check
+#### 🟡 RECOMMENDED #6: Part 17A Pre-Check
 **Duration:** 2 minutes
-**Required:** ⚠️ BEFORE starting Part 17
+**Required:** ⚠️ BEFORE starting Part 17A (Affiliate Portal)
 
-**Why:** Ensure clean state before largest part (67 files)
+**Why:** Ensure clean state before affiliate system (67 files total across 17A + 17B)
 
 ```bash
 # Verify current state
@@ -476,15 +478,15 @@ pnpm build        # Should succeed
 git status        # Should be clean
 ```
 
-**✅ All OK?** → Start Part 17 Session 1
+**✅ All OK?** → Start Part 17A (Affiliate Portal - 32 files)
 
-**Note:** Part 17 has 4 sessions (split due to size)
+**Note:** Part 17 is split into 17A and 17B for token safety. Build 17A first, then 17B.
 
 ---
 
-#### 🔴 CRITICAL #7: After Part 17 Complete
-**Duration:** 5 minutes
-**Required:** ✅ MANDATORY (After all 4 sessions of Part 17)
+#### 🟡 RECOMMENDED #7: After Part 17A Complete
+**Duration:** 3 minutes
+**Required:** ⚠️ Strongly Advised (After Part 17A - Affiliate Portal)
 
 ```bash
 # 1. TypeScript check
@@ -495,24 +497,42 @@ pnpm build
 
 # 3. Database check
 npx prisma studio
-# Verify affiliate tables exist
+# Verify Affiliate, AffiliateCode, Commission tables exist
 # Press Ctrl+C to stop
+```
 
-# 4. Manual test
+**✅ All passed?** → Continue to Part 17B
+**❌ Any failed?** → Fix Part 17A before proceeding
+
+---
+
+#### 🔴 CRITICAL #8: After Part 17B Complete
+**Duration:** 5 minutes
+**Required:** ✅ MANDATORY (After Part 17B - Admin Portal & Automation)
+
+```bash
+# 1. TypeScript check
+npx tsc --noEmit
+
+# 2. Build check
+pnpm build
+
+# 3. Manual test
 pnpm dev
-# Navigate to /affiliate in browser
-# Should load affiliate dashboard
+# Navigate to /affiliate in browser (affiliate portal)
+# Navigate to /admin/affiliates in browser (admin portal)
+# Both should load correctly
 # Press Ctrl+C to stop
 ```
 
 **✅ All passed?** → Continue to Part 18
-**❌ Any failed?** → Fix Part 17 before proceeding
+**❌ Any failed?** → Fix Part 17B before proceeding
 
 ---
 
-#### 🟡 RECOMMENDED #8: Part 18 Pre-Check
+#### 🟡 RECOMMENDED #9: Part 18 Pre-Check
 **Duration:** 2 minutes
-**Required:** ⚠️ BEFORE starting Part 18
+**Required:** ⚠️ BEFORE starting Part 18 (dLocal Payment Integration)
 
 ```bash
 npx tsc --noEmit
@@ -520,15 +540,15 @@ pnpm build
 git status
 ```
 
-**✅ All OK?** → Start Part 18 Session 1
+**✅ All OK?** → Start Part 18 (37 files - dLocal Integration)
 
-**Note:** Part 18 has 4 sessions (split due to size)
+**Note:** Part 18 has 37 files for emerging market payment integration
 
 ---
 
-#### 🔴 CRITICAL #9: Final System Verification
+#### 🔴 CRITICAL #10: Final System Verification
 **Duration:** 10-15 minutes
-**Required:** ✅ MANDATORY (After Part 18 complete - ALL 18 parts done!)
+**Required:** ✅ MANDATORY (After Part 18 complete - ALL 19 build sessions done!)
 
 ```bash
 # 1. TypeScript check
@@ -574,7 +594,7 @@ pnpm dev
 
 ---
 
-### 📋 QUICK REFERENCE: PART-BY-PART MAPPING
+### 📋 QUICK REFERENCE: BUILD SESSION MAPPING
 
 | Part | Files | Build Order File | Implementation Guide | Verification |
 |------|-------|------------------|---------------------|--------------|
@@ -594,8 +614,11 @@ pnpm dev
 | 14 | varies | part-14-admin.md | v5_part_n.md | 🟢 Optional |
 | 15 | varies | part-15-notifications.md | v5_part_o.md | 🟡 Recommended |
 | 16 | varies | part-16-utilities.md | v5_part_p.md | 🟢 Optional |
-| 17 | 67 | part-17-affiliate.md | v5_part_r.md | 🔴 Critical |
-| 18 | 45 | part-18-dlocal.md | v5_part_s.md | 🔴 Critical |
+| **17A** | **32** | **part-17a-affiliate-portal.md** | **v5_part_q.md** | **🟡 Recommended** |
+| **17B** | **35** | **part-17b-admin-automation.md** | **v5_part_q.md** | **🔴 Critical** |
+| **18** | **37** | **part-18-dlocal.md** | **v5_part_r.md** | **🔴 Critical** |
+
+**Note:** Part 17 split into 17A (Affiliate Portal - 32 files) and 17B (Admin & Automation - 35 files) for token safety. Both use v5_part_q.md. Part 18 corrected to 37 files (not 45).
 
 ---
 
@@ -603,7 +626,7 @@ pnpm dev
 
 **Goal:** Prepare for testing framework setup
 **Time:** 5 minutes
-**Prerequisites:** Phase 3 complete (all 18 parts built) ✅
+**Prerequisites:** Phase 3 complete (all 19 build sessions complete - 274 files built) ✅
 
 ### ☑️ CHECKLIST 3.1: Verify Phase 3 Completion
 
@@ -1617,7 +1640,7 @@ vercel link
 
 ### What You've Accomplished:
 
-✅ **Phase 3:** Built 170+ files with Aider autonomously
+✅ **Phase 3:** Built 274 files in 19 build sessions with Aider autonomously (170 core + 67 affiliate + 37 dLocal)
 ✅ **Phase 3.5:** Set up comprehensive testing and CI/CD
 ✅ **Phase 4:** Deployed to production with automated gates
 
