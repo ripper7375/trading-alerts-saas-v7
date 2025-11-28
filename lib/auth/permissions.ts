@@ -94,6 +94,34 @@ export async function hasPermission(
         requiredTier: userTier,
       };
 
+    case 'affiliate_dashboard':
+      const isAffiliateUser = session.user.isAffiliate;
+      return {
+        canAccess: isAffiliateUser,
+        reason: isAffiliateUser
+          ? undefined
+          : 'Affiliate status required. Apply to become an affiliate.',
+        requiredRole: 'USER',
+      };
+
+    case 'affiliate_codes':
+      return {
+        canAccess: session.user.isAffiliate,
+        reason: session.user.isAffiliate
+          ? undefined
+          : 'Affiliate status required to access codes',
+        requiredRole: 'USER',
+      };
+
+    case 'commission_reports':
+      return {
+        canAccess: session.user.isAffiliate,
+        reason: session.user.isAffiliate
+          ? undefined
+          : 'Affiliate status required to view commissions',
+        requiredRole: 'USER',
+      };
+
     default:
       return {
         canAccess: true,

@@ -139,3 +139,50 @@ export async function getSessionOrRedirect(
 
   return session;
 }
+
+/**
+ * Check if current user is an affiliate
+ */
+export async function isAffiliate(): Promise<boolean> {
+  const session = await getSession();
+  return session?.user?.isAffiliate ?? false;
+}
+
+/**
+ * Check if current user has affiliate access
+ * Throws error if not an affiliate
+ */
+export async function requireAffiliate(): Promise<Session> {
+  const session = await requireAuth();
+
+  if (!session.user.isAffiliate) {
+    throw new AuthError(
+      'Affiliate status required to access this resource',
+      'FORBIDDEN',
+      403
+    );
+  }
+
+  return session;
+}
+
+/**
+ * Get user's affiliate profile (if exists)
+ * Returns null if user is not an affiliate or profile doesn't exist
+ */
+export async function getAffiliateProfile() {
+  const session = await getSession();
+
+  if (!session?.user?.id || !session.user.isAffiliate) {
+    return null;
+  }
+
+  // Import prisma only when needed
+  const { prisma } = await import('@/lib/db/prisma');
+
+  const profile = await prisma.affiliateProfile.findUnique({
+    where: { userId: session.user.id },
+  });
+
+  return profile;
+}

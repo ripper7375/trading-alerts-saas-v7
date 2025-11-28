@@ -57,6 +57,7 @@ export const authOptions: NextAuthOptions = {
           image: user.image,
           tier: user.tier,
           role: user.role,
+          isAffiliate: user.isAffiliate,
         };
       },
     }),
@@ -137,6 +138,7 @@ export const authOptions: NextAuthOptions = {
                 tier: 'FREE',
                 role: 'USER',
                 isActive: true,
+                isAffiliate: false, // New users start as non-affiliates
                 accounts: {
                   create: {
                     type: _account.type,
@@ -170,14 +172,18 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.tier = user.tier;
         token.role = user.role;
+        token.isAffiliate = user.isAffiliate;
         token['image'] = user.image;
       }
 
-      // Handle session update (e.g., tier change)
+      // Handle session update (e.g., tier change, affiliate status change)
       if (trigger === 'update' && session) {
         if (session.tier) token.tier = session.tier;
         if (session.name) token.name = session.name;
         if (session.image) token['image'] = session.image;
+        if (typeof session.isAffiliate === 'boolean') {
+          token.isAffiliate = session.isAffiliate;
+        }
       }
 
       return token;
@@ -186,8 +192,9 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.tier = token.tier as string;
-        session.user.role = token.role as string;
+        session.user.tier = token.tier as 'FREE' | 'PRO';
+        session.user.role = token.role as 'USER' | 'ADMIN';
+        session.user.isAffiliate = token.isAffiliate as boolean;
         session.user.image = token['image'] as string | undefined;
       }
       return session;

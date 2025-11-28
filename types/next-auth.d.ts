@@ -5,22 +5,25 @@ declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
-      tier: string;
-      role: string;
+      tier: 'FREE' | 'PRO';
+      role: 'USER' | 'ADMIN';
+      isAffiliate: boolean;
       image?: string;
     } & DefaultSession['user'];
   }
 
   interface User extends DefaultUser {
-    tier: string;
-    role: string;
+    tier: 'FREE' | 'PRO';
+    role: 'USER' | 'ADMIN';
+    isAffiliate: boolean;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT extends DefaultJWT {
     id: string;
-    tier: string;
-    role: string;
+    tier: 'FREE' | 'PRO';
+    role: 'USER' | 'ADMIN';
+    isAffiliate: boolean;
   }
 }

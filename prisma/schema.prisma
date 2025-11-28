@@ -33,6 +33,33 @@ enum TrialStatus {
   CANCELLED
 }
 
+enum AffiliateStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  SUSPENDED
+  INACTIVE
+}
+
+enum CodeStatus {
+  ACTIVE
+  USED
+  EXPIRED
+  CANCELLED
+}
+
+enum DistributionReason {
+  INITIAL
+  MONTHLY
+  ADMIN_BONUS
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // MODELS
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -47,6 +74,9 @@ model User {
   tier          UserTier @default(FREE)
   role          String   @default("USER")
   isActive      Boolean  @default(true)
+
+  // Affiliate System (Unified Auth)
+  isAffiliate   Boolean  @default(false)  // Can be both SaaS user AND affiliate
 
   // General Trial Period Management (7-day PRO trial)
   trialStatus       TrialStatus  @default(NOT_STARTED)
@@ -75,7 +105,8 @@ model User {
   subscription      Subscription?
   payments          Payment[]
   fraudAlerts       FraudAlert[]
-  
+  affiliateProfile  AffiliateProfile?  // Nullable - only if isAffiliate = true
+
   sessions          Session[]
   
   createdAt         DateTime @default(now())
@@ -83,6 +114,7 @@ model User {
 
   @@index([email])
   @@index([tier])
+  @@index([isAffiliate])
   @@index([trialStatus])
   @@index([trialEndDate])
 }
@@ -128,7 +160,10 @@ model Subscription {
   id        String   @id @default(cuid())
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
+  // Affiliate tracking
+  affiliateCodeId    String?  // Track which affiliate code was used (nullable)
+
   // Stripe fields (nullable for dLocal subscriptions)
   stripeCustomerId       String?  @unique
   stripeSubscriptionId   String?  @unique
@@ -156,6 +191,7 @@ model Subscription {
   @@index([userId])
   @@index([status])
   @@index([expiresAt])
+  @@index([affiliateCodeId])
 }
 
 model Alert {
@@ -283,4 +319,129 @@ model FraudAlert {
   @@index([alertType])
   @@index([severity])
   @@index([detectedAt])
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// AFFILIATE MARKETING SYSTEM (Unified Auth)
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+model AffiliateProfile {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Affiliate Info
+  fullName          String
+  country           String
+
+  // Social Media (optional)
+  facebookUrl       String?
+  instagramUrl      String?
+  twitterUrl        String?
+  youtubeUrl        String?
+  tiktokUrl         String?
+
+  // Payment Preferences
+  paymentMethod     String   // 'BANK_TRANSFER', 'CRYPTO_USDT', 'PAYPAL', 'LOCAL_WALLET'
+  paymentDetails    Json     // Flexible field for payment info
+
+  // Stats
+  totalCodesDistributed  Int      @default(0)
+  totalCodesUsed         Int      @default(0)
+  totalEarnings          Decimal  @default(0)
+  pendingCommissions     Decimal  @default(0)
+  paidCommissions        Decimal  @default(0)
+
+  // Status
+  status            AffiliateStatus   @default(PENDING_VERIFICATION)
+  verifiedAt        DateTime?
+  suspendedAt       DateTime?
+  suspensionReason  String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relationships
+  affiliateCodes    AffiliateCode[]
+  commissions       Commission[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([country])
+}
+
+model AffiliateCode {
+  id               String   @id @default(cuid())
+  code             String   @unique
+
+  // Ownership
+  affiliateProfileId String
+  affiliateProfile   AffiliateProfile @relation(fields: [affiliateProfileId], references: [id], onDelete: Cascade)
+
+  // Configuration
+  discountPercent  Int      // 0-50%
+  commissionPercent Int     // 0-50%
+
+  // Lifecycle
+  status           CodeStatus   @default(ACTIVE)
+  distributedAt    DateTime     @default(now())
+  expiresAt        DateTime
+  usedAt           DateTime?
+  cancelledAt      DateTime?
+  distributionReason DistributionReason @default(MONTHLY)
+
+  // Usage tracking
+  usedBy           String?  // userId (if redeemed)
+  subscriptionId   String?  // subscription created from this code
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  commissions      Commission[]
+
+  @@index([affiliateProfileId])
+  @@index([status])
+  @@index([expiresAt])
+  @@index([code])
+}
+
+model Commission {
+  id                 String   @id @default(cuid())
+
+  // Ownership
+  affiliateProfileId String
+  affiliateProfile   AffiliateProfile @relation(fields: [affiliateProfileId], references: [id], onDelete: Cascade)
+
+  affiliateCodeId    String
+  affiliateCode      AffiliateCode @relation(fields: [affiliateCodeId], references: [id])
+
+  // Transaction
+  userId             String   // SaaS user who upgraded
+  subscriptionId     String?  // Subscription created
+
+  // Amounts
+  grossRevenue       Decimal  // Full subscription amount
+  discountAmount     Decimal  // Discount given to user
+  netRevenue         Decimal  // After discount
+  commissionAmount   Decimal  // Affiliate earns this
+
+  // Status
+  status             CommissionStatus @default(PENDING)
+  earnedAt           DateTime @default(now())
+  approvedAt         DateTime?
+  paidAt             DateTime?
+  cancelledAt        DateTime?
+
+  // Payment tracking
+  paymentBatchId     String?
+  paymentMethod      String?
+  paymentReference   String?
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([affiliateProfileId])
+  @@index([status])
+  @@index([earnedAt])
+  @@index([paidAt])
 }
