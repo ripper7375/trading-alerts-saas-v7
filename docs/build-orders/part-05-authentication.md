@@ -48,13 +48,15 @@ Build these files **in sequence**:
 
 **File 1/19:** `types/next-auth.d.ts`
 
-**Purpose:** Extend NextAuth types to include tier and auth method
+**Purpose:** Extend NextAuth types to include tier, role, and affiliate status
 
 **Build Steps:**
 1. Create TypeScript declaration file
-2. Extend Session interface to include tier
-3. Extend JWT interface to include tier and authMethod
-4. Commit: `feat(auth): extend NextAuth types for tier support`
+2. Extend Session interface to include tier, role, and isAffiliate
+3. Extend User interface to include tier, role, and isAffiliate
+4. Extend JWT interface to include tier, role, authMethod, and isAffiliate
+5. **Note:** isAffiliate supports unified authentication (SaaS user + affiliate dual roles)
+6. Commit: `feat(auth): extend NextAuth types for tier and affiliate support`
 
 ---
 
@@ -82,35 +84,46 @@ Build these files **in sequence**:
 1. Configure Google OAuth provider
 2. Configure Credentials provider (email/password)
 3. Add JWT session strategy
-4. Include tier in session callbacks
-5. Implement verified-only account linking
-6. Add sign-in callback with tier validation
-7. Commit: `feat(auth): configure NextAuth with Google OAuth`
+4. Include tier, role, and isAffiliate in JWT callback
+5. Include tier, role, and isAffiliate in session callback
+6. **Note:** Use type casts for Prisma enums (tier as 'FREE'|'PRO', role as 'USER'|'ADMIN')
+7. Implement verified-only account linking
+8. Add sign-in callback with tier validation
+9. Commit: `feat(auth): configure NextAuth with Google OAuth and affiliate support`
 
 ---
 
 **File 4/19:** `lib/auth/session.ts`
 
-**Purpose:** Session helper functions
+**Purpose:** Session helper functions including affiliate support
 
 **Build Steps:**
-1. getServerSession wrapper
-2. requireAuth() helper
-3. getUserSession() helper
-4. getUserTier() helper
-5. Commit: `feat(auth): add session helper functions`
+1. getServerSession wrapper (getSession)
+2. requireAuth() helper - throws AuthError if no session
+3. getUserSession() helper - returns session or null
+4. getUserTier() helper - returns user tier
+5. **isAffiliate()** helper - returns true if user is affiliate
+6. **requireAffiliate()** helper - throws AuthError if user is not affiliate
+7. **getAffiliateProfile()** helper - fetches AffiliateProfile for affiliate users
+8. **Note:** Affiliate helpers support unified auth (single session for dual roles)
+9. Commit: `feat(auth): add session and affiliate helper functions`
 
 ---
 
 **File 5/19:** `lib/auth/permissions.ts`
 
-**Purpose:** Tier-based permission checking
+**Purpose:** Tier-based and affiliate permission checking
 
 **Build Steps:**
-1. hasPermission(user, feature) function
-2. requirePro() middleware
-3. checkFeatureAccess() helper
-4. Commit: `feat(auth): add tier-based permissions`
+1. hasPermission(user, feature) function - checks tier-based permissions
+2. requirePro() middleware - enforces PRO tier
+3. checkFeatureAccess() helper - validates feature access
+4. **Add affiliate permissions:**
+   - 'affiliate_dashboard' - requires session.user.isAffiliate === true
+   - 'affiliate_codes' - requires affiliate status
+   - 'commission_reports' - requires affiliate status
+5. **Note:** Affiliate permissions check isAffiliate flag (unified auth)
+6. Commit: `feat(auth): add tier-based and affiliate permissions`
 
 ---
 
@@ -356,7 +369,10 @@ Build these files **in sequence**:
 - ✅ Google OAuth sign-in works
 - ✅ Email verification works
 - ✅ Password reset works
-- ✅ Tier included in session
+- ✅ Tier, role, and isAffiliate included in session
+- ✅ Affiliate helpers (isAffiliate, requireAffiliate, getAffiliateProfile) work correctly
+- ✅ Affiliate permissions (affiliate_dashboard, affiliate_codes, commission_reports) enforced
+- ✅ Unified authentication supports dual roles (SaaS user + affiliate)
 - ✅ Verified-only account linking enforced
 - ✅ All auth pages render correctly
 - ✅ PROGRESS.md updated

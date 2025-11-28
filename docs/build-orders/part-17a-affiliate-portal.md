@@ -21,7 +21,7 @@
 **Key Features:**
 
 - Self-service affiliate registration
-- Separate affiliate authentication system
+- Unified authentication (single session for SaaS user + affiliate roles)
 - Monthly code distribution (15 codes/affiliate)
 - Commission tracking ($5 per PRO upgrade)
 - Accounting-style reports
@@ -29,7 +29,8 @@
 
 **Dependencies:**
 
-- Part 2 complete (Prisma schema updates for Affiliate, AffiliateCode, Commission models)
+- Part 2 complete (Prisma schema updates for User.isAffiliate, AffiliateProfile, AffiliateCode, Commission models)
+- Part 5 complete (Unified authentication with affiliate support via session.user.isAffiliate)
 - Part 12 complete (Stripe integration for commission tracking)
 
 **Next Part:** Part 17B (Admin Portal + Automation) - Phases E-H
@@ -40,38 +41,39 @@
 
 ### Phase A: Foundation (10 files, ~6 hours)
 
-**File 1/32:** `prisma/schema.prisma` (UPDATE EXISTING)
+**File 1/32:** `prisma/schema.prisma` (ALREADY UPDATED - VERIFY ONLY)
 
-- Add Affiliate model (email, password, fullName, country, paymentMethod, status, etc.)
-- Add AffiliateCode model (code, affiliateId, status, distributedAt, expiresAt, usedAt, etc.)
-- Add Commission model (affiliateId, affiliateCodeId, userId, amount, status, earnedAt, paidAt, etc.)
-- Add enums: AffiliateStatus, CodeStatus, DistributionReason, PaymentMethod, CommissionStatus
-- Update Subscription model: add affiliateCodeId field
+- **Note:** Schema already updated with unified auth approach
+- User model has: isAffiliate Boolean field (default false)
+- AffiliateProfile model (1-to-1 with User via userId): fullName, country, paymentMethod, status, etc.
+- AffiliateCode model: code, affiliateProfileId, status, distributedAt, expiresAt, usedAt, etc.
+- Commission model: affiliateProfileId, affiliateCodeId, userId, amount, status, earnedAt, paidAt, etc.
+- Enums: AffiliateStatus, CodeStatus, DistributionReason, PaymentMethod, CommissionStatus
+- Subscription model: has affiliateCodeId field
+- **Action:** Verify schema matches unified auth design (no separate Affiliate model)
 - Pattern: See v5_part_q.md Section 13 (Database Schema)
-- Commit: `feat(affiliate): add database models for affiliate system`
+- Commit: `chore(affiliate): verify schema for unified auth` (no changes expected)
 
 **File 2/32:** `prisma/migrations/YYYYMMDD_add_affiliate_models.sql`
 
-- Migration for affiliate tables
+- Migration for affiliate tables (if not already created)
 - Dependencies: File 1
 - Run: `npx prisma migrate dev --name add_affiliate_models`
 - Commit: (included in File 1 commit)
 
-**File 3/32:** `lib/auth/affiliate-auth.ts`
+**File 3/32:** ~~`lib/auth/affiliate-auth.ts`~~ **REMOVED - NOT NEEDED WITH UNIFIED AUTH**
 
-- Create affiliate JWT functions (separate from user auth)
-- Use AFFILIATE_JWT_SECRET environment variable
-- Functions: createAffiliateToken(), verifyAffiliateToken(), getAffiliateFromToken()
-- JWT payload includes type: 'AFFILIATE' discriminator
-- Pattern: Pattern 7 from 06-aider-instructions.md Section 12.2
-- Dependencies: File 1-2
-- Commit: `feat(affiliate): add separate authentication system`
+- **Note:** With unified authentication, affiliates use the same NextAuth session as SaaS users
+- **Instead:** Use `session.user.isAffiliate` to check affiliate status
+- **Authentication:** Handled by existing `lib/auth/session.ts` helpers (requireAuth, requireAffiliate, getAffiliateProfile)
+- **No separate JWT needed** - single session for dual roles (SaaS user + affiliate)
+- **Pattern:** Use existing NextAuth session from Part 5
 
 **File 4/32:** `lib/affiliate/code-generator.ts`
 
 - Generate crypto-secure affiliate codes
 - Function: generateUniqueCode() using crypto.randomBytes()
-- Function: distributeCodes(affiliateId, count, reason)
+- Function: distributeCodes(affiliateProfileId, count, reason)
 - Code format: 8 characters, alphanumeric uppercase
 - Pattern: Pattern 8 from 06-aider-instructions.md Section 12.2
 - Dependencies: File 1-2
@@ -89,8 +91,8 @@
 **File 6/32:** `lib/affiliate/report-builder.ts`
 
 - Build accounting-style reports
-- Functions: buildCodeInventoryReport(affiliateId, period)
-- Functions: buildCommissionReport(affiliateId, period)
+- Functions: buildCodeInventoryReport(affiliateProfileId, period)
+- Functions: buildCommissionReport(affiliateProfileId, period)
 - Reconciliation logic (opening + additions - reductions = closing)
 - Pattern: Pattern 10 from 06-aider-instructions.md Section 12.2
 - Dependencies: File 1-2
@@ -131,10 +133,12 @@
 
 **File 11/32:** `app/api/affiliate/auth/register/route.ts`
 
-- POST: Create new affiliate account
-- Body: { email, password, fullName, country, paymentMethod, paymentDetails, terms }
-- Validation: email unique, password strength, required fields
-- Action: Create affiliate with PENDING_VERIFICATION status, send verification email
+- POST: Create affiliate account for existing authenticated user
+- **Auth:** Require NextAuth session (user must be logged in)
+- Body: { fullName, country, paymentMethod, paymentDetails, terms }
+- **Note:** Email/password not needed - user already authenticated via NextAuth
+- Validation: User not already affiliate (session.user.isAffiliate === false), required fields
+- Action: Set User.isAffiliate = true, create AffiliateProfile with PENDING_VERIFICATION status, send verification email
 - Pattern: Pattern 1 (Next.js 15 App Router) from 05-coding-patterns.md
 - Dependencies: Files 1-4
 - Commit: `feat(api): add affiliate registration endpoint`
@@ -142,76 +146,73 @@
 **File 12/32:** `app/api/affiliate/auth/verify-email/route.ts`
 
 - POST: Verify email and activate affiliate
+- **Auth:** Require NextAuth session
 - Body: { token }
-- Action: Mark affiliate as ACTIVE, distribute 15 initial codes, send welcome email
+- Action: Mark AffiliateProfile.status as ACTIVE, distribute 15 initial codes, send welcome email
 - Dependencies: Files 1-4, 8
 - Commit: `feat(api): add affiliate email verification endpoint`
 
-**File 13/32:** `app/api/affiliate/auth/login/route.ts`
+**File 13/32:** ~~`app/api/affiliate/auth/login/route.ts`~~ **REMOVED - USE NEXTAUTH**
 
-- POST: Affiliate login
-- Body: { email, password }
-- Return: JWT token (using AFFILIATE_JWT_SECRET)
-- Pattern: Pattern 7 from 06-aider-instructions.md
-- Dependencies: File 3
-- Commit: `feat(api): add affiliate login endpoint`
+- **Note:** Affiliates login via existing `/api/auth/signin` (NextAuth)
+- **No separate affiliate login needed** - single authentication system
+- **Pattern:** Use NextAuth signIn from Part 5
 
-**File 14/32:** `app/api/affiliate/auth/logout/route.ts`
+**File 14/32:** ~~`app/api/affiliate/auth/logout/route.ts`~~ **REMOVED - USE NEXTAUTH**
 
-- POST: Affiliate logout (invalidate token client-side)
-- Return: success message
-- Dependencies: File 3
-- Commit: `feat(api): add affiliate logout endpoint`
+- **Note:** Affiliates logout via existing `/api/auth/signout` (NextAuth)
+- **No separate affiliate logout needed** - single authentication system
+- **Pattern:** Use NextAuth signOut from Part 5
 
 **File 15/32:** `app/api/affiliate/dashboard/stats/route.ts`
 
 - GET: Dashboard quick stats
-- Auth: Require affiliate JWT
+- **Auth:** Require NextAuth session with affiliate status (use `requireAffiliate()` helper)
 - Return: { totalCodesDistributed, activeCodesCount, usedCodesCount, totalEarnings, pendingCommissions, paidCommissions, currentMonthEarnings, conversionRate }
-- Dependencies: Files 1-3
+- Dependencies: Files 1-2, Part 5 (auth helpers)
 - Commit: `feat(api): add affiliate dashboard stats endpoint`
 
 **File 16/32:** `app/api/affiliate/dashboard/codes/route.ts`
 
 - GET: List affiliate codes (paginated)
-- Auth: Require affiliate JWT
+- **Auth:** Require NextAuth session with affiliate status (use `requireAffiliate()` helper)
 - Query params: status, page, limit
 - Return: codes array with status, distributed date, expiry, usage
-- Dependencies: Files 1-3
+- Dependencies: Files 1-2, Part 5 (auth helpers)
 - Commit: `feat(api): add affiliate codes list endpoint`
 
 **File 17/32:** `app/api/affiliate/dashboard/code-inventory/route.ts`
 
 - GET: Code inventory report (accounting-style)
-- Auth: Require affiliate JWT
+- **Auth:** Require NextAuth session with affiliate status (use `requireAffiliate()` helper)
 - Query params: period (month/year)
 - Return: { openingBalance, additions, reductions, closingBalance }
-- Dependencies: Files 1-3, 6
+- Dependencies: Files 1-2, 6, Part 5 (auth helpers)
 - Commit: `feat(api): add code inventory report endpoint`
 
 **File 18/32:** `app/api/affiliate/dashboard/commission-report/route.ts`
 
 - GET: Commission report (accounting-style)
-- Auth: Require affiliate JWT
+- **Auth:** Require NextAuth session with affiliate status (use `requireAffiliate()` helper)
 - Query params: period (month/year)
 - Return: { openingBalance, earned, payments, closingBalance }
-- Dependencies: Files 1-3, 6
+- Dependencies: Files 1-2, 6, Part 5 (auth helpers)
 - Commit: `feat(api): add commission report endpoint`
 
 **File 19/32:** `app/api/affiliate/profile/route.ts`
 
 - GET: Get affiliate profile
 - PATCH: Update affiliate profile (name, country)
-- Auth: Require affiliate JWT
-- Dependencies: Files 1-3
+- **Auth:** Require NextAuth session with affiliate status (use `requireAffiliate()` helper)
+- Dependencies: Files 1-2, Part 5 (auth helpers)
 - Commit: `feat(api): add affiliate profile endpoints`
 
 **File 20/32:** `app/api/affiliate/profile/payment/route.ts`
 
 - PUT: Update payment method and details
-- Auth: Require affiliate JWT
+- **Auth:** Require NextAuth session with affiliate status (use `requireAffiliate()` helper)
 - Body: { paymentMethod, paymentDetails }
-- Dependencies: Files 1-3
+- Dependencies: Files 1-2, Part 5 (auth helpers)
 - Commit: `feat(api): add affiliate payment method update endpoint`
 
 **File 21/32:** `app/api/checkout/validate-code/route.ts` (NEW)
@@ -231,7 +232,7 @@
 
 - Add: affiliateCode parameter (optional)
 - Validate code if provided (call validateCode)
-- Include affiliateCodeId and affiliateId in Stripe metadata
+- Include affiliateCodeId and affiliateProfileId in Stripe metadata
 - Apply discount when code valid (10% off: $29 → $26.10)
 - Dependencies: Files 1, 7, 21
 - Commit: `feat(checkout): integrate affiliate code discount`
@@ -239,10 +240,10 @@
 **File 23/32:** `app/api/webhooks/stripe/route.ts` (UPDATE EXISTING)
 
 - Update: checkout.session.completed handler
-- Check if session.metadata includes affiliateCodeId and affiliateId
-- Create Commission record ($5 fixed)
+- Check if session.metadata includes affiliateCodeId and affiliateProfileId
+- Create Commission record ($5 fixed, linked to affiliateProfileId)
 - Mark AffiliateCode as USED
-- Update affiliate totalEarnings and codesUsed
+- Update AffiliateProfile totalEarnings and codesUsed
 - Send code-used email notification
 - Pattern: Pattern 9 from 06-aider-instructions.md (Commission creation ONLY via webhook)
 - Dependencies: Files 1, 5, 10
@@ -254,41 +255,40 @@
 
 **File 24/32:** `app/affiliate/layout.tsx`
 
-- Affiliate-specific layout (separate from user dashboard)
+- Affiliate-specific layout (extends user dashboard with affiliate sections)
+- **Auth:** Check session.user.isAffiliate (redirect if false)
 - Sidebar navigation: Dashboard, Codes, Commissions, Profile
-- Header with affiliate name and logout button
+- Header with affiliate name and NextAuth signOut button
 - Seed: `seed-code/v0-components/dashboard/settings-layout.tsx` (adapt for affiliate)
-- Dependencies: Files 3, 13
+- Dependencies: Part 5 (NextAuth session)
 - Commit: `feat(affiliate): add affiliate portal layout`
 
 **File 25/32:** `app/affiliate/register/page.tsx`
 
-- Registration page
-- Form: email, password, fullName, country, paymentMethod, paymentDetails, terms checkbox
+- Affiliate registration page for existing authenticated users
+- **Auth:** Require NextAuth session (user must be logged in first)
+- **Note:** No email/password fields - user already authenticated
+- Form: fullName, country, paymentMethod, paymentDetails, terms checkbox
 - Submit to POST /api/affiliate/auth/register
 - Seed: `seed-code/v0-components/dashboard/profile-settings.tsx` (adapt for registration)
-- Dependencies: File 11
+- Dependencies: File 11, Part 5 (NextAuth session)
 - Commit: `feat(affiliate): add registration page`
 
 **File 26/32:** `app/affiliate/verify/page.tsx`
 
 - Email verification page
+- **Auth:** Require NextAuth session
 - Extracts token from URL query (?token=xxx)
 - Calls POST /api/affiliate/auth/verify-email
 - Shows success/error message
-- Dependencies: File 12
+- Dependencies: File 12, Part 5 (NextAuth session)
 - Commit: `feat(affiliate): add email verification page`
 
-**File 27/32:** `app/affiliate/login/page.tsx`
+**File 27/32:** ~~`app/affiliate/login/page.tsx`~~ **REMOVED - USE NEXTAUTH LOGIN**
 
-- Login page
-- Form: email, password
-- Submit to POST /api/affiliate/auth/login
-- Store JWT in localStorage/cookie
-- Redirect to /affiliate/dashboard
-- Seed: `seed-code/saas-starter/app/(login)/page.tsx` (adapt for affiliate)
-- Dependencies: File 13
-- Commit: `feat(affiliate): add login page`
+- **Note:** Affiliates login via existing `/login` page (NextAuth)
+- **No separate affiliate login page needed** - single authentication system
+- **Pattern:** After NextAuth login, user can navigate to `/affiliate/register` to become an affiliate
 
 **File 28/32:** `app/affiliate/dashboard/page.tsx`
 
@@ -342,7 +342,7 @@ Add to `.env.example` and `.env.local`:
 
 ```bash
 # Affiliate System
-AFFILIATE_JWT_SECRET=your_affiliate_jwt_secret_here_different_from_user_jwt
+# Note: No AFFILIATE_JWT_SECRET needed - using unified NextAuth session
 AFFILIATE_COMMISSION_AMOUNT=5.00
 AFFILIATE_MINIMUM_PAYOUT=50.00
 AFFILIATE_CODES_PER_MONTH=15
@@ -352,13 +352,15 @@ AFFILIATE_CODES_PER_MONTH=15
 
 ## Success Criteria
 
-- ✅ All 32 files created
-- ✅ Affiliate registration and email verification works
-- ✅ Separate authentication system works (AFFILIATE_JWT_SECRET)
+- ✅ All required files created (some removed due to unified auth)
+- ✅ Affiliate registration for authenticated users works
+- ✅ Email verification activates affiliate status
+- ✅ Unified authentication works (single NextAuth session for SaaS + affiliate roles)
 - ✅ Code generation is crypto-secure (crypto.randomBytes)
 - ✅ Commission creation works ONLY via Stripe webhook
 - ✅ Accounting reports reconcile correctly (opening + earned - paid = closing)
 - ✅ User checkout flow accepts affiliate codes and applies discount
+- ✅ session.user.isAffiliate correctly reflects affiliate status
 
 ---
 
@@ -366,9 +368,11 @@ AFFILIATE_CODES_PER_MONTH=15
 
 **Affiliate Portal:**
 
-- [ ] Registration creates affiliate with PENDING_VERIFICATION
+- [ ] User must be logged in via NextAuth before affiliate registration
+- [ ] Registration sets User.isAffiliate = true and creates AffiliateProfile with PENDING_VERIFICATION
 - [ ] Email verification activates and distributes 15 codes
-- [ ] Login returns correct JWT
+- [ ] NextAuth session includes isAffiliate: true after activation
+- [ ] requireAffiliate() helper correctly enforces affiliate status
 - [ ] Dashboard stats display correctly
 - [ ] Code inventory report reconciles
 - [ ] Commission report reconciles
