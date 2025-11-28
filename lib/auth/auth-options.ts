@@ -26,7 +26,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Missing credentials');
+          return null;
         }
 
         const user = await prisma.user.findUnique({
@@ -34,7 +34,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user.password) {
-          throw new Error('Invalid credentials');
+          return null;
         }
 
         const isPasswordValid = await bcrypt.compare(
@@ -43,20 +43,21 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isPasswordValid) {
-          throw new Error('Invalid credentials');
+          return null;
         }
 
         if (!user.isActive) {
-          throw new Error('Account is inactive');
+          return null;
         }
 
+        // Return user with properly typed fields
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           image: user.image,
-          tier: user.tier,
-          role: user.role,
+          tier: user.tier as 'FREE' | 'PRO',
+          role: user.role as 'USER' | 'ADMIN',
           isAffiliate: user.isAffiliate,
         };
       },
@@ -170,9 +171,9 @@ export const authOptions: NextAuthOptions = {
       // Initial sign-in
       if (user) {
         token.id = user.id;
-        token.tier = user.tier;
-        token.role = user.role;
-        token.isAffiliate = user.isAffiliate;
+        token.tier = user.tier as 'FREE' | 'PRO';
+        token.role = user.role as 'USER' | 'ADMIN';
+        token.isAffiliate = user.isAffiliate as boolean;
         token['image'] = user.image;
       }
 
