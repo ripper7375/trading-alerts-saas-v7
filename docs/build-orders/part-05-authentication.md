@@ -21,9 +21,11 @@
 - ✅ Account model for OAuth provider linking
 - ✅ User.password nullable (OAuth-only users don't need password)
 - ✅ User.emailVerified auto-set for OAuth users
-- ✅ Tier included in JWT session
+- ✅ Tier, role, and isAffiliate included in JWT session
 - ✅ Verified-only account linking (security-first)
 - ✅ Separate auth method tracking (credentials/google/both)
+- ✅ Unified authentication for SaaS users, affiliates, and admins (RBAC)
+- ✅ Admin and affiliate helper functions for access control
 
 **Dependencies:**
 - Part 2 complete (Prisma User, Account models)
@@ -95,7 +97,7 @@ Build these files **in sequence**:
 
 **File 4/19:** `lib/auth/session.ts`
 
-**Purpose:** Session helper functions including affiliate support
+**Purpose:** Session helper functions including affiliate and admin support
 
 **Build Steps:**
 1. getServerSession wrapper (getSession)
@@ -105,14 +107,16 @@ Build these files **in sequence**:
 5. **isAffiliate()** helper - returns true if user is affiliate
 6. **requireAffiliate()** helper - throws AuthError if user is not affiliate
 7. **getAffiliateProfile()** helper - fetches AffiliateProfile for affiliate users
-8. **Note:** Affiliate helpers support unified auth (single session for dual roles)
-9. Commit: `feat(auth): add session and affiliate helper functions`
+8. **isAdmin()** helper - returns true if user has ADMIN role
+9. **requireAdmin()** helper - throws AuthError if user is not ADMIN
+10. **Note:** Affiliate and admin helpers support unified auth (single session for multiple roles)
+11. Commit: `feat(auth): add session, affiliate, and admin helper functions`
 
 ---
 
 **File 5/19:** `lib/auth/permissions.ts`
 
-**Purpose:** Tier-based and affiliate permission checking
+**Purpose:** Tier-based, affiliate, and admin permission checking
 
 **Build Steps:**
 1. hasPermission(user, feature) function - checks tier-based permissions
@@ -122,8 +126,14 @@ Build these files **in sequence**:
    - 'affiliate_dashboard' - requires session.user.isAffiliate === true
    - 'affiliate_codes' - requires affiliate status
    - 'commission_reports' - requires affiliate status
-5. **Note:** Affiliate permissions check isAffiliate flag (unified auth)
-6. Commit: `feat(auth): add tier-based and affiliate permissions`
+5. **Add admin permissions:**
+   - 'admin_dashboard' - requires session.user.role === 'ADMIN'
+   - 'admin_users' - requires ADMIN role
+   - 'admin_affiliates' - requires ADMIN role
+   - 'admin_settings' - requires ADMIN role
+   - 'admin_reports' - requires ADMIN role
+6. **Note:** Unified auth - single session supports USER/ADMIN roles + affiliate status
+7. Commit: `feat(auth): add tier-based, affiliate, and admin permissions`
 
 ---
 
@@ -371,8 +381,10 @@ Build these files **in sequence**:
 - ✅ Password reset works
 - ✅ Tier, role, and isAffiliate included in session
 - ✅ Affiliate helpers (isAffiliate, requireAffiliate, getAffiliateProfile) work correctly
+- ✅ Admin helpers (isAdmin, requireAdmin) work correctly
 - ✅ Affiliate permissions (affiliate_dashboard, affiliate_codes, commission_reports) enforced
-- ✅ Unified authentication supports dual roles (SaaS user + affiliate)
+- ✅ Admin permissions (admin_dashboard, admin_users, admin_affiliates, admin_settings, admin_reports) enforced
+- ✅ Unified authentication supports multiple roles (USER/ADMIN + affiliate status)
 - ✅ Verified-only account linking enforced
 - ✅ All auth pages render correctly
 - ✅ PROGRESS.md updated
