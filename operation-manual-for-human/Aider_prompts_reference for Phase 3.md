@@ -204,8 +204,8 @@ Files to build:
 1-2: Type extensions (Session, User, JWT with tier, role, isAffiliate)
 3-5: NextAuth config, session helpers (including admin/affiliate), permissions
 6-10: API routes (register, verify, forgot/reset password)
-11-16: Frontend pages (login, register, verify, forgot/reset, admin login)
-17-20: Components (register form, login form, social auth buttons)
+11-17: Frontend pages (login, register, verify, forgot/reset, admin login)
+18-20: Components (register form, login form, social auth buttons)
 
 Admin Account Seeding:
 - Create prisma/seed.ts with 2 admin accounts:
