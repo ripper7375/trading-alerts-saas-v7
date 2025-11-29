@@ -48,7 +48,7 @@ Build these files **in sequence**:
 
 ### Files 1-2: NextAuth Type Extensions
 
-**File 1/19:** `types/next-auth.d.ts`
+**File 1/20:** `types/next-auth.d.ts`
 
 **Purpose:** Extend NextAuth types to include tier, role, and affiliate status
 
@@ -62,7 +62,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 2/19:** `lib/auth/errors.ts`
+**File 2/20:** `lib/auth/errors.ts`
 
 **Purpose:** OAuth and auth error messages
 
@@ -76,7 +76,7 @@ Build these files **in sequence**:
 
 ### Files 3-5: NextAuth Configuration
 
-**File 3/19:** `lib/auth/auth-options.ts`
+**File 3/20:** `lib/auth/auth-options.ts`
 
 **Purpose:** NextAuth configuration with Google OAuth + Credentials providers
 
@@ -95,7 +95,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 4/19:** `lib/auth/session.ts`
+**File 4/20:** `lib/auth/session.ts`
 
 **Purpose:** Session helper functions including affiliate and admin support
 
@@ -114,7 +114,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 5/19:** `lib/auth/permissions.ts`
+**File 5/20:** `lib/auth/permissions.ts`
 
 **Purpose:** Tier-based, affiliate, and admin permission checking
 
@@ -139,7 +139,7 @@ Build these files **in sequence**:
 
 ### Files 6-10: API Routes
 
-**File 6/19:** `app/api/auth/[...nextauth]/route.ts`
+**File 6/20:** `app/api/auth/[...nextauth]/route.ts`
 
 **Purpose:** NextAuth API route handler
 
@@ -151,7 +151,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 7/19:** `app/api/auth/register/route.ts`
+**File 7/20:** `app/api/auth/register/route.ts`
 
 **Purpose:** User registration endpoint
 
@@ -168,7 +168,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 8/19:** `app/api/auth/verify-email/route.ts`
+**File 8/20:** `app/api/auth/verify-email/route.ts`
 
 **Purpose:** Email verification endpoint
 
@@ -180,7 +180,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 9/19:** `app/api/auth/forgot-password/route.ts`
+**File 9/20:** `app/api/auth/forgot-password/route.ts`
 
 **Purpose:** Password reset request
 
@@ -192,7 +192,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 10/19:** `app/api/auth/reset-password/route.ts`
+**File 10/20:** `app/api/auth/reset-password/route.ts`
 
 **Purpose:** Password reset with token
 
@@ -205,9 +205,9 @@ Build these files **in sequence**:
 
 ---
 
-### Files 11-15: Frontend Pages
+### Files 11-17: Frontend Pages
 
-**File 11/19:** `app/(auth)/layout.tsx`
+**File 11/20:** `app/(auth)/layout.tsx`
 
 **Purpose:** Auth pages layout
 
@@ -219,7 +219,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 12/19:** `app/(auth)/login/page.tsx`
+**File 12/20:** `app/(auth)/login/page.tsx`
 
 **Purpose:** Login page with Google OAuth + credentials
 
@@ -235,7 +235,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 13/19:** `app/(auth)/register/page.tsx`
+**File 13/20:** `app/(auth)/register/page.tsx`
 
 **Purpose:** Registration page
 
@@ -250,7 +250,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 14/19:** `app/(auth)/verify-email/page.tsx`
+**File 14/20:** `app/(auth)/verify-email/page.tsx`
 
 **Purpose:** Email verification page
 
@@ -263,7 +263,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 15/19:** `app/(auth)/forgot-password/page.tsx`
+**File 15/20:** `app/(auth)/forgot-password/page.tsx`
 
 **Purpose:** Forgot password page
 
