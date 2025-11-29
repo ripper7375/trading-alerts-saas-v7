@@ -59,6 +59,7 @@ You: [Run verification, rotate to Part 2]
 
 Key Points:
 ✅ Within a single part: Aider runs continuously (auto-commits files)
+✅ Aider does build files one-by-one, but it should continue automatically without waiting for you.
 ✅ Stops only for: (1) Escalations, or (2) Part completion
 ✅ Between parts: You must manually rotate (drop old files, load new files, give new command)
 ✅ Progress reports: Informational only - Aider keeps working
