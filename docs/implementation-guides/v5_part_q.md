@@ -21,7 +21,7 @@ Enable external affiliates to promote the Trading Alerts SaaS, earn commissions 
 - Self-service affiliate registration and onboarding
 - Automated monthly discount code distribution (15 codes per affiliate)
 - Commission tracking ($5 USD per PRO upgrade)
-- Separate authentication system for affiliates
+- Unified authentication system (NextAuth with isAffiliate flag for dual roles)
 - Accounting-style reports with opening/closing balances
 - Admin BI dashboard with 4 key reports
 - Automated processes (code distribution, expiry, notifications)
@@ -35,9 +35,10 @@ Enable external affiliates to promote the Trading Alerts SaaS, earn commissions 
 
 **What is an Affiliate?**
 - External partner who promotes Trading Alerts to earn commissions
+- Can be existing SaaS user or dedicated affiliate (dual roles supported)
 - Receives monthly allocation of discount codes (15 codes)
 - Earns $5 USD commission per PRO subscription via their code
-- Has separate login portal (not user dashboard)
+- Accesses affiliate portal at /affiliate/* routes (same login as SaaS users)
 - Gets paid monthly when commission balance ≥ $50 USD
 
 **Commission Structure:**
@@ -201,83 +202,264 @@ closingBalance = openingBalance + earned.subtotal - payments.subtotal
 
 ---
 
-### 6. Affiliate Authentication (Separate System)
+### 6. Affiliate Authentication (Unified System)
 
-**Critical:** Affiliates use a **completely separate** authentication system from regular users.
+**Critical:** Affiliates use the **same NextAuth authentication system** as SaaS users with unified RBAC.
 
-**Why Separate?**
-- Affiliates are not users (can't use the product)
-- Different permissions and access patterns
-- Security: prevent cross-contamination
-- Different JWT secrets
+**Unified Auth Approach:**
+- Users can be both SaaS users AND affiliates (dual roles)
+- Single NextAuth session with `session.user.isAffiliate: boolean` flag
+- Affiliate status grants access to affiliate portal routes
+- No separate JWT secrets or authentication systems
+- Simplified architecture (one auth system for all user types)
 
-**Implementation:**
+**Architecture Overview:**
 
-```typescript
-// lib/auth/affiliate-auth.ts
+```
+┌─────────────────────────────────────────────────────┐
+│     UNIFIED AUTHENTICATION (NextAuth + RBAC)        │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  User Types (all share same NextAuth session):     │
+│                                                     │
+│  1. SaaS User (FREE/PRO)                           │
+│     └─ role='USER', tier='FREE'|'PRO', isAffiliate=false│
+│                                                     │
+│  2. SaaS User + Affiliate (dual role)              │
+│     └─ role='USER', tier='FREE'|'PRO', isAffiliate=true │
+│     └─ Has AffiliateProfile (1-to-1 via userId)    │
+│                                                     │
+│  3. Admin (pure admin)                             │
+│     └─ role='ADMIN', tier='FREE', isAffiliate=false │
+│                                                     │
+│  4. Admin + Affiliate                              │
+│     └─ role='ADMIN', tier='FREE', isAffiliate=true  │
+│     └─ Has AffiliateProfile (1-to-1 via userId)    │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
 
-// ✅ Good - Separate JWT secret
-const AFFILIATE_JWT_SECRET = process.env.AFFILIATE_JWT_SECRET!
+**Database Schema (Unified):**
 
-interface AffiliateJWT {
-  affiliateId: string
-  email: string
-  type: 'AFFILIATE'                        // Discriminator
-  iat: number
-  exp: number
+```prisma
+model User {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  password         String?   // Nullable (OAuth-only users)
+  role             UserRole  @default(USER)  // USER | ADMIN
+  tier             UserTier  @default(FREE)  // FREE | PRO
+
+  // Affiliate Support (Unified Auth)
+  isAffiliate      Boolean   @default(false)  // Can be BOTH SaaS user AND affiliate
+
+  // Relations
+  affiliateProfile AffiliateProfile?  // 1-to-1, nullable (only if isAffiliate=true)
+  accounts         Account[]          // OAuth providers
+  // ... other relations
+
+  @@index([isAffiliate])
 }
 
-// Create token
-function createAffiliateToken(affiliate: Affiliate): string {
-  return jwt.sign(
-    {
-      affiliateId: affiliate.id,
-      email: affiliate.email,
-      type: 'AFFILIATE'
+model AffiliateProfile {
+  id              String          @id @default(cuid())
+  userId          String          @unique  // Links to User (NOT separate Affiliate model)
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName        String
+  country         String
+  paymentMethod   PaymentMethod
+  paymentDetails  Json
+  status          AffiliateStatus @default(PENDING_VERIFICATION)
+
+  totalEarnings   Decimal         @default(0)
+  paidCommissions Decimal         @default(0)
+  codesDistributed Int            @default(0)
+  codesUsed       Int             @default(0)
+
+  // Relations
+  affiliateCodes  AffiliateCode[]
+  commissions     Commission[]
+
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model AffiliateCode {
+  code              String          @id
+  affiliateProfileId String         // Links to AffiliateProfile (NOT affiliateId)
+  affiliateProfile  AffiliateProfile @relation(fields: [affiliateProfileId], references: [id])
+
+  status            CodeStatus      @default(ACTIVE)
+  distributedAt     DateTime        @default(now())
+  expiresAt         DateTime
+  usedAt            DateTime?
+
+  // Relations
+  commissions       Commission[]
+
+  @@index([affiliateProfileId])
+  @@index([status])
+}
+
+model Commission {
+  id                String          @id @default(cuid())
+  affiliateProfileId String         // Links to AffiliateProfile
+  affiliateProfile  AffiliateProfile @relation(fields: [affiliateProfileId], references: [id])
+
+  affiliateCodeId   String
+  affiliateCode     AffiliateCode   @relation(fields: [affiliateCodeId], references: [code])
+
+  userId            String          // SaaS user who used the code
+  user              User            @relation(fields: [userId], references: [id])
+
+  amount            Decimal         // $5.00 fixed
+  status            CommissionStatus @default(PENDING)
+
+  earnedAt          DateTime        @default(now())
+  paidAt            DateTime?
+
+  @@index([affiliateProfileId])
+  @@index([status])
+}
+```
+
+**Session Helper Functions (Part 5):**
+
+```typescript
+// lib/auth/session.ts
+
+// Helper to check if user is affiliate
+export async function isAffiliate(): Promise<boolean> {
+  const session = await getSession();
+  return session?.user?.isAffiliate ?? false;
+}
+
+// Helper to require affiliate status (throws if not affiliate)
+export async function requireAffiliate(): Promise<Session> {
+  const session = await requireAuth();
+
+  if (!session.user.isAffiliate) {
+    throw new AuthError(
+      'Affiliate status required to access this resource',
+      'FORBIDDEN',
+      403
+    );
+  }
+
+  return session;
+}
+
+// Helper to get AffiliateProfile for affiliate users
+export async function getAffiliateProfile() {
+  const session = await getSession();
+
+  if (!session?.user?.id || !session.user.isAffiliate) {
+    return null;
+  }
+
+  const { prisma } = await import('@/lib/db/prisma');
+
+  const profile = await prisma.affiliateProfile.findUnique({
+    where: { userId: session.user.id },
+    include: {
+      affiliateCodes: {
+        where: { status: 'ACTIVE' },
+        take: 10,
+        orderBy: { distributedAt: 'desc' },
+      },
     },
-    AFFILIATE_JWT_SECRET,
-    { expiresIn: '7d' }
-  )
-}
+  });
 
-// Verify token
-async function getAffiliateFromToken(token: string): Promise<Affiliate | null> {
-  try {
-    const decoded = jwt.verify(token, AFFILIATE_JWT_SECRET) as AffiliateJWT
-
-    if (decoded.type !== 'AFFILIATE') {
-      return null                          // Prevent user tokens
-    }
-
-    const affiliate = await prisma.affiliate.findUnique({
-      where: { id: decoded.affiliateId }
-    })
-
-    if (!affiliate || affiliate.status !== 'ACTIVE') {
-      return null
-    }
-
-    return affiliate
-  } catch {
-    return null
-  }
+  return profile;
 }
 ```
 
-**Route Protection:**
+**Route Protection (Unified Auth):**
+
 ```typescript
-// All affiliate routes MUST use this pattern
-export async function GET(req: NextRequest) {
-  const token = req.headers.get('authorization')?.replace('Bearer ', '')
-  const affiliate = await getAffiliateFromToken(token)
+// app/api/affiliate/dashboard/stats/route.ts
+import { requireAffiliate } from '@/lib/auth/session';
+import { NextRequest, NextResponse } from 'next/server';
 
-  if (!affiliate) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+export async function GET(req: NextRequest) {
+  // Unified auth - uses NextAuth session
+  const session = await requireAffiliate(); // Throws 403 if not affiliate
+
+  // Fetch affiliate profile for session.user.id
+  const profile = await prisma.affiliateProfile.findUnique({
+    where: { userId: session.user.id },
+    include: {
+      affiliateCodes: true,
+      commissions: true,
+    },
+  });
+
+  if (!profile) {
+    return NextResponse.json({ error: 'Affiliate profile not found' }, { status: 404 });
   }
 
-  // Business logic
+  // Calculate stats from profile data
+  const stats = {
+    totalCodesDistributed: profile.codesDistributed,
+    activeCodesCount: profile.affiliateCodes.filter(c => c.status === 'ACTIVE').length,
+    usedCodesCount: profile.codesUsed,
+    totalEarnings: profile.totalEarnings,
+    pendingCommissions: profile.commissions
+      .filter(c => c.status === 'PENDING')
+      .reduce((sum, c) => sum + Number(c.amount), 0),
+    paidCommissions: profile.paidCommissions,
+    currentMonthEarnings: calculateCurrentMonthEarnings(profile.commissions),
+    conversionRate: calculateConversionRate(profile.codesDistributed, profile.codesUsed),
+  };
+
+  return NextResponse.json(stats);
 }
 ```
+
+**Affiliate Registration Flow (Unified):**
+
+```
+User Flow:
+1. User registers as SaaS user via /register (NextAuth)
+   → Creates User with isAffiliate=false
+
+2. User logs in via /login (NextAuth)
+   → Session includes: { user: { id, role='USER', tier='FREE', isAffiliate=false } }
+
+3. User navigates to /affiliate/register (while authenticated)
+   → Fills form: fullName, country, paymentMethod, paymentDetails
+
+4. Submit to POST /api/affiliate/auth/register
+   → Checks: session.user.isAffiliate === false (not already affiliate)
+   → Sets: User.isAffiliate = true
+   → Creates: AffiliateProfile with PENDING_VERIFICATION status
+   → Sends: Email verification
+
+5. User clicks verification link
+   → Verifies email → Sets AffiliateProfile.status = ACTIVE
+   → Distributes 15 initial codes
+   → Updates session: { user: { ..., isAffiliate=true } }
+
+6. User can now access /affiliate/* routes
+   → requireAffiliate() helper grants access
+   → Same session works for both SaaS features AND affiliate portal
+```
+
+**Benefits of Unified Approach:**
+
+1. **Single Authentication System**: One login for both SaaS and affiliate access
+2. **Dual Roles**: Users can be both SaaS customers AND affiliates
+3. **Simpler Architecture**: No separate JWT secrets, auth systems, or login pages
+4. **Consistent Sessions**: Single session management across entire application
+5. **Easier Maintenance**: One auth system to maintain, debug, and secure
+6. **Admin Support**: Admins can also be affiliates if needed (dual role)
+
+**No Separate Files Needed:**
+
+❌ `lib/auth/affiliate-auth.ts` - NOT NEEDED (use Part 5 session helpers)
+❌ `app/api/affiliate/auth/login/route.ts` - NOT NEEDED (use /api/auth/signin)
+❌ `app/api/affiliate/auth/logout/route.ts` - NOT NEEDED (use /api/auth/signout)
+❌ `app/affiliate/login/page.tsx` - NOT NEEDED (use /login)
 
 ---
 
@@ -324,7 +506,7 @@ async function generateUniqueCode(): Promise<string> {
 
 // Distribute codes to affiliate
 async function distributeCodes(
-  affiliateId: string,
+  affiliateProfileId: string,  // Links to AffiliateProfile (NOT affiliateId)
   count: number,
   reason: 'MONTHLY' | 'INITIAL' | 'BONUS'
 ): Promise<AffiliateCode[]> {
@@ -336,7 +518,7 @@ async function distributeCodes(
     const affiliateCode = await prisma.affiliateCode.create({
       data: {
         code,
-        affiliateId,
+        affiliateProfileId,  // Uses unified auth schema
         status: 'ACTIVE',
         distributedAt: new Date(),
         distributionReason: reason,
@@ -371,7 +553,7 @@ async function distributeCodes(
    // Validate code
    const affiliateCode = await prisma.affiliateCode.findUnique({
      where: { code },
-     include: { affiliate: true }
+     include: { affiliateProfile: true }  // Unified auth: includes profile
    })
 
    if (!affiliateCode || affiliateCode.status !== 'ACTIVE') {
@@ -388,8 +570,8 @@ async function distributeCodes(
      metadata: {
        userId: user.id,
        tier: 'PRO',
-       affiliateCodeId: affiliateCode.id,       // ← Store code ID
-       affiliateId: affiliateCode.affiliateId   // ← Store affiliate ID
+       affiliateCodeId: affiliateCode.id,                     // ← Store code ID
+       affiliateProfileId: affiliateCode.affiliateProfileId   // ← Store affiliate profile ID (unified auth)
      },
      discounts: [{
        coupon: '10PERCENTOFF'                   // $29 → $26.10
@@ -403,9 +585,9 @@ async function distributeCodes(
 
    if (event.type === 'checkout.session.completed') {
      const session = event.data.object
-     const { userId, affiliateCodeId, affiliateId } = session.metadata
+     const { userId, affiliateCodeId, affiliateProfileId } = session.metadata  // Unified auth
 
-     if (affiliateCodeId && affiliateId) {
+     if (affiliateCodeId && affiliateProfileId) {
        // Calculate commission
        const netRevenue = 26.10                  // $29 - $2.90 discount
        const commissionAmount = 5.00             // Fixed $5 per upgrade
@@ -413,7 +595,7 @@ async function distributeCodes(
        // Create commission
        await prisma.commission.create({
          data: {
-           affiliateId,
+           affiliateProfileId,  // Unified auth: links to AffiliateProfile
            affiliateCodeId,
            userId,
            amount: commissionAmount,
@@ -435,18 +617,24 @@ async function distributeCodes(
          }
        })
 
-       // Update affiliate total earnings
-       await prisma.affiliate.update({
-         where: { id: affiliateId },
+       // Update affiliate profile total earnings
+       await prisma.affiliateProfile.update({
+         where: { id: affiliateProfileId },  // Unified auth: update profile
          data: {
            totalEarnings: { increment: commissionAmount },
            codesUsed: { increment: 1 }
          }
        })
 
+       // Get user email for notification (unified auth: profile.user.email)
+       const affiliateProfile = await prisma.affiliateProfile.findUnique({
+         where: { id: affiliateProfileId },
+         include: { user: true }  // Get user for email
+       })
+
        // Send notification email
        await sendEmail({
-         to: affiliate.email,
+         to: affiliateProfile.user.email,  // Unified auth: user email
          template: 'code-used',
          data: { code, commission: commissionAmount }
        })
@@ -457,6 +645,50 @@ async function distributeCodes(
 ---
 
 ### 9. Admin Portal - Affiliate Management
+
+**Admin Authentication (Unified System):**
+
+Admins use the **same NextAuth authentication system** as SaaS users and affiliates, with role-based access control (RBAC).
+
+**Admin Accounts:**
+- **2 fixed admin accounts** (pre-seeded via Prisma seed)
+  - Admin 1: Pure admin (`role='ADMIN'`, `isAffiliate=false`, `tier='FREE'`)
+    - Email: `admin@tradingalerts.com`
+    - Password: Set via seed script (bcrypt hashed)
+  - Admin 2: Admin + Affiliate (`role='ADMIN'`, `isAffiliate=true`, `tier='FREE'`)
+    - Email: `admin-affiliate@tradingalerts.com`
+    - Password: Set via seed script (bcrypt hashed)
+    - Has `AffiliateProfile` with ACTIVE status
+
+**Admin Login:**
+- Dedicated admin login page: `/admin/login`
+- Credentials only (no Google OAuth for security)
+- Post-login verification: checks `session.user.role === 'ADMIN'`
+- Redirects to `/admin/dashboard` after successful login
+- Non-admin users see error: "Admin credentials required"
+
+**Admin Access Control:**
+```typescript
+// lib/auth/session.ts (Part 5)
+export async function requireAdmin(): Promise<Session> {
+  const session = await requireAuth();
+
+  if (session.user.role !== 'ADMIN') {
+    throw new AuthError('Admin access required', 'FORBIDDEN', 403);
+  }
+
+  return session;
+}
+
+// app/api/admin/affiliates/route.ts
+import { requireAdmin } from '@/lib/auth/session';
+
+export async function GET(req: NextRequest) {
+  const session = await requireAdmin(); // Throws 403 if not admin
+
+  // Admin API logic...
+}
+```
 
 **Admin Features:**
 

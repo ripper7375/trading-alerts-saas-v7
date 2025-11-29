@@ -162,32 +162,58 @@ Start with File 1/4: lib/tier-validation.ts
 
 /read-only docs/build-orders/part-05-authentication.md
 /read-only docs/implementation-guides/v5_part_e.md
+/read-only docs/implementation-guides/v5_part_q.md
 /read-only docs/policies/08-google-oauth-implementation-rules.md
 /read-only docs/OAUTH_IMPLEMENTATION_READY.md
 ```
 
 ```
-Build Part 5: Authentication
+Build Part 5: Authentication (Unified System with RBAC)
 
 Follow the build order in part-05-authentication.md exactly.
 
 Requirements:
-- Build all 19 authentication files
-- Implement Google OAuth + Email/Password
+- Build all 20 authentication files (includes admin login page)
+- Implement Google OAuth + Email/Password (NextAuth v4)
+- Implement unified authentication for SaaS users, affiliates, AND admins (RBAC)
 - Follow 08-google-oauth-implementation-rules.md
+- IMPORTANT: Unified Auth Approach
+  * Single NextAuth system for all user types
+  * Role-based access control (USER/ADMIN roles)
+  * Affiliate status via User.isAffiliate boolean flag
+  * Admin accounts: 2 fixed, pre-seeded (no dynamic admin registration)
+  * Admin login page: /admin/login (credentials only, no Google OAuth)
+  * Helpers: requireAffiliate(), requireAdmin(), isAffiliate(), isAdmin(), getAffiliateProfile()
+  * Permissions: affiliate_dashboard, affiliate_codes, admin_dashboard, admin_users, admin_reports, etc.
 - SECURITY QUALITY GATES (MANDATORY):
   * Session validation on every protected route
   * Return 401 for missing auth, 403 for forbidden
   * Verify resource ownership (userId matches session.user.id)
+  * Admin routes use requireAdmin() helper (checks role='ADMIN')
+  * Affiliate routes use requireAffiliate() helper (checks isAffiliate=true)
   * No hardcoded secrets or credentials
   * Proper error messages (user-friendly)
   * All functions have explicit return types
   * No 'any' types
   * Try-catch blocks in all async functions
+  * Use type casts for Prisma enums (tier as 'FREE'|'PRO', role as 'USER'|'ADMIN')
 - Run validation after each file: npm run validate
 - Auto-commit approved files
 
-Start with File 1/19: lib/auth.ts
+Files to build:
+1-2: Type extensions (Session, User, JWT with tier, role, isAffiliate)
+3-5: NextAuth config, session helpers (including admin/affiliate), permissions
+6-10: API routes (register, verify, forgot/reset password)
+11-16: Frontend pages (login, register, verify, forgot/reset, admin login)
+17-20: Components (register form, login form, social auth buttons)
+
+Admin Account Seeding:
+- Create prisma/seed.ts with 2 admin accounts:
+  * Admin 1: admin@tradingalerts.com (role='ADMIN', isAffiliate=false)
+  * Admin 2: admin-affiliate@tradingalerts.com (role='ADMIN', isAffiliate=true, has AffiliateProfile)
+- Run: npx prisma db seed
+
+Start with File 1/20: types/next-auth.d.ts
 ```
 
 ---
