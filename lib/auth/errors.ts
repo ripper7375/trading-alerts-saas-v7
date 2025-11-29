@@ -11,21 +11,17 @@
 export class AuthError extends Error {
   public readonly code: string;
   public readonly statusCode: number;
-  public readonly isOperational: boolean;
 
   constructor(
     message: string,
     code: string = 'AUTH_ERROR',
-    statusCode: number = 401,
-    isOperational: boolean = true
+    statusCode: number = 401
   ) {
     super(message);
     this.name = this.constructor.name;
     this.code = code;
     this.statusCode = statusCode;
-    this.isOperational = isOperational;
 
-    // Maintains proper stack trace for where our error was thrown
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
     }
@@ -37,7 +33,7 @@ export class AuthError extends Error {
  */
 export class InvalidCredentialsError extends AuthError {
   constructor(message: string = 'Invalid email or password') {
-    super(message, 'INVALID_CREDENTIALS', 401, true);
+    super(message, 'INVALID_CREDENTIALS', 401);
   }
 }
 
@@ -48,7 +44,7 @@ export class EmailNotVerifiedError extends AuthError {
   constructor(
     message: string = 'Please verify your email address before signing in'
   ) {
-    super(message, 'EMAIL_NOT_VERIFIED', 403, true);
+    super(message, 'EMAIL_NOT_VERIFIED', 403);
   }
 }
 
@@ -57,7 +53,7 @@ export class EmailNotVerifiedError extends AuthError {
  */
 export class AccountExistsError extends AuthError {
   constructor(message: string = 'An account with this email already exists') {
-    super(message, 'ACCOUNT_EXISTS', 409, true);
+    super(message, 'ACCOUNT_EXISTS', 409);
   }
 }
 
@@ -68,7 +64,7 @@ export class OAuthError extends AuthError {
   public readonly provider: string;
 
   constructor(message: string, provider: string, code: string = 'OAUTH_ERROR') {
-    super(message, code, 401, true);
+    super(message, code, 401);
     this.provider = provider;
   }
 }
@@ -102,7 +98,7 @@ export class OAuthAccountLinkingError extends OAuthError {
  */
 export class TokenError extends AuthError {
   constructor(message: string, code: string = 'TOKEN_ERROR') {
-    super(message, code, 401, true);
+    super(message, code, 401);
   }
 }
 
@@ -129,7 +125,7 @@ export class MissingTokenError extends TokenError {
  */
 export class PasswordError extends AuthError {
   constructor(message: string, code: string = 'PASSWORD_ERROR') {
-    super(message, code, 400, true);
+    super(message, code, 400);
   }
 }
 
@@ -152,7 +148,7 @@ export class PasswordMismatchError extends PasswordError {
  */
 export class SessionError extends AuthError {
   constructor(message: string, code: string = 'SESSION_ERROR') {
-    super(message, code, 401, true);
+    super(message, code, 401);
   }
 }
 
@@ -182,7 +178,7 @@ export class TierAccessError extends AuthError {
     requiredTier: 'FREE' | 'PRO',
     currentTier: 'FREE' | 'PRO'
   ) {
-    super(message, 'TIER_ACCESS_DENIED', 403, true);
+    super(message, 'TIER_ACCESS_DENIED', 403);
     this.requiredTier = requiredTier;
     this.currentTier = currentTier;
   }
@@ -207,7 +203,7 @@ export class InsufficientTierError extends TierAccessError {
  */
 export class AffiliateError extends AuthError {
   constructor(message: string, code: string = 'AFFILIATE_ERROR') {
-    super(message, code, 403, true);
+    super(message, code, 403);
   }
 }
 
@@ -234,7 +230,7 @@ export class AffiliateNotVerifiedError extends AffiliateError {
  */
 export class AdminError extends AuthError {
   constructor(message: string, code: string = 'ADMIN_ERROR') {
-    super(message, code, 403, true);
+    super(message, code, 403);
   }
 }
 
@@ -254,7 +250,7 @@ export class RateLimitError extends AuthError {
     message: string = 'Too many authentication attempts. Please try again later',
     retryAfter?: number
   ) {
-    super(message, 'RATE_LIMIT_EXCEEDED', 429, true);
+    super(message, 'RATE_LIMIT_EXCEEDED', 429);
     this.retryAfter = retryAfter;
   }
 }
@@ -264,7 +260,7 @@ export class RateLimitError extends AuthError {
  */
 export class AccountError extends AuthError {
   constructor(message: string, code: string = 'ACCOUNT_ERROR') {
-    super(message, code, 403, true);
+    super(message, code, 403);
   }
 }
 
@@ -287,7 +283,7 @@ export class AccountBlockedError extends AccountError {
  */
 export class AuthConfigurationError extends AuthError {
   constructor(message: string = 'Authentication configuration error') {
-    super(message, 'AUTH_CONFIG_ERROR', 500, false);
+    super(message, 'AUTH_CONFIG_ERROR', 500);
   }
 }
 
@@ -371,5 +367,5 @@ export function getErrorStatusCode(error: Error): number {
  * Check if error is operational (expected) vs programming error
  */
 export function isOperationalError(error: Error): boolean {
-  return error instanceof AuthError && error.isOperational;
+  return error instanceof AuthError;
 }
