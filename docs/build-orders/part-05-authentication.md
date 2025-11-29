@@ -1,8 +1,8 @@
 # Part 5: Authentication System - Build Order
 
 **From:** `docs/v5-structure-division.md` Part 5
-**Total Files:** 19 files
-**Estimated Time:** 6 hours
+**Total Files:** 20 files
+**Estimated Time:** 6.5 hours
 **Priority:** ⭐⭐⭐ High (Critical security component)
 **Complexity:** High
 
@@ -277,7 +277,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 16/19:** `app/(auth)/reset-password/page.tsx`
+**File 16/20:** `app/(auth)/reset-password/page.tsx`
 
 **Purpose:** Reset password page
 
@@ -290,9 +290,33 @@ Build these files **in sequence**:
 
 ---
 
-### Files 17-19: Components
+**File 17/20:** `app/admin/login/page.tsx`
 
-**File 17/19:** `components/auth/register-form.tsx`
+**Purpose:** Dedicated admin login page (separate from user login)
+
+**Seed Reference:** `seed-code/v0-components/auth/login-page.tsx`
+
+**Build Steps:**
+1. Create admin-themed login form (email/password only)
+2. **Note:** No Google OAuth button (admins use credentials only for security)
+3. Handle sign-in with NextAuth credentials provider
+4. **After login:** Verify session.user.role === 'ADMIN', redirect to `/admin/dashboard`
+5. **If not admin:** Show error "Admin credentials required" and logout
+6. Different styling/branding from user login (admin theme)
+7. **Security:** Only 2 admin accounts exist (pre-seeded in database)
+8. Commit: `feat(auth): add admin login page`
+
+**Admin Accounts (Pre-configured):**
+- Admin 1: Pure admin (`role='ADMIN'`, `isAffiliate=false`, `tier='FREE'`)
+- Admin 2: Admin + Affiliate (`role='ADMIN'`, `isAffiliate=true`, `tier='FREE'`)
+
+**Note:** No admin registration endpoint - admins are manually seeded via Prisma seed script
+
+---
+
+### Files 18-20: Components
+
+**File 18/20:** `components/auth/register-form.tsx`
 
 **Purpose:** Registration form component
 
@@ -305,7 +329,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 18/19:** `components/auth/login-form.tsx`
+**File 19/20:** `components/auth/login-form.tsx`
 
 **Purpose:** Login form component
 
@@ -318,7 +342,7 @@ Build these files **in sequence**:
 
 ---
 
-**File 19/19:** `components/auth/social-auth-buttons.tsx`
+**File 20/20:** `components/auth/social-auth-buttons.tsx`
 
 **Purpose:** Google OAuth button
 
@@ -370,21 +394,131 @@ Build these files **in sequence**:
    # Login with new password
    ```
 
+5. **Test Admin Login**
+   ```bash
+   # Navigate to /admin/login
+   # Login with admin credentials (from seed data)
+   # Verify redirects to /admin/dashboard
+   # Check session.user.role === 'ADMIN'
+
+   # Try accessing /admin/login with regular user
+   # Verify shows error "Admin credentials required"
+   ```
+
+---
+
+## Admin Account Seeding
+
+**Pre-configured Admin Accounts:**
+
+Create a Prisma seed script to insert 2 admin accounts:
+
+```typescript
+// prisma/seed.ts
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+
+const prisma = new PrismaClient();
+
+async function main() {
+  // Admin 1: Pure Admin
+  const admin1Password = await bcrypt.hash('Admin123!@#', 10);
+  await prisma.user.upsert({
+    where: { email: 'admin@tradingalerts.com' },
+    update: {},
+    create: {
+      email: 'admin@tradingalerts.com',
+      password: admin1Password,
+      name: 'System Administrator',
+      role: 'ADMIN',
+      tier: 'FREE',
+      isAffiliate: false,
+      emailVerified: new Date(),
+    },
+  });
+
+  // Admin 2: Admin + Affiliate
+  const admin2Password = await bcrypt.hash('AdminAffiliate123!@#', 10);
+  const admin2 = await prisma.user.upsert({
+    where: { email: 'admin-affiliate@tradingalerts.com' },
+    update: {},
+    create: {
+      email: 'admin-affiliate@tradingalerts.com',
+      password: admin2Password,
+      name: 'Admin Affiliate Manager',
+      role: 'ADMIN',
+      tier: 'FREE',
+      isAffiliate: true,
+      emailVerified: new Date(),
+    },
+  });
+
+  // Create AffiliateProfile for Admin 2
+  if (admin2.isAffiliate) {
+    await prisma.affiliateProfile.upsert({
+      where: { userId: admin2.id },
+      update: {},
+      create: {
+        userId: admin2.id,
+        fullName: 'Admin Affiliate Manager',
+        country: 'US',
+        paymentMethod: 'PAYPAL',
+        paymentDetails: { email: 'admin-affiliate@tradingalerts.com' },
+        status: 'ACTIVE',
+      },
+    });
+  }
+}
+
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
+```
+
+**Run seed:**
+```bash
+npx prisma db seed
+```
+
+**Environment Variables:**
+```bash
+# Add to .env.local (DO NOT commit real passwords!)
+ADMIN_EMAIL=admin@tradingalerts.com
+ADMIN_PASSWORD=Admin123!@#
+ADMIN_AFFILIATE_EMAIL=admin-affiliate@tradingalerts.com
+ADMIN_AFFILIATE_PASSWORD=AdminAffiliate123!@#
+```
+
+**Security Notes:**
+- Change default passwords in production
+- Store in secure password manager
+- Consider adding IP whitelist for `/admin/login` route
+- Optional: Add 2FA requirement for admin accounts
+
 ---
 
 ## Success Criteria
 
-- ✅ All 19 files built and committed
-- ✅ Registration works with email/password
-- ✅ Google OAuth sign-in works
+- ✅ All 20 files built and committed
+- ✅ User registration works with email/password
+- ✅ Google OAuth sign-in works (users only, not admins)
 - ✅ Email verification works
 - ✅ Password reset works
+- ✅ **Admin login page** at `/admin/login` works (credentials only)
+- ✅ **Admin accounts** pre-seeded (2 admins: pure admin + admin+affiliate)
 - ✅ Tier, role, and isAffiliate included in session
 - ✅ Affiliate helpers (isAffiliate, requireAffiliate, getAffiliateProfile) work correctly
 - ✅ Admin helpers (isAdmin, requireAdmin) work correctly
 - ✅ Affiliate permissions (affiliate_dashboard, affiliate_codes, commission_reports) enforced
 - ✅ Admin permissions (admin_dashboard, admin_users, admin_affiliates, admin_settings, admin_reports) enforced
 - ✅ Unified authentication supports multiple roles (USER/ADMIN + affiliate status)
+- ✅ **Admin login redirects** to `/admin/dashboard` after successful login
+- ✅ **Non-admin users** cannot access admin routes (403 Forbidden)
 - ✅ Verified-only account linking enforced
 - ✅ All auth pages render correctly
 - ✅ PROGRESS.md updated
