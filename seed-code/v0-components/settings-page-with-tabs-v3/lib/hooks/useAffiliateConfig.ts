@@ -1,19 +1,19 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 
 interface SystemConfig {
-  affiliateDiscountPercent: number
-  affiliateCommissionPercent: number
-  baseMonthlyPrice: number
+  affiliateDiscountPercent: number;
+  affiliateCommissionPercent: number;
+  baseMonthlyPrice: number;
 }
 
 interface UseAffiliateConfigReturn {
-  discountPercent: number
-  commissionPercent: number
-  calculateDiscountedPrice: (basePrice: number) => number
-  config: SystemConfig
-  isLoading: boolean
+  discountPercent: number;
+  commissionPercent: number;
+  calculateDiscountedPrice: (basePrice: number) => number;
+  config: SystemConfig;
+  isLoading: boolean;
 }
 
 /**
@@ -25,35 +25,35 @@ export function useAffiliateConfig(): UseAffiliateConfigReturn {
     affiliateDiscountPercent: 20, // Default 20% affiliate discount
     affiliateCommissionPercent: 20, // Default 20% affiliate commission
     baseMonthlyPrice: 29.0,
-  })
-  const [isLoading, setIsLoading] = useState(false)
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // In a real app, fetch config from API or context
     // For now, we'll use the default values
     const fetchConfig = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
         // Simulate API call
         // const response = await fetch('/api/system-config')
         // const data = await response.json()
         // setConfig(data)
-        
+
         // For demo purposes, using default config
         setConfig({
           affiliateDiscountPercent: 20,
           affiliateCommissionPercent: 20,
           baseMonthlyPrice: 29.0,
-        })
+        });
       } catch (error) {
-        console.error('Failed to fetch system config:', error)
+        console.error('Failed to fetch system config:', error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchConfig()
-  }, [])
+    fetchConfig();
+  }, []);
 
   /**
    * Calculate discounted price based on affiliate discount percentage
@@ -61,9 +61,9 @@ export function useAffiliateConfig(): UseAffiliateConfigReturn {
    * @returns The discounted price
    */
   const calculateDiscountedPrice = (basePrice: number): number => {
-    const discount = basePrice * (config.affiliateDiscountPercent / 100)
-    return basePrice - discount
-  }
+    const discount = basePrice * (config.affiliateDiscountPercent / 100);
+    return basePrice - discount;
+  };
 
   return {
     discountPercent: config.affiliateDiscountPercent,
@@ -71,5 +71,5 @@ export function useAffiliateConfig(): UseAffiliateConfigReturn {
     calculateDiscountedPrice,
     config,
     isLoading,
-  }
+  };
 }

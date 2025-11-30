@@ -63,7 +63,7 @@ export function PieGraph() {
       <CardHeader>
         <CardTitle>Pie Chart - Donut with Text</CardTitle>
         <CardDescription>
-          <span className='hidden @[540px]/card:block'>
+          <span className='@[540px]/card:block hidden'>
             Total visitors by browser for the last 6 months
           </span>
           <span className='@[540px]/card:hidden'>Browser distribution</span>
@@ -149,7 +149,7 @@ export function PieGraph() {
         </ChartContainer>
       </CardContent>
       <CardFooter className='flex-col gap-2 text-sm'>
-        <div className='flex items-center gap-2 leading-none font-medium'>
+        <div className='flex items-center gap-2 font-medium leading-none'>
           Chrome leads with{' '}
           {((chartData[0].visitors / totalVisitors) * 100).toFixed(1)}%{' '}
           <IconTrendingUp className='h-4 w-4' />

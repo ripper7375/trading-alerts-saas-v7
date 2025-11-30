@@ -12,6 +12,7 @@
 Based on comprehensive analysis of the Trading Alerts SaaS V7 codebase, I have resolved all 12 critical ambiguities for Google OAuth integration. This is a **greenfield authentication implementation** - no existing auth system exists, giving us the opportunity to implement OAuth correctly from the start.
 
 **Key Findings:**
+
 - NextAuth v4.24.5 already installed
 - No existing Prisma schema or auth system
 - Next.js 15 + React 19 modern stack
@@ -25,11 +26,13 @@ All decisions prioritize: **Security > Performance > Simplicity > User Experienc
 ## DECISION 1: NextAuth.js Version
 
 ### Files Analyzed
+
 - `package.json` (line 23: "next-auth": "^4.24.5")
 - `app/api/auth/` (does not exist yet)
 - `lib/auth/` (does not exist yet)
 
 ### Current State Found
+
 - **Package.json shows:** "next-auth": "^4.24.5" (v4)
 - **No existing auth implementation** (greenfield project)
 - **No v5 dependencies** (@auth/nextjs not installed)
@@ -37,6 +40,7 @@ All decisions prioritize: **Security > Performance > Simplicity > User Experienc
 ### Decision: **NextAuth.js v4**
 
 ### Reasoning
+
 1. **Already installed**: v4.24.5 is present in package.json
 2. **Stability**: v4 is mature, stable, extensively documented
 3. **Community support**: Larger ecosystem, more Stack Overflow answers
@@ -47,6 +51,7 @@ All decisions prioritize: **Security > Performance > Simplicity > User Experienc
 ### Implementation Impact
 
 **Code Patterns:**
+
 ```typescript
 // NextAuth v4 pattern
 import NextAuth, { NextAuthOptions } from 'next-auth';
@@ -63,16 +68,19 @@ export { handler as GET, handler as POST };
 ```
 
 **Import Statements:**
+
 - `import NextAuth from 'next-auth'` (not `import { auth } from '@/auth'`)
 - `import GoogleProvider from 'next-auth/providers/google'`
 - `import { getServerSession } from 'next-auth/next'`
 
 **Config Structure:**
+
 - `authOptions` object exported separately
 - File: `app/api/auth/[...nextauth]/route.ts`
 - No separate `auth.ts` config file
 
 **Files to Create/Update:**
+
 - `app/api/auth/[...nextauth]/route.ts` (v4 route handler)
 - `types/next-auth.d.ts` (v4 type extensions)
 - `lib/auth/auth-options.ts` (optional: separate config)
@@ -82,11 +90,13 @@ export { handler as GET, handler as POST };
 ## DECISION 2: Session Strategy
 
 ### Files Analyzed
+
 - `prisma/schema.prisma` (does not exist yet)
 - `.env.example` (no session-related variables)
 - Deployment target: Vercel/Railway (serverless)
 
 ### Current State Found
+
 - **No Prisma schema**: Database not created yet
 - **No Session model**: Not defined
 - **Serverless deployment**: .env.example shows Vercel pattern
@@ -97,6 +107,7 @@ export { handler as GET, handler as POST };
 ### Reasoning
 
 **Pros (Why JWT is best for this project):**
+
 1. **Serverless-friendly**: No database query on every request
 2. **Performance**: Faster (no DB roundtrip for session validation)
 3. **Simpler schema**: No Session table needed (less complexity)
@@ -105,11 +116,13 @@ export { handler as GET, handler as POST };
 6. **Immediate session updates**: Can update JWT on client
 
 **Cons (Accepted tradeoffs):**
+
 1. **Cannot revoke until expiry**: Mitigated by short expiration (30 days)
 2. **Token size limits**: Our session data is small (id, email, tier, role)
 3. **Less secure if stolen**: Mitigated by httpOnly, secure cookies
 
 **Why NOT Database Sessions:**
+
 - Requires Session table (additional schema complexity)
 - DB query on every page load (slower, more expensive)
 - Serverless cold starts compound latency
@@ -118,6 +131,7 @@ export { handler as GET, handler as POST };
 ### Implementation Impact
 
 **Configuration:**
+
 ```typescript
 export const authOptions: NextAuthOptions = {
   // NO adapter for JWT sessions
@@ -162,11 +176,13 @@ export const authOptions: NextAuthOptions = {
 ```
 
 **Schema Changes:**
+
 - **DO NOT create Session model**
 - **DO NOT create VerificationToken model** (not needed for JWT)
 - **DO create Account model** (for OAuth provider linking)
 
 **Files Affected:**
+
 - `app/api/auth/[...nextauth]/route.ts` - No adapter, session: 'jwt'
 - `prisma/schema.prisma` - Account model only (no Session)
 
@@ -175,11 +191,13 @@ export const authOptions: NextAuthOptions = {
 ## DECISION 3: Account Linking Security
 
 ### Files Analyzed
+
 - `app/api/auth/register/route.ts` (does not exist)
 - `prisma/schema.prisma` (does not exist)
 - Email verification flow (not implemented)
 
 ### Current State Found
+
 - **No existing users**: Greenfield project
 - **No email verification system**: Not implemented yet
 - **No account linking system**: Not implemented
@@ -191,6 +209,7 @@ export const authOptions: NextAuthOptions = {
 **Security Analysis:**
 
 ❌ **Automatic Linking (allowDangerousEmailAccountLinking: true) - REJECTED**
+
 - **Attack scenario:**
   1. Attacker registers with victim@gmail.com (email/password)
   2. Attacker doesn't verify email
@@ -200,11 +219,13 @@ export const authOptions: NextAuthOptions = {
 - **SECURITY RISK: Account takeover vulnerability**
 
 ❌ **Manual Linking Only - REJECTED**
+
 - Too complex for users
 - Requires separate "Link Google" UI in settings
 - Poor UX for common use case (user switches auth methods)
 
 ✅ **Verified-Only Linking - SELECTED**
+
 - **Safe**: OAuth users have verified email (Google verified it)
 - **Secure**: Email/password users MUST verify email before linking
 - **Good UX**: Automatic linking for legitimate users
@@ -213,6 +234,7 @@ export const authOptions: NextAuthOptions = {
 ### Implementation Impact
 
 **NextAuth Configuration:**
+
 ```typescript
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -228,7 +250,7 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === 'google') {
         // Check if user exists
         const existingUser = await prisma.user.findUnique({
-          where: { email: user.email! }
+          where: { email: user.email! },
         });
 
         if (existingUser) {
@@ -239,7 +261,7 @@ export const authOptions: NextAuthOptions = {
               where: { id: existingUser.id },
               data: {
                 image: user.image, // Update Google profile picture
-              }
+              },
             });
             return true; // Allow sign-in
           } else {
@@ -256,12 +278,13 @@ export const authOptions: NextAuthOptions = {
       }
 
       return true; // Allow credentials provider
-    }
-  }
+    },
+  },
 };
 ```
 
 **Error Handling:**
+
 ```typescript
 // On login page
 const result = await signIn('google', { redirect: false });
@@ -269,12 +292,13 @@ const result = await signIn('google', { redirect: false });
 if (result?.error === 'Callback') {
   setError(
     'Email already in use but not verified. ' +
-    'Please verify your email first, then link Google account.'
+      'Please verify your email first, then link Google account.'
   );
 }
 ```
 
 **Database Schema:**
+
 ```prisma
 model User {
   email         String    @unique
@@ -284,6 +308,7 @@ model User {
 ```
 
 **Policy:**
+
 - All email/password users MUST verify email
 - Email verification emails sent on registration
 - OAuth users auto-verified (emailVerified = now())
@@ -294,10 +319,12 @@ model User {
 ## DECISION 4: Password Field Nullable
 
 ### Files Analyzed
+
 - `prisma/schema.prisma` (does not exist)
 - `app/api/auth/register/route.ts` (does not exist)
 
 ### Current State Found
+
 - **No existing schema**: Greenfield project
 - **No production users**: Can design schema freely
 
@@ -306,6 +333,7 @@ model User {
 ### Reasoning
 
 **Why Nullable:**
+
 1. **OAuth-only users**: Users who sign up with Google don't have passwords
 2. **Cleaner design**: NULL clearly indicates "no password set"
 3. **Simpler logic**: Easy to check `if (!user.password)` for OAuth-only users
@@ -313,6 +341,7 @@ model User {
 5. **No fake passwords**: Avoid generating random passwords for OAuth users
 
 **Why NOT Required:**
+
 - Forces generation of random passwords for OAuth users
 - Wastes database space
 - More complex validation logic
@@ -321,6 +350,7 @@ model User {
 ### Implementation Impact
 
 **Prisma Schema:**
+
 ```prisma
 model User {
   id                  String    @id @default(cuid())
@@ -350,6 +380,7 @@ model User {
 ```
 
 **Validation Logic:**
+
 ```typescript
 // Email/password login
 async authorize(credentials) {
@@ -376,10 +407,12 @@ async authorize(credentials) {
 ```
 
 **Migration:**
+
 - No migration needed (greenfield)
 - Initial migration: `password String?` from the start
 
 **User Types:**
+
 1. **Email/password only**: password = hashed string, accounts = []
 2. **OAuth only**: password = NULL, accounts = [Google]
 3. **Hybrid (linked)**: password = hashed string, accounts = [Google]
@@ -389,10 +422,12 @@ async authorize(credentials) {
 ## DECISION 5: Email Verification Flow
 
 ### Files Analyzed
+
 - Email verification not yet implemented
 - Resend API key in .env.example
 
 ### Current State Found
+
 - **No email system**: Not implemented
 - **Resend API planned**: .env.example shows RESEND_API_KEY
 - **No verification flow**: Greenfield
@@ -402,17 +437,20 @@ async authorize(credentials) {
 ### Reasoning
 
 **For Google OAuth Users:**
+
 - **Google has already verified the email** (OAuth requires verified email)
 - **Trust the OAuth provider** (industry standard)
 - **Better UX**: User can use app immediately after OAuth signup
 - **No extra emails needed**: Less complexity, lower email costs
 
 **For Email/Password Users:**
+
 - **Must verify email** (security best practice)
 - **Send verification link** via Resend
 - **Cannot link Google** until email verified (security)
 
 **Why this makes sense:**
+
 1. **Different trust levels**: OAuth = provider verified, Email = self-claimed
 2. **Industry standard**: GitHub, GitLab, etc. auto-verify OAuth users
 3. **Security maintained**: Verified-only linking prevents takeover
@@ -421,6 +459,7 @@ async authorize(credentials) {
 ### Implementation Impact
 
 **OAuth Sign-In Callback:**
+
 ```typescript
 callbacks: {
   async signIn({ user, account }) {
@@ -456,6 +495,7 @@ callbacks: {
 ```
 
 **Email/Password Registration:**
+
 ```typescript
 // app/api/auth/register/route.ts
 export async function POST(req: NextRequest) {
@@ -468,19 +508,20 @@ export async function POST(req: NextRequest) {
       name,
       tier: 'FREE',
       emailVerified: null, // ← Not verified yet
-    }
+    },
   });
 
   // Send verification email
   await sendVerificationEmail(email, verificationToken);
 
   return NextResponse.json({
-    message: 'Please check your email to verify your account'
+    message: 'Please check your email to verify your account',
   });
 }
 ```
 
 **Middleware (Enforce Verification):**
+
 ```typescript
 // Only enforce verification for email/password users
 // OAuth users auto-verified
@@ -490,7 +531,7 @@ export async function middleware(request: NextRequest) {
   if (session?.user) {
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      include: { accounts: true }
+      include: { accounts: true },
     });
 
     // If email/password user (no OAuth accounts) and not verified
@@ -507,10 +548,12 @@ export async function middleware(request: NextRequest) {
 ## DECISION 6: Profile Picture Handling
 
 ### Files Analyzed
+
 - No avatar upload feature documented
 - No user settings UI implemented yet
 
 ### Current State Found
+
 - **No avatar upload**: Not implemented
 - **User.image field**: Not in current schema (will add)
 
@@ -519,27 +562,31 @@ export async function middleware(request: NextRequest) {
 ### Reasoning
 
 **Selected Strategy: Fallback**
+
 - **First time OAuth signup**: Use Google profile picture
 - **If user uploads custom avatar**: Keep custom avatar (don't overwrite)
 - **If user has no custom avatar**: Use Google picture as fallback
 - **User control**: Can change in settings later
 
 **Why NOT Always Use Google:**
+
 - Users lose control over their profile picture
 - Custom avatars get overwritten on every login
 - Poor UX if user uploaded professional headshot
 
 **Why NOT User Choice:**
+
 - Too complex for initial implementation
 - Requires additional UI (toggle in settings)
 - Most users won't care enough to toggle
 
 **Implementation:**
+
 ```typescript
 // signIn callback
 if (account?.provider === 'google') {
   const existingUser = await prisma.user.findUnique({
-    where: { email: user.email! }
+    where: { email: user.email! },
   });
 
   if (existingUser) {
@@ -549,7 +596,7 @@ if (account?.provider === 'google') {
         where: { id: existingUser.id },
         data: {
           image: user.image, // ← Use Google picture as fallback
-        }
+        },
       });
     }
     // If user has custom image, don't overwrite it
@@ -561,6 +608,7 @@ if (account?.provider === 'google') {
 ```
 
 **Future Enhancement:**
+
 - Add "Use Google Profile Picture" button in settings
 - Allow user to switch back to Google picture if desired
 - Store both custom and OAuth pictures separately
@@ -570,11 +618,13 @@ if (account?.provider === 'google') {
 ## DECISION 7: Production Environment Setup
 
 ### Files Analyzed
+
 - `.env.example` (shows dev and prod NEXTAUTH_URL)
 - `vercel.json` (does not exist)
 - README.md mentions Vercel deployment
 
 ### Current State Found
+
 - **Deployment platform**: Vercel (from .env.example comments)
 - **No staging environment**: Only dev + prod
 - **Single domain structure**: No multi-environment setup
@@ -584,10 +634,12 @@ if (account?.provider === 'google') {
 ### Reasoning
 
 **Environments:**
+
 1. **Development**: `http://localhost:3000`
 2. **Production**: `https://yourdomain.vercel.app` (or custom domain)
 
 **No Staging Environment:**
+
 - Project structure shows only dev/prod
 - Staging adds complexity without clear benefit for this project
 - Can test on preview deployments (Vercel feature)
@@ -595,6 +647,7 @@ if (account?.provider === 'google') {
 **Google OAuth Apps Strategy:**
 
 **Option A: One Google App, Multiple Redirect URIs** ← **SELECTED**
+
 ```
 Google OAuth App: "Trading Alerts SaaS"
 Authorized redirect URIs:
@@ -604,16 +657,19 @@ Authorized redirect URIs:
 ```
 
 **Pros:**
+
 - Simpler management (one set of credentials)
 - Easier to add new redirect URIs
 - Lower maintenance burden
 - Same client ID/secret for all environments
 
 **Cons (Mitigated):**
+
 - Shared credentials (mitigated: use environment variables)
 - Cannot isolate dev/prod (low risk for this project)
 
 **Why NOT Separate Apps:**
+
 - More complex (2 client IDs, 2 secrets)
 - Must update environment variables per environment
 - Overkill for small team/solo project
@@ -622,6 +678,7 @@ Authorized redirect URIs:
 ### Implementation Impact
 
 **Google Cloud Console Setup:**
+
 1. Create ONE Google Cloud project: "Trading Alerts SaaS"
 2. Create ONE OAuth 2.0 Client
 3. Add ALL redirect URIs (dev + prod)
@@ -629,6 +686,7 @@ Authorized redirect URIs:
 **Environment Variables:**
 
 **Development (.env.local):**
+
 ```bash
 GOOGLE_CLIENT_ID=same_client_id_for_all
 GOOGLE_CLIENT_SECRET=same_secret_for_all
@@ -637,6 +695,7 @@ NEXTAUTH_SECRET=dev_secret_here
 ```
 
 **Production (Vercel Environment Variables):**
+
 ```bash
 GOOGLE_CLIENT_ID=same_client_id_for_all
 GOOGLE_CLIENT_SECRET=same_secret_for_all
@@ -645,6 +704,7 @@ NEXTAUTH_SECRET=prod_secret_here (different from dev)
 ```
 
 **Redirect URIs in Google Console:**
+
 ```
 Authorized redirect URIs:
   - http://localhost:3000/api/auth/callback/google
@@ -654,6 +714,7 @@ Authorized redirect URIs:
 ```
 
 **Production Domain:**
+
 - To be determined by Human
 - Can be Vercel default (.vercel.app) or custom domain
 - Must update Google OAuth redirect URIs after deploying
@@ -663,10 +724,12 @@ Authorized redirect URIs:
 ## DECISION 8: Error Handling Strategy
 
 ### Files Analyzed
+
 - `docs/policies/02-quality-standards.md` (comprehensive error handling required)
 - No existing auth error handlers
 
 ### Current State Found
+
 - **Quality standards**: Extensive error handling policies
 - **No existing patterns**: Greenfield implementation
 
@@ -675,6 +738,7 @@ Authorized redirect URIs:
 ### Reasoning
 
 **Why Specific Errors:**
+
 1. **Better UX**: Users know exactly what went wrong
 2. **Easier debugging**: Developers can identify issues quickly
 3. **Meets quality standards**: Policy 02 requires comprehensive error handling
@@ -684,6 +748,7 @@ Authorized redirect URIs:
 **Error Categories:**
 
 **1. Authentication Errors:**
+
 ```typescript
 switch (error.type) {
   case 'CredentialsSignin':
@@ -704,17 +769,19 @@ switch (error.type) {
 ```
 
 **2. Account Linking Errors:**
+
 ```typescript
 if (!existingUser.emailVerified) {
   return {
     error: 'Email not verified',
     message: 'Please verify your email address before linking Google account.',
-    action: 'check_email'
+    action: 'check_email',
   };
 }
 ```
 
 **3. OAuth State Errors:**
+
 ```typescript
 if (stateMismatch) {
   // Log security event
@@ -723,7 +790,7 @@ if (stateMismatch) {
   return {
     error: 'Security validation failed',
     message: 'Please try signing in again.',
-    code: 'CSRF_DETECTED'
+    code: 'CSRF_DETECTED',
   };
 }
 ```
@@ -731,6 +798,7 @@ if (stateMismatch) {
 ### Implementation Impact
 
 **Login Page Error Display:**
+
 ```tsx
 const handleGoogleLogin = async () => {
   try {
@@ -756,6 +824,7 @@ const handleGoogleLogin = async () => {
 ```
 
 **Error Helper:**
+
 ```typescript
 // lib/auth/errors.ts
 export function getOAuthErrorMessage(errorType: string): {
@@ -764,34 +833,40 @@ export function getOAuthErrorMessage(errorType: string): {
   action?: string;
 } {
   const errors = {
-    'OAuthSignin': {
+    OAuthSignin: {
       title: 'Connection Failed',
-      message: 'Unable to connect to Google. Please check your internet connection.',
+      message:
+        'Unable to connect to Google. Please check your internet connection.',
     },
-    'OAuthCallback': {
+    OAuthCallback: {
       title: 'Authorization Failed',
       message: 'Google authorization was not completed. Please try again.',
     },
-    'OAuthAccountNotLinked': {
+    OAuthAccountNotLinked: {
       title: 'Email Already Registered',
-      message: 'This email is already registered with a password. Please sign in with your password first, then link Google in settings.',
-      action: 'Go to Sign In'
+      message:
+        'This email is already registered with a password. Please sign in with your password first, then link Google in settings.',
+      action: 'Go to Sign In',
     },
-    'EmailCreateAccount': {
+    EmailCreateAccount: {
       title: 'Email Already In Use',
-      message: 'An account with this email already exists. Please sign in instead.',
-      action: 'Go to Sign In'
+      message:
+        'An account with this email already exists. Please sign in instead.',
+      action: 'Go to Sign In',
     },
   };
 
-  return errors[errorType] || {
-    title: 'Authentication Error',
-    message: 'An error occurred during sign-in. Please try again.',
-  };
+  return (
+    errors[errorType] || {
+      title: 'Authentication Error',
+      message: 'An error occurred during sign-in. Please try again.',
+    }
+  );
 }
 ```
 
 **Logging Strategy:**
+
 ```typescript
 // Server-side: Log detailed errors
 console.error('OAuth error:', {
@@ -799,7 +874,7 @@ console.error('OAuth error:', {
   code: error.code,
   provider: account?.provider,
   email: user?.email,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 // Client-side: Show user-friendly message
@@ -811,11 +886,13 @@ setError('Failed to sign in with Google. Please try again.');
 ## DECISION 9: Testing Strategy for OAuth
 
 ### Files Analyzed
+
 - `package.json` (no test framework installed)
 - No `/tests` directory
 - No CI/CD workflows
 
 ### Current State Found
+
 - **No testing infrastructure**: No Jest, Cypress, Playwright
 - **Manual testing**: Primary testing method
 - **Solo/small team**: Based on project structure
@@ -825,22 +902,26 @@ setError('Failed to sign in with Google. Please try again.');
 ### Reasoning
 
 **Why Localhost Testing:**
+
 1. **Simplest setup**: Google OAuth works with localhost
 2. **Fast iteration**: No need for tunneling or deployment
 3. **Cost-free**: No additional services required
 4. **Sufficient for solo dev**: Matches team size
 
 **Why NOT ngrok/Tunneling:**
+
 - Adds complexity
 - Not needed (localhost supported by Google)
 - Extra tool to manage
 
 **Why NOT Separate Test App:**
+
 - Overkill for current project size
 - Can use same Google app with localhost redirect
 - Adds management overhead
 
 **Testing Approach:**
+
 1. **Local Development**: Test with `http://localhost:3000`
 2. **Google Console**: Add localhost callback URL
 3. **Manual Testing**: Follow comprehensive checklist (Task 8)
@@ -849,6 +930,7 @@ setError('Failed to sign in with Google. Please try again.');
 ### Implementation Impact
 
 **Google Console Setup (Development):**
+
 ```
 Authorized redirect URIs:
   ✅ http://localhost:3000/api/auth/callback/google
@@ -856,6 +938,7 @@ Authorized redirect URIs:
 ```
 
 **Local Testing Workflow:**
+
 ```bash
 # 1. Start development server
 pnpm dev
@@ -881,11 +964,13 @@ npx prisma studio
 ```
 
 **Testing Checklist:**
+
 - See Task 8: `docs/testing/oauth-testing-checklist.md` (126 tests)
 - Manual testing covers all scenarios
 - No automated tests initially (can add later)
 
 **CI/CD:**
+
 - No automated testing initially
 - Manual approval before production
 - Vercel preview deployments for staging tests
@@ -895,11 +980,13 @@ npx prisma studio
 ## DECISION 10: Database Migration for Existing Users
 
 ### Files Analyzed
+
 - `prisma/schema.prisma` (does not exist)
 - `prisma/migrations/` (does not exist)
 - No production database
 
 ### Current State Found
+
 - **Greenfield project**: No database created
 - **No existing users**: No production users
 - **No migrations**: First migration will be initial schema
@@ -909,11 +996,13 @@ npx prisma studio
 ### Reasoning
 
 **Why No Migration:**
+
 1. **No existing database**: This is the first schema
 2. **No production users**: Cannot break existing data
 3. **Clean slate**: Can design schema optimally from start
 
 **Initial Schema Design:**
+
 ```prisma
 // This is the FIRST migration
 model User {
@@ -965,6 +1054,7 @@ model Account {
 ### Implementation Impact
 
 **First Migration:**
+
 ```bash
 # Create initial migration with OAuth support
 npx prisma migrate dev --name initial_schema_with_oauth
@@ -977,10 +1067,12 @@ npx prisma migrate dev --name initial_schema_with_oauth
 ```
 
 **No Rollback Needed:**
+
 - First migration, nothing to roll back
 - If issues found, can delete database and recreate
 
 **Future Migrations:**
+
 - When adding new OAuth providers (GitHub, etc.):
   - No schema changes needed (Account model supports it)
   - Just add new provider in NextAuth config
@@ -990,10 +1082,12 @@ npx prisma migrate dev --name initial_schema_with_oauth
 ## DECISION 11: Multiple Callback URLs Strategy
 
 ### Files Analyzed
+
 - `.env.example` (shows dev and prod URLs)
 - No vercel.json (Vercel auto-configures)
 
 ### Current State Found
+
 - **2 environments**: Dev + Prod
 - **Single domain**: One production URL
 
@@ -1002,6 +1096,7 @@ npx prisma migrate dev --name initial_schema_with_oauth
 ### Reasoning
 
 **Why One Google App:**
+
 1. **Simpler management**: One Client ID, one Secret
 2. **Easier to add environments**: Just add redirect URI
 3. **Lower overhead**: Don't need to manage multiple apps
@@ -1009,6 +1104,7 @@ npx prisma migrate dev --name initial_schema_with_oauth
 5. **Standard practice**: Common for small/medium projects
 
 **Redirect URIs to Add:**
+
 ```
 Google Cloud Console → Credentials → OAuth 2.0 Client → Authorized redirect URIs:
 
@@ -1031,10 +1127,12 @@ Vercel Preview Deployments (optional):
 **Google Cloud Console Setup:**
 
 **Step 1: Create OAuth 2.0 Client**
+
 - Name: "Trading Alerts SaaS"
 - Application type: Web application
 
 **Step 2: Add All Redirect URIs**
+
 ```
 Authorized redirect URIs:
   http://localhost:3000/api/auth/callback/google
@@ -1043,12 +1141,14 @@ Authorized redirect URIs:
 ```
 
 **Step 3: Copy Credentials**
+
 - Client ID: Store in GOOGLE_CLIENT_ID
 - Client Secret: Store in GOOGLE_CLIENT_SECRET
 
 **Environment Variables (Same for All):**
 
 **Development:**
+
 ```bash
 GOOGLE_CLIENT_ID=123456-abc.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=GOCSPX-xyz123
@@ -1056,6 +1156,7 @@ NEXTAUTH_URL=http://localhost:3000
 ```
 
 **Production (Vercel):**
+
 ```bash
 GOOGLE_CLIENT_ID=123456-abc.apps.googleusercontent.com  # ← Same
 GOOGLE_CLIENT_SECRET=GOCSPX-xyz123  # ← Same
@@ -1063,12 +1164,14 @@ NEXTAUTH_URL=https://yourdomain.vercel.app  # ← Different
 ```
 
 **Advantages:**
+
 - Single source of truth for credentials
 - Easy to test locally
 - No environment-specific configuration in code
 - NEXTAUTH_URL automatically constructs callback URL
 
 **Security:**
+
 - Redirect URIs are strictly validated by Google
 - Even with shared credentials, cannot redirect to unauthorized URLs
 - Production NEXTAUTH_SECRET is different (unique per env)
@@ -1078,11 +1181,13 @@ NEXTAUTH_URL=https://yourdomain.vercel.app  # ← Different
 ## DECISION 12: Tier Upgrade Journey for OAuth Users
 
 ### Files Analyzed
+
 - `/docs/v5-structure-division.md` (pricing page planned)
 - `/docs/trading_alerts_openapi.yaml` (tier system defined)
 - Payment integration documented (Stripe + dLocal)
 
 ### Current State Found
+
 - **2-tier system**: FREE and PRO
 - **All users start FREE**: Documented in OpenAPI spec
 - **Payment separate**: Stripe/dLocal webhooks handle upgrades
@@ -1093,24 +1198,28 @@ NEXTAUTH_URL=https://yourdomain.vercel.app  # ← Different
 ### Reasoning
 
 **Selected: Option A (Standard Onboarding)**
+
 - OAuth user signs in → Redirects to `/dashboard`
 - Sees FREE tier features
 - Can click "Upgrade to PRO" anytime
 - Same flow as email/password users
 
 **Why NOT Immediate Upgrade Prompt:**
+
 - Too aggressive (poor UX)
 - Users want to explore app first
 - May feel like bait-and-switch
 - Not aligned with existing design
 
 **Why NOT Smart Banner:**
+
 - Adds complexity (dismissible banner state)
 - May be ignored anyway
 - Current design doesn't show upgrade prompts
 - Tier badge in header is sufficient
 
 **Consistency is Key:**
+
 - Email users: Dashboard first
 - OAuth users: Dashboard first ← Same
 - Payment method independent of auth method
@@ -1119,6 +1228,7 @@ NEXTAUTH_URL=https://yourdomain.vercel.app  # ← Different
 ### Implementation Impact
 
 **OAuth Callback Redirect:**
+
 ```typescript
 // After successful OAuth sign-in
 callbacks: {
@@ -1131,6 +1241,7 @@ callbacks: {
 ```
 
 **Dashboard Display (FREE tier):**
+
 ```tsx
 // app/(dashboard)/dashboard/page.tsx
 export default function Dashboard() {
@@ -1156,6 +1267,7 @@ export default function Dashboard() {
 ```
 
 **Upgrade Flow (Same for ALL users):**
+
 ```
 1. User clicks "Upgrade to PRO" (in header or pricing page)
    ↓
@@ -1175,6 +1287,7 @@ export default function Dashboard() {
 ```
 
 **Key Principle:**
+
 ```
 Authentication Method ≠ Payment Provider
 - Google OAuth user → Can pay with Stripe OR dLocal
@@ -1183,6 +1296,7 @@ Authentication Method ≠ Payment Provider
 ```
 
 **UI Consistency:**
+
 - No "Welcome, Google User!" messages
 - No special OAuth onboarding screens
 - Same dashboard for everyone
@@ -1193,44 +1307,48 @@ Authentication Method ≠ Payment Provider
 
 ## Summary Table
 
-| # | Ambiguity | Decision | Rationale | Migration Required |
-|---|-----------|----------|-----------|-------------------|
-| 1 | NextAuth Version | **v4** | Already installed, stable, production-ready | No |
-| 2 | Session Strategy | **JWT** | Serverless-friendly, faster, no Session table | No |
-| 3 | Account Linking | **Verified-only** | Secure, prevents account takeover | No |
-| 4 | Password Nullable | **Yes (String?)** | Clean design for OAuth-only users | No (greenfield) |
-| 5 | Email Verification | **Auto-verify OAuth** | Google verified, better UX | No |
-| 6 | Profile Picture | **Fallback** | Use Google only if no custom avatar | No |
-| 7 | Production Setup | **One domain** | Vercel deployment, simple structure | No |
-| 8 | Error Handling | **Specific errors** | Better UX, meets quality standards | No |
-| 9 | Testing Strategy | **Localhost + Manual** | Simple, sufficient for team size | No |
-| 10 | Database Migration | **Not needed** | Greenfield project, initial schema | No (greenfield) |
-| 11 | Callback URLs | **One app, multiple URIs** | Simpler management, sufficient security | No |
-| 12 | Tier Upgrade UX | **Standard onboarding** | Consistency with email users | No |
+| #   | Ambiguity          | Decision                   | Rationale                                     | Migration Required |
+| --- | ------------------ | -------------------------- | --------------------------------------------- | ------------------ |
+| 1   | NextAuth Version   | **v4**                     | Already installed, stable, production-ready   | No                 |
+| 2   | Session Strategy   | **JWT**                    | Serverless-friendly, faster, no Session table | No                 |
+| 3   | Account Linking    | **Verified-only**          | Secure, prevents account takeover             | No                 |
+| 4   | Password Nullable  | **Yes (String?)**          | Clean design for OAuth-only users             | No (greenfield)    |
+| 5   | Email Verification | **Auto-verify OAuth**      | Google verified, better UX                    | No                 |
+| 6   | Profile Picture    | **Fallback**               | Use Google only if no custom avatar           | No                 |
+| 7   | Production Setup   | **One domain**             | Vercel deployment, simple structure           | No                 |
+| 8   | Error Handling     | **Specific errors**        | Better UX, meets quality standards            | No                 |
+| 9   | Testing Strategy   | **Localhost + Manual**     | Simple, sufficient for team size              | No                 |
+| 10  | Database Migration | **Not needed**             | Greenfield project, initial schema            | No (greenfield)    |
+| 11  | Callback URLs      | **One app, multiple URIs** | Simpler management, sufficient security       | No                 |
+| 12  | Tier Upgrade UX    | **Standard onboarding**    | Consistency with email users                  | No                 |
 
 ---
 
 ## Implementation Priority Order
 
 ### Phase 1: Foundation (Do First)
+
 1. ✅ Create Prisma schema with Account model (Decision 4, 10)
 2. ✅ Run initial migration: `npx prisma migrate dev --name initial_with_oauth`
 3. ✅ Set up Google Cloud Console OAuth app (Decision 7, 11)
 4. ✅ Add environment variables (Decision 7)
 
 ### Phase 2: Core Integration
+
 5. ✅ Implement NextAuth v4 configuration (Decision 1, 2)
 6. ✅ Add GoogleProvider with verified-only linking (Decision 3)
 7. ✅ Implement JWT callbacks with tier/role (Decision 2)
 8. ✅ Update login/register pages with OAuth buttons (Decision 12)
 
 ### Phase 3: Security & UX
+
 9. ✅ Implement email verification (Decision 5)
 10. ✅ Add error handling (Decision 8)
 11. ✅ Profile picture logic (Decision 6)
 12. ✅ Type definitions (Decision 1)
 
 ### Phase 4: Documentation & Testing
+
 13. ✅ Create all documentation files (Tasks 2-10)
 14. ✅ Manual testing with localhost (Decision 9)
 15. ✅ Production deployment with correct redirect URIs (Decision 7, 11)
@@ -1306,6 +1424,7 @@ model Account {
 ## Environment Variables Required
 
 ### Development (.env.local)
+
 ```bash
 # Google OAuth (from Google Cloud Console)
 GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
@@ -1323,6 +1442,7 @@ RESEND_API_KEY=re_your_api_key
 ```
 
 ### Production (Vercel Environment Variables)
+
 ```bash
 # Google OAuth (same credentials as dev)
 GOOGLE_CLIENT_ID=your_client_id.apps.googleusercontent.com
@@ -1344,15 +1464,18 @@ RESEND_API_KEY=re_your_production_key
 ## Google Cloud Console Setup Steps
 
 ### Step 1: Create Project
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create new project: "Trading Alerts SaaS"
 
 ### Step 2: Enable APIs
+
 1. Navigate to **APIs & Services** > **Library**
 2. Search "Google+ API"
 3. Click **Enable**
 
 ### Step 3: Configure OAuth Consent Screen
+
 1. **APIs & Services** > **OAuth consent screen**
 2. Select **External** (for public app)
 3. Fill in:
@@ -1365,6 +1488,7 @@ RESEND_API_KEY=re_your_production_key
 5. Add test users (for development)
 
 ### Step 4: Create OAuth 2.0 Credentials
+
 1. **APIs & Services** > **Credentials**
 2. Click **Create Credentials** > **OAuth 2.0 Client ID**
 3. Application type: **Web application**
@@ -1383,17 +1507,21 @@ RESEND_API_KEY=re_your_production_key
 ## Risk Assessment
 
 ### High Risk Items
+
 **None identified.** This is a greenfield implementation with secure defaults.
 
 ### Medium Risk Items
+
 1. **Account linking**: Mitigated by verified-only strategy
 2. **JWT session expiration**: Mitigated by 30-day expiry, user can re-login
 
 ### Low Risk Items
+
 1. **Google API rate limits**: Unlikely to hit with small user base
 2. **Profile picture updates**: Minor UX issue, can enhance later
 
 ### Mitigation Strategies
+
 1. **Email verification enforcement**: Prevent unverified email account takeover
 2. **Error logging**: Capture OAuth errors for debugging
 3. **Localhost testing**: Thorough manual testing before production
@@ -1404,19 +1532,23 @@ RESEND_API_KEY=re_your_production_key
 ## Next Steps for Implementation
 
 ### 1. Human Review & Approval
+
 - **Action**: Human reviews this decision document
 - **Approve**: All 12 decisions acceptable?
 - **Modify**: Any decisions need changes?
 
 ### 2. Google Cloud Console Setup
+
 - **Action**: Follow Step 4 above to create OAuth credentials
 - **Deliverable**: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
 
 ### 3. Environment Variables
+
 - **Action**: Add OAuth variables to .env.local
 - **Test**: Verify NEXTAUTH_URL and NEXTAUTH_SECRET set
 
 ### 4. Documentation Updates (Claude Code)
+
 - **Task 2**: Update implementation guide with decisions
 - **Task 3**: Update OpenAPI contract
 - **Task 4**: Create ARCHITECTURE.md with OAuth section
@@ -1428,16 +1560,19 @@ RESEND_API_KEY=re_your_production_key
 - **Task 10**: Create summary document
 
 ### 5. Implementation (Aider)
+
 - **Action**: Aider builds OAuth system following all decisions
 - **Files**: 13 implementation files (listed in summary doc)
 - **Validation**: Claude Code validates against policies
 
 ### 6. Testing (Human)
+
 - **Action**: Human tests OAuth flow locally
 - **Checklist**: Follow 126-point testing checklist
 - **Approve**: Ready for production deployment
 
 ### 7. Deployment
+
 - **Action**: Deploy to Vercel production
 - **Update**: Google OAuth redirect URIs with production URL
 - **Monitor**: Watch for OAuth errors in production
@@ -1447,6 +1582,7 @@ RESEND_API_KEY=re_your_production_key
 ## Success Criteria
 
 ### Documentation Complete ✅
+
 - [x] All 12 decisions made with clear reasoning
 - [x] Decisions match greenfield project requirements
 - [x] Security best practices followed (verified-only linking)
@@ -1456,6 +1592,7 @@ RESEND_API_KEY=re_your_production_key
 - [x] Risk assessment complete
 
 ### Ready for Implementation ✅
+
 - [x] Schema design finalized
 - [x] Environment structure defined
 - [x] Google Console setup steps documented
@@ -1464,6 +1601,7 @@ RESEND_API_KEY=re_your_production_key
 - [x] No ambiguities remaining
 
 ### Security Standards Met ✅
+
 - [x] Verified-only account linking (prevents takeover)
 - [x] JWT sessions with secure cookies
 - [x] Separate NEXTAUTH_SECRET per environment

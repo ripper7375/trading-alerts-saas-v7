@@ -35,6 +35,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 **Verify files loaded:**
+
 ```
 ✓ docs/policies/00-tier-specifications.md
 ✓ docs/policies/01-approval-policies.md
@@ -59,11 +60,13 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 ### Test 1.1: Approval Conditions
 
 **Command:**
+
 ```
 Summarize the approval policies for this project. When do you auto-approve code, when do you auto-fix, and when do you escalate?
 ```
 
 **Expected Answer (Key Points):**
+
 - **Auto-approve when:**
   - 0 Critical issues
   - ≤2 High issues from Claude Code validation
@@ -83,7 +86,7 @@ Summarize the approval policies for this project. When do you auto-approve code,
 
 - **Escalate when:**
   - Critical security vulnerabilities
-  - >3 High severity issues
+  - > 3 High severity issues
   - OpenAPI contract violations (can't auto-fix)
   - Policy conflicts or unclear rules
   - Architectural design decisions
@@ -101,11 +104,13 @@ Summarize the approval policies for this project. When do you auto-approve code,
 ### Test 1.2: Quality Standards
 
 **Command:**
+
 ```
 What are the key quality standards for TypeScript code in this project? Explain why we avoid 'any' types.
 ```
 
 **Expected Answer (Key Points):**
+
 - **TypeScript Standards:**
   - No `any` types (breaks type safety)
   - Use `interface` for object shapes, `type` for unions/intersections
@@ -129,11 +134,13 @@ What are the key quality standards for TypeScript code in this project? Explain 
 ### Test 1.3: Architecture Rules
 
 **Command:**
+
 ```
 Describe the directory structure for this Next.js 15 application. Where should API routes, components, and business logic go?
 ```
 
 **Expected Answer (Key Points):**
+
 - **Directory Structure (per v5-structure-division.md):**
   - `app/` - Next.js 15 App Router pages and layouts
   - `app/api/` - API route handlers
@@ -158,11 +165,13 @@ Describe the directory structure for this Next.js 15 application. Where should A
 ### Test 1.4: Escalation Triggers
 
 **Command:**
+
 ```
 Give me 3 examples of situations where you would escalate to me instead of making a decision yourself.
 ```
 
 **Expected Answer (Examples):**
+
 1. **Architectural Decision:**
    - "Should I use React Context or Zustand for state management? Both are valid."
 
@@ -181,11 +190,13 @@ Give me 3 examples of situations where you would escalate to me instead of makin
 ### Test 1.5: Coding Patterns
 
 **Command:**
+
 ```
 What coding pattern should I use for a Next.js API route? List the key components.
 ```
 
 **Expected Answer (Key Points):**
+
 - **Pattern 1 from 05-coding-patterns.md:**
   1. Imports (Next.js, types, business logic)
   2. Export async function (GET, POST, PUT, DELETE)
@@ -206,11 +217,13 @@ What coding pattern should I use for a Next.js API route? List the key component
 ### Test 1.6: Workflow Steps
 
 **Command:**
+
 ```
 Walk me through your workflow for generating a single file. What are the steps from reading requirements to committing code?
 ```
 
 **Expected Answer (Key Points):**
+
 1. **Read Requirements:**
    - v5-structure-division.md (file location)
    - OpenAPI spec (API contract)
@@ -259,11 +272,13 @@ Walk me through your workflow for generating a single file. What are the steps f
 ### Test 2.1: System Overview
 
 **Command:**
+
 ```
 Describe the high-level architecture of this Trading Alerts SaaS. What are the main components and how do they interact?
 ```
 
 **Expected Answer (Key Points):**
+
 - **Components:**
   1. **Next.js Frontend** - User interface (React, shadcn/ui)
   2. **Next.js API Routes** - Backend API (authentication, CRUD operations)
@@ -286,11 +301,13 @@ Describe the high-level architecture of this Trading Alerts SaaS. What are the m
 ### Test 2.2: Data Flow - Alert Creation
 
 **Command:**
+
 ```
 Explain the data flow when a user creates an alert. Trace the request from UI to database and back.
 ```
 
 **Expected Answer (Flow):**
+
 1. User fills form in `components/alerts/alert-form.tsx`
 2. Form validation (Zod schema)
 3. Submit button → `fetch('/api/alerts', { method: 'POST', body: JSON.stringify(data) })`
@@ -312,11 +329,13 @@ Explain the data flow when a user creates an alert. Trace the request from UI to
 ### Test 2.3: Authentication Flow
 
 **Command:**
+
 ```
 How does authentication work in this application? Explain the login process and how protected routes are secured.
 ```
 
 **Expected Answer (Key Points):**
+
 - **Technology:** NextAuth.js
 - **Login Flow:**
   1. User submits credentials → POST /api/auth/signin
@@ -341,16 +360,19 @@ How does authentication work in this application? Explain the login process and 
 ### Test 2.4: File Location - API Route
 
 **Command:**
+
 ```
 Where should the POST /api/alerts endpoint file be located? Give the exact file path.
 ```
 
 **Expected Answer:**
+
 ```
 app/api/alerts/route.ts
 ```
 
 **Explanation:**
+
 - Next.js 15 App Router uses file-system routing
 - `/api/alerts` → `app/api/alerts/` folder
 - HTTP methods → exported functions in `route.ts`
@@ -364,16 +386,19 @@ app/api/alerts/route.ts
 ### Test 2.5: File Location - Component
 
 **Command:**
+
 ```
 Where should the AlertForm component be located? Give the exact file path.
 ```
 
 **Expected Answer:**
+
 ```
 components/alerts/alert-form.tsx
 ```
 
 **Explanation:**
+
 - Components organized by feature
 - `alerts/` folder groups all alert-related components
 - kebab-case file naming (`alert-form.tsx`)
@@ -388,11 +413,13 @@ components/alerts/alert-form.tsx
 ### Test 2.6: Database Pattern
 
 **Command:**
+
 ```
 How should database operations be structured? Where do Prisma queries go?
 ```
 
 **Expected Answer (Key Points):**
+
 - **Location:** `lib/db/` folder
 - **Organization:** One file per model (e.g., `lib/db/alerts.ts`, `lib/db/users.ts`)
 - **Pattern:**
@@ -402,21 +429,25 @@ How should database operations be structured? Where do Prisma queries go?
   - Add JSDoc comments
 
 - **Example:**
+
 ```typescript
 // lib/db/alerts.ts
-import { prisma } from '@/lib/prisma'
-import type { Alert } from '@prisma/client'
+import { prisma } from '@/lib/prisma';
+import type { Alert } from '@prisma/client';
 
 /**
  * Create a new alert for a user
  */
-export async function createAlert(userId: string, data: CreateAlertData): Promise<Alert> {
+export async function createAlert(
+  userId: string,
+  data: CreateAlertData
+): Promise<Alert> {
   return await prisma.alert.create({
     data: {
       userId,
       ...data,
     },
-  })
+  });
 }
 ```
 
@@ -429,11 +460,13 @@ export async function createAlert(userId: string, data: CreateAlertData): Promis
 ### Test 2.7: Flask MT5 Integration
 
 **Command:**
+
 ```
 How does the Next.js application communicate with the Flask MT5 service? What data is passed?
 ```
 
 **Expected Answer (Key Points):**
+
 - **Communication:** HTTP requests from Next.js API routes to Flask endpoints
 - **Flask URL:** `http://localhost:5001` (dev), environment variable for production
 - **Data Passed:**
@@ -456,11 +489,13 @@ How does the Next.js application communicate with the Flask MT5 service? What da
 ### Test 2.8: Deployment Architecture
 
 **Command:**
+
 ```
 Where will the different parts of this application be deployed?
 ```
 
 **Expected Answer:**
+
 - **Vercel:** Next.js frontend and API routes
 - **Railway:**
   - PostgreSQL database
@@ -468,6 +503,7 @@ Where will the different parts of this application be deployed?
 - **Local/VPS:** MetaTrader 5 terminal (can't be cloud-hosted)
 
 **Connections:**
+
 - Vercel → Railway PostgreSQL (connection string in env)
 - Vercel → Railway Flask (HTTP requests to Flask service URL)
 - Flask → MT5 Terminal (localhost if on same machine, or network connection)
@@ -483,11 +519,13 @@ Where will the different parts of this application be deployed?
 ### Test 3.1: Tier Limits
 
 **Command:**
+
 ```
 What are the tier restrictions in this project? List exactly what FREE and PRO tiers can access.
 ```
 
 **Expected Answer:**
+
 - **FREE Tier:**
   - 5 symbols: BTCUSD, EURUSD, USDJPY, US30, XAUUSD
   - 3 timeframes: H1, H4, D1
@@ -507,13 +545,16 @@ What are the tier restrictions in this project? List exactly what FREE and PRO t
 ### Test 3.2: Tier Validation - Symbol
 
 **Command:**
+
 ```
 A FREE tier user tries to create an alert for GBPUSD. What should happen? What HTTP status code and error message?
 ```
 
 **Expected Answer:**
+
 - **HTTP Status:** `403 Forbidden`
 - **Error Response:**
+
 ```json
 {
   "error": "Forbidden",
@@ -536,13 +577,16 @@ A FREE tier user tries to create an alert for GBPUSD. What should happen? What H
 ### Test 3.3: Tier Validation - Timeframe
 
 **Command:**
+
 ```
 A FREE tier user tries to create an alert for BTCUSD with M15 timeframe. What should happen?
 ```
 
 **Expected Answer:**
+
 - **HTTP Status:** `403 Forbidden`
 - **Error Response:**
+
 ```json
 {
   "error": "Forbidden",
@@ -562,11 +606,13 @@ A FREE tier user tries to create an alert for BTCUSD with M15 timeframe. What sh
 ### Test 3.4: Tier Validation in Flask
 
 **Command:**
+
 ```
 How does the Flask MT5 service enforce tier restrictions? What header is used?
 ```
 
 **Expected Answer:**
+
 - **Header:** `X-User-Tier` (value: "FREE" or "PRO")
 - **Validation:** Flask reads header, validates symbol/timeframe access before querying MT5
 - **If Violation:**
@@ -587,11 +633,13 @@ How does the Flask MT5 service enforce tier restrictions? What header is used?
 ### Test 3.5: Tier Upgrade Flow
 
 **Command:**
+
 ```
 Describe the flow when a user upgrades from FREE to PRO tier. What changes in the database and what new access do they gain?
 ```
 
 **Expected Answer:**
+
 1. **User clicks "Upgrade to PRO"**
 2. **POST /api/subscriptions/checkout** → Create Stripe checkout session
 3. **User completes payment on Stripe**
@@ -608,6 +656,7 @@ Describe the flow when a user upgrades from FREE to PRO tier. What changes in th
    - UI shows "PRO" badge
 
 **Database Changes:**
+
 - `User.tier`: "FREE" → "PRO"
 - `User.stripeCustomerId`: Set
 - `User.stripeSubscriptionId`: Set
@@ -624,11 +673,13 @@ Describe the flow when a user upgrades from FREE to PRO tier. What changes in th
 ### Test 4.1: Next.js 15 Knowledge
 
 **Command:**
+
 ```
 What are the key differences between Server Components and Client Components in Next.js 15? When should each be used?
 ```
 
 **Expected Answer:**
+
 - **Server Components (Default):**
   - Rendered on server
   - Can directly access database (Prisma)
@@ -656,13 +707,15 @@ What are the key differences between Server Components and Client Components in 
 ### Test 4.2: Prisma Knowledge
 
 **Command:**
+
 ```
 How do we query the database in this project? Show an example of creating and reading an alert using Prisma.
 ```
 
 **Expected Answer:**
+
 ```typescript
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma';
 
 // Create an alert
 const newAlert = await prisma.alert.create({
@@ -674,7 +727,7 @@ const newAlert = await prisma.alert.create({
     threshold: 30,
     enabled: true,
   },
-})
+});
 
 // Read user's alerts
 const alerts = await prisma.alert.findMany({
@@ -685,7 +738,7 @@ const alerts = await prisma.alert.findMany({
   orderBy: {
     createdAt: 'desc',
   },
-})
+});
 ```
 
 - **No raw SQL** (use Prisma ORM)
@@ -701,19 +754,22 @@ const alerts = await prisma.alert.findMany({
 ### Test 4.3: TypeScript Types
 
 **Command:**
+
 ```
 Where do the TypeScript types for API requests and responses come from? Should I manually define them?
 ```
 
 **Expected Answer:**
+
 - **Source:** Auto-generated from OpenAPI specs
 - **Generation Scripts:**
   - `scripts/openapi/generate-nextjs-types.sh` → `lib/api-client/`
   - `scripts/openapi/generate-flask-types.sh` → `lib/mt5-client/`
 
 - **Usage:**
+
 ```typescript
-import { Alert, CreateAlertRequest, AlertResponse } from '@/lib/api-client'
+import { Alert, CreateAlertRequest, AlertResponse } from '@/lib/api-client';
 ```
 
 - **NEVER manually define types that exist in OpenAPI** (single source of truth)
@@ -728,17 +784,20 @@ import { Alert, CreateAlertRequest, AlertResponse } from '@/lib/api-client'
 ### Test 4.4: Validation Library
 
 **Command:**
+
 ```
 What library should be used for request validation in API routes?
 ```
 
 **Expected Answer:**
+
 - **Library:** Zod
 - **Why:** Type-safe, integrates with TypeScript, good error messages
 
 - **Example:**
+
 ```typescript
-import { z } from 'zod'
+import { z } from 'zod';
 
 const CreateAlertSchema = z.object({
   symbol: z.string().min(1),
@@ -746,10 +805,10 @@ const CreateAlertSchema = z.object({
   condition: z.string(),
   threshold: z.number().min(0).max(100),
   enabled: z.boolean().default(true),
-})
+});
 
 // In API route
-const body = CreateAlertSchema.parse(await request.json())
+const body = CreateAlertSchema.parse(await request.json());
 ```
 
 **Result:** ✅ PASS / ❌ FAIL
@@ -761,11 +820,13 @@ const body = CreateAlertSchema.parse(await request.json())
 ### Test 4.5: UI Component Library
 
 **Command:**
+
 ```
 What UI component library is used for this project? Give examples of 3 components.
 ```
 
 **Expected Answer:**
+
 - **Library:** shadcn/ui (built on Radix UI + Tailwind CSS)
 
 - **Example Components:**
@@ -774,6 +835,7 @@ What UI component library is used for this project? Give examples of 3 component
   3. `Card` - `components/ui/card.tsx`
 
 - **Usage:**
+
 ```tsx
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -793,11 +855,13 @@ import { Input } from '@/components/ui/input'
 ### Test 4.6: Payment Integration
 
 **Command:**
+
 ```
 What payment provider is used for tier upgrades? How is it integrated?
 ```
 
 **Expected Answer:**
+
 - **Provider:** Stripe
 - **Integration:**
   - Stripe Checkout for payment flow
@@ -824,11 +888,13 @@ What payment provider is used for tier upgrades? How is it integrated?
 ### Test 5.1: OpenAPI Files
 
 **Command:**
+
 ```
 What OpenAPI specification files exist in this project and what do they define?
 ```
 
 **Expected Answer:**
+
 1. **trading_alerts_openapi.yaml:**
    - Next.js API routes
    - ~38 endpoints
@@ -850,11 +916,13 @@ What OpenAPI specification files exist in this project and what do they define?
 ### Test 5.2: Endpoint Definition
 
 **Command:**
+
 ```
 How do I know what request body, response format, and status codes an endpoint should use?
 ```
 
 **Expected Answer:**
+
 - **Read the OpenAPI spec** for that endpoint
 - **Example:** POST /api/alerts
   - Request body schema: `CreateAlertRequest`
@@ -877,27 +945,34 @@ How do I know what request body, response format, and status codes an endpoint s
 ### Test 5.3: Type Safety from OpenAPI
 
 **Command:**
+
 ```
 Explain how OpenAPI specs ensure type safety throughout the application.
 ```
 
 **Expected Answer:**
+
 1. **OpenAPI specs define schemas** (request/response shapes)
 2. **OpenAPI Generator creates TypeScript types** from schemas
 3. **TypeScript enforces types** at compile time
 4. **API routes use generated types:**
-```typescript
-import { CreateAlertRequest, AlertResponse } from '@/lib/api-client'
 
-export async function POST(request: NextRequest): Promise<NextResponse<AlertResponse>> {
-  const body: CreateAlertRequest = await request.json()
+```typescript
+import { CreateAlertRequest, AlertResponse } from '@/lib/api-client';
+
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse<AlertResponse>> {
+  const body: CreateAlertRequest = await request.json();
   // TypeScript ensures body matches CreateAlertRequest shape
   // TypeScript ensures response matches AlertResponse shape
 }
 ```
+
 5. **Components use same types:**
+
 ```tsx
-import { Alert } from '@/lib/api-client'
+import { Alert } from '@/lib/api-client';
 
 export function AlertList({ alerts }: { alerts: Alert[] }) {
   // TypeScript knows Alert shape
@@ -915,16 +990,19 @@ export function AlertList({ alerts }: { alerts: Alert[] }) {
 ### Test 5.4: Contract Violation Handling
 
 **Command:**
+
 ```
 What should happen if I write code that doesn't match the OpenAPI contract? For example, returning a field that's not in the spec.
 ```
 
 **Expected Answer:**
+
 1. **TypeScript compilation error** (if using generated types)
 2. **Claude Code validation error** (contract violation)
 3. **Escalation trigger** (per 04-escalation-triggers.md)
 
 **Correct Response:**
+
 - ❌ Don't return extra fields
 - ✅ Update OpenAPI spec if field is needed
 - ✅ Regenerate types
@@ -941,11 +1019,13 @@ What should happen if I write code that doesn't match the OpenAPI contract? For 
 ### Test 5.5: Postman Collection Generation
 
 **Command:**
+
 ```
 How do we create Postman collections for testing? Do we write them manually?
 ```
 
 **Expected Answer:**
+
 - **Import from OpenAPI specs** (not manual)
 - **Process:**
   1. Open Postman
@@ -967,11 +1047,13 @@ How do we create Postman collections for testing? Do we write them manually?
 ### Test 6.1: API Route Pattern
 
 **Command:**
+
 ```
 Plan the structure for a POST /api/alerts endpoint. Don't write the code yet, just outline what it should contain and in what order.
 ```
 
 **Expected Answer (Structure):**
+
 1. **Imports:**
    - Next.js: `NextRequest`, `NextResponse`
    - Auth: `getServerSession`, `authOptions`
@@ -1022,11 +1104,13 @@ Plan the structure for a POST /api/alerts endpoint. Don't write the code yet, ju
 ### Test 6.2: Client Component Pattern
 
 **Command:**
+
 ```
 Plan the structure for an AlertForm client component. What are the key elements?
 ```
 
 **Expected Answer (Structure):**
+
 1. **'use client' directive** (at top of file)
 
 2. **Imports:**
@@ -1072,6 +1156,7 @@ Plan the structure for an AlertForm client component. What are the key elements?
 ### Test 6.3: Tier Validation Utility Pattern
 
 **Command:**
+
 ```
 Describe the tier validation utility functions. What functions should exist and what do they do?
 ```
@@ -1081,6 +1166,7 @@ Describe the tier validation utility functions. What functions should exist and 
 **File:** `lib/tier/validation.ts`
 
 **Functions:**
+
 1. **`canAccessSymbol(tier: TierType, symbol: string): boolean`**
    - Returns true if tier can access symbol
    - FREE → only 5 symbols
@@ -1115,6 +1201,7 @@ Describe the tier validation utility functions. What functions should exist and 
 ### Test 6.4: Database Utility Pattern
 
 **Command:**
+
 ```
 Describe the pattern for database utility functions. Use alerts as an example - what functions should exist in lib/db/alerts.ts?
 ```
@@ -1124,6 +1211,7 @@ Describe the pattern for database utility functions. Use alerts as an example - 
 **File:** `lib/db/alerts.ts`
 
 **Functions:**
+
 1. **`createAlert(userId: string, data: CreateAlertData): Promise<Alert>`**
    - Insert new alert
    - Return created alert
@@ -1149,6 +1237,7 @@ Describe the pattern for database utility functions. Use alerts as an example - 
    - For alert checking
 
 **All functions:**
+
 - Import Prisma client
 - Use Prisma queries (no raw SQL)
 - Include error handling
@@ -1164,63 +1253,76 @@ Describe the pattern for database utility functions. Use alerts as an example - 
 ### Test 6.5: Error Handling Pattern
 
 **Command:**
+
 ```
 Show me the error handling pattern for API routes. How should errors be caught and returned?
 ```
 
 **Expected Answer:**
+
 ```typescript
 export async function POST(request: NextRequest) {
   try {
     // Authentication
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized', message: 'Authentication required' },
         { status: 401 }
-      )
+      );
     }
 
     // Validation
-    const body = await request.json()
-    const validated = CreateAlertSchema.parse(body)
+    const body = await request.json();
+    const validated = CreateAlertSchema.parse(body);
 
     // Business logic
-    const alert = await createAlert(session.user.id, validated)
+    const alert = await createAlert(session.user.id, validated);
 
     // Success response
-    return NextResponse.json(alert, { status: 201 })
-
+    return NextResponse.json(alert, { status: 201 });
   } catch (error) {
     // Zod validation error
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Bad Request', message: 'Invalid request body', details: error.errors },
+        {
+          error: 'Bad Request',
+          message: 'Invalid request body',
+          details: error.errors,
+        },
         { status: 400 }
-      )
+      );
     }
 
     // Tier validation error (custom error class)
     if (error instanceof TierAccessError) {
       return NextResponse.json(
-        { error: 'Forbidden', message: error.message, availableSymbols: error.allowedValues },
+        {
+          error: 'Forbidden',
+          message: error.message,
+          availableSymbols: error.allowedValues,
+        },
         { status: 403 }
-      )
+      );
     }
 
     // Log unexpected errors
-    console.error('Unexpected error in POST /api/alerts:', error)
+    console.error('Unexpected error in POST /api/alerts:', error);
 
     // Generic error response (don't expose internal details)
     return NextResponse.json(
-      { error: 'Internal Server Error', message: 'An unexpected error occurred' },
+      {
+        error: 'Internal Server Error',
+        message: 'An unexpected error occurred',
+      },
       { status: 500 }
-    )
+    );
   }
 }
 ```
 
 **Key Points:**
+
 - Try/catch around entire handler
 - Specific error handling (auth, validation, tier, etc.)
 - User-friendly error messages
@@ -1237,6 +1339,7 @@ export async function POST(request: NextRequest) {
 ### Test 6.6: Constants File Pattern
 
 **Command:**
+
 ```
 Describe the pattern for constants files. What should be in lib/constants/tiers.ts?
 ```
@@ -1246,28 +1349,61 @@ Describe the pattern for constants files. What should be in lib/constants/tiers.
 **File:** `lib/constants/tiers.ts`
 
 **Contents:**
+
 1. **Tier enum/type:**
+
 ```typescript
-export type TierType = 'FREE' | 'PRO'
+export type TierType = 'FREE' | 'PRO';
 ```
 
 2. **Symbol constants:**
+
 ```typescript
-export const FREE_SYMBOLS = ['BTCUSD', 'EURUSD', 'USDJPY', 'US30', 'XAUUSD'] as const
+export const FREE_SYMBOLS = [
+  'BTCUSD',
+  'EURUSD',
+  'USDJPY',
+  'US30',
+  'XAUUSD',
+] as const;
 export const PRO_SYMBOLS = [
-  'BTCUSD', 'EURUSD', 'USDJPY', 'GBPUSD', 'USDCHF',
-  'AUDUSD', 'NZDUSD', 'USDCAD', 'US30', 'US500',
-  'USTEC', 'XAUUSD', 'XAGUSD', 'USOIL', 'UKOUSD'
-] as const
+  'BTCUSD',
+  'EURUSD',
+  'USDJPY',
+  'GBPUSD',
+  'USDCHF',
+  'AUDUSD',
+  'NZDUSD',
+  'USDCAD',
+  'US30',
+  'US500',
+  'USTEC',
+  'XAUUSD',
+  'XAGUSD',
+  'USOIL',
+  'UKOUSD',
+] as const;
 ```
 
 3. **Timeframe constants:**
+
 ```typescript
-export const FREE_TIMEFRAMES = ['H1', 'H4', 'D1'] as const
-export const PRO_TIMEFRAMES = ['M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12', 'D1'] as const
+export const FREE_TIMEFRAMES = ['H1', 'H4', 'D1'] as const;
+export const PRO_TIMEFRAMES = [
+  'M5',
+  'M15',
+  'M30',
+  'H1',
+  'H2',
+  'H4',
+  'H8',
+  'H12',
+  'D1',
+] as const;
 ```
 
 4. **Limits:**
+
 ```typescript
 export const TIER_LIMITS = {
   FREE: {
@@ -1280,7 +1416,7 @@ export const TIER_LIMITS = {
     timeframes: PRO_TIMEFRAMES,
     maxAlerts: 50,
   },
-} as const
+} as const;
 ```
 
 **Why:** Centralize tier rules, easy to update, type-safe
@@ -1294,6 +1430,7 @@ export const TIER_LIMITS = {
 ### Test 6.7: Seed Code Usage
 
 **Command:**
+
 ```
 When should you reference the seed code repositories, and how should they be used?
 ```
@@ -1301,6 +1438,7 @@ When should you reference the seed code repositories, and how should they be use
 **Expected Answer (from 06-aider-instructions.md):**
 
 **Seed Code Repositories:**
+
 1. **market_ai_engine.py:**
    - **Use for:** Part 6 (Flask MT5 Service)
    - **Reference:** Flask route patterns, MT5 API usage, indicator fetching
@@ -1317,6 +1455,7 @@ When should you reference the seed code repositories, and how should they be use
    - **Key files:** `app/dashboard/layout.tsx`, `components/ui/*`, `components/charts/*`, `lib/utils.ts`
 
 **Important:** Seed code is REFERENCE only. Always:
+
 - Adapt to our OpenAPI contracts
 - Follow our tier system
 - Use our specific business logic
@@ -1333,11 +1472,13 @@ When should you reference the seed code repositories, and how should they be use
 ### Test 7.1: MiniMax M2 Model
 
 **Command:**
+
 ```
 What AI model should you use for this project? Why was it chosen?
 ```
 
 **Expected Answer:**
+
 - **Model:** MiniMax M2 (via Anthropic-compatible API)
 - **Why Chosen:**
   - Cost-effective (vs Claude Opus, GPT-4)
@@ -1347,6 +1488,7 @@ What AI model should you use for this project? Why was it chosen?
   - Anthropic-compatible API
 
 **Command to start Aider:**
+
 ```bash
 py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
@@ -1360,11 +1502,13 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 ### Test 7.2: File Loading on Startup
 
 **Command:**
+
 ```
 What files should you load automatically when starting? List them.
 ```
 
 **Expected Answer (from .aider.conf.yml):**
+
 - Policy documents:
   - docs/policies/00-tier-specifications.md
   - docs/policies/01-approval-policies.md
@@ -1395,11 +1539,13 @@ What files should you load automatically when starting? List them.
 ### Test 7.3: Progress Reporting
 
 **Command:**
+
 ```
 How often should you report progress to me? What information should you include?
 ```
 
 **Expected Answer:**
+
 - **Frequency:** Every 3 files completed
 - **Information to Include:**
   - Part name and number
@@ -1409,6 +1555,7 @@ How often should you report progress to me? What information should you include?
   - Next file to build
 
 **Example Report:**
+
 ```
 📊 PROGRESS UPDATE
 Part 11: Alerts
@@ -1432,6 +1579,7 @@ Next: components/alerts/alert-card.tsx
 ### Test 7.4: Commit Message Format
 
 **Command:**
+
 ```
 What format should commit messages use? Show an example.
 ```
@@ -1440,6 +1588,7 @@ What format should commit messages use? Show an example.
 **Format:** Conventional Commits
 
 **Structure:**
+
 ```
 <type>(<scope>): <description>
 
@@ -1450,6 +1599,7 @@ What format should commit messages use? Show an example.
 ```
 
 **Example:**
+
 ```
 feat(alerts): add POST /api/alerts endpoint
 
@@ -1470,11 +1620,13 @@ feat(alerts): add POST /api/alerts endpoint
 ### Test 7.5: Self-Improvement Loop
 
 **Command:**
+
 ```
 How should you learn from escalations and improve over time?
 ```
 
 **Expected Answer:**
+
 1. **When I escalate:** Document the issue and policy gap
 2. **When human resolves:** Note the decision
 3. **After resolution:** Check if policies need updating
@@ -1482,6 +1634,7 @@ How should you learn from escalations and improve over time?
 5. **Next similar scenario:** Follow updated policy (no escalation needed)
 
 **Example:**
+
 - **Escalation:** "Should I use library X or Y for feature Z?"
 - **Human decides:** "Use library X"
 - **Human updates:** Add to 05-coding-patterns.md: "For feature Z, use library X because [reason]"
@@ -1500,6 +1653,7 @@ How should you learn from escalations and improve over time?
 ### Test 8.1: Part Planning
 
 **Command:**
+
 ```
 Plan the implementation for Part 11: Alerts. Don't build it yet. List the files you would create, in what order, and why that order.
 ```
@@ -1507,6 +1661,7 @@ Plan the implementation for Part 11: Alerts. Don't build it yet. List the files 
 **Expected Answer (Example):**
 
 **Order and Rationale:**
+
 1. **lib/constants/alert-conditions.ts** - Foundation (constants needed by other files)
 2. **lib/constants/tiers.ts** - Foundation (tier rules needed for validation)
 3. **lib/tier/validation.ts** - Utilities (validation functions needed by API routes)
@@ -1519,6 +1674,7 @@ Plan the implementation for Part 11: Alerts. Don't build it yet. List the files 
 10. **app/alerts/page.tsx** - Page (combines all components)
 
 **Why This Order:**
+
 - Bottom-up: Build foundations first (constants, utils, DB)
 - Backend before frontend: API routes before UI components
 - Dependencies: Each file can reference previously built files
@@ -1532,12 +1688,14 @@ Plan the implementation for Part 11: Alerts. Don't build it yet. List the files 
 ### Test 8.2: Dependency Identification
 
 **Command:**
+
 ```
 Part 11 (Alerts) depends on which other parts being completed first? Explain why.
 ```
 
 **Expected Answer:**
 **Dependencies:**
+
 1. **Part 2 (Database):**
    - Need: Prisma schema with Alert model
    - Why: Can't create alerts table without schema
@@ -1551,6 +1709,7 @@ Part 11 (Alerts) depends on which other parts being completed first? Explain why
    - Why: Can't create files without project structure
 
 **Independent From:**
+
 - Parts 6, 8-10, 12-16 (can build alerts without these)
 
 **Build Order:** Part 1-4 → Part 2 → Part 5 → Part 11
@@ -1564,18 +1723,21 @@ Part 11 (Alerts) depends on which other parts being completed first? Explain why
 ### Test 8.3: Requirement Interpretation
 
 **Command:**
+
 ```
 Read the description for POST /api/alerts in trading_alerts_openapi.yaml. Without writing code, tell me what this endpoint must do, what it must validate, and what it must return.
 ```
 
 **Expected Answer (Based on OpenAPI Spec):**
 **Must Do:**
+
 - Accept alert creation request from authenticated user
 - Create new alert in database
 - Enforce tier restrictions
 - Return created alert
 
 **Must Validate:**
+
 1. **Authentication:** User must be logged in (check session)
 2. **Request Body:** Must match CreateAlertRequest schema
    - symbol: non-empty string
@@ -1590,6 +1752,7 @@ Read the description for POST /api/alerts in trading_alerts_openapi.yaml. Withou
    - User hasn't exceeded max alerts for their tier
 
 **Must Return:**
+
 - **Success (201):** Alert object matching AlertResponse schema
 - **Errors:**
   - 400: Invalid request body (with details)
@@ -1606,6 +1769,7 @@ Read the description for POST /api/alerts in trading_alerts_openapi.yaml. Withou
 ### Test 8.4: Multi-File Coordination
 
 **Command:**
+
 ```
 If I'm building the alert creation feature, explain how the different files (API route, form component, database utility, validation utility) work together. Trace a complete request flow.
 ```
@@ -1613,47 +1777,57 @@ If I'm building the alert creation feature, explain how the different files (API
 **Expected Answer (Complete Flow):**
 
 **1. User Interaction:**
+
 - File: `components/alerts/alert-form.tsx`
 - User fills form (symbol, timeframe, condition, threshold)
 - Client-side validation (React Hook Form + Zod)
 - Click "Create Alert"
 
 **2. HTTP Request:**
+
 - Form submits: `fetch('/api/alerts', { method: 'POST', body: JSON.stringify(formData) })`
 
 **3. API Route Entry:**
+
 - File: `app/api/alerts/route.ts` → POST function
 - Receive request
 
 **4. Authentication:**
+
 - Code: `const session = await getServerSession(authOptions)`
 - If no session → return 401
 
 **5. Request Validation:**
+
 - Code: `const body = CreateAlertSchema.parse(await request.json())`
 - If invalid → return 400 with Zod errors
 
 **6. Tier Validation:**
+
 - File: `lib/tier/validation.ts`
 - Code: `validateSymbolAccess(session.user.tier, body.symbol)`
 - Code: `validateTimeframeAccess(session.user.tier, body.timeframe)`
 - If violation → return 403 with helpful message
 
 **7. Database Operation:**
+
 - File: `lib/db/alerts.ts` → `createAlert` function
 - Code: `const alert = await createAlert(session.user.id, body)`
 - Prisma inserts into alerts table
 
 **8. Response:**
+
 - API route returns: `NextResponse.json(alert, { status: 201 })`
 
 **9. UI Update:**
+
 - Form receives response
 - Show success message
 - Clear form or redirect to alerts list
 - Optionally refresh alerts list
 
 **Files Involved:**
+
 - `components/alerts/alert-form.tsx` (UI)
 - `app/api/alerts/route.ts` (API entry point)
 - `lib/tier/validation.ts` (tier validation logic)
@@ -1670,25 +1844,27 @@ If I'm building the alert creation feature, explain how the different files (API
 
 ### Category Results
 
-| Category | Tests | Passed | Failed | Pass Rate |
-|----------|-------|--------|--------|-----------|
-| 1. Policy Understanding | 6 | | | % |
-| 2. Architecture Knowledge | 8 | | | % |
-| 3. Tier System Mastery | 5 | | | % |
-| 4. Technical Stack Familiarity | 6 | | | % |
-| 5. OpenAPI Contract Knowledge | 5 | | | % |
-| 6. Coding Patterns Mastery | 7 | | | % |
-| 7. Workflow Understanding | 5 | | | % |
-| 8. Planning Ability | 4 | | | % |
-| **TOTAL** | **46** | | | **%** |
+| Category                       | Tests  | Passed | Failed | Pass Rate |
+| ------------------------------ | ------ | ------ | ------ | --------- |
+| 1. Policy Understanding        | 6      |        |        | %         |
+| 2. Architecture Knowledge      | 8      |        |        | %         |
+| 3. Tier System Mastery         | 5      |        |        | %         |
+| 4. Technical Stack Familiarity | 6      |        |        | %         |
+| 5. OpenAPI Contract Knowledge  | 5      |        |        | %         |
+| 6. Coding Patterns Mastery     | 7      |        |        | %         |
+| 7. Workflow Understanding      | 5      |        |        | %         |
+| 8. Planning Ability            | 4      |        |        | %         |
+| **TOTAL**                      | **46** |        |        | **%**     |
 
 ### Overall Assessment
 
 **Minimum Pass Criteria:**
+
 - ✅ **80% overall pass rate** (37/46 tests passed)
 - ✅ **All "critical" tests passed** (Tests 1.1, 1.2, 2.1, 3.1, 5.2, 6.1)
 
 **Results:**
+
 - [ ] **READY FOR PHASE 3** - Proceed with autonomous building
 - [ ] **NEEDS IMPROVEMENT** - Review failed tests, update policies, retest
 
@@ -1715,6 +1891,7 @@ If I'm building the alert creation feature, explain how the different files (API
 ### Step 1: Analyze Failures
 
 For each failed test:
+
 1. Understand what Aider misunderstood
 2. Identify which policy document is unclear or missing information
 3. Check if seed code examples would help
@@ -1722,6 +1899,7 @@ For each failed test:
 ### Step 2: Update Policies
 
 Update relevant policy documents:
+
 - **Policy Understanding failures** → Update 01-approval-policies.md or 06-aider-instructions.md
 - **Architecture failures** → Update 03-architecture-rules.md
 - **Tier System failures** → Update 00-tier-specifications.md
@@ -1732,6 +1910,7 @@ Update relevant policy documents:
 ### Step 3: Restart Aider
 
 After updating policies:
+
 ```bash
 # Exit current Aider session
 /exit
@@ -1747,6 +1926,7 @@ Re-run failed tests. Aider should now pass with updated policies.
 ### Step 5: Document
 
 Update `PROGRESS.md`:
+
 ```markdown
 ## Aider Comprehension Testing
 
@@ -1769,6 +1949,7 @@ Take time to carefully evaluate Aider's answers. Partial understanding now = pro
 ### Tip 2: Ask Follow-Up Questions
 
 If an answer is vague, ask Aider to elaborate:
+
 ```
 Can you give a specific example of [X]?
 Walk me through the code for [Y].
@@ -1777,6 +1958,7 @@ Walk me through the code for [Y].
 ### Tip 3: Test Critical Areas First
 
 If short on time, prioritize:
+
 - Category 1 (Policies)
 - Category 3 (Tier System)
 - Category 6 (Coding Patterns)
@@ -1797,9 +1979,9 @@ Once Aider passes with ≥80% (and all critical tests):
 
 **I certify that Aider has demonstrated sufficient understanding of the Trading Alerts SaaS V7 project to proceed with autonomous development in Phase 3.**
 
-- **Date:** _______________
-- **Pass Rate:** _____% (____/46 tests)
-- **Tester Name:** _______________
+- **Date:** ******\_\_\_******
+- **Pass Rate:** **\_**% (\_\_\_\_/46 tests)
+- **Tester Name:** ******\_\_\_******
 - **Ready for Phase 3:** [ ] YES [ ] NO
 
 ---
@@ -1818,5 +2000,5 @@ Once Aider passes with ≥80% (and all critical tests):
 
 ---
 
-*Last Updated: 2024-01-15*
-*Aider Comprehension Test Suite for Trading Alerts SaaS V7*
+_Last Updated: 2024-01-15_
+_Aider Comprehension Test Suite for Trading Alerts SaaS V7_

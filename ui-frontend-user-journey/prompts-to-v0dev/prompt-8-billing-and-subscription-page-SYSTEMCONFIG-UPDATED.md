@@ -5,6 +5,7 @@
 Create a billing and subscription management page for Next.js 15 using TypeScript, Tailwind CSS, and shadcn/ui.
 
 **CRITICAL: Use SystemConfig for Dynamic Percentages**
+
 - DO NOT hardcode discount percentages (e.g., "20%")
 - DO NOT hardcode commission percentages (e.g., "20%")
 - DO NOT hardcode prices (e.g., "$23.20", "$5.80")
@@ -21,9 +22,9 @@ REQUIREMENTS:
 2. CURRENT PLAN CARD (Gradient Card - Enhanced with Affiliate Discount):
    - Card: bg-gradient-to-r from-blue-600 to-purple-600, text-white, rounded-2xl, shadow-2xl, p-8, mb-8
    - Badges row (flex gap-2, mb-4):
-     * "PRO TIER ⭐" (bg-white/20, text-white, rounded-full, px-4, py-2)
-     * "✓ ACTIVE" (bg-white/20, text-white, rounded-full, px-4, py-2)
-     * "🎉 {discountPercent}% AFFILIATE DISCOUNT" (bg-green-400/30, text-white, rounded-full, px-4, py-2) - CONDITIONAL
+     - "PRO TIER ⭐" (bg-white/20, text-white, rounded-full, px-4, py-2)
+     - "✓ ACTIVE" (bg-white/20, text-white, rounded-full, px-4, py-2)
+     - "🎉 {discountPercent}% AFFILIATE DISCOUNT" (bg-green-400/30, text-white, rounded-full, px-4, py-2) - CONDITIONAL
        - Use dynamic discountPercent from useAffiliateConfig()
 
    - Plan name: "Pro Plan" (text-4xl, font-bold, mt-4)
@@ -43,9 +44,9 @@ REQUIREMENTS:
        - Use dynamic discountPercent
 
    - Renewal date (TWO VERSIONS):
-     * WITHOUT: "Renews on Feb 15, 2025" (text-xl, text-white/90, mt-2)
-     * WITH: "Renews on Feb 15, 2025 at $29.00" (text-xl, text-white/90, mt-2)
-       + Sub-text: "Use a new affiliate code at renewal to get {discountPercent}% off again!" (text-sm, text-white/80, mt-1)
+     - WITHOUT: "Renews on Feb 15, 2025" (text-xl, text-white/90, mt-2)
+     - WITH: "Renews on Feb 15, 2025 at $29.00" (text-xl, text-white/90, mt-2)
+       - Sub-text: "Use a new affiliate code at renewal to get {discountPercent}% off again!" (text-sm, text-white/80, mt-1)
          - Use dynamic discountPercent
 
    - Member since: "Member since Jan 15, 2025" (text-lg, text-white/80)
@@ -55,19 +56,19 @@ REQUIREMENTS:
      - Layout: flex items-center gap-3
      - Icon: 🎉 (text-2xl)
      - Content:
-       * Heading: "Affiliate Discount Active" (font-semibold, text-lg)
-       * Details: "{discountPercent}% off • Code: {appliedCode}" (text-white/90, text-sm)
+       - Heading: "Affiliate Discount Active" (font-semibold, text-lg)
+       - Details: "{discountPercent}% off • Code: {appliedCode}" (text-white/90, text-sm)
          - Use dynamic discountPercent
-       * Savings: "You save ${29 - calculateDiscountedPrice(29)}/month" (text-white/80, text-xs)
+       - Savings: "You save ${29 - calculateDiscountedPrice(29)}/month" (text-white/80, text-xs)
          - Calculate savings dynamically
 
    - Features grid (2 columns on desktop, 1 on mobile, mt-6):
-     * ✅ 15 Symbols
-     * ✅ 9 Timeframes (M5-D1)
-     * ✅ 20 Alerts
-     * ✅ 50 Watchlist Items
-     * ✅ Email & Push Notifications
-     * ✅ 300 API Requests/hour
+     - ✅ 15 Symbols
+     - ✅ 9 Timeframes (M5-D1)
+     - ✅ 20 Alerts
+     - ✅ 50 Watchlist Items
+     - ✅ Email & Push Notifications
+     - ✅ 300 API Requests/hour
 
 3. DISCOUNT CODE INPUT BOX (NEW SECTION - Critical for Option A):
    - Position: AFTER Current Plan Card, BEFORE Payment Method
@@ -83,52 +84,52 @@ REQUIREMENTS:
 
    - Current Status Display (conditional):
      IF code scheduled for next billing:
-     * Container: bg-white, rounded-lg, p-4, mb-4, border-2 border-green-500
-     * Icon: ✅ (text-xl, inline)
-     * Heading: "Code Ready for Next Payment" (font-semibold, text-green-700)
-     * Code display: "Code: {scheduledCode}" (font-mono, text-sm, text-gray-600)
-     * Savings: "You'll save ${29 - calculateDiscountedPrice(29)} on {nextBillingDate}" (text-sm, text-green-600)
-     * Action: "Update Code" button (text-blue-600, text-sm, underline, mt-2)
+     - Container: bg-white, rounded-lg, p-4, mb-4, border-2 border-green-500
+     - Icon: ✅ (text-xl, inline)
+     - Heading: "Code Ready for Next Payment" (font-semibold, text-green-700)
+     - Code display: "Code: {scheduledCode}" (font-mono, text-sm, text-gray-600)
+     - Savings: "You'll save ${29 - calculateDiscountedPrice(29)} on {nextBillingDate}" (text-sm, text-green-600)
+     - Action: "Update Code" button (text-blue-600, text-sm, underline, mt-2)
 
      IF no code scheduled:
-     * Container: bg-yellow-50, rounded-lg, p-4, mb-4, border-2 border-yellow-400
-     * Icon: ⚠️ (text-xl, inline)
-     * Heading: "No Code Scheduled" (font-semibold, text-yellow-800)
-     * Warning: "Your next payment ({nextBillingDate}) will be $29.00 without a code" (text-sm, text-yellow-700)
+     - Container: bg-yellow-50, rounded-lg, p-4, mb-4, border-2 border-yellow-400
+     - Icon: ⚠️ (text-xl, inline)
+     - Heading: "No Code Scheduled" (font-semibold, text-yellow-800)
+     - Warning: "Your next payment ({nextBillingDate}) will be $29.00 without a code" (text-sm, text-yellow-700)
 
    - Input Form:
-     * Label: "Affiliate Code" (text-sm, font-medium, text-gray-700, mb-2)
-     * Input field:
+     - Label: "Affiliate Code" (text-sm, font-medium, text-gray-700, mb-2)
+     - Input field:
        - Placeholder: "Enter code (e.g., SMITH-ABC123)"
        - Type: text
        - Class: w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none
-     * Button: "Apply Code for Next Payment"
+     - Button: "Apply Code for Next Payment"
        - Class: bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 mt-3 w-full
        - Should trigger validation API call
 
    - Reminder Schedule (below input):
-     * Heading: "📅 Automatic Reminders" (text-sm, font-semibold, text-gray-700, mb-2, mt-6)
-     * List:
+     - Heading: "📅 Automatic Reminders" (text-sm, font-semibold, text-gray-700, mb-2, mt-6)
+     - List:
        - "10 days before renewal: First reminder email"
        - "7 days before renewal: Second reminder email"
        - "3 days before renewal: Final reminder email + in-app notification"
-     * Text styling: text-xs, text-gray-600, space-y-1
+     - Text styling: text-xs, text-gray-600, space-y-1
 
    - Info Box (at bottom):
-     * Container: bg-blue-50, border-l-4 border-blue-400, p-3, mt-4, rounded
-     * Icon: ℹ️ (inline)
-     * Text: "Codes are one-time use. Each month, affiliates post new codes on social media. We'll remind you before each renewal to find and enter a new code!" (text-sm, text-gray-700)
+     - Container: bg-blue-50, border-l-4 border-blue-400, p-3, mt-4, rounded
+     - Icon: ℹ️ (inline)
+     - Text: "Codes are one-time use. Each month, affiliates post new codes on social media. We'll remind you before each renewal to find and enter a new code!" (text-sm, text-gray-700)
 
 4. PAYMENT METHOD SECTION:
    - Section heading: "💳 Payment Method" (text-2xl, font-bold, mb-6, mt-12)
    - Card: white bg, rounded-xl, shadow-lg, p-6
    - Layout: flex items-center justify-between
    - Left side:
-     * Card icon: 💳 with Visa logo
-     * "Visa ending in ****4242" (text-xl, font-semibold)
-     * "Expires: 12/2026" (text-sm, text-gray-600)
+     - Card icon: 💳 with Visa logo
+     - "Visa ending in \*\*\*\*4242" (text-xl, font-semibold)
+     - "Expires: 12/2026" (text-sm, text-gray-600)
    - Right side:
-     * Button: "Update Card" (border-2, border-gray-300, px-4, py-2, rounded-lg, hover:border-blue-600)
+     - Button: "Update Card" (border-2, border-gray-300, px-4, py-2, rounded-lg, hover:border-blue-600)
 
 5. AFFILIATE DISCOUNT SUMMARY (conditional section - only if discount currently active):
    - Position: AFTER Payment Method, BEFORE Usage Statistics
@@ -143,20 +144,20 @@ REQUIREMENTS:
    - Description: "You're saving ${29 - calculateDiscountedPrice(29)} this month with your affiliate code. Find new codes monthly to keep saving!" (text-gray-700, mb-4)
      - Calculate savings dynamically
    - Code display:
-     * Label: "Your current code:" (text-sm, text-gray-600)
-     * Code: "{currentCode}" (bg-white, px-4, py-2, rounded-lg, font-mono, text-lg, border-2 border-gray-300, mt-1)
+     - Label: "Your current code:" (text-sm, text-gray-600)
+     - Code: "{currentCode}" (bg-white, px-4, py-2, rounded-lg, font-mono, text-lg, border-2 border-gray-300, mt-1)
 
    Right Column (Stats):
    - Stat 1:
-     * Label: "Total Saved So Far" (text-sm, text-gray-600)
-     * Value: "${totalSaved}" (text-3xl, font-bold, text-green-600)
+     - Label: "Total Saved So Far" (text-sm, text-gray-600)
+     - Value: "${totalSaved}" (text-3xl, font-bold, text-green-600)
        - Calculate from billing history dynamically
-     * Subtext: "Across {cyclesSaved} billing cycles" (text-xs, text-gray-500)
+     - Subtext: "Across {cyclesSaved} billing cycles" (text-xs, text-gray-500)
    - Stat 2 (mt-4):
-     * Label: "Projected Annual Savings" (text-sm, text-gray-600)
-     * Value: "${(29 - calculateDiscountedPrice(29)) * 12}" (text-2xl, font-bold, text-blue-600)
+     - Label: "Projected Annual Savings" (text-sm, text-gray-600)
+     - Value: "${(29 - calculateDiscountedPrice(29)) \* 12}" (text-2xl, font-bold, text-blue-600)
        - Calculate projected savings dynamically
-     * Subtext: "If you use codes every month" (text-xs, text-gray-500)
+     - Subtext: "If you use codes every month" (text-xs, text-gray-500)
 
    Important Notice (below card):
    - Text: "ℹ️ Your discount code is valid for one payment only. At renewal, enter a new code in the box above to get {discountPercent}% off again. Affiliates post fresh codes on social media monthly!" (text-sm, text-gray-600, italic, mt-4)
@@ -168,20 +169,20 @@ REQUIREMENTS:
    - Three usage items (stack vertically, gap-6):
 
    Item 1 - Alerts:
-   * Label: "Alerts" with usage "8/20" (float right, text-2xl, font-bold)
-   * Progress bar: h-4, bg-gray-200, rounded-full, fill 40% with bg-green-500
-   * Text below: "40% used" (text-sm, text-gray-600)
+   - Label: "Alerts" with usage "8/20" (float right, text-2xl, font-bold)
+   - Progress bar: h-4, bg-gray-200, rounded-full, fill 40% with bg-green-500
+   - Text below: "40% used" (text-sm, text-gray-600)
 
    Item 2 - Watchlist:
-   * Label: "Watchlist Items" with usage "12/50" (float right, text-2xl, font-bold)
-   * Progress bar: h-4, bg-gray-200, rounded-full, fill 24% with bg-blue-500
-   * Text below: "24% used" (text-sm, text-gray-600)
+   - Label: "Watchlist Items" with usage "12/50" (float right, text-2xl, font-bold)
+   - Progress bar: h-4, bg-gray-200, rounded-full, fill 24% with bg-blue-500
+   - Text below: "24% used" (text-sm, text-gray-600)
 
    Item 3 - API Calls:
-   * Label: "API Calls (Peak Hour)" with usage "245/300" (float right, text-2xl, font-bold)
-   * Progress bar: h-4, bg-gray-200, rounded-full, fill 82% with bg-yellow-500
-   * Warning badge: "⚠️ High usage" (text-orange-600, text-xs) next to label
-   * Text below: "82% used" (text-sm, text-gray-600)
+   - Label: "API Calls (Peak Hour)" with usage "245/300" (float right, text-2xl, font-bold)
+   - Progress bar: h-4, bg-gray-200, rounded-full, fill 82% with bg-yellow-500
+   - Warning badge: "⚠️ High usage" (text-orange-600, text-xs) next to label
+   - Text below: "82% used" (text-sm, text-gray-600)
 
 7. BILLING HISTORY (Updated with Dynamic Discount):
    - Section heading: "📄 Billing History" (text-2xl, font-bold, mb-6, mt-12)
@@ -191,20 +192,19 @@ REQUIREMENTS:
    - TWO VERSIONS OF DATA:
 
    WITHOUT discount:
-   * Row 1: Feb 15, 2025 | Pro Plan - Monthly | $29.00 | Paid ✓ | [Download PDF]
-   * Row 2: Jan 15, 2025 | Pro Plan - Monthly | $29.00 | Paid ✓ | [Download PDF]
-   * Row 3: Dec 15, 2024 | Pro Plan - Monthly | $29.00 | Paid ✓ | [Download PDF]
+   - Row 1: Feb 15, 2025 | Pro Plan - Monthly | $29.00 | Paid ✓ | [Download PDF]
+   - Row 2: Jan 15, 2025 | Pro Plan - Monthly | $29.00 | Paid ✓ | [Download PDF]
+   - Row 3: Dec 15, 2024 | Pro Plan - Monthly | $29.00 | Paid ✓ | [Download PDF]
 
    WITH discount:
-   * Row 1: Feb 15, 2025 | Pro Plan - Monthly ({discountPercent}% off) ℹ️ | ${calculateDiscountedPrice(29)} | Paid ✓ | [Download PDF]
-   * Row 2: Jan 15, 2025 | Pro Plan - Monthly ({discountPercent}% off) ℹ️ | ${calculateDiscountedPrice(29)} | Paid ✓ | [Download PDF]
-   * Row 3: Dec 15, 2024 | Pro Plan - Monthly ({discountPercent}% off) ℹ️ | ${calculateDiscountedPrice(29)} | Paid ✓ | [Download PDF]
+   - Row 1: Feb 15, 2025 | Pro Plan - Monthly ({discountPercent}% off) ℹ️ | ${calculateDiscountedPrice(29)} | Paid ✓ | [Download PDF]
+   - Row 2: Jan 15, 2025 | Pro Plan - Monthly ({discountPercent}% off) ℹ️ | ${calculateDiscountedPrice(29)} | Paid ✓ | [Download PDF]
+   - Row 3: Dec 15, 2024 | Pro Plan - Monthly ({discountPercent}% off) ℹ️ | ${calculateDiscountedPrice(29)} | Paid ✓ | [Download PDF]
      - Use dynamic discountPercent and calculateDiscountedPrice()
-
-   - Info icon (ℹ️) has tooltip on hover: "Original: $29.00 | Discount: -${29 - calculateDiscountedPrice(29)} | Paid: ${calculateDiscountedPrice(29)}"
+   * Info icon (ℹ️) has tooltip on hover: "Original: $29.00 | Discount: -${29 - calculateDiscountedPrice(29)} | Paid: ${calculateDiscountedPrice(29)}"
      - Calculate discount amount dynamically
-   - Table styling: Striped rows (hover:bg-gray-50)
-   - Pagination below: "Page 1 of 3" with [Previous] [Next] buttons
+   * Table styling: Striped rows (hover:bg-gray-50)
+   * Pagination below: "Page 1 of 3" with [Previous] [Next] buttons
 
 8. SUBSCRIPTION ACTIONS (Monthly-Only):
    - Section heading: "⚙️ Manage Subscription" (text-2xl, font-bold, mb-6, mt-12)
@@ -212,32 +212,33 @@ REQUIREMENTS:
    - Grid: 2 columns on desktop, 1 on mobile, gap-6
 
    Action Card 1:
-   * Icon: ⏸️ (text-4xl, mb-3)
-   * Title: "Pause Subscription" (text-lg, font-semibold, mb-2)
-   * Description: "Take a break for up to 3 months" (text-sm, text-gray-600, mb-4)
-   * Button: "Pause" (border-2, border-gray-300, text-gray-700, px-4, py-2, rounded-lg, hover:border-yellow-500, w-full)
+   - Icon: ⏸️ (text-4xl, mb-3)
+   - Title: "Pause Subscription" (text-lg, font-semibold, mb-2)
+   - Description: "Take a break for up to 3 months" (text-sm, text-gray-600, mb-4)
+   - Button: "Pause" (border-2, border-gray-300, text-gray-700, px-4, py-2, rounded-lg, hover:border-yellow-500, w-full)
 
    Action Card 2:
-   * Icon: 🔔 (text-4xl, mb-3)
-   * Title: "Notification Settings" (text-lg, font-semibold, mb-2)
-   * Description: "Manage billing and renewal reminders" (text-sm, text-gray-600, mb-4)
-   * Button: "Configure" (border-2, border-gray-300, text-gray-700, px-4, py-2, rounded-lg, hover:border-blue-500, w-full)
+   - Icon: 🔔 (text-4xl, mb-3)
+   - Title: "Notification Settings" (text-lg, font-semibold, mb-2)
+   - Description: "Manage billing and renewal reminders" (text-sm, text-gray-600, mb-4)
+   - Button: "Configure" (border-2, border-gray-300, text-gray-700, px-4, py-2, rounded-lg, hover:border-blue-500, w-full)
 
 9. DOWNGRADE SECTION (Enhanced with Discount Warning):
    - Card: bg-gray-50, border-2 border-gray-300, rounded-xl, p-6, mt-12
    - Heading: "Want to downgrade?" (text-xl, font-semibold, text-gray-700, mb-2)
    - Description: "Switch to FREE tier anytime. You'll keep your data but lose PRO features." (text-sm, text-gray-600, mb-4)
    - Warning list (text-sm):
-     * ⚠️ Limited to 5 symbols (currently: 15) (text-orange-600)
-     * ⚠️ Only 3 timeframes (currently: 9) (text-orange-600)
-     * ⚠️ Only 5 alerts (currently: 20) (text-orange-600)
-     * ⚠️ FREE tier is not eligible for affiliate discount codes (text-orange-600) - CONDITIONAL (show if currently has discount)
+     - ⚠️ Limited to 5 symbols (currently: 15) (text-orange-600)
+     - ⚠️ Only 3 timeframes (currently: 9) (text-orange-600)
+     - ⚠️ Only 5 alerts (currently: 20) (text-orange-600)
+     - ⚠️ FREE tier is not eligible for affiliate discount codes (text-orange-600) - CONDITIONAL (show if currently has discount)
 
    - Buttons (flex, gap-3, mt-6):
-     * "Keep PRO Plan" (bg-blue-600, text-white, px-6, py-3, rounded-lg, hover:bg-blue-700)
-     * "Downgrade to FREE" (border-2, border-gray-300, text-gray-700, px-6, py-3, rounded-lg, hover:border-red-500, hover:text-red-600)
+     - "Keep PRO Plan" (bg-blue-600, text-white, px-6, py-3, rounded-lg, hover:bg-blue-700)
+     - "Downgrade to FREE" (border-2, border-gray-300, text-gray-700, px-6, py-3, rounded-lg, hover:border-red-500, hover:text-red-600)
 
 DESIGN NOTES:
+
 - Use gradient card for current plan to make it stand out
 - Progress bars use semantic colors: green (healthy), blue (normal), yellow/orange (warning)
 - Consistent spacing: mb-12 between major sections, mb-6 for section headings
@@ -247,6 +248,7 @@ DESIGN NOTES:
 - Discount code input box is ALWAYS visible (critical for Option A auto-renewal model)
 
 TECHNICAL:
+
 - Export as default component
 - TypeScript with props interface (see below)
 - Use shadcn/ui: Card, Button, Badge, Progress, Table, Input
@@ -760,6 +762,7 @@ export default function BillingPage({
 ```
 
 **SYSTEMCONFIG INTEGRATION CHECKLIST:**
+
 - ✅ Imported useAffiliateConfig hook
 - ✅ No hardcoded "20%" or "20.0" anywhere
 - ✅ No hardcoded "$23.20", "$5.80", "$17.40", "$69.60" anywhere

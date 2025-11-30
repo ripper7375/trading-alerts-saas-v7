@@ -13,38 +13,41 @@ To support PRO tier (15 symbols × 9 timeframes = 135 chart combinations), we us
 
 ## Symbol-to-Terminal Mapping
 
-| Terminal ID | Symbol  | Broker Account | Charts (9 timeframes each) |
-|-------------|---------|----------------|----------------------------|
-| MT5_01      | AUDJPY  | Account 1      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_02      | AUDUSD  | Account 2      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_03      | BTCUSD  | Account 3      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_04      | ETHUSD  | Account 4      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_05      | EURUSD  | Account 5      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_06      | GBPJPY  | Account 6      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_07      | GBPUSD  | Account 7      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_08      | NDX100  | Account 8      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_09      | NZDUSD  | Account 9      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_10      | US30    | Account 10     | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_11      | USDCAD  | Account 11     | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_12      | USDCHF  | Account 12     | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_13      | USDJPY  | Account 13     | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_14      | XAGUSD  | Account 14     | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
-| MT5_15      | XAUUSD  | Account 15     | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| Terminal ID | Symbol | Broker Account | Charts (9 timeframes each)            |
+| ----------- | ------ | -------------- | ------------------------------------- |
+| MT5_01      | AUDJPY | Account 1      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_02      | AUDUSD | Account 2      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_03      | BTCUSD | Account 3      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_04      | ETHUSD | Account 4      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_05      | EURUSD | Account 5      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_06      | GBPJPY | Account 6      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_07      | GBPUSD | Account 7      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_08      | NDX100 | Account 8      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_09      | NZDUSD | Account 9      | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_10      | US30   | Account 10     | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_11      | USDCAD | Account 11     | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_12      | USDCHF | Account 12     | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_13      | USDJPY | Account 13     | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_14      | XAGUSD | Account 14     | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
+| MT5_15      | XAUUSD | Account 15     | M5, M15, M30, H1, H2, H4, H8, H12, D1 |
 
 ## Deployment Options
 
 ### Option 1: Single VPS with 15 MT5 Instances (RECOMMENDED for Development)
 
 **Pros:**
+
 - Single machine to manage
 - Lower cost (one VPS)
 - Simpler network configuration
 
 **Cons:**
+
 - Requires powerful VPS (32GB+ RAM, 8+ cores)
 - Single point of failure (hardware level)
 
 **Estimated VPS Requirements:**
+
 - **RAM:** 32GB minimum (15 MT5 × ~1.5GB each + OS + Flask)
 - **CPU:** 8 cores minimum (15 MT5 instances)
 - **Storage:** 100GB SSD
@@ -57,20 +60,24 @@ To support PRO tier (15 symbols × 9 timeframes = 135 chart combinations), we us
 ### Option 2: Multiple VPS (3 VPS × 5 MT5 each) - RECOMMENDED for Production
 
 **Pros:**
+
 - Fault tolerance (if one VPS fails, 10 symbols still work)
 - Better resource distribution
 - Easier to scale (add more VPS)
 
 **Cons:**
+
 - More expensive
 - More complex deployment
 
 **Configuration:**
+
 - **VPS 1:** MT5_01-05 (AUDJPY, AUDUSD, BTCUSD, ETHUSD, EURUSD)
 - **VPS 2:** MT5_06-10 (GBPJPY, GBPUSD, NDX100, NZDUSD, US30)
 - **VPS 3:** MT5_11-15 (USDCAD, USDCHF, USDJPY, XAGUSD, XAUUSD)
 
 **VPS Requirements (each):**
+
 - **RAM:** 12GB
 - **CPU:** 4 cores
 - **Storage:** 50GB SSD
@@ -83,11 +90,13 @@ To support PRO tier (15 symbols × 9 timeframes = 135 chart combinations), we us
 ### Option 3: Docker Containers (Advanced)
 
 **Pros:**
+
 - Maximum density
 - Easy orchestration with Kubernetes
 - Auto-scaling possible
 
 **Cons:**
+
 - MT5 on Docker is complex (Windows containers or Wine)
 - Not officially supported by MetaTrader
 - Requires advanced DevOps skills
@@ -103,6 +112,7 @@ To support PRO tier (15 symbols × 9 timeframes = 135 chart combinations), we us
 The Flask service runs **once** and manages connections to all 15 MT5 terminals.
 
 **Connection Flow:**
+
 ```
 1. Client Request: GET /api/indicators/XAUUSD/H1
 2. Flask Router: Extracts symbol "XAUUSD"
@@ -112,6 +122,7 @@ The Flask service runs **once** and manages connections to all 15 MT5 terminals.
 ```
 
 **Deployment:**
+
 - **Option A:** Flask on same VPS as MT5 terminals (if using Option 1)
 - **Option B:** Flask on Railway, connects to VPS(s) via IP (if using Option 2/3)
 
@@ -187,6 +198,7 @@ Instead of 75 environment variables (15 terminals × 5 vars), use a JSON config 
 ```
 
 **Load in Flask:**
+
 ```python
 import json
 
@@ -226,6 +238,7 @@ Response:
 ### Automatic Reconnection
 
 Flask service should:
+
 1. Monitor connection health every 60 seconds
 2. Auto-reconnect if terminal disconnects
 3. Log connection issues
@@ -238,18 +251,21 @@ Flask service should:
 ### Do you need 15 separate broker accounts?
 
 **Option A: 15 Separate Accounts (SAFEST)**
+
 - ✅ Complete isolation
 - ✅ No interference between terminals
 - ✅ Broker support per terminal
 - ❌ More expensive (if broker charges per account)
 
 **Option B: Same Account, Different Logins (if supported)**
+
 - Some brokers allow "investor password" or "read-only" logins
 - ✅ Cheaper (one main account)
 - ⚠️ Check broker policies
 - ⚠️ Not all brokers support this
 
 **Option C: Demo Accounts (for Testing)**
+
 - ✅ Free
 - ✅ Real market data
 - ⚠️ No real trading (fine for indicator data)
@@ -287,12 +303,14 @@ Flask service should:
 ```
 
 **Connection Method:**
+
 - **Local (same machine):** `MetaTrader5.initialize()` (Python library)
 - **Remote (Flask on Railway):** Use MetaTrader Manager API or custom bridge service
 
 **Challenge:** The `MetaTrader5` Python package only works when running on the same machine as MT5 terminal.
 
 **Solution:**
+
 1. Run Flask service **on the same VPS** as MT5 terminals (NOT on Railway)
 2. OR use a **bridge service** on VPS that Flask calls via HTTP
 
@@ -301,6 +319,7 @@ Flask service should:
 ## Recommendation Summary
 
 ### For Development/MVP:
+
 - ✅ **Option 1:** Single VPS with 15 MT5 instances
 - ✅ Flask service on same VPS
 - ✅ Use JSON config file for terminal mapping
@@ -309,6 +328,7 @@ Flask service should:
 **Cost:** ~$80/month VPS
 
 ### For Production:
+
 - ✅ **Option 2:** 3 VPS with 5 MT5 instances each
 - ✅ Flask service on VPS 1 (or separate small VPS)
 - ✅ 15 separate broker accounts (minimal balance)

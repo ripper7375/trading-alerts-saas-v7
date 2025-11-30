@@ -28,7 +28,7 @@ export const authOptions: NextAuthOptions = {
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -36,7 +36,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: credentials.email },
         });
 
         if (!user || !user.passwordHash) {
@@ -52,7 +52,7 @@ export const authOptions: NextAuthOptions = {
         // Update last login
         await prisma.user.update({
           where: { id: user.id },
-          data: { lastLogin: new Date() }
+          data: { lastLogin: new Date() },
         });
 
         return {
@@ -61,8 +61,8 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           tier: user.tier, // V5: Tier included for access control
         };
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
     async jwt({ token, user }) {
@@ -78,8 +78,8 @@ export const authOptions: NextAuthOptions = {
         session.user.tier = token.tier as 'FREE' | 'PRO'; // V5: Type-safe tier
       }
       return session;
-    }
-  }
+    },
+  },
 };
 ```
 
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existingUser) {
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
         name,
         passwordHash,
         tier: 'FREE', // V5: All new users start with FREE tier
-      }
+      },
     });
 
     return NextResponse.json({
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
         email: user.email,
         name: user.name,
         tier: user.tier,
-      }
+      },
     });
   } catch (error) {
     console.error('Registration error:', error);
@@ -238,40 +238,40 @@ Create `lib/tier-access.ts`:
 // V5: Tier-based symbol access control
 
 export const TIER_SYMBOLS = {
-  FREE: ['BTCUSD', 'EURUSD', 'USDJPY', 'US30', 'XAUUSD'],  // 5 symbols
+  FREE: ['BTCUSD', 'EURUSD', 'USDJPY', 'US30', 'XAUUSD'], // 5 symbols
   PRO: [
-    'AUDJPY',  // V7: Added
+    'AUDJPY', // V7: Added
     'AUDUSD',
     'BTCUSD',
     'ETHUSD',
     'EURUSD',
-    'GBPJPY',  // V7: Added
+    'GBPJPY', // V7: Added
     'GBPUSD',
     'NDX100',
-    'NZDUSD',  // V7: Added
+    'NZDUSD', // V7: Added
     'US30',
-    'USDCAD',  // V7: Added
-    'USDCHF',  // V7: Added
+    'USDCAD', // V7: Added
+    'USDCHF', // V7: Added
     'USDJPY',
     'XAGUSD',
     'XAUUSD',
-  ],  // 15 symbols
+  ], // 15 symbols
 } as const;
 
 export const TIER_TIMEFRAMES = {
-  FREE: ['H1', 'H4', 'D1'],  // 3 timeframes
-  PRO: ['M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12', 'D1'],  // 9 timeframes
+  FREE: ['H1', 'H4', 'D1'], // 3 timeframes
+  PRO: ['M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12', 'D1'], // 9 timeframes
 } as const;
 
 export const TIMEFRAMES = {
-  M5: 'M5',    // V7: Re-added (PRO only - scalping)
+  M5: 'M5', // V7: Re-added (PRO only - scalping)
   M15: 'M15',
   M30: 'M30',
   H1: 'H1',
   H2: 'H2',
   H4: 'H4',
   H8: 'H8',
-  H12: 'H12',  // V7: Added (PRO only - swing trading)
+  H12: 'H12', // V7: Added (PRO only - swing trading)
   D1: 'D1',
 } as const;
 
@@ -352,11 +352,11 @@ export async function getSession() {
 
 export async function requireAuth() {
   const session = await getSession();
-  
+
   if (!session) {
     throw new Error('Unauthorized');
   }
-  
+
   return session;
 }
 
@@ -371,18 +371,21 @@ export async function getTier() {
 ## Authentication Testing Checklist
 
 ### User Registration
+
 - [ ] New users created with tier='FREE'
 - [ ] Email validation works
 - [ ] Password hashing works
 - [ ] Duplicate email rejected
 
 ### User Login
+
 - [ ] Credentials validated correctly
 - [ ] JWT includes tier field
 - [ ] Session includes tier field
 - [ ] Last login timestamp updated
 
 ### Access Control
+
 - [ ] Middleware protects routes
 - [ ] Tier helpers validate symbol access correctly
 - [ ] Tier helpers validate timeframe access correctly
@@ -393,6 +396,7 @@ export async function getTier() {
 - [ ] M5 and H12 timeframes blocked for FREE tier
 
 ### Next.js 15 Compatibility
+
 - [ ] Auth routes work in Next.js 15
 - [ ] Session management works
 - [ ] Middleware functions correctly

@@ -15,16 +15,19 @@ This document provides a complete overview of the dLocal payment integration for
 ### Problem Statement
 
 **Current Situation:**
+
 - Stripe (current payment provider) requires international credit/debit cards
 - Many users in emerging markets (India, Nigeria, Pakistan, Vietnam, Indonesia, Thailand, South Africa, Turkey) don't have international cards
 - These users cannot access PRO features, limiting market penetration
 
 **Solution:**
+
 - Integrate dLocal payment gateway for emerging markets
 - Support local payment methods (UPI, Paytm, JazzCash, GoPay, etc.)
 - Maintain existing Stripe integration for other markets
 
 **Expected Impact:**
+
 - Expand addressable market to 8+ countries
 - Enable 50-70% of emerging market users to subscribe (who previously couldn't)
 - No changes to existing Stripe users
@@ -33,14 +36,14 @@ This document provides a complete overview of the dLocal payment integration for
 
 ## 2. Key Differences: dLocal vs Stripe
 
-| Feature | Stripe | dLocal | Impact |
-|---------|--------|--------|--------|
-| **Auto-Renewal** | ✅ Automatic | ❌ Manual renewal required | We must send renewal reminders |
-| **Free Trial** | ✅ 7 days | ❌ None | dLocal users start paying immediately |
-| **Subscription Plans** | Monthly ($29) | 3-day ($1.99) + Monthly ($29) | New 3-day plan exclusive to dLocal |
-| **Discount Codes** | ✅ All plans | ❌ Monthly only | 3-day plan ineligible for discounts |
-| **Renewal Process** | Stripe auto-charges | User must manually renew | Cron jobs handle expiry/downgrades |
-| **Notifications** | Stripe manages | We send all emails | More notification templates needed |
+| Feature                | Stripe              | dLocal                        | Impact                                |
+| ---------------------- | ------------------- | ----------------------------- | ------------------------------------- |
+| **Auto-Renewal**       | ✅ Automatic        | ❌ Manual renewal required    | We must send renewal reminders        |
+| **Free Trial**         | ✅ 7 days           | ❌ None                       | dLocal users start paying immediately |
+| **Subscription Plans** | Monthly ($29)       | 3-day ($1.99) + Monthly ($29) | New 3-day plan exclusive to dLocal    |
+| **Discount Codes**     | ✅ All plans        | ❌ Monthly only               | 3-day plan ineligible for discounts   |
+| **Renewal Process**    | Stripe auto-charges | User must manually renew      | Cron jobs handle expiry/downgrades    |
+| **Notifications**      | Stripe manages      | We send all emails            | More notification templates needed    |
 
 ---
 
@@ -48,25 +51,26 @@ This document provides a complete overview of the dLocal payment integration for
 
 ### Countries (8 total)
 
-| Country | Code | Currency | Popular Payment Methods |
-|---------|------|----------|------------------------|
-| India | IN | INR (₹) | UPI, Paytm, PhonePe, Net Banking |
-| Nigeria | NG | NGN (₦) | Bank Transfer, USSD, Paystack, Verve |
-| Pakistan | PK | PKR (Rs) | JazzCash, Easypaisa |
-| Vietnam | VN | VND (₫) | VNPay, MoMo, ZaloPay |
-| Indonesia | ID | IDR (Rp) | GoPay, OVO, Dana, ShopeePay |
-| Thailand | TH | THB (฿) | TrueMoney, Rabbit LINE Pay, Thai QR |
-| South Africa | ZA | ZAR (R) | Instant EFT, EFT |
-| Turkey | TR | TRY (₺) | Bank Transfer, Local Cards |
+| Country      | Code | Currency | Popular Payment Methods              |
+| ------------ | ---- | -------- | ------------------------------------ |
+| India        | IN   | INR (₹)  | UPI, Paytm, PhonePe, Net Banking     |
+| Nigeria      | NG   | NGN (₦)  | Bank Transfer, USSD, Paystack, Verve |
+| Pakistan     | PK   | PKR (Rs) | JazzCash, Easypaisa                  |
+| Vietnam      | VN   | VND (₫)  | VNPay, MoMo, ZaloPay                 |
+| Indonesia    | ID   | IDR (Rp) | GoPay, OVO, Dana, ShopeePay          |
+| Thailand     | TH   | THB (฿)  | TrueMoney, Rabbit LINE Pay, Thai QR  |
+| South Africa | ZA   | ZAR (R)  | Instant EFT, EFT                     |
+| Turkey       | TR   | TRY (₺)  | Bank Transfer, Local Cards           |
 
 ### Pricing (USD Base)
 
-| Plan | Duration | Price (USD) | Discount Codes | Auto-Renewal | Notes |
-|------|----------|-------------|----------------|--------------|-------|
-| **3-Day** | 3 days | $1.99 | ❌ NO | ❌ NO | dLocal only |
-| **Monthly** | 30 days | $29.00 | ✅ YES | ❌ NO | Same price as Stripe |
+| Plan        | Duration | Price (USD) | Discount Codes | Auto-Renewal | Notes                |
+| ----------- | -------- | ----------- | -------------- | ------------ | -------------------- |
+| **3-Day**   | 3 days   | $1.99       | ❌ NO          | ❌ NO        | dLocal only          |
+| **Monthly** | 30 days  | $29.00      | ✅ YES         | ❌ NO        | Same price as Stripe |
 
 **Local Currency Conversion:**
+
 - All prices displayed in local currency
 - Example (India): $29 = ₹2,407 (at ~83 INR/USD rate)
 - Example (3-day India): $1.99 = ₹165
@@ -178,6 +182,7 @@ model Payment {
 Returns available payment methods for a country.
 
 **Response:**
+
 ```json
 [
   {
@@ -213,9 +218,10 @@ Returns available payment methods for a country.
 Converts USD to local currency.
 
 **Response:**
+
 ```json
 {
-  "amountUSD": 29.00,
+  "amountUSD": 29.0,
   "amountLocal": 2407,
   "currency": "INR",
   "exchangeRate": 83
@@ -229,6 +235,7 @@ Converts USD to local currency.
 Creates a dLocal payment.
 
 **Request:**
+
 ```json
 {
   "planType": "MONTHLY",
@@ -236,7 +243,7 @@ Creates a dLocal payment.
   "country": "IN",
   "currency": "INR",
   "amount": 2407,
-  "amountUSD": 29.00,
+  "amountUSD": 29.0,
   "discountCode": "WELCOME20",
   "payer": {
     "name": "John Doe",
@@ -246,6 +253,7 @@ Creates a dLocal payment.
 ```
 
 **Response:**
+
 ```json
 {
   "id": "PAY_dlocal_123",
@@ -264,6 +272,7 @@ Creates a dLocal payment.
 Receives payment status updates from dLocal.
 
 **Webhook Payload:**
+
 ```json
 {
   "id": "PAY_dlocal_123",
@@ -277,6 +286,7 @@ Receives payment status updates from dLocal.
 ```
 
 **Actions on PAID status:**
+
 1. Update payment record → COMPLETED
 2. Create/update subscription → ACTIVE
 3. Upgrade user tier → PRO
@@ -366,11 +376,11 @@ User loses PRO access:
   "crons": [
     {
       "path": "/api/cron/check-expiring-subscriptions",
-      "schedule": "0 0 * * *"  // Daily at midnight UTC
+      "schedule": "0 0 * * *" // Daily at midnight UTC
     },
     {
       "path": "/api/cron/downgrade-expired-subscriptions",
-      "schedule": "0 * * * *"  // Every hour
+      "schedule": "0 * * * *" // Every hour
     }
   ]
 }
@@ -471,6 +481,7 @@ Please try again with a different payment method or wallet.
 
 **Status:** ✅ Complete
 **Files Created:**
+
 - `docs/policies/07-dlocal-integration-rules.md` - Aider policy document
 - `docs/dlocal-openapi-endpoints.yaml` - API specification
 - `docs/implementation-guides/v5_part_r.md` - Part 18 implementation guide
@@ -483,6 +494,7 @@ Please try again with a different payment method or wallet.
 ### Phase 2: Foundation Setup (Not Started)
 
 **Prerequisites:**
+
 - Phase 1 complete (Parts 1-17 built)
 - Stripe integration working
 - User authentication working
@@ -496,6 +508,7 @@ Please try again with a different payment method or wallet.
 **Week 1: Database & Services (30 hours)**
 
 Files to create:
+
 - ✅ Update `prisma/schema.prisma`
 - ✅ Create migration
 - ✅ `types/dlocal.ts`
@@ -508,6 +521,7 @@ Files to create:
 **Week 2: API Routes (30 hours)**
 
 Files to create:
+
 - ✅ `app/api/payments/dlocal/methods/route.ts`
 - ✅ `app/api/payments/dlocal/exchange-rate/route.ts`
 - ✅ `app/api/payments/dlocal/convert/route.ts`
@@ -519,6 +533,7 @@ Files to create:
 **Week 3: Cron Jobs & Emails (30 hours)**
 
 Files to create:
+
 - ✅ `lib/cron/check-expiring-subscriptions.ts`
 - ✅ `lib/cron/downgrade-expired-subscriptions.ts`
 - ✅ `app/api/cron/check-expiring-subscriptions/route.ts`
@@ -532,6 +547,7 @@ Files to create:
 **Week 4: Frontend & Testing (30 hours)**
 
 Files to create:
+
 - ✅ `components/payments/CountrySelector.tsx`
 - ✅ `components/payments/PlanSelector.tsx`
 - ✅ `components/payments/PaymentMethodSelector.tsx`
@@ -613,31 +629,31 @@ Files to create:
 
 ### Functional Requirements
 
-| Requirement | Status | Notes |
-|-------------|--------|-------|
+| Requirement                             | Status       | Notes          |
+| --------------------------------------- | ------------ | -------------- |
 | Single checkout page for both providers | ⏳ Not built | Part of Week 4 |
-| Country detection with manual override | ⏳ Not built | Part of Week 4 |
-| Payment methods load dynamically | ⏳ Not built | Part of Week 2 |
-| Prices display in local currency | ⏳ Not built | Part of Week 4 |
-| 3-day plan exclusive to dLocal | ⏳ Not built | Part of Week 4 |
-| Discount codes on monthly only | ⏳ Not built | Part of Week 4 |
-| Payment processing works (8 countries) | ⏳ Not built | Part of Week 2 |
-| Webhooks handle success/failure | ⏳ Not built | Part of Week 2 |
-| Renewal reminders sent (3 days) | ⏳ Not built | Part of Week 3 |
-| Auto-downgrade on expiry | ⏳ Not built | Part of Week 3 |
+| Country detection with manual override  | ⏳ Not built | Part of Week 4 |
+| Payment methods load dynamically        | ⏳ Not built | Part of Week 2 |
+| Prices display in local currency        | ⏳ Not built | Part of Week 4 |
+| 3-day plan exclusive to dLocal          | ⏳ Not built | Part of Week 4 |
+| Discount codes on monthly only          | ⏳ Not built | Part of Week 4 |
+| Payment processing works (8 countries)  | ⏳ Not built | Part of Week 2 |
+| Webhooks handle success/failure         | ⏳ Not built | Part of Week 2 |
+| Renewal reminders sent (3 days)         | ⏳ Not built | Part of Week 3 |
+| Auto-downgrade on expiry                | ⏳ Not built | Part of Week 3 |
 
 ### Non-Functional Requirements
 
-| Requirement | Target | Status |
-|-------------|--------|--------|
-| Page load time | < 3 seconds | ⏳ Not tested |
-| Payment method selection | Instant update | ⏳ Not tested |
-| Mobile responsive | All screen sizes | ⏳ Not tested |
-| Accessibility | WCAG 2.1 AA | ⏳ Not tested |
-| Error messages | Clear & actionable | ⏳ Not tested |
-| API fallback | Graceful degradation | ⏳ Not tested |
-| Webhook security | Signature verification | ⏳ Not tested |
-| Secrets handling | Server-side only | ⏳ Not tested |
+| Requirement              | Target                 | Status        |
+| ------------------------ | ---------------------- | ------------- |
+| Page load time           | < 3 seconds            | ⏳ Not tested |
+| Payment method selection | Instant update         | ⏳ Not tested |
+| Mobile responsive        | All screen sizes       | ⏳ Not tested |
+| Accessibility            | WCAG 2.1 AA            | ⏳ Not tested |
+| Error messages           | Clear & actionable     | ⏳ Not tested |
+| API fallback             | Graceful degradation   | ⏳ Not tested |
+| Webhook security         | Signature verification | ⏳ Not tested |
+| Secrets handling         | Server-side only       | ⏳ Not tested |
 
 ---
 
@@ -711,23 +727,23 @@ CRON_SECRET=your_cron_secret_here
 
 ### dLocal Transaction Fees (Estimated)
 
-| Country | Payment Method | dLocal Fee | Net Revenue (from $29) |
-|---------|----------------|------------|------------------------|
-| India | UPI | ~2-3% | $28.13 - $28.42 |
-| Pakistan | JazzCash | ~3-4% | $27.84 - $28.13 |
-| Indonesia | GoPay | ~3-4% | $27.84 - $28.13 |
-| Nigeria | Bank Transfer | ~3-5% | $27.55 - $28.13 |
+| Country   | Payment Method | dLocal Fee | Net Revenue (from $29) |
+| --------- | -------------- | ---------- | ---------------------- |
+| India     | UPI            | ~2-3%      | $28.13 - $28.42        |
+| Pakistan  | JazzCash       | ~3-4%      | $27.84 - $28.13        |
+| Indonesia | GoPay          | ~3-4%      | $27.84 - $28.13        |
+| Nigeria   | Bank Transfer  | ~3-5%      | $27.55 - $28.13        |
 
 **Note:** Exact fees depend on dLocal contract. Contact dLocal for pricing.
 
 ### Infrastructure Costs
 
-| Service | Cost | Notes |
-|---------|------|-------|
-| dLocal API calls | Included | No additional API call charges |
-| Vercel Cron Jobs | Free | 2 cron jobs (included in Pro plan) |
-| Email Notifications | ~$0.001/email | Using Resend or similar |
-| Database Storage | Minimal | ~100 bytes per payment record |
+| Service             | Cost          | Notes                              |
+| ------------------- | ------------- | ---------------------------------- |
+| dLocal API calls    | Included      | No additional API call charges     |
+| Vercel Cron Jobs    | Free          | 2 cron jobs (included in Pro plan) |
+| Email Notifications | ~$0.001/email | Using Resend or similar            |
+| Database Storage    | Minimal       | ~100 bytes per payment record      |
 
 **Total Additional Cost:** < $1/month for infrastructure
 
@@ -737,21 +753,21 @@ CRON_SECRET=your_cron_secret_here
 
 ### Technical Risks
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| dLocal API downtime | Medium | High | Fallback to Stripe, show error message |
-| Webhook failures | Low | High | Retry mechanism, manual reconciliation |
-| Exchange rate volatility | Medium | Medium | Cache rates for 1 hour, fallback rates |
-| Cron job failures | Low | High | Monitoring alerts, manual execution option |
-| Payment fraud | Low | High | Webhook signature verification, transaction logging |
+| Risk                     | Probability | Impact | Mitigation                                          |
+| ------------------------ | ----------- | ------ | --------------------------------------------------- |
+| dLocal API downtime      | Medium      | High   | Fallback to Stripe, show error message              |
+| Webhook failures         | Low         | High   | Retry mechanism, manual reconciliation              |
+| Exchange rate volatility | Medium      | Medium | Cache rates for 1 hour, fallback rates              |
+| Cron job failures        | Low         | High   | Monitoring alerts, manual execution option          |
+| Payment fraud            | Low         | High   | Webhook signature verification, transaction logging |
 
 ### Business Risks
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| Low conversion (3-day plan) | Medium | Medium | A/B testing, user feedback |
-| High churn (manual renewal) | High | High | 3-day + 1-day renewal reminders |
-| Country-specific issues | Medium | Medium | Gradual rollout, country-by-country testing |
+| Risk                        | Probability | Impact | Mitigation                                  |
+| --------------------------- | ----------- | ------ | ------------------------------------------- |
+| Low conversion (3-day plan) | Medium      | Medium | A/B testing, user feedback                  |
+| High churn (manual renewal) | High        | High   | 3-day + 1-day renewal reminders             |
+| Country-specific issues     | Medium      | Medium | Gradual rollout, country-by-country testing |
 
 ---
 
@@ -843,6 +859,7 @@ CRON_SECRET=your_cron_secret_here
 ### Success Metrics
 
 **Target:**
+
 - 50% of emerging market users can now subscribe (previously 0%)
 - 3-day plan conversion rate > 15%
 - 3-day to monthly upgrade rate > 30%

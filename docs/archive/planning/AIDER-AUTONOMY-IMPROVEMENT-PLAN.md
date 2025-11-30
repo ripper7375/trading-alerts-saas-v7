@@ -8,6 +8,7 @@
 ## 📊 CURRENT STATE ANALYSIS
 
 ### Current Escalation Flow
+
 ```
 Issue Encountered
     ↓
@@ -23,6 +24,7 @@ ESCALATE TO HUMAN ⚠️
 ### Problem Identified
 
 **Currently Loaded Seed Code in .aider.conf.yml:**
+
 - ✅ `seed-code/market_ai_engine.py` (Flask/MT5 patterns)
 - ❌ **Missing 300+ TypeScript/React files** with authentication, dashboard, billing patterns
 - ❌ **Missing 17+ UI component examples**
@@ -33,15 +35,15 @@ ESCALATE TO HUMAN ⚠️
 
 When Aider/Claude Code encounter these common issues, they **must escalate** because they lack reference patterns:
 
-| Issue Type | Example | Could Be Solved By | Currently Loaded? |
-|-----------|---------|-------------------|------------------|
-| Authentication flow unclear | "How to implement OAuth?" | `seed-code/saas-starter/app/(login)/*` | ❌ No |
-| Dashboard layout patterns | "How to structure dashboard?" | `seed-code/next-shadcn-dashboard-starter/src/app/dashboard/*` | ❌ No |
-| Billing/subscription logic | "How to handle Stripe webhook?" | `seed-code/saas-starter/app/api/stripe/*` | ❌ No |
-| UI component structure | "How to build alert card?" | `seed-code/v0-components/alerts/*` | ❌ No |
-| API route patterns | "How to structure API route?" | `seed-code/saas-starter/app/api/*` | ❌ No |
-| Form validation | "How to validate with Zod?" | `seed-code/next-shadcn-dashboard-starter/src/components/forms/*` | ❌ No |
-| Flask/MT5 integration | "How to fetch MT5 data?" | `seed-code/market_ai_engine.py` | ✅ Yes |
+| Issue Type                  | Example                         | Could Be Solved By                                               | Currently Loaded? |
+| --------------------------- | ------------------------------- | ---------------------------------------------------------------- | ----------------- |
+| Authentication flow unclear | "How to implement OAuth?"       | `seed-code/saas-starter/app/(login)/*`                           | ❌ No             |
+| Dashboard layout patterns   | "How to structure dashboard?"   | `seed-code/next-shadcn-dashboard-starter/src/app/dashboard/*`    | ❌ No             |
+| Billing/subscription logic  | "How to handle Stripe webhook?" | `seed-code/saas-starter/app/api/stripe/*`                        | ❌ No             |
+| UI component structure      | "How to build alert card?"      | `seed-code/v0-components/alerts/*`                               | ❌ No             |
+| API route patterns          | "How to structure API route?"   | `seed-code/saas-starter/app/api/*`                               | ❌ No             |
+| Form validation             | "How to validate with Zod?"     | `seed-code/next-shadcn-dashboard-starter/src/components/forms/*` | ❌ No             |
+| Flask/MT5 integration       | "How to fetch MT5 data?"        | `seed-code/market_ai_engine.py`                                  | ✅ Yes            |
 
 **Result:** 6 out of 7 common issue types require escalation due to missing seed code references!
 
@@ -50,6 +52,7 @@ When Aider/Claude Code encounter these common issues, they **must escalate** bec
 ## 🎯 SOLUTION OVERVIEW
 
 ### New Escalation Flow (Improved)
+
 ```
 Issue Encountered
     ↓
@@ -75,9 +78,9 @@ ONLY THEN: Escalate to Human (if truly needed)
 
 ### Expected Reduction in Escalations
 
-| Current Escalation Rate | Expected After Improvement | Reduction |
-|------------------------|---------------------------|-----------|
-| ~15-20% of files | ~5-8% of files | **60-70% reduction** |
+| Current Escalation Rate | Expected After Improvement | Reduction            |
+| ----------------------- | -------------------------- | -------------------- |
+| ~15-20% of files        | ~5-8% of files             | **60-70% reduction** |
 
 ---
 
@@ -206,6 +209,7 @@ read:
 ```
 
 **Benefits:**
+
 - ✅ Aider can now reference 50+ additional pattern files
 - ✅ Covers authentication, dashboard, billing, forms, API routes
 - ✅ Organized by category for easy mental model
@@ -228,15 +232,15 @@ Before escalating ANY issue to the human, Aider and Claude Code MUST complete th
 
 Based on the issue type, check these seed code files FIRST:
 
-| Issue Type | Check These Seed Files First |
-|-----------|------------------------------|
-| **Authentication** | `seed-code/saas-starter/app/(login)/*`<br>`seed-code/next-shadcn-dashboard-starter/src/app/auth/*` |
-| **Dashboard Layout** | `seed-code/saas-starter/app/(dashboard)/layout.tsx`<br>`seed-code/v0-components/layouts/*` |
-| **API Routes** | `seed-code/saas-starter/app/api/*` |
-| **Billing/Subscription** | `seed-code/saas-starter/app/(dashboard)/pricing/*`<br>`seed-code/saas-starter/app/api/stripe/*` |
-| **Forms** | `seed-code/next-shadcn-dashboard-starter/src/components/forms/*` |
-| **UI Components** | `seed-code/v0-components/*` |
-| **Flask/MT5** | `seed-code/market_ai_engine.py` |
+| Issue Type               | Check These Seed Files First                                                                       |
+| ------------------------ | -------------------------------------------------------------------------------------------------- |
+| **Authentication**       | `seed-code/saas-starter/app/(login)/*`<br>`seed-code/next-shadcn-dashboard-starter/src/app/auth/*` |
+| **Dashboard Layout**     | `seed-code/saas-starter/app/(dashboard)/layout.tsx`<br>`seed-code/v0-components/layouts/*`         |
+| **API Routes**           | `seed-code/saas-starter/app/api/*`                                                                 |
+| **Billing/Subscription** | `seed-code/saas-starter/app/(dashboard)/pricing/*`<br>`seed-code/saas-starter/app/api/stripe/*`    |
+| **Forms**                | `seed-code/next-shadcn-dashboard-starter/src/components/forms/*`                                   |
+| **UI Components**        | `seed-code/v0-components/*`                                                                        |
+| **Flask/MT5**            | `seed-code/market_ai_engine.py`                                                                    |
 
 ### Step 2: Check Implementation Guides
 
@@ -263,8 +267,8 @@ For complex features, check specialized documentation:
 ### Step 4: Document Your Research
 
 Before escalating, include in your escalation message:
-
 ```
+
 Pre-Escalation Research Completed:
 ✅ Checked seed code: [list files checked]
 ✅ Checked implementation guide: [which guide]
@@ -275,24 +279,27 @@ Why seed code didn't resolve issue:
 
 Specific gap or ambiguity:
 [What specific information is missing that seed code doesn't provide]
+
 ```
 
 ### Example: Good Pre-Escalation Research
 
 ```
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  ESCALATION: Architectural Decision ⚠️
+⚠️ ESCALATION: Architectural Decision ⚠️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Pre-Escalation Research Completed:
 ✅ Checked seed code:
-   - seed-code/saas-starter/app/api/stripe/webhook/route.ts
-   - seed-code/saas-starter/app/(dashboard)/pricing/page.tsx
-✅ Checked implementation guide:
-   - docs/implementation-guides/v5_part_r.md (Part 15: Billing)
-✅ Checked technical docs:
-   - docs/SUBSCRIPTION-MODEL-CLARIFICATION.md
-   - docs/policies/07-dlocal-integration-rules.md
+
+- seed-code/saas-starter/app/api/stripe/webhook/route.ts
+- seed-code/saas-starter/app/(dashboard)/pricing/page.tsx
+  ✅ Checked implementation guide:
+- docs/implementation-guides/v5_part_r.md (Part 15: Billing)
+  ✅ Checked technical docs:
+- docs/SUBSCRIPTION-MODEL-CLARIFICATION.md
+- docs/policies/07-dlocal-integration-rules.md
 
 Why seed code didn't resolve issue:
 Seed code shows Stripe integration, but our project uses BOTH Stripe
@@ -304,20 +311,23 @@ Need to decide: Should we route by user's country (IP-based) or by user's
 preference (let them choose)? This affects checkout flow architecture.
 
 [Rest of escalation message...]
+
 ```
 
 ### Example: Bad Escalation (Missing Research)
 
 ```
+
 ❌ BAD EXAMPLE:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  ESCALATION: How to implement authentication? ⚠️
+⚠️ ESCALATION: How to implement authentication? ⚠️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Problem: I don't know how to implement login/signup pages.
 
 [No mention of checking seed code, implementation guide, or policies]
+
 ```
 
 **Why this is bad:**
@@ -331,29 +341,31 @@ Problem: I don't know how to implement login/signup pages.
 ## ESCALATION DECISION TREE (Updated)
 
 ```
+
 Issue Encountered
-    ↓
+↓
 Step 1: Check policies (01-08)
-    ↓
+↓
 Has policy answer? → YES → Follow policy, no escalation
-    ↓ NO
+↓ NO
 Step 2: Check OpenAPI spec
-    ↓
+↓
 Has API contract answer? → YES → Follow spec, no escalation
-    ↓ NO
+↓ NO
 Step 3: Check seed code (by category)
-    ↓
+↓
 Has pattern/example? → YES → Adapt pattern, no escalation
-    ↓ NO
+↓ NO
 Step 4: Check implementation guide
-    ↓
+↓
 Has specific guidance? → YES → Follow guide, no escalation
-    ↓ NO
+↓ NO
 Step 5: Check technical documentation
-    ↓
+↓
 Has specialized info? → YES → Follow docs, no escalation
-    ↓ NO
+↓ NO
 Step 6: NOW escalate with full research documented
+
 ```
 
 **Only escalate if ALL 5 steps above don't provide an answer!**
@@ -377,11 +389,11 @@ This guide will help Aider/Claude Code quickly find the right seed code for each
 
 ```markdown
 5. Check seed code for patterns:
-   - Authentication issues? → seed-code/saas-starter/app/(login)/*
-   - Dashboard layout? → seed-code/v0-components/layouts/*
-   - API routes? → seed-code/saas-starter/app/api/*
-   - Forms? → seed-code/next-shadcn-dashboard-starter/src/components/forms/*
-   - Billing? → seed-code/saas-starter/app/(dashboard)/pricing/*
+   - Authentication issues? → seed-code/saas-starter/app/(login)/\*
+   - Dashboard layout? → seed-code/v0-components/layouts/\*
+   - API routes? → seed-code/saas-starter/app/api/\*
+   - Forms? → seed-code/next-shadcn-dashboard-starter/src/components/forms/\*
+   - Billing? → seed-code/saas-starter/app/(dashboard)/pricing/\*
 
 6. Check implementation guide for current Part:
    - Part A-R: docs/implementation-guides/v5_part_X.md
@@ -392,12 +404,14 @@ This guide will help Aider/Claude Code quickly find the right seed code for each
 ## 📈 SUCCESS METRICS
 
 ### Before Implementation (Current State)
+
 - Escalation rate: ~15-20% of files
 - Average escalations per session: 8-12
 - Time spent on escalations: 30-40 minutes per session
 - Human intervention required: Every 6-8 files
 
 ### After Implementation (Expected)
+
 - Escalation rate: ~5-8% of files ✅ **60% reduction**
 - Average escalations per session: 3-5 ✅ **58% reduction**
 - Time spent on escalations: 10-15 minutes per session ✅ **63% reduction**
@@ -410,10 +424,10 @@ Track these in `PROGRESS.md`:
 ```markdown
 ## Escalation Tracking
 
-| Session Date | Files Built | Escalations | Escalation Rate | Notes |
-|-------------|-------------|-------------|-----------------|-------|
-| 2025-11-18 (Before) | 10 | 2 | 20% | Baseline |
-| 2025-11-19 (After) | 12 | 1 | 8% | With seed code! |
+| Session Date        | Files Built | Escalations | Escalation Rate | Notes           |
+| ------------------- | ----------- | ----------- | --------------- | --------------- |
+| 2025-11-18 (Before) | 10          | 2           | 20%             | Baseline        |
+| 2025-11-19 (After)  | 12          | 1           | 8%              | With seed code! |
 ```
 
 ---
@@ -454,6 +468,7 @@ Track these in `PROGRESS.md`:
 ### Scenario: Implementing Login Page (Part 5)
 
 #### Current Workflow (Before Improvement):
+
 ```
 Aider Task: "Implement app/(auth)/login/page.tsx"
     ↓
@@ -473,6 +488,7 @@ Total time: 25 minutes (10 min escalation + 15 min implementation)
 ```
 
 #### New Workflow (After Improvement):
+
 ```
 Aider Task: "Implement app/(auth)/login/page.tsx"
     ↓
@@ -519,18 +535,21 @@ Due to the large number of documents in this repository (50+ documentation files
 When Aider/Claude Code encounter conflicting information:
 
 **1. Check Git commit dates:**
+
 ```bash
 git log --oneline -- path/to/document.md
 ```
 
 **2. Apply precedence rules (highest to lowest):**
+
 - ✅ **Most recent commit date** = Source of truth
-- ✅ **Policy documents** (docs/policies/*) = Always current
+- ✅ **Policy documents** (docs/policies/\*) = Always current
 - ✅ **Implementation guides** = Part-specific details
 - ✅ **Technical docs** = Specialized features
 - ✅ **Seed code** = Reference patterns only
 
 **3. Example conflict resolution:**
+
 ```
 Conflict Detected:
 - Document A (2025-01-15): FREE tier has 3 symbols
@@ -579,13 +598,13 @@ Aider thinks:         "Ah! I combine all three:
 
 ### What Seed Code Provides That Policies Don't
 
-| Policy | Seed Code |
-|--------|-----------|
-| "Use React Hook Form" | Shows exact hook usage: `const { register, handleSubmit } = useForm<LoginSchema>()` |
-| "Add error handling" | Shows specific pattern: `catch (error) { if (error instanceof AuthError) {...} }` |
-| "Implement loading states" | Shows UI pattern: `{loading ? <Spinner /> : <Button>Login</Button>}` |
-| "Make responsive" | Shows Tailwind classes: `className="grid gap-4 md:grid-cols-2"` |
-| "Add tier validation" | Shows actual function: `const allowed = validateTierAccess(symbol, tier)` |
+| Policy                     | Seed Code                                                                           |
+| -------------------------- | ----------------------------------------------------------------------------------- |
+| "Use React Hook Form"      | Shows exact hook usage: `const { register, handleSubmit } = useForm<LoginSchema>()` |
+| "Add error handling"       | Shows specific pattern: `catch (error) { if (error instanceof AuthError) {...} }`   |
+| "Implement loading states" | Shows UI pattern: `{loading ? <Spinner /> : <Button>Login</Button>}`                |
+| "Make responsive"          | Shows Tailwind classes: `className="grid gap-4 md:grid-cols-2"`                     |
+| "Add tier validation"      | Shows actual function: `const allowed = validateTierAccess(symbol, tier)`           |
 
 **Conclusion:** Policies define requirements. Seed code shows implementation. Both are essential for autonomy.
 
@@ -594,6 +613,7 @@ Aider thinks:         "Ah! I combine all three:
 ## 📋 ROLLOUT CHECKLIST
 
 ### Phase 1: Preparation (This Session)
+
 - [ ] Create updated `.aider.conf.yml`
 - [ ] Update `docs/policies/04-escalation-triggers.md`
 - [ ] Create `docs/SEED-CODE-REFERENCE-GUIDE.md`
@@ -601,6 +621,7 @@ Aider thinks:         "Ah! I combine all three:
 - [ ] Commit all changes
 
 ### Phase 2: Testing (Next Aider Session)
+
 - [ ] Start Aider with updated config
 - [ ] Verify all seed code files load successfully
 - [ ] Build 5-10 files as test
@@ -608,12 +629,14 @@ Aider thinks:         "Ah! I combine all three:
 - [ ] Document what worked well
 
 ### Phase 3: Monitoring (Ongoing)
+
 - [ ] Track escalation rate in `PROGRESS.md`
 - [ ] Identify remaining escalation patterns
 - [ ] Add more seed code if needed
 - [ ] Refine policies based on learnings
 
 ### Phase 4: Optimization (After 20-30 files)
+
 - [ ] Review escalation patterns
 - [ ] Add missing seed code examples
 - [ ] Update policies with new learnings
@@ -644,11 +667,11 @@ After implementing this improvement plan, you will:
 
 ## 🚀 EXPECTED TIMELINE
 
-| Phase | Duration | Outcome |
-|-------|----------|---------|
-| **Phase 1: Preparation** | 1 hour | All config files updated |
-| **Phase 2: Testing** | 2-3 hours | Build 5-10 files, validate reduction |
-| **Phase 3: Full Rollout** | Ongoing | Build remaining 160 files with <8% escalation |
+| Phase                     | Duration  | Outcome                                       |
+| ------------------------- | --------- | --------------------------------------------- |
+| **Phase 1: Preparation**  | 1 hour    | All config files updated                      |
+| **Phase 2: Testing**      | 2-3 hours | Build 5-10 files, validate reduction          |
+| **Phase 3: Full Rollout** | Ongoing   | Build remaining 160 files with <8% escalation |
 
 **Total time investment:** ~3-4 hours upfront
 **Total time saved:** ~40-70 hours over 170 files

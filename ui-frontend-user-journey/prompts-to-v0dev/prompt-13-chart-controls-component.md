@@ -1,4 +1,5 @@
 ## **PROMPT 13: Chart Controls (Symbol & Timeframe Selectors) Component**
+
 ==================================================
 
 Create tier-aware chart control components for symbol and timeframe selection in Next.js 15 using TypeScript, Tailwind CSS, and shadcn/ui.
@@ -148,26 +149,26 @@ Button: [Upgrade to PRO] (bg-white, text-blue-600, px-4, py-2, rounded-lg, font-
 On Symbol Select:
 
 const handleSymbolSelect = (symbol: string) => {
-  if (userTier === 'FREE' && !FREE_SYMBOLS.includes(symbol)) {
-    // Show upgrade modal
-    openUpgradeModal('symbol', symbol)
-    return
-  }
-  // Valid selection
-  onSymbolChange(symbol)
-  closeDropdown()
+if (userTier === 'FREE' && !FREE_SYMBOLS.includes(symbol)) {
+// Show upgrade modal
+openUpgradeModal('symbol', symbol)
+return
+}
+// Valid selection
+onSymbolChange(symbol)
+closeDropdown()
 }
 On Timeframe Select:
 
 const handleTimeframeSelect = (timeframe: string) => {
-  if (userTier === 'FREE' && !FREE_TIMEFRAMES.includes(timeframe)) {
-    // Show upgrade modal
-    openUpgradeModal('timeframe', timeframe)
-    return
-  }
-  // Valid selection
-  onTimeframeChange(timeframe)
-  closeDropdown()
+if (userTier === 'FREE' && !FREE_TIMEFRAMES.includes(timeframe)) {
+// Show upgrade modal
+openUpgradeModal('timeframe', timeframe)
+return
+}
+// Valid selection
+onTimeframeChange(timeframe)
+closeDropdown()
 }
 
 6. UPGRADE MODAL (When locked item clicked):
@@ -246,6 +247,5 @@ PRO_SYMBOLS: [...FREE_SYMBOLS, 'AUDJPY', 'AUDUSD', 'ETHUSD', 'GBPJPY', 'GBPUSD',
 FREE_TIMEFRAMES: ['H1', 'H4', 'D1']
 PRO_TIMEFRAMES: ['M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12', 'D1']
 Mock data: Symbol prices and changes
-
 
 Generate complete, production-ready code with tier validation, upgrade modal, and responsive design that I can copy and run immediately.

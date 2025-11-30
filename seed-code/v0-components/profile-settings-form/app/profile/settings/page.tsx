@@ -1,33 +1,51 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Camera, Check, X, AlertCircle, Loader2 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { profileSchema, type ProfileSchemaType } from "@/lib/profile-schema"
-import { mockUserData, countries, timezones, languages, currencies } from "@/lib/mock-data"
-import { checkUsernameAvailability, uploadProfilePhoto, saveProfile } from "@/lib/mock-api"
-import { PhotoUploadModal } from "@/components/photo-upload-modal"
-import { UnsavedChangesModal } from "@/components/unsaved-changes-modal"
-import { useToast } from "@/hooks/use-toast"
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Camera, Check, X, AlertCircle, Loader2 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { profileSchema, type ProfileSchemaType } from '@/lib/profile-schema';
+import {
+  mockUserData,
+  countries,
+  timezones,
+  languages,
+  currencies,
+} from '@/lib/mock-data';
+import {
+  checkUsernameAvailability,
+  uploadProfilePhoto,
+  saveProfile,
+} from '@/lib/mock-api';
+import { PhotoUploadModal } from '@/components/photo-upload-modal';
+import { UnsavedChangesModal } from '@/components/unsaved-changes-modal';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ProfileSettingsPage() {
-  const { toast } = useToast()
-  const [photoUrl, setPhotoUrl] = useState(mockUserData.photoUrl)
-  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false)
-  const [isUnsavedModalOpen, setIsUnsavedModalOpen] = useState(false)
-  const [usernameStatus, setUsernameStatus] = useState<"idle" | "checking" | "available" | "taken">("idle")
-  const [isSaving, setIsSaving] = useState(false)
-  const [saveSuccess, setSaveSuccess] = useState(false)
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const { toast } = useToast();
+  const [photoUrl, setPhotoUrl] = useState(mockUserData.photoUrl);
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [isUnsavedModalOpen, setIsUnsavedModalOpen] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<
+    'idle' | 'checking' | 'available' | 'taken'
+  >('idle');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const {
     register,
@@ -38,151 +56,158 @@ export default function ProfileSettingsPage() {
   } = useForm<ProfileSchemaType>({
     resolver: zodResolver(profileSchema),
     defaultValues: mockUserData,
-  })
+  });
 
-  const watchedFields = watch()
-  const fullNameLength = watchedFields.fullName?.length || 0
-  const bioLength = watchedFields.bio?.length || 0
-  const usernameValue = watchedFields.username || ""
+  const watchedFields = watch();
+  const fullNameLength = watchedFields.fullName?.length || 0;
+  const bioLength = watchedFields.bio?.length || 0;
+  const usernameValue = watchedFields.username || '';
 
   // Check username availability
   useEffect(() => {
     if (!usernameValue || usernameValue === mockUserData.username) {
-      setUsernameStatus("idle")
-      return
+      setUsernameStatus('idle');
+      return;
     }
 
     const timer = setTimeout(async () => {
-      setUsernameStatus("checking")
-      const isAvailable = await checkUsernameAvailability(usernameValue)
-      setUsernameStatus(isAvailable ? "available" : "taken")
-    }, 500)
+      setUsernameStatus('checking');
+      const isAvailable = await checkUsernameAvailability(usernameValue);
+      setUsernameStatus(isAvailable ? 'available' : 'taken');
+    }, 500);
 
-    return () => clearTimeout(timer)
-  }, [usernameValue])
+    return () => clearTimeout(timer);
+  }, [usernameValue]);
 
   // Track unsaved changes
   useEffect(() => {
-    setHasUnsavedChanges(isDirty)
-  }, [isDirty])
+    setHasUnsavedChanges(isDirty);
+  }, [isDirty]);
 
   // Warn before leaving with unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
-        e.preventDefault()
-        e.returnValue = ""
+        e.preventDefault();
+        e.returnValue = '';
       }
-    }
+    };
 
-    window.addEventListener("beforeunload", handleBeforeUnload)
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
-  }, [hasUnsavedChanges])
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   const handlePhotoUpload = async (file: File) => {
-    const result = await uploadProfilePhoto(file)
-    setPhotoUrl(result.url)
-    setValue("photoUrl", result.url, { shouldDirty: true })
+    const result = await uploadProfilePhoto(file);
+    setPhotoUrl(result.url);
+    setValue('photoUrl', result.url, { shouldDirty: true });
 
     toast({
-      title: "Photo uploaded successfully!",
-      description: "Your profile photo has been updated.",
+      title: 'Photo uploaded successfully!',
+      description: 'Your profile photo has been updated.',
       duration: 3000,
-    })
-  }
+    });
+  };
 
   const handleRemovePhoto = () => {
-    setPhotoUrl("")
-    setValue("photoUrl", "", { shouldDirty: true })
-  }
+    setPhotoUrl('');
+    setValue('photoUrl', '', { shouldDirty: true });
+  };
 
   const onSubmit = async (data: ProfileSchemaType) => {
-    setIsSaving(true)
+    setIsSaving(true);
     try {
-      await saveProfile({ ...data, photoUrl })
-      setSaveSuccess(true)
-      setHasUnsavedChanges(false)
+      await saveProfile({ ...data, photoUrl });
+      setSaveSuccess(true);
+      setHasUnsavedChanges(false);
 
       toast({
-        title: "✓ Profile updated successfully!",
-        description: "Your changes have been saved.",
+        title: '✓ Profile updated successfully!',
+        description: 'Your changes have been saved.',
         duration: 3000,
-      })
+      });
 
-      setTimeout(() => setSaveSuccess(false), 2000)
+      setTimeout(() => setSaveSuccess(false), 2000);
     } catch (error) {
       toast({
-        title: "Failed to save profile",
-        description: "Please try again later.",
-        variant: "destructive",
+        title: 'Failed to save profile',
+        description: 'Please try again later.',
+        variant: 'destructive',
         duration: 3000,
-      })
+      });
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleCancel = () => {
     if (hasUnsavedChanges) {
-      setIsUnsavedModalOpen(true)
+      setIsUnsavedModalOpen(true);
     }
-  }
+  };
 
   const getInitials = (name: string) => {
     return name
-      .split(" ")
+      .split(' ')
       .map((n) => n[0])
-      .join("")
+      .join('')
       .toUpperCase()
-      .slice(0, 2)
-  }
+      .slice(0, 2);
+  };
 
   const getCurrentTime = (timezone: string) => {
     try {
-      return new Intl.DateTimeFormat("en-US", {
+      return new Intl.DateTimeFormat('en-US', {
         timeZone: timezone,
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: watchedFields.timeFormat === "12h",
-      }).format(new Date())
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: watchedFields.timeFormat === '12h',
+      }).format(new Date());
     } catch {
-      return "--:--"
+      return '--:--';
     }
-  }
+  };
 
   const getDatePreview = (format: string) => {
-    const date = new Date(2025, 0, 15)
-    const month = "01"
-    const day = "15"
-    const year = "2025"
+    const date = new Date(2025, 0, 15);
+    const month = '01';
+    const day = '15';
+    const year = '2025';
 
     switch (format) {
-      case "MDY":
-        return `${month}/${day}/${year}`
-      case "DMY":
-        return `${day}/${month}/${year}`
-      case "YMD":
-        return `${year}-${month}-${day}`
+      case 'MDY':
+        return `${month}/${day}/${year}`;
+      case 'DMY':
+        return `${day}/${month}/${year}`;
+      case 'YMD':
+        return `${year}-${month}-${day}`;
       default:
-        return "January 15, 2025"
+        return 'January 15, 2025';
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-4xl mx-auto mb-20">
-          <h1 className="text-2xl font-bold text-gray-900 mb-8">Profile Information</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-8">
+            Profile Information
+          </h1>
 
           {/* Profile Photo Section */}
           <div className="mb-8 pb-8 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Profile Photo</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Profile Photo
+            </h2>
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               <div className="relative group">
                 <Avatar className="w-32 h-32 border-4 border-gray-200 shadow-lg">
-                  <AvatarImage src={photoUrl || "/placeholder.svg"} alt={watchedFields.fullName} />
+                  <AvatarImage
+                    src={photoUrl || '/placeholder.svg'}
+                    alt={watchedFields.fullName}
+                  />
                   <AvatarFallback className="bg-blue-600 text-white text-4xl font-bold">
-                    {getInitials(watchedFields.fullName || "JT")}
+                    {getInitials(watchedFields.fullName || 'JT')}
                   </AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
@@ -194,7 +219,9 @@ export default function ProfileSettingsPage() {
               </div>
 
               <div className="flex-1 space-y-3">
-                <p className="text-sm text-gray-600">Upload a professional photo to personalize your profile</p>
+                <p className="text-sm text-gray-600">
+                  Upload a professional photo to personalize your profile
+                </p>
                 <div className="flex flex-wrap gap-3">
                   <Button
                     type="button"
@@ -222,21 +249,28 @@ export default function ProfileSettingsPage() {
 
           {/* Personal Information Section */}
           <div className="mb-8 pb-8 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Personal Information
+            </h2>
             <div className="space-y-6">
               {/* Full Name */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <Label htmlFor="fullName" className="font-medium text-gray-700">
+                  <Label
+                    htmlFor="fullName"
+                    className="font-medium text-gray-700"
+                  >
                     Full Name
                   </Label>
-                  <span className="text-xs text-gray-500">{fullNameLength}/50</span>
+                  <span className="text-xs text-gray-500">
+                    {fullNameLength}/50
+                  </span>
                 </div>
                 <Input
                   id="fullName"
                   placeholder="John Trader"
-                  {...register("fullName")}
-                  className={errors.fullName ? "border-red-500" : ""}
+                  {...register('fullName')}
+                  className={errors.fullName ? 'border-red-500' : ''}
                 />
                 {errors.fullName && (
                   <p className="text-sm text-red-600 mt-1 flex items-center gap-1">
@@ -248,7 +282,10 @@ export default function ProfileSettingsPage() {
 
               {/* Email Address */}
               <div>
-                <Label htmlFor="email" className="font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <Label
+                  htmlFor="email"
+                  className="font-medium text-gray-700 mb-2 flex items-center gap-2"
+                >
                   Email Address
                   {mockUserData.emailVerified && (
                     <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-semibold inline-flex items-center gap-1">
@@ -260,11 +297,16 @@ export default function ProfileSettingsPage() {
                 <Input
                   id="email"
                   type="email"
-                  {...register("email")}
-                  className={errors.email ? "border-red-500" : ""}
+                  {...register('email')}
+                  className={errors.email ? 'border-red-500' : ''}
                 />
-                <p className="text-xs text-gray-500 mt-1">Used for login and notifications</p>
-                <button type="button" className="text-blue-600 text-sm hover:underline mt-1">
+                <p className="text-xs text-gray-500 mt-1">
+                  Used for login and notifications
+                </p>
+                <button
+                  type="button"
+                  className="text-blue-600 text-sm hover:underline mt-1"
+                >
                   Change email address
                 </button>
                 {errors.email && (
@@ -277,33 +319,38 @@ export default function ProfileSettingsPage() {
 
               {/* Username */}
               <div>
-                <Label htmlFor="username" className="font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="username"
+                  className="font-medium text-gray-700 mb-2"
+                >
                   Username (optional)
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">@</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                    @
+                  </span>
                   <Input
                     id="username"
                     placeholder="john_trader"
-                    {...register("username")}
-                    className={`pl-8 ${errors.username ? "border-red-500" : ""}`}
+                    {...register('username')}
+                    className={`pl-8 ${errors.username ? 'border-red-500' : ''}`}
                   />
                 </div>
                 {usernameValue && usernameValue !== mockUserData.username && (
                   <div className="mt-1">
-                    {usernameStatus === "checking" && (
+                    {usernameStatus === 'checking' && (
                       <p className="text-xs text-gray-500 flex items-center gap-1">
                         <Loader2 className="w-3 h-3 animate-spin" />
                         Checking...
                       </p>
                     )}
-                    {usernameStatus === "available" && (
+                    {usernameStatus === 'available' && (
                       <p className="text-xs text-green-600 flex items-center gap-1">
                         <Check className="w-3 h-3" />
                         Available
                       </p>
                     )}
-                    {usernameStatus === "taken" && (
+                    {usernameStatus === 'taken' && (
                       <p className="text-xs text-red-600 flex items-center gap-1">
                         <X className="w-3 h-3" />
                         Username taken
@@ -312,7 +359,8 @@ export default function ProfileSettingsPage() {
                   </div>
                 )}
                 <p className="text-xs text-gray-500 mt-1">
-                  Your profile URL: tradingalerts.com/@{usernameValue || "your_username"}
+                  Your profile URL: tradingalerts.com/@
+                  {usernameValue || 'your_username'}
                 </p>
                 {errors.username && (
                   <p className="text-sm text-red-600 mt-1 flex items-center gap-1">
@@ -326,20 +374,36 @@ export default function ProfileSettingsPage() {
 
           {/* Professional Information Section */}
           <div className="mb-8 pb-8 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Professional Information</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Professional Information
+            </h2>
             <div className="space-y-6">
               <div>
-                <Label htmlFor="company" className="font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="company"
+                  className="font-medium text-gray-700 mb-2"
+                >
                   Company or Organization (optional)
                 </Label>
-                <Input id="company" placeholder="Acme Trading Co." {...register("company")} />
+                <Input
+                  id="company"
+                  placeholder="Acme Trading Co."
+                  {...register('company')}
+                />
               </div>
 
               <div>
-                <Label htmlFor="jobTitle" className="font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="jobTitle"
+                  className="font-medium text-gray-700 mb-2"
+                >
                   Job Title (optional)
                 </Label>
-                <Input id="jobTitle" placeholder="Professional Trader" {...register("jobTitle")} />
+                <Input
+                  id="jobTitle"
+                  placeholder="Professional Trader"
+                  {...register('jobTitle')}
+                />
               </div>
 
               <div>
@@ -353,26 +417,39 @@ export default function ProfileSettingsPage() {
                   id="bio"
                   rows={4}
                   placeholder="Tell us about yourself and your trading experience..."
-                  {...register("bio")}
-                  className={errors.bio ? "border-red-500" : ""}
+                  {...register('bio')}
+                  className={errors.bio ? 'border-red-500' : ''}
                 />
-                <p className="text-xs text-gray-500 mt-1">This will be visible on your public profile (if enabled)</p>
-                {errors.bio && <p className="text-sm text-red-600 mt-1">{errors.bio.message}</p>}
+                <p className="text-xs text-gray-500 mt-1">
+                  This will be visible on your public profile (if enabled)
+                </p>
+                {errors.bio && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.bio.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
           {/* Location & Timezone Section */}
           <div className="mb-8 pb-8 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Location & Timezone</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Location & Timezone
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="country" className="font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="country"
+                  className="font-medium text-gray-700 mb-2"
+                >
                   Country/Region
                 </Label>
                 <Select
                   value={watchedFields.country}
-                  onValueChange={(value) => setValue("country", value, { shouldDirty: true })}
+                  onValueChange={(value) =>
+                    setValue('country', value, { shouldDirty: true })
+                  }
                 >
                   <SelectTrigger id="country">
                     <SelectValue placeholder="Select country" />
@@ -385,16 +462,25 @@ export default function ProfileSettingsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.country && <p className="text-sm text-red-600 mt-1">{errors.country.message}</p>}
+                {errors.country && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.country.message}
+                  </p>
+                )}
               </div>
 
               <div>
-                <Label htmlFor="timezone" className="font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="timezone"
+                  className="font-medium text-gray-700 mb-2"
+                >
                   Timezone
                 </Label>
                 <Select
                   value={watchedFields.timezone}
-                  onValueChange={(value) => setValue("timezone", value, { shouldDirty: true })}
+                  onValueChange={(value) =>
+                    setValue('timezone', value, { shouldDirty: true })
+                  }
                 >
                   <SelectTrigger id="timezone">
                     <SelectValue placeholder="Select timezone" />
@@ -403,15 +489,17 @@ export default function ProfileSettingsPage() {
                     {Object.entries(
                       timezones.reduce(
                         (acc, tz) => {
-                          if (!acc[tz.region]) acc[tz.region] = []
-                          acc[tz.region].push(tz)
-                          return acc
+                          if (!acc[tz.region]) acc[tz.region] = [];
+                          acc[tz.region].push(tz);
+                          return acc;
                         },
-                        {} as Record<string, typeof timezones>,
-                      ),
+                        {} as Record<string, typeof timezones>
+                      )
                     ).map(([region, tzs]) => (
                       <div key={region}>
-                        <div className="px-2 py-1.5 text-sm font-semibold text-gray-900">{region}</div>
+                        <div className="px-2 py-1.5 text-sm font-semibold text-gray-900">
+                          {region}
+                        </div>
                         {tzs.map((tz) => (
                           <SelectItem key={tz.value} value={tz.value}>
                             {tz.label}
@@ -421,23 +509,36 @@ export default function ProfileSettingsPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-gray-500 mt-1">Current time: {getCurrentTime(watchedFields.timezone)}</p>
-                {errors.timezone && <p className="text-sm text-red-600 mt-1">{errors.timezone.message}</p>}
+                <p className="text-xs text-gray-500 mt-1">
+                  Current time: {getCurrentTime(watchedFields.timezone)}
+                </p>
+                {errors.timezone && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.timezone.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
 
           {/* Preferences Section */}
           <div className="mb-8 pb-8 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Preferences</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Preferences
+            </h2>
             <div className="space-y-6">
               <div>
-                <Label htmlFor="language" className="font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="language"
+                  className="font-medium text-gray-700 mb-2"
+                >
                   Language
                 </Label>
                 <Select
                   value={watchedFields.language}
-                  onValueChange={(value) => setValue("language", value, { shouldDirty: true })}
+                  onValueChange={(value) =>
+                    setValue('language', value, { shouldDirty: true })
+                  }
                 >
                   <SelectTrigger id="language">
                     <SelectValue placeholder="Select language" />
@@ -453,11 +554,15 @@ export default function ProfileSettingsPage() {
               </div>
 
               <div>
-                <Label className="font-medium text-gray-700 mb-2 block">Date Format</Label>
+                <Label className="font-medium text-gray-700 mb-2 block">
+                  Date Format
+                </Label>
                 <RadioGroup
                   value={watchedFields.dateFormat}
                   onValueChange={(value) =>
-                    setValue("dateFormat", value as "MDY" | "DMY" | "YMD", { shouldDirty: true })
+                    setValue('dateFormat', value as 'MDY' | 'DMY' | 'YMD', {
+                      shouldDirty: true,
+                    })
                   }
                   className="flex flex-wrap gap-4"
                 >
@@ -480,14 +585,22 @@ export default function ProfileSettingsPage() {
                     </Label>
                   </div>
                 </RadioGroup>
-                <p className="text-xs text-gray-500 mt-2">Preview: {getDatePreview(watchedFields.dateFormat)}</p>
+                <p className="text-xs text-gray-500 mt-2">
+                  Preview: {getDatePreview(watchedFields.dateFormat)}
+                </p>
               </div>
 
               <div>
-                <Label className="font-medium text-gray-700 mb-2 block">Time Format</Label>
+                <Label className="font-medium text-gray-700 mb-2 block">
+                  Time Format
+                </Label>
                 <RadioGroup
                   value={watchedFields.timeFormat}
-                  onValueChange={(value) => setValue("timeFormat", value as "12h" | "24h", { shouldDirty: true })}
+                  onValueChange={(value) =>
+                    setValue('timeFormat', value as '12h' | '24h', {
+                      shouldDirty: true,
+                    })
+                  }
                   className="flex gap-4"
                 >
                   <div className="flex items-center space-x-2">
@@ -506,12 +619,17 @@ export default function ProfileSettingsPage() {
               </div>
 
               <div>
-                <Label htmlFor="currency" className="font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="currency"
+                  className="font-medium text-gray-700 mb-2"
+                >
                   Currency
                 </Label>
                 <Select
                   value={watchedFields.currency}
-                  onValueChange={(value) => setValue("currency", value, { shouldDirty: true })}
+                  onValueChange={(value) =>
+                    setValue('currency', value, { shouldDirty: true })
+                  }
                 >
                   <SelectTrigger id="currency">
                     <SelectValue placeholder="Select currency" />
@@ -530,42 +648,77 @@ export default function ProfileSettingsPage() {
 
           {/* Privacy Settings Section */}
           <div className="mb-8 pb-8 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Privacy Settings</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Privacy Settings
+            </h2>
             <div className="space-y-6">
               <div>
-                <Label className="font-medium text-gray-700 mb-2 block">Profile Visibility</Label>
+                <Label className="font-medium text-gray-700 mb-2 block">
+                  Profile Visibility
+                </Label>
                 <RadioGroup
                   value={watchedFields.profileVisibility}
                   onValueChange={(value) =>
-                    setValue("profileVisibility", value as "public" | "private" | "connections", { shouldDirty: true })
+                    setValue(
+                      'profileVisibility',
+                      value as 'public' | 'private' | 'connections',
+                      { shouldDirty: true }
+                    )
                   }
                   className="space-y-3"
                 >
                   <div className="flex items-start space-x-2">
-                    <RadioGroupItem value="public" id="public" className="mt-1" />
+                    <RadioGroupItem
+                      value="public"
+                      id="public"
+                      className="mt-1"
+                    />
                     <div>
-                      <Label htmlFor="public" className="font-normal cursor-pointer">
+                      <Label
+                        htmlFor="public"
+                        className="font-normal cursor-pointer"
+                      >
                         Public
                       </Label>
-                      <p className="text-sm text-gray-600 ml-0">Anyone can view your profile and trading stats</p>
+                      <p className="text-sm text-gray-600 ml-0">
+                        Anyone can view your profile and trading stats
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-2">
-                    <RadioGroupItem value="private" id="private" className="mt-1" />
+                    <RadioGroupItem
+                      value="private"
+                      id="private"
+                      className="mt-1"
+                    />
                     <div>
-                      <Label htmlFor="private" className="font-normal cursor-pointer">
+                      <Label
+                        htmlFor="private"
+                        className="font-normal cursor-pointer"
+                      >
                         Private
                       </Label>
-                      <p className="text-sm text-gray-600 ml-0">Only you can see your profile</p>
+                      <p className="text-sm text-gray-600 ml-0">
+                        Only you can see your profile
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start space-x-2">
-                    <RadioGroupItem value="connections" id="connections" className="mt-1" />
+                    <RadioGroupItem
+                      value="connections"
+                      id="connections"
+                      className="mt-1"
+                    />
                     <div>
-                      <Label htmlFor="connections" className="font-normal cursor-pointer">
+                      <Label
+                        htmlFor="connections"
+                        className="font-normal cursor-pointer"
+                      >
                         Connections Only
                       </Label>
-                      <p className="text-sm text-gray-600 ml-0">Only users you follow can view your profile</p>
+                      <p className="text-sm text-gray-600 ml-0">
+                        Only users you follow can view your profile
+                      </p>
                     </div>
                   </div>
                 </RadioGroup>
@@ -576,13 +729,22 @@ export default function ProfileSettingsPage() {
                   <Checkbox
                     id="showStats"
                     checked={watchedFields.showStats}
-                    onCheckedChange={(checked) => setValue("showStats", checked as boolean, { shouldDirty: true })}
+                    onCheckedChange={(checked) =>
+                      setValue('showStats', checked as boolean, {
+                        shouldDirty: true,
+                      })
+                    }
                   />
                   <div>
-                    <Label htmlFor="showStats" className="text-sm text-gray-700 cursor-pointer">
+                    <Label
+                      htmlFor="showStats"
+                      className="text-sm text-gray-700 cursor-pointer"
+                    >
                       Show my trading statistics on public profile
                     </Label>
-                    <p className="text-xs text-gray-500 mt-1">Includes total alerts, chart views, and join date</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Includes total alerts, chart views, and join date
+                    </p>
                   </div>
                 </div>
 
@@ -590,10 +752,17 @@ export default function ProfileSettingsPage() {
                   <Checkbox
                     id="showEmail"
                     checked={watchedFields.showEmail}
-                    onCheckedChange={(checked) => setValue("showEmail", checked as boolean, { shouldDirty: true })}
+                    onCheckedChange={(checked) =>
+                      setValue('showEmail', checked as boolean, {
+                        shouldDirty: true,
+                      })
+                    }
                   />
                   <div>
-                    <Label htmlFor="showEmail" className="text-sm text-gray-700 cursor-pointer">
+                    <Label
+                      htmlFor="showEmail"
+                      className="text-sm text-gray-700 cursor-pointer"
+                    >
                       Make my email address public
                     </Label>
                     <p className="text-xs text-orange-600 mt-1 flex items-center gap-1">
@@ -608,10 +777,15 @@ export default function ProfileSettingsPage() {
 
           {/* Social Links Section */}
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Social Links (Optional)</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Social Links (Optional)
+            </h2>
             <div className="space-y-6">
               <div>
-                <Label htmlFor="socialTwitter" className="font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="socialTwitter"
+                  className="font-medium text-gray-700 mb-2"
+                >
                   Twitter/X (optional)
                 </Label>
                 <div className="flex">
@@ -621,15 +795,22 @@ export default function ProfileSettingsPage() {
                   <Input
                     id="socialTwitter"
                     placeholder="username"
-                    {...register("socialTwitter")}
+                    {...register('socialTwitter')}
                     className="rounded-l-none"
                   />
                 </div>
-                {errors.socialTwitter && <p className="text-sm text-red-600 mt-1">{errors.socialTwitter.message}</p>}
+                {errors.socialTwitter && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.socialTwitter.message}
+                  </p>
+                )}
               </div>
 
               <div>
-                <Label htmlFor="socialLinkedIn" className="font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="socialLinkedIn"
+                  className="font-medium text-gray-700 mb-2"
+                >
                   LinkedIn (optional)
                 </Label>
                 <div className="flex">
@@ -639,19 +820,34 @@ export default function ProfileSettingsPage() {
                   <Input
                     id="socialLinkedIn"
                     placeholder="username"
-                    {...register("socialLinkedIn")}
+                    {...register('socialLinkedIn')}
                     className="rounded-l-none"
                   />
                 </div>
-                {errors.socialLinkedIn && <p className="text-sm text-red-600 mt-1">{errors.socialLinkedIn.message}</p>}
+                {errors.socialLinkedIn && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.socialLinkedIn.message}
+                  </p>
+                )}
               </div>
 
               <div>
-                <Label htmlFor="socialWebsite" className="font-medium text-gray-700 mb-2">
+                <Label
+                  htmlFor="socialWebsite"
+                  className="font-medium text-gray-700 mb-2"
+                >
                   Website (optional)
                 </Label>
-                <Input id="socialWebsite" placeholder="https://yourwebsite.com" {...register("socialWebsite")} />
-                {errors.socialWebsite && <p className="text-sm text-red-600 mt-1">{errors.socialWebsite.message}</p>}
+                <Input
+                  id="socialWebsite"
+                  placeholder="https://yourwebsite.com"
+                  {...register('socialWebsite')}
+                />
+                {errors.socialWebsite && (
+                  <p className="text-sm text-red-600 mt-1">
+                    {errors.socialWebsite.message}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -672,7 +868,7 @@ export default function ProfileSettingsPage() {
             <Button
               type="submit"
               className="bg-blue-600 hover:bg-blue-700 px-8 py-3 font-semibold shadow-lg"
-              disabled={!isDirty || isSaving || usernameStatus === "taken"}
+              disabled={!isDirty || isSaving || usernameStatus === 'taken'}
             >
               {isSaving ? (
                 <>
@@ -685,7 +881,7 @@ export default function ProfileSettingsPage() {
                   Saved!
                 </>
               ) : (
-                "Save Changes"
+                'Save Changes'
               )}
             </Button>
           </div>
@@ -701,15 +897,15 @@ export default function ProfileSettingsPage() {
       <UnsavedChangesModal
         isOpen={isUnsavedModalOpen}
         onStayAndSave={() => {
-          setIsUnsavedModalOpen(false)
-          handleSubmit(onSubmit)()
+          setIsUnsavedModalOpen(false);
+          handleSubmit(onSubmit)();
         }}
         onLeave={() => {
-          setIsUnsavedModalOpen(false)
-          window.location.reload()
+          setIsUnsavedModalOpen(false);
+          window.location.reload();
         }}
         onCancel={() => setIsUnsavedModalOpen(false)}
       />
     </div>
-  )
+  );
 }

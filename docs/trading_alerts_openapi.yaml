@@ -487,7 +487,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Alert'
-    
+
     post:
       tags:
         - Alerts
@@ -530,7 +530,7 @@ paths:
                 $ref: '#/components/schemas/Alert'
         '404':
           $ref: '#/components/responses/NotFound'
-    
+
     put:
       tags:
         - Alerts
@@ -552,7 +552,7 @@ paths:
                 $ref: '#/components/schemas/Alert'
         '404':
           $ref: '#/components/responses/NotFound'
-    
+
     delete:
       tags:
         - Alerts
@@ -589,7 +589,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Watchlist'
-    
+
     post:
       tags:
         - Watchlists
@@ -624,7 +624,7 @@ paths:
                 $ref: '#/components/schemas/Watchlist'
         '404':
           $ref: '#/components/responses/NotFound'
-    
+
     put:
       tags:
         - Watchlists
@@ -644,7 +644,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Watchlist'
-    
+
     delete:
       tags:
         - Watchlists
@@ -730,7 +730,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserProfile'
-    
+
     put:
       tags:
         - User
@@ -774,7 +774,7 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/UserPreference'
-    
+
     put:
       tags:
         - User
@@ -981,7 +981,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UserAdmin'
-    
+
     delete:
       tags:
         - Admin
@@ -2217,7 +2217,7 @@ paths:
                 reason:
                   type: string
                   maxLength: 500
-                  example: "Increasing commission to attract more affiliates for Q1 campaign"
+                  example: 'Increasing commission to attract more affiliates for Q1 campaign'
                   description: Optional reason for this change (logged to history)
       responses:
         '200':
@@ -2232,7 +2232,7 @@ paths:
                     example: true
                   message:
                     type: string
-                    example: "Affiliate settings updated. Changes will propagate across all pages within 5 minutes."
+                    example: 'Affiliate settings updated. Changes will propagate across all pages within 5 minutes.'
                   changes:
                     type: array
                     items:
@@ -2240,13 +2240,13 @@ paths:
                       properties:
                         setting:
                           type: string
-                          example: "discountPercent"
+                          example: 'discountPercent'
                         oldValue:
                           type: string
-                          example: "20.0"
+                          example: '20.0'
                         newValue:
                           type: string
-                          example: "25.0"
+                          example: '25.0'
         '400':
           description: Invalid input
           content:
@@ -2256,7 +2256,7 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: "discountPercent must be between 0 and 100"
+                    example: 'discountPercent must be between 0 and 100'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -2292,7 +2292,12 @@ paths:
           in: query
           schema:
             type: string
-            enum: [affiliate_discount_percent, affiliate_commission_percent, affiliate_codes_per_month]
+            enum:
+              [
+                affiliate_discount_percent,
+                affiliate_commission_percent,
+                affiliate_codes_per_month,
+              ]
           description: Filter by specific setting key
       responses:
         '200':
@@ -2309,26 +2314,26 @@ paths:
                       properties:
                         id:
                           type: string
-                          example: "clh1abc123"
+                          example: 'clh1abc123'
                         configKey:
                           type: string
-                          example: "affiliate_discount_percent"
+                          example: 'affiliate_discount_percent'
                         oldValue:
                           type: string
-                          example: "20.0"
+                          example: '20.0'
                         newValue:
                           type: string
-                          example: "25.0"
+                          example: '25.0'
                         changedBy:
                           type: string
-                          example: "admin@tradingalerts.com"
+                          example: 'admin@tradingalerts.com'
                         changedAt:
                           type: string
                           format: date-time
                         reason:
                           type: string
                           nullable: true
-                          example: "Q1 marketing campaign"
+                          example: 'Q1 marketing campaign'
                   total:
                     type: integer
                     example: 42
@@ -2395,7 +2400,7 @@ components:
       schema:
         type: string
       description: Alert ID
-    
+
     WatchlistId:
       name: id
       in: path
@@ -2403,7 +2408,7 @@ components:
       schema:
         type: string
       description: Watchlist ID
-    
+
     UserId:
       name: userId
       in: path
@@ -2429,18 +2434,18 @@ components:
     Symbol:
       type: string
       enum:
-        - AUDJPY    # NEW - Forex
+        - AUDJPY # NEW - Forex
         - AUDUSD
         - BTCUSD
         - ETHUSD
         - EURUSD
-        - GBPJPY    # NEW - Forex
+        - GBPJPY # NEW - Forex
         - GBPUSD
         - NDX100
-        - NZDUSD    # NEW - Forex
+        - NZDUSD # NEW - Forex
         - US30
-        - USDCAD    # NEW - Forex
-        - USDCHF    # NEW - Forex
+        - USDCAD # NEW - Forex
+        - USDCHF # NEW - Forex
         - USDJPY
         - XAGUSD
         - XAUUSD
@@ -2452,14 +2457,14 @@ components:
     Timeframe:
       type: string
       enum:
-        - M5     # NEW - PRO only (scalping)
+        - M5 # NEW - PRO only (scalping)
         - M15
         - M30
         - H1
         - H2
         - H4
         - H8
-        - H12    # NEW - PRO only (swing trading)
+        - H12 # NEW - PRO only (swing trading)
         - D1
       description: |
         Chart timeframes (9 total).
@@ -2886,7 +2891,7 @@ components:
           example: defaultTimeframe
         value:
           type: object
-          example: { "timeframe": "H1" }
+          example: { 'timeframe': 'H1' }
 
     UserAdmin:
       allOf:
@@ -3101,11 +3106,11 @@ components:
             symbols:
               type: integer
               description: Number of symbols allowed
-              example: 15  # PRO tier (FREE = 5)
+              example: 15 # PRO tier (FREE = 5)
             timeframes:
               type: integer
               description: Number of timeframes allowed
-              example: 9   # PRO tier (FREE = 3)
+              example: 9 # PRO tier (FREE = 3)
             chartCombinations:
               type: integer
               description: Total symbol×timeframe combinations (symbols × timeframes)
@@ -3113,15 +3118,15 @@ components:
             alerts:
               type: integer
               description: Maximum alerts allowed
-              example: 20  # PRO tier (FREE = 5)
+              example: 20 # PRO tier (FREE = 5)
             watchlistItems:
               type: integer
               description: Maximum watchlist items (symbol+timeframe combinations)
-              example: 50  # PRO tier (FREE = 5)
+              example: 50 # PRO tier (FREE = 5)
             apiCallsPerHour:
               type: integer
               description: API rate limit per hour
-              example: 300  # PRO tier (FREE = 60)
+              example: 300 # PRO tier (FREE = 60)
 
     Subscription:
       type: object

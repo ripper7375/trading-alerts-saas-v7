@@ -23,6 +23,7 @@
 ### Confirmed Model: **Option A - Auto-Renewal with Optional Codes**
 
 **Key Principles:**
+
 - ✅ Subscriptions **AUTO-RENEW** monthly (standard SaaS behavior)
 - ✅ Users **STAY SUBSCRIBED** even without codes
 - ✅ Affiliate codes are **OPTIONAL** for users
@@ -31,6 +32,7 @@
 - ✅ **MONTHLY ONLY** - No annual subscriptions during early stage
 
 **Business Rationale:**
+
 - Standard SaaS practice (like Netflix, Spotify, etc.)
 - Lower churn - users don't lose access
 - Users incentivized to find codes to save money
@@ -61,6 +63,7 @@
    - Lower barrier to entry for new users
 
 **Pricing Structure:**
+
 ```
 PRO Plan (Monthly Only):
 - Trial Period: 7-day free trial (no credit card required)
@@ -83,6 +86,7 @@ Trial Details:
 ```
 
 **When to Add Annual:**
+
 - After 6-12 months of operation
 - When feature set is stable
 - When user retention is proven
@@ -95,6 +99,7 @@ Trial Details:
 ### Trial Activation and Flow
 
 **Day 0 (Trial Starts):**
+
 ```
 User clicks "Start 7-Day Trial" on pricing page
 User account created (no credit card required)
@@ -109,6 +114,7 @@ User gets full PRO features immediately:
 ```
 
 **Day 5 (Reminder):**
+
 ```
 Email sent: "2 days left in your trial. Add payment to continue PRO access."
 Dashboard banner: "⏰ Your trial ends in 2 days. Add payment to keep PRO features."
@@ -121,6 +127,7 @@ User can:
 **Day 7 (Trial Ends):**
 
 **Scenario A: User Added Payment During Trial**
+
 ```
 Trial status: CONVERTED
 User tier: PRO
@@ -130,6 +137,7 @@ User keeps all PRO features
 ```
 
 **Scenario B: User Did NOT Add Payment**
+
 ```
 Trial status: EXPIRED
 User tier: FREE (downgraded)
@@ -143,6 +151,7 @@ Can upgrade to PRO anytime (no second trial)
 ```
 
 **Trial Business Rules:**
+
 - ✅ One free trial per user (lifetime)
 - ✅ Tracked via `hasUsedFreeTrial` field
 - ✅ Cannot restart trial after cancellation
@@ -156,6 +165,7 @@ Can upgrade to PRO anytime (no second trial)
 ### How It Works
 
 **Month 1 (Initial Signup - After Trial or Direct):**
+
 ```
 OPTION A: User finished 7-day trial, added payment
 Trial converted to paid subscription
@@ -170,6 +180,7 @@ Affiliate earns: $4.64 commission
 ```
 
 **Month 2 (First Renewal - No Code Entered):**
+
 ```
 7 days before renewal: Email reminder sent
 "Your PRO subscription renews on Dec 5 for $29.00"
@@ -183,6 +194,7 @@ No affiliate earns commission
 ```
 
 **Month 3 (Renewal - User Enters Code):**
+
 ```
 10 days before renewal: User sees in-app notification
 "💡 Renewal coming! Enter code to save 20%"
@@ -199,6 +211,7 @@ Subscription continues
 ```
 
 **Month 4 (Renewal - Code Expires):**
+
 ```
 Code "JONES-XYZ789" was one-time use (already USED)
 Code expired at end of previous month
@@ -305,14 +318,11 @@ export async function POST(req: NextRequest) {
 
   // 1. Validate code exists and is valid
   const affiliateCode = await prisma.affiliateCode.findUnique({
-    where: { code }
+    where: { code },
   });
 
   if (!affiliateCode) {
-    return NextResponse.json(
-      { error: 'Invalid code' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Invalid code' }, { status: 400 });
   }
 
   // 2. Check code is ACTIVE (not USED, EXPIRED, CANCELLED)
@@ -341,30 +351,30 @@ export async function POST(req: NextRequest) {
 
   // 5. Save code to user's subscription metadata (for next billing)
   const subscription = await prisma.subscription.findUnique({
-    where: { userId: session.user.id }
+    where: { userId: session.user.id },
   });
 
   // Update Stripe subscription metadata
   await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
     metadata: {
-      nextBillingCode: code,  // Code to apply on next renewal
-      nextBillingCodeId: affiliateCode.id
-    }
+      nextBillingCode: code, // Code to apply on next renewal
+      nextBillingCodeId: affiliateCode.id,
+    },
   });
 
   // 6. Save to database
   await prisma.subscription.update({
     where: { id: subscription.id },
     data: {
-      nextBillingCodeId: affiliateCode.id  // Store for next billing
-    }
+      nextBillingCodeId: affiliateCode.id, // Store for next billing
+    },
   });
 
   return NextResponse.json({
     success: true,
     message: 'Code will be applied on your next billing date',
-    nextBillingAmount: 23.20,
-    savings: 5.80
+    nextBillingAmount: 23.2,
+    savings: 5.8,
   });
 }
 ```
@@ -375,18 +385,20 @@ export async function POST(req: NextRequest) {
 // app/api/webhooks/stripe/route.ts
 if (event.type === 'invoice.payment_succeeded') {
   const invoice = event.data.object;
-  const subscription = await stripe.subscriptions.retrieve(invoice.subscription);
+  const subscription = await stripe.subscriptions.retrieve(
+    invoice.subscription
+  );
 
   // Check if user has code scheduled for this billing cycle
   const nextBillingCode = subscription.metadata.nextBillingCode;
 
   if (nextBillingCode) {
     const code = await prisma.affiliateCode.findUnique({
-      where: { code: nextBillingCode }
+      where: { code: nextBillingCode },
     });
 
     // Apply discount and create commission
-    const regularPrice = 29.00;
+    const regularPrice = 29.0;
     const discountedPrice = regularPrice * (1 - code.discountPercent / 100);
     const commissionAmount = discountedPrice * (code.commissionPercent / 100);
 
@@ -401,8 +413,8 @@ if (event.type === 'invoice.payment_succeeded') {
         discountedPrice,
         commissionPercent: code.commissionPercent,
         commissionAmount,
-        status: 'PENDING'
-      }
+        status: 'PENDING',
+      },
     });
 
     // Mark code as USED
@@ -411,23 +423,23 @@ if (event.type === 'invoice.payment_succeeded') {
       data: {
         status: 'USED',
         usedBy: invoice.customer,
-        usedAt: new Date()
-      }
+        usedAt: new Date(),
+      },
     });
 
     // Clear the code from subscription metadata (one-time use)
     await stripe.subscriptions.update(invoice.subscription, {
       metadata: {
         nextBillingCode: null,
-        nextBillingCodeId: null
-      }
+        nextBillingCodeId: null,
+      },
     });
 
     await prisma.subscription.update({
       where: { stripeSubscriptionId: invoice.subscription },
       data: {
-        nextBillingCodeId: null
-      }
+        nextBillingCodeId: null,
+      },
     });
   }
 }
@@ -454,6 +466,7 @@ Day +1:  Post-renewal message (if no code was used)
 ### Reminder 1: 10 Days Before Renewal
 
 **Email:**
+
 ```
 Subject: 💰 Save 20% on your next payment - Renews in 10 days
 
@@ -482,6 +495,7 @@ Trading Alerts Team
 ```
 
 **In-App Notification:**
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ 💡 Renewal Coming in 10 Days                                │
@@ -496,6 +510,7 @@ Trading Alerts Team
 ### Reminder 2: 7 Days Before Renewal
 
 **Email:**
+
 ```
 Subject: ⏰ One week until renewal - Save $5.80 with a code
 
@@ -518,6 +533,7 @@ Trading Alerts Team
 ### Reminder 3: 3 Days Before Renewal (Final)
 
 **Email:**
+
 ```
 Subject: 🚨 Final reminder: Save 20% before renewal (3 days left)
 
@@ -538,6 +554,7 @@ Trading Alerts Team
 ```
 
 **In-App Notification + Dashboard Banner:**
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ 🚨 URGENT: Renewal in 3 Days                                │
@@ -558,6 +575,7 @@ Dashboard Banner (Red):
 ### Post-Renewal Message (Day +1 - No Code Used)
 
 **Email:**
+
 ```
 Subject: Your subscription renewed for $29.00
 
@@ -585,6 +603,7 @@ Trading Alerts Team
 ### Post-Renewal Message (Day +1 - Code Was Used)
 
 **Email:**
+
 ```
 Subject: ✅ Your subscription renewed for $23.20 (20% off!)
 
@@ -614,12 +633,14 @@ Trading Alerts Team
 ### Journey 0: New User - Trial to Paid Conversion
 
 **Day 0:**
+
 - User clicks "Start 7-Day Trial"
 - Creates account (no credit card required)
 - Immediately gets PRO access (15 symbols, 9 timeframes, 20 alerts)
 - Explores features for 7 days
 
 **Day 5:**
+
 - Receives email: "2 days left in trial"
 - Dashboard banner: "Add payment to keep PRO access"
 - User decides to continue (likes the service)
@@ -627,6 +648,7 @@ Trading Alerts Team
 - Enters affiliate code "SMITH-ABC123" for 20% off first payment
 
 **Day 7:**
+
 - Trial ends
 - Trial status: CONVERTED
 - User tier: PRO
@@ -635,6 +657,7 @@ Trading Alerts Team
 - Subscription: ACTIVE, auto-renews
 
 **Day 8:**
+
 - User receives email: "Welcome to PRO! You saved $5.80 with code SMITH-ABC123"
 - User continues using service...
 
@@ -645,14 +668,17 @@ Trading Alerts Team
 ### Journey 0b: Trial User - Expires Without Payment
 
 **Day 0:**
+
 - User clicks "Start 7-Day Trial"
 - Gets PRO access for 7 days
 
 **Day 5:**
+
 - Receives trial expiring email
 - User busy, ignores it
 
 **Day 7:**
+
 - Trial ends
 - Trial status: EXPIRED
 - User tier: FREE (downgraded)
@@ -661,6 +687,7 @@ Trading Alerts Team
 - User receives email: "Your trial ended. Upgrade to PRO anytime for $29/month"
 
 **Day 30:**
+
 - User misses PRO features
 - Clicks "Upgrade to PRO" in dashboard
 - Adds payment (cannot get second trial)
@@ -674,11 +701,13 @@ Trading Alerts Team
 ### Journey 1: Active User Who Finds Codes Monthly
 
 **Month 1 (After Trial):**
+
 - User already converted from trial
 - First charge: $23.20 (used code during trial)
 - Subscription: ACTIVE, auto-renews
 
 **Month 2:**
+
 - Day -10: Receives email reminder
 - Day -5: User finds new code "JONES-XYZ789" on Twitter
 - Day -5: User enters code in billing dashboard
@@ -687,6 +716,7 @@ Trading Alerts Team
 - User receives confirmation: "You saved $5.80!"
 
 **Month 3:**
+
 - Day -7: Receives email reminder
 - Day -4: User finds code "BROWN-DEF456" on Instagram
 - Day -4: User enters code in dashboard
@@ -698,11 +728,13 @@ Trading Alerts Team
 ### Journey 2: Busy User Who Sometimes Forgets
 
 **Month 1:**
+
 - User signs up with code "SMITH-ABC123"
 - Pays $23.20
 - Subscription: ACTIVE
 
 **Month 2:**
+
 - Day -10, -7, -3: Receives reminders
 - User busy, ignores emails
 - Day 0: Renewal occurs, charged $29.00 (full price)
@@ -710,6 +742,7 @@ Trading Alerts Team
 - User thinks: "Oops, forgot to enter code"
 
 **Month 3:**
+
 - Day -10: Receives reminder
 - User remembers: "I don't want to pay full price again!"
 - Day -8: User finds code "JONES-XYZ789"
@@ -718,6 +751,7 @@ Trading Alerts Team
 - User receives: "You saved $5.80!"
 
 **Month 4:**
+
 - User busy again, forgets
 - Day 0: Charged $29.00
 - Pattern alternates...
@@ -727,11 +761,13 @@ Trading Alerts Team
 ### Journey 3: User Who Doesn't Care About Codes
 
 **Month 1:**
+
 - User signs up WITHOUT code (direct)
 - Pays $29.00 (full price)
 - Subscription: ACTIVE
 
 **Month 2-12:**
+
 - Receives reminder emails
 - User ignores them (doesn't care about saving)
 - Day 0 each month: Charged $29.00
@@ -746,6 +782,7 @@ Trading Alerts Team
 ### Database Schema Updates
 
 **Subscription Table:**
+
 ```prisma
 model Subscription {
   id                    String   @id @default(cuid())
@@ -780,15 +817,18 @@ model Subscription {
 ### API Endpoints
 
 **POST /api/user/billing/apply-code**
+
 - Validates affiliate code
 - Saves code for next billing cycle
 - Returns success with new billing amount
 
 **DELETE /api/user/billing/remove-code**
+
 - Removes code from next billing cycle
 - User will pay full price on next renewal
 
 **GET /api/user/billing/next-renewal**
+
 - Returns next renewal date
 - Returns amount (with or without code)
 - Returns code info if applied
@@ -796,6 +836,7 @@ model Subscription {
 ### Cron Jobs for Reminders
 
 **Daily Cron: Check Upcoming Renewals**
+
 ```typescript
 // app/api/cron/renewal-reminders/route.ts
 export async function POST(req: NextRequest) {
@@ -807,11 +848,11 @@ export async function POST(req: NextRequest) {
     where: {
       currentPeriodEnd: {
         gte: day10,
-        lt: new Date(day10.getTime() + 24 * 60 * 60 * 1000)
+        lt: new Date(day10.getTime() + 24 * 60 * 60 * 1000),
       },
-      nextBillingCodeId: null  // No code applied yet
+      nextBillingCodeId: null, // No code applied yet
     },
-    include: { user: true }
+    include: { user: true },
   });
 
   for (const sub of subscriptions10) {
@@ -828,17 +869,19 @@ export async function POST(req: NextRequest) {
 ### Stripe Integration
 
 **Update subscription metadata when code applied:**
+
 ```typescript
 await stripe.subscriptions.update(subscriptionId, {
   metadata: {
     nextBillingCode: codeValue,
     nextBillingCodeId: codeId,
-    affiliateName: affiliate.fullName
-  }
+    affiliateName: affiliate.fullName,
+  },
 });
 ```
 
 **Apply code on renewal (webhook):**
+
 ```typescript
 // On invoice.payment_succeeded
 const metadata = subscription.metadata;
@@ -854,30 +897,35 @@ if (metadata.nextBillingCode) {
 ## 📊 Summary
 
 **Subscription Model:**
+
 - ✅ Monthly-only (no annual during early stage)
 - ✅ Auto-renewal enabled by default
 - ✅ Users stay subscribed even without codes
 - ✅ Affiliate codes are optional for users
 
 **Code Application:**
+
 - ✅ Input box in billing dashboard
 - ✅ User enters code for NEXT billing cycle
 - ✅ Code validated and saved
 - ✅ Applied automatically on renewal date
 
 **Reminder System:**
+
 - ✅ Email reminders at -10, -7, -3 days
 - ✅ In-app notifications
 - ✅ Dashboard banners
 - ✅ Post-renewal messages
 
 **User Experience:**
+
 - ✅ Never lose access (even without codes)
 - ✅ Incentivized to find codes (save money)
 - ✅ Flexible (can skip finding codes some months)
 - ✅ Clear communication about savings
 
 **Affiliate Competition:**
+
 - ✅ Affiliates post codes on social media monthly
 - ✅ Codes are one-time use
 - ✅ Codes expire monthly

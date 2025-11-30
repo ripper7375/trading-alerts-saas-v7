@@ -37,6 +37,7 @@ This guide provides **step-by-step testing scenarios** for your Trading Alerts S
 **Endpoint:** `POST /api/auth/signup`
 
 **Request Body:**
+
 ```json
 {
   "email": "test@example.com",
@@ -46,6 +47,7 @@ This guide provides **step-by-step testing scenarios** for your Trading Alerts S
 ```
 
 **Expected Response:**
+
 - Status: `201 Created`
 - Body:
   ```json
@@ -61,6 +63,7 @@ This guide provides **step-by-step testing scenarios** for your Trading Alerts S
   ```
 
 **Validations:**
+
 - ✅ Status code is 201
 - ✅ Response includes user object with ID
 - ✅ Default tier is "FREE"
@@ -76,6 +79,7 @@ This guide provides **step-by-step testing scenarios** for your Trading Alerts S
 **Endpoint:** `POST /api/auth/login`
 
 **Request Body:**
+
 ```json
 {
   "email": "test@example.com",
@@ -84,10 +88,12 @@ This guide provides **step-by-step testing scenarios** for your Trading Alerts S
 ```
 
 **Expected Response:**
+
 - Status: `200 OK`
 - Body: Same format as signup response
 
 **Validations:**
+
 - ✅ Status code is 200
 - ✅ Token is returned
 - ✅ User data matches signup data
@@ -99,11 +105,13 @@ This guide provides **step-by-step testing scenarios** for your Trading Alerts S
 **Endpoint:** `GET /api/users/profile`
 
 **Headers:**
+
 ```
 Authorization: Bearer {{authToken}}
 ```
 
 **Expected Response:**
+
 - Status: `200 OK`
 - Body:
   ```json
@@ -117,6 +125,7 @@ Authorization: Bearer {{authToken}}
   ```
 
 **Validations:**
+
 - ✅ Status code is 200
 - ✅ User data is correct
 - ✅ Tier is "FREE"
@@ -132,12 +141,14 @@ Authorization: Bearer {{authToken}}
 **Endpoint:** `POST /api/alerts`
 
 **Headers:**
+
 ```
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "symbol": "BTCUSD",
@@ -149,6 +160,7 @@ Content-Type: application/json
 ```
 
 **Expected Response:**
+
 - Status: `201 Created`
 - Body:
   ```json
@@ -165,6 +177,7 @@ Content-Type: application/json
   ```
 
 **Validations:**
+
 - ✅ Status code is 201
 - ✅ Alert is created with correct data
 - ✅ Alert ID is returned
@@ -177,6 +190,7 @@ Content-Type: application/json
 **Endpoint:** `POST /api/alerts`
 
 **Request Body:**
+
 ```json
 {
   "symbol": "GBPUSD",
@@ -188,6 +202,7 @@ Content-Type: application/json
 ```
 
 **Expected Response:**
+
 - Status: `403 Forbidden`
 - Body:
   ```json
@@ -199,6 +214,7 @@ Content-Type: application/json
   ```
 
 **Validations:**
+
 - ✅ Status code is 403
 - ✅ Error message explains tier restriction
 - ✅ Available symbols for FREE tier are listed
@@ -210,6 +226,7 @@ Content-Type: application/json
 **Endpoint:** `POST /api/alerts`
 
 **Request Body:**
+
 ```json
 {
   "symbol": "BTCUSD",
@@ -221,6 +238,7 @@ Content-Type: application/json
 ```
 
 **Expected Response:**
+
 - Status: `403 Forbidden`
 - Body:
   ```json
@@ -232,6 +250,7 @@ Content-Type: application/json
   ```
 
 **Validations:**
+
 - ✅ Status code is 403
 - ✅ Error message explains tier restriction
 - ✅ Available timeframes for FREE tier are listed
@@ -243,11 +262,13 @@ Content-Type: application/json
 **Endpoint:** `GET /api/alerts`
 
 **Headers:**
+
 ```
 Authorization: Bearer {{authToken}}
 ```
 
 **Expected Response:**
+
 - Status: `200 OK`
 - Body:
   ```json
@@ -269,6 +290,7 @@ Authorization: Bearer {{authToken}}
   ```
 
 **Validations:**
+
 - ✅ Status code is 200
 - ✅ Array of alerts is returned
 - ✅ Only current user's alerts are shown
@@ -280,12 +302,14 @@ Authorization: Bearer {{authToken}}
 **Endpoint:** `PUT /api/alerts/{alertId}`
 
 **Headers:**
+
 ```
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "threshold": 35,
@@ -294,10 +318,12 @@ Content-Type: application/json
 ```
 
 **Expected Response:**
+
 - Status: `200 OK`
 - Body: Updated alert object
 
 **Validations:**
+
 - ✅ Status code is 200
 - ✅ Threshold is updated to 35
 - ✅ Enabled is updated to false
@@ -310,15 +336,18 @@ Content-Type: application/json
 **Endpoint:** `DELETE /api/alerts/{alertId}`
 
 **Headers:**
+
 ```
 Authorization: Bearer {{authToken}}
 ```
 
 **Expected Response:**
+
 - Status: `204 No Content`
 - Body: Empty
 
 **Validations:**
+
 - ✅ Status code is 204
 - ✅ Alert is deleted (verify with GET /api/alerts)
 
@@ -333,11 +362,13 @@ Authorization: Bearer {{authToken}}
 **Endpoint:** `GET /api/subscriptions/current`
 
 **Headers:**
+
 ```
 Authorization: Bearer {{authToken}}
 ```
 
 **Expected Response:**
+
 - Status: `200 OK`
 - Body:
   ```json
@@ -354,6 +385,7 @@ Authorization: Bearer {{authToken}}
   ```
 
 **Validations:**
+
 - ✅ Status code is 200
 - ✅ Current tier is "FREE"
 - ✅ Limits match FREE tier specifications
@@ -365,12 +397,14 @@ Authorization: Bearer {{authToken}}
 **Endpoint:** `POST /api/subscriptions/checkout`
 
 **Headers:**
+
 ```
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "tier": "PRO",
@@ -379,6 +413,7 @@ Content-Type: application/json
 ```
 
 **Expected Response:**
+
 - Status: `200 OK`
 - Body:
   ```json
@@ -389,6 +424,7 @@ Content-Type: application/json
   ```
 
 **Validations:**
+
 - ✅ Status code is 200
 - ✅ Stripe checkout session is created
 - ✅ Redirect URL is returned
@@ -402,6 +438,7 @@ Content-Type: application/json
 **Endpoint:** `GET /api/subscriptions/current`
 
 **Expected Response:**
+
 - Status: `200 OK`
 - Body:
   ```json
@@ -410,7 +447,23 @@ Content-Type: application/json
     "tier": "PRO",
     "status": "active",
     "limits": {
-      "symbols": ["BTCUSD", "EURUSD", "USDJPY", "GBPUSD", "USDCHF", "AUDUSD", "NZDUSD", "USDCAD", "US30", "US500", "USTEC", "XAUUSD", "XAGUSD", "USOIL", "UKOUSD"],
+      "symbols": [
+        "BTCUSD",
+        "EURUSD",
+        "USDJPY",
+        "GBPUSD",
+        "USDCHF",
+        "AUDUSD",
+        "NZDUSD",
+        "USDCAD",
+        "US30",
+        "US500",
+        "USTEC",
+        "XAUUSD",
+        "XAGUSD",
+        "USOIL",
+        "UKOUSD"
+      ],
       "timeframes": ["M5", "M15", "M30", "H1", "H2", "H4", "H8", "H12", "D1"],
       "maxAlerts": 50
     }
@@ -418,6 +471,7 @@ Content-Type: application/json
   ```
 
 **Validations:**
+
 - ✅ Tier is now "PRO"
 - ✅ All 15 symbols are available
 - ✅ All 9 timeframes are available
@@ -430,6 +484,7 @@ Content-Type: application/json
 **Endpoint:** `POST /api/alerts`
 
 **Request Body:**
+
 ```json
 {
   "symbol": "GBPUSD",
@@ -441,10 +496,12 @@ Content-Type: application/json
 ```
 
 **Expected Response:**
+
 - Status: `201 Created`
 - Body: Alert created successfully
 
 **Validations:**
+
 - ✅ Status code is 201
 - ✅ PRO-only symbol is now accessible
 - ✅ PRO-only timeframe is now accessible
@@ -460,11 +517,13 @@ Content-Type: application/json
 **Endpoint:** `GET /api/mt5/symbols/BTCUSD`
 
 **Headers:**
+
 ```
 X-User-Tier: FREE
 ```
 
 **Expected Response:**
+
 - Status: `200 OK`
 - Body:
   ```json
@@ -473,14 +532,15 @@ X-User-Tier: FREE
     "description": "Bitcoin vs US Dollar",
     "digits": 2,
     "point": 0.01,
-    "bid": 43250.50,
-    "ask": 43251.50,
-    "spread": 1.00,
+    "bid": 43250.5,
+    "ask": 43251.5,
+    "spread": 1.0,
     "volume": 1250000
   }
   ```
 
 **Validations:**
+
 - ✅ Status code is 200
 - ✅ Symbol data is returned
 - ✅ Real-time bid/ask prices are included
@@ -492,6 +552,7 @@ X-User-Tier: FREE
 **Endpoint:** `GET /api/mt5/indicators/rsi`
 
 **Query Parameters:**
+
 ```
 symbol=BTCUSD
 timeframe=H1
@@ -499,11 +560,13 @@ period=14
 ```
 
 **Headers:**
+
 ```
 X-User-Tier: FREE
 ```
 
 **Expected Response:**
+
 - Status: `200 OK`
 - Body:
   ```json
@@ -521,6 +584,7 @@ X-User-Tier: FREE
   ```
 
 **Validations:**
+
 - ✅ Status code is 200
 - ✅ RSI values are returned
 - ✅ Data is sorted by time (newest first)
@@ -532,6 +596,7 @@ X-User-Tier: FREE
 **Endpoint:** `GET /api/mt5/indicators/rsi`
 
 **Query Parameters:**
+
 ```
 symbol=GBPUSD
 timeframe=H1
@@ -539,11 +604,13 @@ period=14
 ```
 
 **Headers:**
+
 ```
 X-User-Tier: FREE
 ```
 
 **Expected Response:**
+
 - Status: `403 Forbidden`
 - Body:
   ```json
@@ -554,6 +621,7 @@ X-User-Tier: FREE
   ```
 
 **Validations:**
+
 - ✅ Status code is 403
 - ✅ Tier restriction is enforced in Flask service
 
@@ -568,11 +636,13 @@ X-User-Tier: FREE
 **Endpoint:** `GET /api/dashboard`
 
 **Headers:**
+
 ```
 Authorization: Bearer {{authToken}}
 ```
 
 **Expected Response:**
+
 - Status: `200 OK`
 - Body:
   ```json
@@ -596,13 +666,14 @@ Authorization: Bearer {{authToken}}
       }
     ],
     "marketOverview": {
-      "BTCUSD": { "price": 43250.50, "change24h": 2.3 },
+      "BTCUSD": { "price": 43250.5, "change24h": 2.3 },
       "EURUSD": { "price": 1.0945, "change24h": -0.5 }
     }
   }
   ```
 
 **Validations:**
+
 - ✅ Status code is 200
 - ✅ User stats are accurate
 - ✅ Recent alerts are listed
@@ -619,6 +690,7 @@ Authorization: Bearer {{authToken}}
 **Headers:** (none)
 
 **Expected Response:**
+
 - Status: `401 Unauthorized`
 - Body:
   ```json
@@ -629,6 +701,7 @@ Authorization: Bearer {{authToken}}
   ```
 
 **Validations:**
+
 - ✅ Status code is 401
 - ✅ Helpful error message
 
@@ -639,11 +712,13 @@ Authorization: Bearer {{authToken}}
 **Any protected endpoint** (e.g., `GET /api/alerts`)
 
 **Headers:**
+
 ```
 Authorization: Bearer invalid_token_xyz
 ```
 
 **Expected Response:**
+
 - Status: `401 Unauthorized`
 - Body:
   ```json
@@ -654,6 +729,7 @@ Authorization: Bearer invalid_token_xyz
   ```
 
 **Validations:**
+
 - ✅ Status code is 401
 - ✅ Invalid tokens are rejected
 
@@ -664,11 +740,13 @@ Authorization: Bearer invalid_token_xyz
 **Endpoint:** `GET /api/alerts/{anotherUsersAlertId}`
 
 **Headers:**
+
 ```
 Authorization: Bearer {{authToken}}
 ```
 
 **Expected Response:**
+
 - Status: `404 Not Found` or `403 Forbidden`
 - Body:
   ```json
@@ -679,6 +757,7 @@ Authorization: Bearer {{authToken}}
   ```
 
 **Validations:**
+
 - ✅ Users cannot access other users' data
 - ✅ Proper error code returned
 
@@ -689,6 +768,7 @@ Authorization: Bearer {{authToken}}
 Use this checklist to track your testing progress:
 
 ### Authentication & Authorization
+
 - [ ] Sign up with valid data
 - [ ] Sign up with duplicate email (should fail)
 - [ ] Login with valid credentials
@@ -697,6 +777,7 @@ Use this checklist to track your testing progress:
 - [ ] Access protected endpoint with invalid token (should fail)
 
 ### Alert Management (FREE Tier)
+
 - [ ] Create alert with valid FREE symbol
 - [ ] Create alert with PRO symbol (should fail)
 - [ ] Create alert with valid FREE timeframe
@@ -707,6 +788,7 @@ Use this checklist to track your testing progress:
 - [ ] Delete alert
 
 ### Alert Management (PRO Tier)
+
 - [ ] Upgrade to PRO tier
 - [ ] Create alert with PRO symbol
 - [ ] Create alert with PRO timeframe
@@ -714,6 +796,7 @@ Use this checklist to track your testing progress:
 - [ ] Verify all 9 timeframes are accessible
 
 ### MT5 Integration
+
 - [ ] Get symbol information for FREE symbol
 - [ ] Get symbol information for PRO symbol (FREE user should fail)
 - [ ] Get RSI indicator data
@@ -722,11 +805,13 @@ Use this checklist to track your testing progress:
 - [ ] Verify tier restrictions work in Flask service
 
 ### Dashboard
+
 - [ ] Get dashboard data
 - [ ] Verify stats are accurate
 - [ ] Verify market overview is included
 
 ### Error Handling
+
 - [ ] Test missing required fields
 - [ ] Test invalid data types
 - [ ] Test invalid enum values
@@ -742,6 +827,7 @@ Use this template to document your test results:
 ## Test Session: [Date]
 
 ### Environment
+
 - Next.js: http://localhost:3000
 - Flask MT5: http://localhost:5001
 - User: test@example.com
@@ -749,21 +835,23 @@ Use this template to document your test results:
 
 ### Results
 
-| Test ID | Endpoint | Expected | Actual | Status | Notes |
-|---------|----------|----------|--------|--------|-------|
-| 1.1 | POST /api/auth/signup | 201 | 201 | ✅ PASS | - |
-| 1.2 | POST /api/auth/login | 200 | 200 | ✅ PASS | - |
-| 2.1 | POST /api/alerts | 201 | 201 | ✅ PASS | - |
-| 2.2 | POST /api/alerts (PRO symbol) | 403 | 403 | ✅ PASS | - |
-| ... | ... | ... | ... | ... | ... |
+| Test ID | Endpoint                      | Expected | Actual | Status  | Notes |
+| ------- | ----------------------------- | -------- | ------ | ------- | ----- |
+| 1.1     | POST /api/auth/signup         | 201      | 201    | ✅ PASS | -     |
+| 1.2     | POST /api/auth/login          | 200      | 200    | ✅ PASS | -     |
+| 2.1     | POST /api/alerts              | 201      | 201    | ✅ PASS | -     |
+| 2.2     | POST /api/alerts (PRO symbol) | 403      | 403    | ✅ PASS | -     |
+| ...     | ...                           | ...      | ...    | ...     | ...   |
 
 ### Summary
+
 - Total Tests: 30
 - Passed: 28
 - Failed: 2
 - Pass Rate: 93.3%
 
 ### Issues Found
+
 1. [Issue #1 description]
 2. [Issue #2 description]
 ```

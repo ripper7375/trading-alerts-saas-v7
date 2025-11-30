@@ -36,8 +36,9 @@ You have access to these two markdown files:
 1. **Read both input documents completely**
 
 2. **For each of the 12 ambiguities in `oauth-decision-request.md`:**
-   
+
    a. **Check the specified files:**
+
    ```
    Examples:
    - package.json (NextAuth version?)
@@ -66,13 +67,16 @@ You have access to these two markdown files:
 **File:** `docs/decisions/google-oauth-decisions.md`
 
 **Content:**
-```markdown
+
+````markdown
 # Google OAuth Implementation Decisions
+
 **Date:** [Current Date]
 **Author:** Claude Code (Web)
 **Project:** Trading Alerts SaaS
 
 ## Executive Summary
+
 Based on comprehensive analysis of the codebase, I have resolved all 12 critical ambiguities for Google OAuth integration. Below are the decisions with full reasoning.
 
 ---
@@ -80,11 +84,13 @@ Based on comprehensive analysis of the codebase, I have resolved all 12 critical
 ## DECISION 1: NextAuth.js Version
 
 **Files Analyzed:**
+
 - package.json
 - app/api/auth/[...nextauth]/route.ts
 - lib/auth/auth-options.ts
 
 **Current State Found:**
+
 - package.json shows: "next-auth": "^X.X.X"
 - Current auth implementation uses: [v4 or v5 patterns]
 - Existing patterns: [describe what you found]
@@ -95,11 +101,13 @@ Based on comprehensive analysis of the codebase, I have resolved all 12 critical
 [Explain why based on actual findings]
 
 **Implementation Impact:**
+
 - Code patterns: [v4 or v5 style]
 - Import statements: [specific imports]
 - Config structure: [authOptions vs auth.ts]
 
 **Files to Update:**
+
 - app/api/auth/[...nextauth]/route.ts
 - [list all affected files]
 
@@ -117,44 +125,36 @@ Based on comprehensive analysis of the codebase, I have resolved all 12 critical
 
 ## Summary Table
 
-| # | Ambiguity | Decision | Impact Level | Migration Needed |
-|---|-----------|----------|--------------|------------------|
-| 1 | NextAuth Version | [v4/v5] | High | [Yes/No] |
-| 2 | Session Strategy | [DB/JWT] | High | [Yes/No] |
-| 3 | Account Linking | [Method] | Critical | No |
-| 4 | Password Nullable | [Yes/No] | Medium | [Yes/No] |
-| 5 | Email Verification | [Method] | Medium | No |
-| 6 | Profile Picture | [Method] | Low | No |
-| 7 | Production Setup | [Structure] | High | No |
-| 8 | Error Handling | [Method] | Low | No |
-| 9 | Testing Strategy | [Method] | Medium | No |
-| 10 | Database Migration | [Needed?] | High | [Yes/No] |
-| 11 | Callback URLs | [Strategy] | Medium | No |
-| 12 | Tier Upgrade UX | [Method] | Low | No |
+| #   | Ambiguity          | Decision    | Impact Level | Migration Needed |
+| --- | ------------------ | ----------- | ------------ | ---------------- |
+| 1   | NextAuth Version   | [v4/v5]     | High         | [Yes/No]         |
+| 2   | Session Strategy   | [DB/JWT]    | High         | [Yes/No]         |
+| 3   | Account Linking    | [Method]    | Critical     | No               |
+| 4   | Password Nullable  | [Yes/No]    | Medium       | [Yes/No]         |
+| 5   | Email Verification | [Method]    | Medium       | No               |
+| 6   | Profile Picture    | [Method]    | Low          | No               |
+| 7   | Production Setup   | [Structure] | High         | No               |
+| 8   | Error Handling     | [Method]    | Low          | No               |
+| 9   | Testing Strategy   | [Method]    | Medium       | No               |
+| 10  | Database Migration | [Needed?]   | High         | [Yes/No]         |
+| 11  | Callback URLs      | [Strategy]  | Medium       | No               |
+| 12  | Tier Upgrade UX    | [Method]    | Low          | No               |
 
 ---
 
 ## Implementation Priority Order
 
 **Phase 1: Foundation (Do First)**
+
 1. Database schema changes (if any)
 2. Environment variable setup
 3. NextAuth configuration update
 
-**Phase 2: Core Integration**
-4. Google OAuth provider setup
-5. Login/Register UI updates
-6. Account linking logic
+**Phase 2: Core Integration** 4. Google OAuth provider setup 5. Login/Register UI updates 6. Account linking logic
 
-**Phase 3: Documentation**
-7. OpenAPI contract updates
-8. Architecture documentation
-9. Policy documents for Aider
+**Phase 3: Documentation** 7. OpenAPI contract updates 8. Architecture documentation 9. Policy documents for Aider
 
-**Phase 4: Testing & Validation**
-10. Testing guide creation
-11. Validation checklists
-12. Manual testing procedures
+**Phase 4: Testing & Validation** 10. Testing guide creation 11. Validation checklists 12. Manual testing procedures
 
 ---
 
@@ -163,15 +163,18 @@ Based on comprehensive analysis of the codebase, I have resolved all 12 critical
 [If any database migrations are needed, provide SQL scripts here]
 
 **Migration: make_password_nullable.sql** (if needed)
+
 ```sql
 -- Add migration script
 ```
+````
 
 ---
 
 ## Environment Variables Required
 
 **Dev (.env.local):**
+
 ```bash
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
@@ -180,6 +183,7 @@ NEXTAUTH_SECRET=
 ```
 
 **Production (Vercel):**
+
 ```bash
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
@@ -205,15 +209,19 @@ NEXTAUTH_SECRET=
 ## Risk Assessment
 
 **High Risk Items:**
+
 - [List any high-risk changes]
 
 **Medium Risk Items:**
+
 - [List medium-risk changes]
 
 **Low Risk Items:**
+
 - [List low-risk changes]
 
 **Mitigation Strategies:**
+
 - [How to handle each risk]
 
 ---
@@ -232,7 +240,8 @@ NEXTAUTH_SECRET=
 **Estimated Implementation Time:** [X hours]
 **Complexity Level:** [Low/Medium/High]
 **Breaking Changes:** [Yes/No - list if yes]
-```
+
+````
 
 ---
 
@@ -252,27 +261,32 @@ NEXTAUTH_SECRET=
    ```markdown
    ❌ BEFORE: "Use NextAuth.js v4 or v5"
    ✅ AFTER: "Use NextAuth.js v4 (as existing system uses v4)"
-   ```
+````
 
-   b. **Update code examples** to match decisions:
-   ```typescript
-   // If decided on JWT sessions:
-   session: { strategy: 'jwt' }  // ✅ Keep this
-   // Remove: adapter: PrismaAdapter(prisma)
-   ```
+b. **Update code examples** to match decisions:
 
-   c. **Add decision callouts:**
-   ```markdown
-   > **DECISION:** We are using JWT sessions because the existing 
-   > system has no Session model in the database and is deployed 
-   > to Vercel serverless. See google-oauth-decisions.md for details.
-   ```
+```typescript
+// If decided on JWT sessions:
+session: {
+  strategy: 'jwt';
+} // ✅ Keep this
+// Remove: adapter: PrismaAdapter(prisma)
+```
 
-   d. **Update all file paths** to be specific:
-   ```markdown
-   ❌ BEFORE: "Update your auth configuration"
-   ✅ AFTER: "Update app/api/auth/[...nextauth]/route.ts"
-   ```
+c. **Add decision callouts:**
+
+```markdown
+> **DECISION:** We are using JWT sessions because the existing
+> system has no Session model in the database and is deployed
+> to Vercel serverless. See google-oauth-decisions.md for details.
+```
+
+d. **Update all file paths** to be specific:
+
+```markdown
+❌ BEFORE: "Update your auth configuration"
+✅ AFTER: "Update app/api/auth/[...nextauth]/route.ts"
+```
 
 3. **Add a "Decisions Applied" section at the top:**
 
@@ -284,6 +298,7 @@ NEXTAUTH_SECRET=
 **Decision Document:** See `docs/decisions/google-oauth-decisions.md`
 
 **Key Decisions Applied:**
+
 - NextAuth Version: [v4 or v5]
 - Session Strategy: [database or jwt]
 - Account Linking: [automatic/manual/verified-only]
@@ -479,26 +494,26 @@ components:
       bearerFormat: JWT
       description: |
         JWT token from NextAuth.js session.
-        
+
         **Obtaining a token:**
-        
+
         1. **Email/Password Login:**
            - POST /api/auth/callback/credentials
            - Body: { email, password }
            - Returns session cookie
-        
+
         2. **Google OAuth Login:**
            - GET /api/auth/signin/google
            - User authorizes on Google
            - Redirects to /api/auth/callback/google
            - Sets session cookie
-        
+
         3. **Session Cookie:**
            - Name: next-auth.session-token (production)
            - Name: __Secure-next-auth.session-token (HTTPS)
            - HttpOnly: true
            - Secure: true (production)
-        
+
         **Using the session:**
         - Server Components: Use getServerSession(authOptions)
         - Client Components: Use useSession() hook
@@ -510,20 +525,20 @@ components:
 ```yaml
 info:
   title: Trading Alerts SaaS API
-  version: 2.1.0  # ← Increment version
+  version: 2.1.0 # ← Increment version
   description: |
     Trading Alerts API with fractal-based indicators and real-time alerts.
-    
+
     **Version 2.1.0 Updates:**
     - Added Google OAuth authentication endpoints
     - Added Account model for OAuth provider linking
     - Updated User model with nullable password field
     - Updated authentication flow documentation
-    
+
     **Authentication Methods:**
     1. Email/Password (CredentialsProvider)
     2. Google OAuth (GoogleProvider) ← NEW
-    
+
     See `/api/auth/providers` for available authentication methods.
 ```
 
@@ -547,35 +562,36 @@ Replace the entire section with the updated content that includes Google OAuth f
 ### 6.5 OAuth Provider Architecture
 
 **Google OAuth Integration:**
-
 ```
+
 ┌─────────────────────────────────────────────────────────────────┐
-│                    AUTHENTICATION METHODS                        │
-│                                                                  │
-│  ┌──────────────────────┐    ┌─────────────────────────────┐  │
-│  │  Email/Password      │    │  Google OAuth               │  │
-│  │  (Credentials)       │    │  (OAuth 2.0)                │  │
-│  └──────────┬───────────┘    └──────────┬──────────────────┘  │
-│             │                            │                      │
-│             └────────────┬───────────────┘                      │
-│                          │                                      │
-│                    ┌─────▼──────┐                              │
-│                    │  NextAuth  │                              │
-│                    │  Session   │                              │
-│                    └─────┬──────┘                              │
-│                          │                                      │
-│                ┌─────────▼──────────┐                          │
-│                │   User Record      │                          │
-│                │   (PostgreSQL)     │                          │
-│                │                    │                          │
-│                │ - id               │                          │
-│                │ - email            │                          │
-│                │ - password (NULL?) │ ← Based on your decision │
-│                │ - tier (FREE/PRO)  │                          │
-│                │ - emailVerified    │                          │
-│                │ - accounts[]       │ ← OAuth providers        │
-│                └────────────────────┘                          │
+│ AUTHENTICATION METHODS │
+│ │
+│ ┌──────────────────────┐ ┌─────────────────────────────┐ │
+│ │ Email/Password │ │ Google OAuth │ │
+│ │ (Credentials) │ │ (OAuth 2.0) │ │
+│ └──────────┬───────────┘ └──────────┬──────────────────┘ │
+│ │ │ │
+│ └────────────┬───────────────┘ │
+│ │ │
+│ ┌─────▼──────┐ │
+│ │ NextAuth │ │
+│ │ Session │ │
+│ └─────┬──────┘ │
+│ │ │
+│ ┌─────────▼──────────┐ │
+│ │ User Record │ │
+│ │ (PostgreSQL) │ │
+│ │ │ │
+│ │ - id │ │
+│ │ - email │ │
+│ │ - password (NULL?) │ ← Based on your decision │
+│ │ - tier (FREE/PRO) │ │
+│ │ - emailVerified │ │
+│ │ - accounts[] │ ← OAuth providers │
+│ └────────────────────┘ │
 └─────────────────────────────────────────────────────────────────┘
+
 ```
 
 **Key Architectural Decisions:** (Based on `google-oauth-decisions.md`)
@@ -616,6 +632,7 @@ Add a new subsection:
 **Google OAuth Integration:**
 
 ✅ **Implemented Security Measures:**
+
 - State parameter prevents CSRF attacks
 - Secure callback URL validation
 - [Account linking strategy based on your decision]
@@ -625,20 +642,24 @@ Add a new subsection:
 - Secure cookie flag in production
 
 ✅ **Account Linking Security:**
+
 - Strategy: [Your decision - explain security model]
 - Email verification required: [Yes/No based on decision]
 - Password retention: [Keep/Remove after OAuth linking]
 
 ✅ **Token Management:**
+
 - Access tokens: [How stored/encrypted]
 - Refresh tokens: [How stored/encrypted]
 - Token expiration: [Strategy]
 - Session strategy: [JWT or Database]
 
 ⚠️ **Known Limitations:**
+
 - [List any security tradeoffs from your decisions]
 
 **Security Testing Required:**
+
 - [ ] OAuth CSRF protection verification
 - [ ] Account linking attack scenarios
 - [ ] Token expiration handling
@@ -667,42 +688,44 @@ Add a new subsection:
 
 **Folders & Files:**
 ```
+
 app/(auth)/
 ├── layout.tsx
-├── login/page.tsx                    # ✅ UPDATED: Google OAuth button added
-├── register/page.tsx                 # ✅ UPDATED: Google OAuth button added
+├── login/page.tsx # ✅ UPDATED: Google OAuth button added
+├── register/page.tsx # ✅ UPDATED: Google OAuth button added
 ├── verify-email/page.tsx
 ├── forgot-password/page.tsx
 └── reset-password/page.tsx
 
 app/api/auth/
-├── [...nextauth]/route.ts            # ✅ UPDATED: GoogleProvider added
-├── register/route.ts                 # Modified: Handle OAuth users
+├── [...nextauth]/route.ts # ✅ UPDATED: GoogleProvider added
+├── register/route.ts # Modified: Handle OAuth users
 ├── verify-email/route.ts
 ├── forgot-password/route.ts
 └── reset-password/route.ts
 
 components/auth/
-├── register-form.tsx                 # ✅ UPDATED: OAuth integration
-├── login-form.tsx                    # ✅ UPDATED: OAuth integration
+├── register-form.tsx # ✅ UPDATED: OAuth integration
+├── login-form.tsx # ✅ UPDATED: OAuth integration
 ├── forgot-password-form.tsx
-├── social-auth-buttons.tsx           # ✅ NEW: Reusable OAuth buttons
-└── oauth-error-handler.tsx           # ✅ NEW: OAuth error display
+├── social-auth-buttons.tsx # ✅ NEW: Reusable OAuth buttons
+└── oauth-error-handler.tsx # ✅ NEW: OAuth error display
 
 lib/auth/
-├── auth-options.ts                   # ✅ UPDATED: Google OAuth config
-├── session.ts                        # ✅ UPDATED: Handle OAuth sessions
+├── auth-options.ts # ✅ UPDATED: Google OAuth config
+├── session.ts # ✅ UPDATED: Handle OAuth sessions
 ├── permissions.ts
-└── oauth-callbacks.ts                # ✅ NEW: OAuth callback handlers
+└── oauth-callbacks.ts # ✅ NEW: OAuth callback handlers
 
 types/
 ├── auth.ts
-└── next-auth.d.ts                    # ✅ NEW: NextAuth type extensions
+└── next-auth.d.ts # ✅ NEW: NextAuth type extensions
 
-middleware.ts                          # ✅ UPDATED: OAuth routes
+middleware.ts # ✅ UPDATED: OAuth routes
 
-prisma/schema.prisma                   # ✅ UPDATED: Account, Session models
-```
+prisma/schema.prisma # ✅ UPDATED: Account, Session models
+
+````
 
 **Key Changes from V4:**
 - ✅ Added Google OAuth via NextAuth.js [v4 or v5 - your decision]
@@ -733,9 +756,10 @@ prisma/schema.prisma                   # ✅ UPDATED: Account, Session models
   "next-auth": "^[version based on decision]",
   "@auth/prisma-adapter": "^1.0.12"  // [If using database sessions]
 }
-```
+````
 
 **Environment Variables Required:**
+
 ```bash
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
@@ -744,6 +768,7 @@ NEXTAUTH_URL=
 ```
 
 **Testing Requirements:**
+
 - [ ] Email/password login still works
 - [ ] Google OAuth signup creates user
 - [ ] Google OAuth login works
@@ -754,7 +779,8 @@ NEXTAUTH_URL=
 - [ ] Session persists across both auth methods
 
 **Implementation Priority:** ⭐⭐⭐ (High - Core feature)
-```
+
+````
 
 ---
 
@@ -812,23 +838,28 @@ NEXTAUTH_URL=
 - **Code Pattern:**
   ```typescript
   // [v4 or v5 import style based on decision]
-  ```
+````
 
 ### 2.2 Session Strategy
+
 - **Strategy:** [Your decision: JWT or Database]
 - **Rationale:** [From decision document]
 - **Configuration:**
   ```typescript
-  session: { strategy: '[jwt or database]' }
+  session: {
+    strategy: '[jwt or database]';
+  }
   // [Include/exclude adapter based on decision]
   ```
 
 ### 2.3 Database Schema
+
 - **Password Field:** [Your decision: nullable or required]
 - **Session Model:** [Include or exclude based on session strategy]
 - **Account Model:** Required (always)
 
 **Prisma Schema Rules:**
+
 ```prisma
 model User {
   password String[? based on decision]
@@ -847,6 +878,7 @@ model Account {
 ```
 
 ### 2.4 Account Linking
+
 - **Strategy:** [Your decision: automatic/manual/verified-only]
 - **Implementation:**
   ```typescript
@@ -858,9 +890,11 @@ model Account {
 ## 3. File Implementation Rules
 
 ### 3.1 NextAuth Configuration
+
 **File:** `app/api/auth/[...nextauth]/route.ts`
 
 **MUST Include:**
+
 - ✅ GoogleProvider with correct client ID/secret
 - ✅ CredentialsProvider (existing email/password)
 - ✅ Session strategy: [your decision]
@@ -870,19 +904,23 @@ model Account {
 - ✅ session callback with tier and role
 
 **MUST NOT:**
+
 - ❌ Remove or modify existing CredentialsProvider
 - ❌ Change existing session structure
 - ❌ Add tier logic to authentication (tier upgrades are separate)
 
 **Template:**
+
 ```typescript
 // [Provide full template based on all decisions]
 ```
 
 ### 3.2 Login Page
+
 **File:** `app/(auth)/login/page.tsx`
 
 **MUST Include:**
+
 - ✅ Google OAuth button (above divider)
 - ✅ Existing email/password form (below divider)
 - ✅ Loading states for both auth methods
@@ -890,27 +928,33 @@ model Account {
 - ✅ "Or continue with email" divider
 
 **MUST NOT:**
+
 - ❌ Remove email/password form
 - ❌ Change existing form validation
 - ❌ Modify successful login redirect (still /dashboard)
 
 **UI Pattern:**
+
 ```tsx
 // [Provide component structure]
 ```
 
 ### 3.3 Register Page
+
 **File:** `app/(auth)/register/page.tsx`
 
 **Same rules as login page:**
+
 - Google OAuth button first
 - Email/password form second
 - Both methods lead to FREE tier initially
 
 ### 3.4 Database Migration
+
 **Files:** `prisma/schema.prisma`, `prisma/migrations/`
 
 **MUST Include:**
+
 - ✅ Account model (always)
 - ✅ [Session model if using database sessions]
 - ✅ VerificationToken model (always)
@@ -919,6 +963,7 @@ model Account {
 - ✅ User.emailVerified field
 
 **Migration Strategy:**
+
 ```sql
 -- [Provide migration SQL if schema changes needed]
 ```
@@ -928,16 +973,19 @@ model Account {
 ## 4. Code Quality Standards
 
 ### 4.1 TypeScript
+
 - All OAuth functions MUST have explicit types
 - No `any` types in OAuth code
 - Use type definitions from `types/next-auth.d.ts`
 
 ### 4.2 Error Handling
+
 - All OAuth operations wrapped in try-catch
 - User-friendly error messages (strategy: [generic or specific from decision])
 - Server-side errors logged but not exposed to users
 
 **Error Handling Pattern:**
+
 ```typescript
 try {
   await signIn('google', { callbackUrl });
@@ -947,6 +995,7 @@ try {
 ```
 
 ### 4.3 Environment Variables
+
 - All OAuth env vars in `.env.example` with placeholders
 - Validate env vars at startup
 - Never commit actual credentials
@@ -956,6 +1005,7 @@ try {
 ## 5. Testing Requirements
 
 ### 5.1 Manual Testing Checklist
+
 - [ ] Google OAuth signup creates FREE tier user
 - [ ] Google OAuth login works for existing users
 - [ ] Email/password login still works (no regression)
@@ -966,6 +1016,7 @@ try {
 - [ ] Error messages display correctly
 
 ### 5.2 Edge Cases to Test
+
 - [ ] User cancels Google consent screen
 - [ ] User tries to link with already-linked email
 - [ ] OAuth callback timeout/failure
@@ -989,6 +1040,7 @@ try {
 ## 7. Aider-Specific Instructions
 
 ### 7.1 When Building OAuth Files
+
 1. Read this policy document first
 2. Reference `docs/decisions/google-oauth-decisions.md` for all decisions
 3. Use templates from `docs/implementation-guides/google-oauth-implementation-guide-FINAL.md`
@@ -996,16 +1048,21 @@ try {
 5. Maintain consistency with existing codebase
 
 ### 7.2 File Dependencies
+
 **Read-Only Files (Reference Only):**
+
 - `docs/decisions/google-oauth-decisions.md`
 - `docs/implementation-guides/google-oauth-implementation-guide-FINAL.md`
 - `docs/policies/08-google-oauth-implementation-rules.md`
 
 **Files to Create/Modify:**
+
 - [List all files from decision document]
 
 ### 7.3 Validation Requirements
+
 After building each file, validate:
+
 - TypeScript compiles without errors
 - Follows decision document choices
 - Matches existing code style
@@ -1017,6 +1074,7 @@ After building each file, validate:
 ## 8. Common Pitfalls to Avoid
 
 ### ❌ DO NOT:
+
 1. Remove or modify existing email/password authentication
 2. Use `allowDangerousEmailAccountLinking: true` [unless decided]
 3. Add tier upgrade logic to authentication flow
@@ -1027,6 +1085,7 @@ After building each file, validate:
 8. Hardcode OAuth URLs (use environment variables)
 
 ### ✅ DO:
+
 1. Keep authentication simple and secure
 2. Follow existing patterns from the codebase
 3. Handle errors gracefully with user-friendly messages
@@ -1041,6 +1100,7 @@ After building each file, validate:
 ## 9. Success Criteria
 
 ✅ **Implementation Complete When:**
+
 - Google OAuth button appears on login/register
 - Users can sign up with Google (creates FREE tier)
 - Users can sign in with Google
@@ -1057,6 +1117,7 @@ After building each file, validate:
 ## 10. Escalation Triggers
 
 **Escalate to Human if:**
+
 - Security concern discovered
 - Decision conflicts with existing code
 - Breaking change required
@@ -1065,6 +1126,7 @@ After building each file, validate:
 - Third-party API changes
 
 **Escalation Process:**
+
 1. Stop implementation
 2. Document the issue
 3. Propose 2-3 solutions with pros/cons
@@ -1081,6 +1143,7 @@ After building each file, validate:
 **Architecture Doc:** `docs/ARCHITECTURE.md` (Section 6: Authentication)
 
 **Key Files:**
+
 - Config: `app/api/auth/[...nextauth]/route.ts`
 - Schema: `prisma/schema.prisma`
 - Login: `app/(auth)/login/page.tsx`
@@ -1088,11 +1151,13 @@ After building each file, validate:
 - Types: `types/next-auth.d.ts`
 
 **Environment:**
+
 - Dev: `.env.local`
 - Prod: Vercel environment variables
 - Example: `.env.example`
 
 **Testing:**
+
 - Manual: `docs/testing/oauth-testing-checklist.md`
 - Validation: Section 5.1 of this policy
 
@@ -1103,7 +1168,8 @@ After building each file, validate:
 **Policy Owner:** Human (Policy Maker)
 **Implementer:** Aider (Autonomous Builder)
 **Validator:** Claude Code (Validator)
-```
+
+````
 
 ---
 
@@ -1124,23 +1190,23 @@ After building each file, validate:
 read:
   # Decision Documents
   - docs/decisions/google-oauth-decisions.md
-  
+
   # Implementation Guides
   - docs/implementation-guides/google-oauth-implementation-guide-FINAL.md
-  
+
   # Policy Documents
   - docs/policies/08-google-oauth-implementation-rules.md
-  
+
   # Testing Guides
   - docs/testing/oauth-testing-checklist.md
-  
+
   # Architecture References
   - docs/ARCHITECTURE.md
   - docs/v5-structure-division.md
-  
+
   # API Contract
   - docs/trading_alerts_openapi.yaml
-  
+
   # Seed Code (if exists)
   - seed-code/auth/google-oauth-example.tsx
 
@@ -1158,7 +1224,7 @@ conventions:
   - Validate against OpenAPI contract
   - Maintain consistency with existing auth
   - Test both auth methods after changes
-```
+````
 
 ---
 
@@ -1172,7 +1238,7 @@ conventions:
 
 2. **Content:**
 
-```markdown
+````markdown
 # Google OAuth Testing Checklist
 
 **Version:** 1.0
@@ -1184,6 +1250,7 @@ conventions:
 ## Testing Phases
 
 ### Phase 1: Environment Setup ✅
+
 - [ ] Google OAuth credentials obtained from Google Cloud Console
 - [ ] Environment variables set in `.env.local`:
   - [ ] GOOGLE_CLIENT_ID
@@ -1205,6 +1272,7 @@ conventions:
 **Test existing auth still works:**
 
 #### Test 2.1: Email/Password Registration
+
 - [ ] Visit `/register`
 - [ ] Fill form: name, email, password
 - [ ] Submit form
@@ -1216,6 +1284,7 @@ conventions:
 - [ ] Session cookie set
 
 #### Test 2.2: Email/Password Login
+
 - [ ] Visit `/login`
 - [ ] Enter existing credentials
 - [ ] Submit form
@@ -1225,6 +1294,7 @@ conventions:
 - [ ] Can access FREE tier features
 
 #### Test 2.3: Invalid Credentials
+
 - [ ] Visit `/login`
 - [ ] Enter wrong password
 - [ ] Error message displays: "Invalid credentials"
@@ -1232,6 +1302,7 @@ conventions:
 - [ ] Stays on login page
 
 #### Test 2.4: Logout
+
 - [ ] Click logout button
 - [ ] Session destroyed
 - [ ] Redirects to homepage
@@ -1242,6 +1313,7 @@ conventions:
 ### Phase 3: Google OAuth Registration (New Feature) ✅
 
 #### Test 3.1: Google OAuth Signup - New User
+
 - [ ] Visit `/register`
 - [ ] Google OAuth button visible
 - [ ] Click "Sign up with Google"
@@ -1265,6 +1337,7 @@ conventions:
 - [ ] User sees FREE tier limitations
 
 #### Test 3.2: Google OAuth Signup - Cancel Flow
+
 - [ ] Visit `/register`
 - [ ] Click "Sign up with Google"
 - [ ] On Google consent screen, click "Cancel"
@@ -1279,6 +1352,7 @@ conventions:
 ### Phase 4: Google OAuth Login (Existing User) ✅
 
 #### Test 4.1: OAuth-Only User Login
+
 **Setup:** Create OAuth user in Test 3.1
 
 - [ ] Logout
@@ -1291,6 +1365,7 @@ conventions:
 - [ ] Profile picture still shows
 
 #### Test 4.2: Multiple OAuth Logins
+
 - [ ] Login with Google (Test 4.1)
 - [ ] Logout
 - [ ] Login with Google again
@@ -1305,13 +1380,16 @@ conventions:
 **CRITICAL: Test based on your decision from ambiguity #3**
 
 #### Test 5.1: Email User Links Google Account
+
 **Strategy:** [Your decision - Automatic/Manual/Verified-only]
 
 **Setup:**
+
 1. Create user with email/password (Test 2.1)
 2. Note the email address
 
 **Test Steps:**
+
 - [ ] Logout
 - [ ] Click "Sign in with Google"
 - [ ] Use SAME email address as email/password user
@@ -1330,11 +1408,14 @@ conventions:
 - [ ] Session data identical regardless of login method
 
 #### Test 5.2: PRO User Links Google
+
 **Setup:**
+
 1. Create PRO user (upgrade a FREE user via Stripe)
 2. Note the email
 
 **Test Steps:**
+
 - [ ] PRO user signs in with Google (same email)
 - [ ] Accounts link (based on strategy)
 - [ ] **Critical:** User.tier = "PRO" (PRESERVED)
@@ -1344,12 +1425,15 @@ conventions:
 - [ ] PRO features work with both methods
 
 #### Test 5.3: Unverified Email User Links Google
+
 **Only if using "Verified-only" linking strategy**
 
 **Setup:**
+
 1. Create email user but DON'T verify email
 
 **Test Steps:**
+
 - [ ] Try to sign in with Google (same email)
 - [ ] Error: "Please verify your email first"
 - [ ] Does NOT link accounts
@@ -1363,6 +1447,7 @@ conventions:
 **Based on decision from ambiguity #6**
 
 #### Test 6.1: New OAuth User Profile Picture
+
 - [ ] Sign up with Google OAuth
 - [ ] Profile picture displays (from Google)
 - [ ] Visit /settings/profile
@@ -1370,14 +1455,18 @@ conventions:
 - [ ] Picture URL is Google's CDN
 
 #### Test 6.2: Email User Gets Google Picture
+
 **If linking strategy allows:**
+
 - [ ] Email user (no profile picture)
 - [ ] Links Google account
 - [ ] Profile picture now shows Google picture
 - [ ] [Based on decision: Always/Fallback/Choice]
 
 #### Test 6.3: Custom Avatar Preservation
+
 **If avatar upload feature exists:**
+
 - [ ] User uploads custom avatar
 - [ ] Links Google account
 - [ ] [Expected based on decision:]
@@ -1392,6 +1481,7 @@ conventions:
 **Based on session strategy decision (JWT or Database)**
 
 #### Test 7.1: Session Persistence
+
 - [ ] Login with Google OAuth
 - [ ] Check session cookie exists
 - [ ] Close browser tab
@@ -1399,6 +1489,7 @@ conventions:
 - [ ] Still logged in (session persists)
 
 #### Test 7.2: Session Contains Correct Data
+
 **Open browser dev tools → Application → Cookies**
 
 - [ ] Session cookie name: `next-auth.session-token`
@@ -1413,12 +1504,14 @@ conventions:
   - [ ] userId links to User
 
 #### Test 7.3: Session Expiration
+
 - [ ] Wait for session to expire (or manually expire)
 - [ ] Try to access /dashboard
 - [ ] Redirects to /login
 - [ ] Error message optional
 
 #### Test 7.4: Logout Destroys Session
+
 - [ ] Login with any method
 - [ ] Click logout
 - [ ] Check session cookie deleted
@@ -1430,6 +1523,7 @@ conventions:
 ### Phase 8: Error Handling ✅
 
 #### Test 8.1: Network Error During OAuth
+
 - [ ] Disconnect internet
 - [ ] Click "Sign in with Google"
 - [ ] [Handle gracefully - don't crash]
@@ -1437,6 +1531,7 @@ conventions:
 - [ ] Can retry when reconnected
 
 #### Test 8.2: Invalid OAuth Credentials
+
 **In Google Console, temporarily disable OAuth client**
 
 - [ ] Try to sign in with Google
@@ -1446,6 +1541,7 @@ conventions:
 - [ ] Stays on login page
 
 #### Test 8.3: OAuth State Mismatch (CSRF)
+
 **Simulate CSRF attack:**
 
 - [ ] Manually construct invalid callback URL
@@ -1459,6 +1555,7 @@ conventions:
 ### Phase 9: Database Integrity ✅
 
 #### Test 9.1: No Duplicate Users
+
 - [ ] Create user with email: `test@example.com` (email/password)
 - [ ] Try OAuth with same email
 - [ ] [Based on linking strategy]
@@ -1466,6 +1563,7 @@ conventions:
 - [ ] No orphaned records
 
 #### Test 9.2: Account Records
+
 - [ ] OAuth user exists
 - [ ] Check `Account` table:
   - [ ] One record per OAuth provider
@@ -1475,6 +1573,7 @@ conventions:
 - [ ] Email/password user has NO Account record
 
 #### Test 9.3: Session Records (if Database sessions)
+
 - [ ] User logged in
 - [ ] Check `Session` table:
   - [ ] One active session record
@@ -1491,6 +1590,7 @@ conventions:
 **Critical: Verify tier logic is independent of auth method**
 
 #### Test 10.1: New Google OAuth User Starts as FREE
+
 - [ ] Sign up with Google OAuth
 - [ ] Check User.tier = "FREE"
 - [ ] Dashboard shows FREE limitations:
@@ -1500,6 +1600,7 @@ conventions:
 - [ ] PRO features disabled/locked
 
 #### Test 10.2: OAuth User Can Upgrade to PRO
+
 - [ ] OAuth user (FREE tier)
 - [ ] Visit `/pricing`
 - [ ] Click "Upgrade to PRO"
@@ -1516,6 +1617,7 @@ conventions:
   - [ ] Same PRO features as Stripe
 
 #### Test 10.3: PRO User Remains PRO After Google Link
+
 - [ ] PRO user (paid via Stripe)
 - [ ] Links Google account
 - [ ] Check User.tier = "PRO" (unchanged)
@@ -1525,6 +1627,7 @@ conventions:
 - [ ] PRO access works with both methods
 
 #### Test 10.4: Email User vs OAuth User - Same Upgrade Flow
+
 - [ ] Create two users:
   1. Email/password user (FREE)
   2. Google OAuth user (FREE)
@@ -1538,6 +1641,7 @@ conventions:
 ### Phase 11: UI/UX Validation ✅
 
 #### Test 11.1: Login Page Layout
+
 - [ ] Visit `/login`
 - [ ] Google OAuth button visible
 - [ ] Button styled correctly (Google branding)
@@ -1549,6 +1653,7 @@ conventions:
 - [ ] "Forgot password" link works
 
 #### Test 11.2: Register Page Layout
+
 - [ ] Visit `/register`
 - [ ] Same layout as login
 - [ ] Google button first
@@ -1557,6 +1662,7 @@ conventions:
 - [ ] "Already have account?" link works
 
 #### Test 11.3: Profile Display
+
 - [ ] Login with Google OAuth
 - [ ] Visit dashboard
 - [ ] Profile picture shows in header
@@ -1565,6 +1671,7 @@ conventions:
 - [ ] User menu works (settings, logout)
 
 #### Test 11.4: Settings Page
+
 - [ ] Visit `/settings/profile`
 - [ ] Google profile picture displays
 - [ ] Name is editable
@@ -1577,6 +1684,7 @@ conventions:
 ### Phase 12: Production Readiness ✅
 
 #### Test 12.1: Environment Variables
+
 - [ ] All OAuth env vars in `.env.example`
 - [ ] Vercel production env vars set:
   - [ ] GOOGLE_CLIENT_ID
@@ -1587,6 +1695,7 @@ conventions:
 - [ ] No credentials in git history
 
 #### Test 12.2: Google Cloud Console
+
 - [ ] Production callback URL added:
   - [ ] `https://yourdomain.com/api/auth/callback/google`
 - [ ] Authorized JavaScript origins:
@@ -1595,12 +1704,14 @@ conventions:
 - [ ] Scopes: userinfo.email, userinfo.profile
 
 #### Test 12.3: HTTPS Enforcement
+
 - [ ] Production uses HTTPS
 - [ ] Session cookie secure flag: true
 - [ ] OAuth redirects use HTTPS
 - [ ] No mixed content warnings
 
 #### Test 12.4: Performance
+
 - [ ] OAuth flow completes in < 3 seconds
 - [ ] No unnecessary database queries
 - [ ] [If JWT sessions: No session DB queries]
@@ -1611,24 +1722,28 @@ conventions:
 ### Phase 13: Security Audit ✅
 
 #### Test 13.1: CSRF Protection
+
 - [ ] OAuth state parameter generated
 - [ ] State validated in callback
 - [ ] Invalid state rejected
 - [ ] State is unpredictable (random)
 
 #### Test 13.2: Token Security
+
 - [ ] Access tokens encrypted [if stored]
 - [ ] Refresh tokens encrypted [if stored]
 - [ ] Tokens not exposed in client code
 - [ ] Tokens not in error messages
 
 #### Test 13.3: Account Takeover Prevention
+
 - [ ] Cannot claim someone else's email via OAuth
 - [ ] Account linking follows security decision
 - [ ] Email verification enforced [if decided]
 - [ ] No bypass methods exist
 
 #### Test 13.4: Session Security
+
 - [ ] Session cookies are httpOnly
 - [ ] Session cookies are secure (production)
 - [ ] Session cookies use SameSite
@@ -1640,6 +1755,7 @@ conventions:
 ## Summary Checklist
 
 ### Critical Tests (Must Pass)
+
 - [ ] Email/password login still works (no regression)
 - [ ] Google OAuth signup creates FREE user
 - [ ] Google OAuth login works
@@ -1650,6 +1766,7 @@ conventions:
 - [ ] PRO users remain PRO after linking
 
 ### High Priority Tests
+
 - [ ] Profile pictures import from Google
 - [ ] Error handling works gracefully
 - [ ] UI/UX is polished
@@ -1657,6 +1774,7 @@ conventions:
 - [ ] Environment variables secure
 
 ### Medium Priority Tests
+
 - [ ] Session expiration works
 - [ ] Logout destroys sessions
 - [ ] Multiple OAuth logins work
@@ -1677,12 +1795,14 @@ conventions:
 **Build:** [Git commit hash]
 
 ### Results
+
 - Total Tests: [Number]
 - Passed: [Number]
 - Failed: [Number]
 - Skipped: [Number]
 
 ### Failed Tests
+
 1. Test 3.1 - Google OAuth Signup
    - Expected: User created with FREE tier
    - Actual: User created with NULL tier
@@ -1692,9 +1812,11 @@ conventions:
 [List all failures]
 
 ### Recommendations
+
 - [Fix A before deploying]
 - [Test B needs improvement]
 ```
+````
 
 ---
 
@@ -1712,6 +1834,7 @@ describe('Google OAuth Flow', () => {
 ```
 
 **Unit Tests:**
+
 ```typescript
 // Example: oauth-callbacks.test.ts
 describe('OAuth Callbacks', () => {
@@ -1726,7 +1849,8 @@ describe('OAuth Callbacks', () => {
 **Last Updated:** [Date]
 **Next Review:** After implementation
 **Maintained By:** Claude Code (Validator) + Human (QA)
-```
+
+````
 
 ---
 
@@ -1758,7 +1882,7 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 - Configuring OAuth consent screen
 - Obtaining client credentials
 - Setting up redirect URIs
-```
+````
 
 ---
 
@@ -1784,6 +1908,7 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 ## 📋 What Was Done
 
 ### 1. ✅ Codebase Analysis Complete
+
 - Analyzed 12 critical ambiguities
 - Made informed decisions based on existing patterns
 - Documented all decisions with reasoning
@@ -1791,6 +1916,7 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 ### 2. ✅ Documentation Created/Updated
 
 **New Documents (10 files):**
+
 1. `docs/decisions/google-oauth-decisions.md` - Decision record
 2. `docs/implementation-guides/google-oauth-implementation-guide-FINAL.md` - Updated guide
 3. `docs/policies/08-google-oauth-implementation-rules.md` - Aider policy
@@ -1798,21 +1924,19 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 5. `docs/setup/google-oauth-setup.md` - Google Console setup
 6. `docs/google-oauth-integration-summary.md` - This file
 
-**Updated Documents (4 files):**
-7. `docs/trading_alerts_openapi.yaml` - OAuth endpoints added
-8. `docs/ARCHITECTURE.md` - Section 6 updated
-9. `docs/v5-structure-division.md` - Part 5 updated
-10. `.aider.conf.yml` - OAuth references added
+**Updated Documents (4 files):** 7. `docs/trading_alerts_openapi.yaml` - OAuth endpoints added 8. `docs/ARCHITECTURE.md` - Section 6 updated 9. `docs/v5-structure-division.md` - Part 5 updated 10. `.aider.conf.yml` - OAuth references added
 
 **Total:** 14 documentation files
 
 ### 3. ✅ Policy Integration
+
 - Created Aider policy document (Policy 08)
 - Updated .aider.conf.yml with read-only references
 - Defined clear implementation rules
 - Established escalation triggers
 
 ### 4. ✅ Testing Strategy
+
 - 126-point testing checklist created
 - Manual testing procedures documented
 - Validation criteria defined
@@ -1822,20 +1946,20 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 
 ## 🎯 Key Decisions Made
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| 1. NextAuth Version | [v4/v5] | [Reason] |
-| 2. Session Strategy | [JWT/DB] | [Reason] |
-| 3. Account Linking | [Method] | [Reason] |
-| 4. Password Nullable | [Yes/No] | [Reason] |
-| 5. Email Verification | [Method] | [Reason] |
-| 6. Profile Picture | [Method] | [Reason] |
-| 7. Production Setup | [Structure] | [Reason] |
-| 8. Error Handling | [Method] | [Reason] |
-| 9. Testing Strategy | [Method] | [Reason] |
-| 10. DB Migration | [Needed?] | [Reason] |
-| 11. Callback URLs | [Strategy] | [Reason] |
-| 12. Tier Upgrade UX | [Method] | [Reason] |
+| Decision              | Choice      | Rationale |
+| --------------------- | ----------- | --------- |
+| 1. NextAuth Version   | [v4/v5]     | [Reason]  |
+| 2. Session Strategy   | [JWT/DB]    | [Reason]  |
+| 3. Account Linking    | [Method]    | [Reason]  |
+| 4. Password Nullable  | [Yes/No]    | [Reason]  |
+| 5. Email Verification | [Method]    | [Reason]  |
+| 6. Profile Picture    | [Method]    | [Reason]  |
+| 7. Production Setup   | [Structure] | [Reason]  |
+| 8. Error Handling     | [Method]    | [Reason]  |
+| 9. Testing Strategy   | [Method]    | [Reason]  |
+| 10. DB Migration      | [Needed?]   | [Reason]  |
+| 11. Callback URLs     | [Strategy]  | [Reason]  |
+| 12. Tier Upgrade UX   | [Method]    | [Reason]  |
 
 **See full details:** `docs/decisions/google-oauth-decisions.md`
 
@@ -1844,6 +1968,7 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 ## 📂 Files Ready for Aider
 
 ### Files to Create (New)
+
 - [ ] `types/next-auth.d.ts`
 - [ ] `lib/auth/oauth-callbacks.ts`
 - [ ] `components/auth/social-auth-buttons.tsx`
@@ -1851,6 +1976,7 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 - [ ] [Migration file if needed]
 
 ### Files to Modify (Existing)
+
 - [ ] `app/api/auth/[...nextauth]/route.ts`
 - [ ] `app/(auth)/login/page.tsx`
 - [ ] `app/(auth)/register/page.tsx`
@@ -1869,11 +1995,13 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 ### Phase 3: Autonomous Building (Aider)
 
 **Input Documents:**
+
 - `docs/decisions/google-oauth-decisions.md`
 - `docs/implementation-guides/google-oauth-implementation-guide-FINAL.md`
 - `docs/policies/08-google-oauth-implementation-rules.md`
 
 **Aider Tasks:**
+
 1. Read all policy documents
 2. Implement OAuth system following decisions
 3. Create new files (5 files)
@@ -1886,6 +2014,7 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 ### Phase 4: Validation (Claude Code)
 
 **Validation Checks:**
+
 - [ ] TypeScript compiles without errors
 - [ ] All decisions from document followed
 - [ ] Code quality standards met (no `any`, proper error handling)
@@ -1895,6 +2024,7 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 - [ ] No breaking changes to existing auth
 
 **Tools:**
+
 - ESLint
 - TypeScript compiler
 - Manual code review
@@ -1903,6 +2033,7 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 ### Phase 5: Human Testing & Approval
 
 **Manual Testing:**
+
 - [ ] Follow `docs/testing/oauth-testing-checklist.md`
 - [ ] Test critical flows (13 phases)
 - [ ] Verify security measures
@@ -1910,6 +2041,7 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 - [ ] Approve for production
 
 **Approval Checklist:**
+
 - [ ] Email/password login still works
 - [ ] Google OAuth works
 - [ ] Tier system correct
@@ -1921,28 +2053,33 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 ## 🚀 Next Steps
 
 ### Immediate (Human Action Required)
+
 1. **Review decision document:** `docs/decisions/google-oauth-decisions.md`
 2. **Approve decisions or request changes**
 3. **Set up Google Cloud Console** (follow `docs/setup/google-oauth-setup.md`)
 4. **Add environment variables to Vercel**
 
 ### After Human Approval (Aider Implementation)
+
 5. **Aider:** Implement OAuth system
 6. **Aider:** Run database migrations (if needed)
 7. **Aider:** Verify builds successfully
 
 ### Validation Phase (Claude Code)
+
 8. **Claude Code:** Validate implementation
 9. **Claude Code:** Run ESLint and TypeScript checks
 10. **Claude Code:** Verify security checklist
 
 ### Testing Phase (Human)
+
 11. **Human:** Test OAuth flow locally
 12. **Human:** Test account linking
 13. **Human:** Test tier system integration
 14. **Human:** Approve for staging deployment
 
 ### Deployment
+
 15. **Deploy to staging**
 16. **Test on staging**
 17. **Deploy to production**
@@ -1953,6 +2090,7 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 ## 📊 Success Metrics
 
 **Definition of Done:**
+
 - ✅ All 14 documentation files created/updated
 - ✅ All 12 decisions made and documented
 - ✅ Aider policy document ready
@@ -1963,6 +2101,7 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 - ✅ No ambiguities remaining
 
 **Implementation Success:**
+
 - ✅ Aider builds all 13 files successfully
 - ✅ Claude Code validates implementation
 - ✅ Human tests pass all critical flows
@@ -1975,18 +2114,21 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 ## ⚠️ Important Notes
 
 ### For Aider
+
 - Read `docs/policies/08-google-oauth-implementation-rules.md` FIRST
 - Follow ALL decisions from decision document
 - Do NOT deviate from approved patterns
 - Escalate if unclear (don't guess)
 
 ### For Claude Code
+
 - Validate against OpenAPI contract
 - Check TypeScript types strictly
 - Verify security checklist items
 - Ensure quality standards met
 
 ### For Human
+
 - Review decision document thoroughly
 - Test both auth methods after implementation
 - Verify tier system works correctly
@@ -1997,19 +2139,23 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 ## 🔗 Quick Links
 
 **Decision & Planning:**
+
 - [Decision Document](docs/decisions/google-oauth-decisions.md)
 - [Implementation Guide](docs/implementation-guides/google-oauth-implementation-guide-FINAL.md)
 - [This Summary](docs/google-oauth-integration-summary.md)
 
 **Policies & Rules:**
+
 - [Aider Policy 08](docs/policies/08-google-oauth-implementation-rules.md)
 - [.aider.conf.yml](.aider.conf.yml)
 
 **Testing & Validation:**
+
 - [Testing Checklist](docs/testing/oauth-testing-checklist.md)
 - [Google Cloud Setup](docs/setup/google-oauth-setup.md)
 
 **Architecture:**
+
 - [OpenAPI Contract](docs/trading_alerts_openapi.yaml)
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - [Part 5 Structure](docs/v5-structure-division.md)
@@ -2034,6 +2180,7 @@ See [Google OAuth Setup Guide](docs/setup/google-oauth-setup.md) for:
 You have now created/updated **14 files**:
 
 ### ✅ NEW FILES CREATED (10)
+
 1. `docs/decisions/google-oauth-decisions.md`
 2. `docs/implementation-guides/google-oauth-implementation-guide-FINAL.md`
 3. `docs/policies/08-google-oauth-implementation-rules.md`
@@ -2046,6 +2193,7 @@ You have now created/updated **14 files**:
 10. `components/auth/oauth-error-handler.tsx` (stub/reference)
 
 ### ✅ FILES UPDATED (4)
+
 11. `docs/trading_alerts_openapi.yaml`
 12. `docs/ARCHITECTURE.md`
 13. `docs/v5-structure-division.md`
@@ -2075,6 +2223,7 @@ You have now created/updated **14 files**:
 **After Approval:** Aider can begin implementation using all these documents.
 
 **Questions for Human:**
+
 1. Do all 12 decisions make sense?
 2. Any concerns about security/UX?
 3. Ready to proceed with implementation?

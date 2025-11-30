@@ -12,17 +12,17 @@ This document tracks the complete transfer of validation responsibilities from t
 
 ### What Changed:
 
-| Responsibility | Before (Incorrect) | After (Correct) |
-|----------------|-------------------|-----------------|
-| **Code Generation** | Aider | ✅ Aider |
-| **Validation Execution** | Claude Code CLI | ✅ Aider (runs `npm run validate`) |
-| **Validation Tools** | Claude Code CLI | ✅ TypeScript + ESLint + Prettier + Custom Script |
-| **Issue Analysis** | Claude Code CLI | ✅ Aider + Automated Tools |
-| **Approve/Fix/Escalate Decision** | Claude Code CLI | ✅ Aider |
-| **Auto-Fix Execution** | Claude Code CLI | ✅ Aider (runs `npm run fix`) |
-| **Escalation to Human** | Claude Code CLI | ✅ Aider |
-| **Progress Tracking** | Claude Code CLI | ✅ Aider |
-| **Git Commits** | Claude Code CLI | ✅ Aider |
+| Responsibility                    | Before (Incorrect) | After (Correct)                                   |
+| --------------------------------- | ------------------ | ------------------------------------------------- |
+| **Code Generation**               | Aider              | ✅ Aider                                          |
+| **Validation Execution**          | Claude Code CLI    | ✅ Aider (runs `npm run validate`)                |
+| **Validation Tools**              | Claude Code CLI    | ✅ TypeScript + ESLint + Prettier + Custom Script |
+| **Issue Analysis**                | Claude Code CLI    | ✅ Aider + Automated Tools                        |
+| **Approve/Fix/Escalate Decision** | Claude Code CLI    | ✅ Aider                                          |
+| **Auto-Fix Execution**            | Claude Code CLI    | ✅ Aider (runs `npm run fix`)                     |
+| **Escalation to Human**           | Claude Code CLI    | ✅ Aider                                          |
+| **Progress Tracking**             | Claude Code CLI    | ✅ Aider                                          |
+| **Git Commits**                   | Claude Code CLI    | ✅ Aider                                          |
 
 ---
 
@@ -31,6 +31,7 @@ This document tracks the complete transfer of validation responsibilities from t
 Every validation responsibility has been transferred from Claude Code CLI to Aider + Automated Tools.
 
 **Key Changes:**
+
 1. Aider now executes validation (`npm run validate`)
 2. Automated tools perform all checks (TypeScript, ESLint, Prettier, Custom validator)
 3. Aider makes approve/fix/escalate decisions

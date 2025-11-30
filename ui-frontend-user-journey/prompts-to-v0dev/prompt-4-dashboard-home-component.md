@@ -132,5 +132,4 @@ Use shadcn/ui Card, Button, Badge, Progress components
 State for dismissing quick start tips
 Mock data for demonstration
 
-
 Generate complete, production-ready code with sample data that I can copy and run immediately.

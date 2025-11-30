@@ -1,6 +1,7 @@
 # MVP Manual Testing Checklist
 
 ## Purpose
+
 Since automated testing is optional for MVP, this checklist ensures all critical functionality is manually verified before deployment.
 
 ## Pre-Deployment Testing (Phase 4 - Before Going Live)
@@ -8,6 +9,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 ### ✅ **1. AUTHENTICATION FLOWS**
 
 **Registration:**
+
 - [ ] Can create new account with valid email
 - [ ] Password validation works (min 8 chars, uppercase, lowercase, number)
 - [ ] Cannot register with duplicate email (shows error)
@@ -18,6 +20,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] After verification, can login successfully
 
 **Login:**
+
 - [ ] Can login with correct credentials
 - [ ] Cannot login with wrong password (shows error)
 - [ ] Cannot login with non-existent email (shows error)
@@ -25,6 +28,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] Redirects to dashboard after login
 
 **Password Reset:**
+
 - [ ] "Forgot password" sends reset email
 - [ ] Reset link in email works
 - [ ] Can set new password
@@ -32,6 +36,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] Old password no longer works
 
 **Logout:**
+
 - [ ] Logout button works
 - [ ] After logout, cannot access protected pages
 - [ ] Redirects to login page
@@ -41,6 +46,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 ### ✅ **2. TIER SYSTEM & ACCESS CONTROL**
 
 **FREE Tier User:**
+
 - [ ] Dashboard shows "FREE" badge
 - [ ] Symbol selector shows ONLY "XAUUSD"
 - [ ] Cannot select other symbols (disabled in UI)
@@ -52,6 +58,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] API returns 403 if trying to access EURUSD
 
 **PRO Tier User:**
+
 - [ ] Dashboard shows "PRO" badge
 - [ ] Symbol selector shows all 10 symbols
 - [ ] Can select any symbol (EURUSD, BTCUSD, etc.)
@@ -67,17 +74,20 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 ### ✅ **3. WATCHLIST FUNCTIONALITY**
 
 **Create Watchlist:**
+
 - [ ] Can create new watchlist with custom name
 - [ ] Watchlist appears in sidebar
 - [ ] Can create multiple watchlists
 
 **Add Items:**
+
 - [ ] Can add symbol+timeframe combination
 - [ ] Cannot add duplicate combinations
 - [ ] Respects tier limits (FREE: 5, PRO: 50)
 - [ ] Cannot add symbols outside tier access
 
 **Manage Watchlist:**
+
 - [ ] Can rename watchlist
 - [ ] Can delete watchlist item
 - [ ] Can delete entire watchlist
@@ -88,12 +98,14 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 ### ✅ **4. ALERTS SYSTEM**
 
 **Create Alert:**
+
 - [ ] Can create price alert (e.g., "XAUUSD crosses $2000")
 - [ ] Alert form validates inputs (symbol, price, condition)
 - [ ] Alert saves successfully
 - [ ] Appears in alerts list
 
 **Manage Alerts:**
+
 - [ ] Can view all alerts
 - [ ] Can filter alerts (active/inactive)
 - [ ] Can edit alert conditions
@@ -102,6 +114,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] Deleted alerts removed from list
 
 **Alert Triggers (if implemented):**
+
 - [ ] Alert triggers when condition met
 - [ ] Notification sent (email/in-app)
 - [ ] Alert marked as triggered
@@ -112,6 +125,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 ### ✅ **5. CHARTS & VISUALIZATION**
 
 **Chart Loading:**
+
 - [ ] Chart loads for XAUUSD + M15
 - [ ] Chart shows candlesticks (OHLC data)
 - [ ] Chart shows horizontal indicator lines
@@ -119,6 +133,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] Chart shows fractal markers
 
 **Timeframe Switching:**
+
 - [ ] Can switch to M30 (chart updates)
 - [ ] Can switch to H1 (chart updates)
 - [ ] Can switch to H2 (chart updates)
@@ -127,11 +142,13 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] Can switch to D1 (chart updates)
 
 **Symbol Switching (PRO only):**
+
 - [ ] Can switch to EURUSD (chart loads)
 - [ ] Can switch to BTCUSD (chart loads)
 - [ ] All 10 symbols work
 
 **Chart Controls:**
+
 - [ ] Zoom in/out works
 - [ ] Pan left/right works
 - [ ] Reset zoom works
@@ -139,6 +156,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] Manual refresh button works
 
 **Data Accuracy:**
+
 - [ ] Latest candle matches MT5 terminal price
 - [ ] Indicator lines match MT5 chart
 - [ ] Fractals match MT5 fractals
@@ -148,12 +166,14 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 ### ✅ **6. SUBSCRIPTION & PAYMENTS (Stripe)**
 
 **Pricing Page:**
+
 - [ ] Shows FREE tier ($0) with features
 - [ ] Shows PRO tier ($29/month) with features
 - [ ] "Upgrade to PRO" button visible for FREE users
 - [ ] "Current Plan" shown for PRO users
 
 **Upgrade Flow (USE TEST CARD):**
+
 - [ ] Click "Upgrade to PRO"
 - [ ] Redirects to Stripe Checkout
 - [ ] Stripe page loads (test mode indicator visible)
@@ -167,6 +187,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] Alert limit increased to 20
 
 **Subscription Management:**
+
 - [ ] Can view subscription status in Settings → Billing
 - [ ] Shows next billing date
 - [ ] "Cancel subscription" button visible
@@ -175,6 +196,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] After period ends, downgrades to FREE
 
 **Invoice History:**
+
 - [ ] Can view past invoices
 - [ ] Can download invoice PDF
 - [ ] Invoice shows correct amount ($29)
@@ -184,23 +206,27 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 ### ✅ **7. USER SETTINGS**
 
 **Profile:**
+
 - [ ] Can update name
 - [ ] Can update profile image (if feature exists)
 - [ ] Changes save successfully
 - [ ] Changes reflect in header/sidebar
 
 **Preferences:**
+
 - [ ] Can change default timeframe
 - [ ] Can toggle email notifications
 - [ ] Can update notification frequency
 - [ ] Settings persist after logout/login
 
 **Appearance:**
+
 - [ ] Can switch theme (light/dark)
 - [ ] Theme persists after refresh
 - [ ] All pages respect theme choice
 
 **Account:**
+
 - [ ] "Delete account" button visible
 - [ ] Confirmation modal appears
 - [ ] After deletion, cannot login
@@ -211,6 +237,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 ### ✅ **8. ADMIN DASHBOARD** (If logged in as admin)
 
 **User Management:**
+
 - [ ] Can view all users
 - [ ] Can search users by email
 - [ ] Can filter by tier (FREE/PRO)
@@ -219,12 +246,14 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] Can deactivate user account
 
 **Analytics:**
+
 - [ ] Dashboard shows total users
 - [ ] Shows FREE vs PRO distribution
 - [ ] Shows revenue metrics (if PRO users exist)
 - [ ] Shows API usage statistics
 
 **System Health:**
+
 - [ ] Can view error logs
 - [ ] Can see API usage by endpoint
 - [ ] Flask MT5 service status visible
@@ -234,12 +263,14 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 ### ✅ **9. ERROR HANDLING**
 
 **Network Errors:**
+
 - [ ] Graceful error when Flask service is down
 - [ ] Graceful error when database is unreachable
 - [ ] Retry mechanism works (if implemented)
 - [ ] User-friendly error messages (not raw stack traces)
 
 **Validation Errors:**
+
 - [ ] Form shows validation errors inline
 - [ ] API returns clear error messages
 - [ ] 400 Bad Request for invalid input
@@ -249,6 +280,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] 429 Too Many Requests for rate limit
 
 **Edge Cases:**
+
 - [ ] Handles empty states (no watchlists, no alerts)
 - [ ] Handles loading states (spinners shown)
 - [ ] Handles very long symbol names (truncation)
@@ -259,11 +291,13 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 ### ✅ **10. PERFORMANCE & UX**
 
 **Page Load Times:**
+
 - [ ] Dashboard loads in < 2 seconds
 - [ ] Charts load in < 3 seconds
 - [ ] API responses < 500ms average
 
 **Responsiveness:**
+
 - [ ] Works on desktop (1920x1080)
 - [ ] Works on laptop (1366x768)
 - [ ] Works on tablet (iPad)
@@ -272,6 +306,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] Charts resize properly
 
 **Browser Compatibility:**
+
 - [ ] Works in Chrome
 - [ ] Works in Firefox
 - [ ] Works in Safari
@@ -282,17 +317,20 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 ### ✅ **11. SECURITY CHECKS**
 
 **Session Management:**
+
 - [ ] Session expires after inactivity (if implemented)
 - [ ] Cannot access protected routes without login
 - [ ] Cannot access admin routes without admin role
 - [ ] CSRF protection works (forms submit correctly)
 
 **Data Privacy:**
+
 - [ ] User can only see their own alerts
 - [ ] User can only see their own watchlists
 - [ ] User cannot access other users' data via API manipulation
 
 **API Security:**
+
 - [ ] Cannot bypass tier restrictions via direct API calls
 - [ ] Cannot access EURUSD as FREE user via Postman
 - [ ] Rate limiting works (test with Postman loop)
@@ -302,11 +340,13 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 ### ✅ **12. MT5 DATA INTEGRATION**
 
 **Flask Service:**
+
 - [ ] Flask service is running (health check returns OK)
 - [ ] MT5 connection status is "connected"
 - [ ] Can fetch indicator data via Flask API
 
 **Data Accuracy:**
+
 - [ ] OHLC data matches MT5 terminal
 - [ ] Horizontal lines match MT5 chart
 - [ ] Diagonal lines match MT5 chart
@@ -314,6 +354,7 @@ Since automated testing is optional for MVP, this checklist ensures all critical
 - [ ] Data updates when MT5 terminal updates
 
 **All Symbols (PRO test):**
+
 - [ ] XAUUSD data loads correctly
 - [ ] EURUSD data loads correctly
 - [ ] BTCUSD data loads correctly
@@ -348,11 +389,12 @@ When you find a bug during testing:
 **Found in:** [Feature/Page]
 **Severity:** [Critical/High/Medium/Low]
 **Steps to Reproduce:**
-1. 
-2. 
-3. 
 
-**Expected:** 
-**Actual:** 
+1.
+2.
+3.
+
+**Expected:**
+**Actual:**
 **Screenshot:** (if applicable)
 **Fix:** (after resolution)

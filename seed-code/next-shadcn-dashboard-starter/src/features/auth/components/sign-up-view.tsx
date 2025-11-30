@@ -18,7 +18,7 @@ export default function SignUpViewPage({ stars }: { stars: number }) {
         href='/examples/authentication'
         className={cn(
           buttonVariants({ variant: 'ghost' }),
-          'absolute top-4 right-4 hidden md:top-8 md:right-8'
+          'absolute right-4 top-4 hidden md:right-8 md:top-8'
         )}
       >
         Sign Up

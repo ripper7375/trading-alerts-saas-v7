@@ -16,35 +16,35 @@ Following the implementation of multi-MT5 terminal architecture (15 terminals, 1
 
 ### ✅ UPDATED FILES
 
-| File | Status | Changes Made |
-|------|--------|--------------|
-| **flask_mt5_openapi.yaml** | ✅ Updated | • Added multi-terminal architecture description<br>• Enhanced /api/health endpoint (15 terminals)<br>• Added admin endpoints (5 total)<br>• Added AdminApiKeyAuth security scheme<br>• Added 6 admin response schemas |
-| **ARCHITECTURE.md** | ✅ Updated | • Updated system diagram (15 MT5 terminals)<br>• Updated section 4.5 with multi-terminal architecture<br>• Added deployment options (1 VPS vs 3 VPS)<br>• Added admin health endpoint example<br>• Added reference documentation links |
+| File                         | Status     | Changes Made                                                                                                                                                                                                                                                                                                                                              |
+| ---------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **flask_mt5_openapi.yaml**   | ✅ Updated | • Added multi-terminal architecture description<br>• Enhanced /api/health endpoint (15 terminals)<br>• Added admin endpoints (5 total)<br>• Added AdminApiKeyAuth security scheme<br>• Added 6 admin response schemas                                                                                                                                     |
+| **ARCHITECTURE.md**          | ✅ Updated | • Updated system diagram (15 MT5 terminals)<br>• Updated section 4.5 with multi-terminal architecture<br>• Added deployment options (1 VPS vs 3 VPS)<br>• Added admin health endpoint example<br>• Added reference documentation links                                                                                                                    |
 | **03-architecture-rules.md** | ✅ Updated | • Section 8 renamed to "FLASK MT5 SERVICE - MULTI-TERMINAL ARCHITECTURE"<br>• Added 8.1: Multi-terminal overview + symbol mapping<br>• Added 8.1.1: Connection pool pattern (mandatory)<br>• Added 8.1.2: Admin endpoints for terminal management<br>• Updated 8.2: Route handler with connection pool<br>• Marked 8.3 as UNCHANGED (Next.js client-side) |
 
 ### ✅ NEW FILES CREATED (Previous Work)
 
-| File | Purpose |
-|------|---------|
-| **mt5-terminal-mapping.md** | Deployment strategy, VPS options, symbol mapping |
-| **flask-multi-mt5-implementation.md** | Complete Python implementation code |
-| **admin-mt5-dashboard-implementation.md** | Admin dashboard (Flask + Next.js) |
+| File                                      | Purpose                                          |
+| ----------------------------------------- | ------------------------------------------------ |
+| **mt5-terminal-mapping.md**               | Deployment strategy, VPS options, symbol mapping |
+| **flask-multi-mt5-implementation.md**     | Complete Python implementation code              |
+| **admin-mt5-dashboard-implementation.md** | Admin dashboard (Flask + Next.js)                |
 
 ### ✅ FILES REQUIRING NO CHANGES
 
-| File | Reason |
-|------|--------|
-| **.aider.conf.yml** | Already references flask_mt5_openapi.yaml and all policies - no changes needed |
-| **00-tier-specifications.md** | Tier limits unchanged (FREE: 5 symbols, PRO: 15 symbols) |
-| **01-approval-policies.md** | Approval criteria remain valid for multi-MT5 code |
-| **02-quality-standards.md** | Quality standards apply regardless of MT5 count |
-| **04-escalation-triggers.md** | Escalation criteria unchanged |
-| **05-coding-patterns.md** | Coding patterns remain valid |
-| **06-aider-instructions.md** | Aider workflow unchanged |
-| **07-dlocal-integration-rules.md** | Payment integration unaffected |
-| **08-google-oauth-implementation-rules.md** | OAuth unaffected |
-| **v5-structure-division.md** | File structure unchanged |
-| **diagram-06-db-schema.mermaid** | Database schema unchanged |
+| File                                        | Reason                                                                         |
+| ------------------------------------------- | ------------------------------------------------------------------------------ |
+| **.aider.conf.yml**                         | Already references flask_mt5_openapi.yaml and all policies - no changes needed |
+| **00-tier-specifications.md**               | Tier limits unchanged (FREE: 5 symbols, PRO: 15 symbols)                       |
+| **01-approval-policies.md**                 | Approval criteria remain valid for multi-MT5 code                              |
+| **02-quality-standards.md**                 | Quality standards apply regardless of MT5 count                                |
+| **04-escalation-triggers.md**               | Escalation criteria unchanged                                                  |
+| **05-coding-patterns.md**                   | Coding patterns remain valid                                                   |
+| **06-aider-instructions.md**                | Aider workflow unchanged                                                       |
+| **07-dlocal-integration-rules.md**          | Payment integration unaffected                                                 |
+| **08-google-oauth-implementation-rules.md** | OAuth unaffected                                                               |
+| **v5-structure-division.md**                | File structure unchanged                                                       |
+| **diagram-06-db-schema.mermaid**            | Database schema unchanged                                                      |
 
 ---
 
@@ -53,10 +53,12 @@ Following the implementation of multi-MT5 terminal architecture (15 terminals, 1
 ### 1. **Multi-Terminal Architecture** (15 MT5 Terminals)
 
 **Reason:** PRO tier = 135 chart combinations (15 symbols × 9 timeframes)
+
 - Single MT5 cannot handle 135 chart windows efficiently
 - Solution: 15 terminals × 9 charts each = distributed load
 
 **Symbol-to-Terminal Mapping:**
+
 ```
 MT5_01 → AUDJPY     MT5_09 → NZDUSD
 MT5_02 → AUDUSD     MT5_10 → US30
@@ -73,6 +75,7 @@ MT5_08 → NDX100
 **Rule:** All MT5 connections MUST go through the connection pool.
 
 **New File:** `app/services/mt5_connection_pool.py`
+
 - Manages 15 MT5 connections
 - Routes requests to correct terminal based on symbol
 - Auto-reconnects failed terminals
@@ -81,6 +84,7 @@ MT5_08 → NDX100
 ### 3. **Admin Dashboard** (NEW)
 
 **New Admin Endpoints:**
+
 ```
 GET  /api/admin/terminals/health           # View all 15 terminals
 POST /api/admin/terminals/{id}/restart     # Restart specific terminal
@@ -92,6 +96,7 @@ GET  /api/admin/terminals/stats            # Aggregate stats
 **Authentication:** Separate admin API key (`X-Admin-API-Key`)
 
 **Next.js Dashboard:** `app/admin/mt5-terminals/page.tsx`
+
 - Real-time health monitoring (auto-refresh 30s)
 - Per-terminal status cards
 - One-click restart
@@ -100,11 +105,13 @@ GET  /api/admin/terminals/stats            # Aggregate stats
 ### 4. **Deployment Options**
 
 **Option 1 - Development:**
+
 - Single VPS, 15 MT5 instances
 - Cost: ~$80/month
 - Simpler management
 
 **Option 2 - Production (Recommended):**
+
 - 3 VPS, 5 MT5 instances each
 - Cost: ~$150/month
 - Fault tolerance
@@ -115,11 +122,11 @@ GET  /api/admin/terminals/stats            # Aggregate stats
 
 ### ✅ NO DISRUPTION TO WORKFLOW
 
-| Component | Impact |
-|-----------|--------|
-| **Aider (Builder)** | Reads updated policies from .aider.conf.yml - will follow new multi-MT5 patterns |
-| **Claude Code (Validator)** | Uses same policy files - will validate against updated architecture rules |
-| **Human (Decision Maker)** | Informed of architectural decision via updated docs |
+| Component                   | Impact                                                                           |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| **Aider (Builder)**         | Reads updated policies from .aider.conf.yml - will follow new multi-MT5 patterns |
+| **Claude Code (Validator)** | Uses same policy files - will validate against updated architecture rules        |
+| **Human (Decision Maker)**  | Informed of architectural decision via updated docs                              |
 
 ### ✅ POLICIES REMAIN COHERENT
 
@@ -133,6 +140,7 @@ GET  /api/admin/terminals/stats            # Aggregate stats
 ### ✅ AIDER CAN NOW BUILD
 
 When building Flask MT5 service, Aider will:
+
 1. Read `flask_mt5_openapi.yaml` (updated with multi-terminal endpoints)
 2. Read `03-architecture-rules.md` (updated with connection pool pattern)
 3. Read `flask-multi-mt5-implementation.md` (implementation guide)
@@ -175,6 +183,7 @@ When building Flask MT5 service, Aider will:
 ### What Aider Will Build (Using Updated Policies)
 
 **Part 1: Flask MT5 Service**
+
 - `mt5-service/app/services/mt5_connection_pool.py` ← NEW
 - `mt5-service/app/services/health_monitor.py` ← NEW
 - `mt5-service/app/routes/admin_terminals.py` ← NEW
@@ -184,12 +193,14 @@ When building Flask MT5 service, Aider will:
 - `mt5-service/app/__init__.py` ← UPDATED (init pool)
 
 **Part 2: Next.js Admin Dashboard**
+
 - `app/admin/mt5-terminals/page.tsx` ← NEW
 - `app/api/admin/mt5-terminals/health/route.ts` ← NEW
 - `app/api/admin/mt5-terminals/[id]/restart/route.ts` ← NEW
 - `app/api/admin/mt5-terminals/restart-all/route.ts` ← NEW
 
 **Part 3: Next.js Client Updates**
+
 - `lib/mt5-client/` ← AUTO-GENERATED from updated flask_mt5_openapi.yaml
 
 ---
@@ -226,6 +237,7 @@ When building Flask MT5 service, Aider will:
 All policy files, architecture documentation, and implementation guides are now consistent with the multi-MT5 terminal architecture. Aider can proceed with Phase 3 building using the updated policies without conflicts or ambiguities.
 
 **Key Achievement:**
+
 - 3 major files updated (OpenAPI spec, ARCHITECTURE.md, 03-architecture-rules.md)
 - 3 new implementation guides created
 - 11 policy files verified (no changes needed)

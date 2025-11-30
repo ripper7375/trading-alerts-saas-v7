@@ -1,27 +1,39 @@
-import { DefaultSession, DefaultUser } from 'next-auth';
-import { DefaultJWT } from 'next-auth/jwt';
+import 'next-auth';
 
 declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
+      email: string;
+      name?: string | null;
+      image?: string | null;
       tier: 'FREE' | 'PRO';
       role: 'USER' | 'ADMIN';
       isAffiliate: boolean;
-      image?: string;
-    } & DefaultSession['user'];
+    };
   }
 
-  interface User extends DefaultUser {
+  interface User {
+    id: string;
+    email: string;
+    name?: string | null;
+    image?: string | null;
     tier: 'FREE' | 'PRO';
     role: 'USER' | 'ADMIN';
     isAffiliate: boolean;
+    emailVerified?: Date | null;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
   }
 }
 
 declare module 'next-auth/jwt' {
-  interface JWT extends DefaultJWT {
+  interface JWT {
     id: string;
+    email: string;
+    name?: string | null;
+    image?: string | null;
     tier: 'FREE' | 'PRO';
     role: 'USER' | 'ADMIN';
     isAffiliate: boolean;

@@ -48,11 +48,13 @@ gh run rerun <run-id>
 ### Step 1: Identify the Failure
 
 **Email/Notification will contain:**
+
 - ❌ Which job failed (Unit Tests, Integration Tests, Build)
 - 📄 Branch and commit
 - 🔗 Link to GitHub Actions run
 
 **Click the link or run:**
+
 ```bash
 gh run view --log-failed
 ```
@@ -60,6 +62,7 @@ gh run view --log-failed
 ### Step 2: Read the Error Message
 
 **Look for:**
+
 ```
 FAIL __tests__/lib/tier-validation.test.ts
   ● validateTierAccess › should allow FREE tier to access XAUUSD
@@ -73,6 +76,7 @@ FAIL __tests__/lib/tier-validation.test.ts
 ```
 
 **Key information:**
+
 - 📁 File: `__tests__/lib/tier-validation.test.ts`
 - 🧪 Test: `validateTierAccess › should allow FREE tier to access XAUUSD`
 - 📍 Line: `12:32`
@@ -98,6 +102,7 @@ Please fix this test failure. The issue is in [describe the likely cause].
 ```
 
 **Example:**
+
 ```
 GitHub Actions test failed.
 
@@ -143,6 +148,7 @@ npm run build
 ## 🚫 Never Do These Things
 
 ### ❌ Don't Push Without Local Verification
+
 ```bash
 # Bad:
 git add .
@@ -159,18 +165,22 @@ git push
 ```
 
 ### ❌ Don't Skip Running Tests Locally
+
 ```bash
 # Bad:
 git commit -m "fix" --no-verify
 ```
 
 ### ❌ Don't Ignore Warning Signs
+
 ```
 ⚠️ Warning: Coverage decreased from 85% to 45%
 ```
+
 This means you didn't write tests for new code!
 
 ### ❌ Don't Commit Broken Code "Temporarily"
+
 ```bash
 # Bad:
 git commit -m "WIP: broken code, will fix later"
@@ -183,6 +193,7 @@ git commit -m "WIP: broken code, will fix later"
 ### ✅ Read the Full Error Message
 
 Don't just skim! The error message contains:
+
 - Exact file and line number
 - Expected vs. received values
 - Stack trace showing the call path
@@ -190,6 +201,7 @@ Don't just skim! The error message contains:
 ### ✅ Copy Exact Error Text to Aider
 
 Aider works best with exact error messages:
+
 ```
 TypeError: Cannot read property 'tier' of undefined
   at validateTierAccess (lib/tier-validation.ts:15:23)
@@ -220,11 +232,13 @@ Don't just push and forget!
 ### Scenario 1: Type Error
 
 **Error:**
+
 ```
 error TS2304: Cannot find name 'User'
 ```
 
 **Fix:**
+
 ```bash
 # Generate Prisma types
 npm run db:generate
@@ -236,12 +250,14 @@ npm test
 ### Scenario 2: Import Error
 
 **Error:**
+
 ```
 Cannot find module '@/lib/utils'
 ```
 
 **Fix:**
 Check `jest.config.js` has correct module mapping:
+
 ```javascript
 moduleNameMapper: {
   '^@/(.*)$': '<rootDir>/$1',
@@ -251,12 +267,14 @@ moduleNameMapper: {
 ### Scenario 3: Test Timeout
 
 **Error:**
+
 ```
 Timeout - Async callback was not invoked within the 5000 ms timeout
 ```
 
 **Fix:**
 Increase timeout or fix async test:
+
 ```typescript
 // Option 1: Increase timeout
 jest.setTimeout(10000);
@@ -270,12 +288,14 @@ it('should wait for promise', async () => {
 ### Scenario 4: Coverage Threshold Not Met
 
 **Error:**
+
 ```
 Jest: "global" coverage threshold for branches (60%) not met: 45%
 ```
 
 **Fix:**
 Write more tests to cover branches:
+
 ```typescript
 // Test both branches
 it('should handle true condition', () => {
@@ -290,11 +310,13 @@ it('should handle false condition', () => {
 ### Scenario 5: Build Failure
 
 **Error:**
+
 ```
 Error: Build failed with 3 type errors
 ```
 
 **Fix:**
+
 ```bash
 # Check TypeScript errors
 npm run type-check
@@ -392,6 +414,7 @@ Add webhook to `.github/workflows/tests.yml`:
 ### Keep a Failure Log
 
 When a test fails, document:
+
 - What failed
 - Why it failed
 - How it was fixed
@@ -400,11 +423,13 @@ When a test fails, document:
 ### Common Patterns
 
 After a few failures, you'll notice patterns:
+
 - Certain tests fail after certain changes
 - Specific files are error-prone
 - Timing issues in async tests
 
 Use this knowledge to:
+
 - Write better tests upfront
 - Add more assertions
 - Improve error messages
@@ -446,6 +471,7 @@ Before considering a test failure "resolved":
 ## 🎉 Summary
 
 **When tests fail:**
+
 1. Don't panic
 2. Read the error message carefully
 3. Use the Aider template

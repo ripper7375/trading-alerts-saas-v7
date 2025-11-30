@@ -9,6 +9,7 @@
 Your indicators have specific buffer indices that the Flask service needs to read:
 
 #### Fractal Horizontal Line_V5.mq5 Buffer Structure:
+
 ```mql5
 // From your indicator file (YOU WILL ATTACH THIS)
 SetIndexBuffer(0, ExtUpperBuffer, INDICATOR_DATA);      // Buffer 0: Peak fractals (108)
@@ -24,6 +25,7 @@ SetIndexBuffer(9, ExtBottomLine3, INDICATOR_DATA);      // Buffer 9: Bottom Line
 ```
 
 #### Fractal Diagonal Line_V4.mq5 Buffer Structure:
+
 ```mql5
 // From your indicator file (YOU WILL ATTACH THIS)
 SetIndexBuffer(0, DiagAscLine1, INDICATOR_DATA);        // Buffer 0: Ascending Line #1
@@ -84,13 +86,13 @@ class MT5Service:
         self.login = int(os.getenv('MT5_LOGIN', 0))
         self.password = os.getenv('MT5_PASSWORD', '')
         self.server = os.getenv('MT5_SERVER', '')
-        
+
         # YOUR indicator names (will be verified from YOUR .mq5 files)
         self.HORIZONTAL_INDICATOR = "Fractal Horizontal Line_V5"
         self.DIAGONAL_INDICATOR = "Fractal Diagonal Line_V4"
-        
+
         self.initialize()
-    
+
     def initialize(self):
         """Initialize MT5 connection"""
         if not mt5.initialize(
@@ -102,39 +104,39 @@ class MT5Service:
             return False
         logger.info("MT5 initialized successfully")
         return True
-    
+
     def is_connected(self):
         """Check if MT5 is connected"""
         return mt5.terminal_info() is not None
-    
+
     def validate_symbol_access(self, symbol: str, tier: str) -> bool:
         """
         V5: Validate if tier can access symbol
-        
+
         Args:
             symbol: Trading symbol (e.g., 'XAUUSD')
             tier: User tier ('FREE' or 'PRO')
-        
+
         Returns:
             bool: True if access allowed, False otherwise
         """
         return can_access_symbol(tier, symbol)
-    
+
     def get_indicators(self, symbol, timeframe, bars, tier='FREE'):
         """
         Read indicator buffers from YOUR custom .mq5 files
-        
+
         V5 CHANGES:
         - Added tier parameter for access control
         - Validates symbol access before reading
         - Updated timeframe mapping (removed M1/M5, added H2/H8)
-        
+
         Args:
             symbol: Trading symbol (e.g., 'XAUUSD')
             timeframe: Timeframe string (M15, M30, H1, H2, H4, H8, D1)
             bars: Number of bars to fetch
             tier: User tier for access control ('FREE' or 'PRO')
-        
+
         Raises:
             Exception: If tier cannot access symbol or data fetch fails
         """
@@ -145,10 +147,10 @@ class MT5Service:
                 f"Access denied: {tier} tier cannot access {symbol}. "
                 f"Accessible symbols: {', '.join(accessible)}"
             )
-        
+
         if not self.is_connected():
             self.initialize()
-        
+
         # V5: Updated timeframe mapping (removed M1/M5, added H2/H8)
         tf_map = {
             'M15': mt5.TIMEFRAME_M15,
@@ -159,40 +161,40 @@ class MT5Service:
             'H8': mt5.TIMEFRAME_H8,    # V5: Added
             'D1': mt5.TIMEFRAME_D1,
         }
-        
+
         tf = tf_map.get(timeframe)
         if tf is None:
             raise Exception(
                 f"Invalid timeframe: {timeframe}. "
                 f"Valid options: {', '.join(tf_map.keys())}"
             )
-        
+
         # Select symbol
         if not mt5.symbol_select(symbol, True):
             raise Exception(f"Failed to select symbol: {symbol}")
-        
+
         # Get OHLC data
         rates = mt5.copy_rates_from_pos(symbol, tf, 0, bars)
-        
+
         if rates is None:
             raise Exception(f"Failed to get OHLC data for {symbol}")
-        
+
         # Get indicator handles for YOUR custom indicators
         h_handle = mt5.iCustom(symbol, tf, self.HORIZONTAL_INDICATOR)
         d_handle = mt5.iCustom(symbol, tf, self.DIAGONAL_INDICATOR)
-        
+
         if h_handle == mt5.INVALID_HANDLE:
             raise Exception(
                 f"Failed to get handle for {self.HORIZONTAL_INDICATOR}. "
                 f"Is the indicator attached to the chart in MT5?"
             )
-        
+
         if d_handle == mt5.INVALID_HANDLE:
             raise Exception(
                 f"Failed to get handle for {self.DIAGONAL_INDICATOR}. "
                 f"Is the indicator attached to the chart in MT5?"
             )
-        
+
         # Read buffers (indices match YOUR indicator structure)
         result = {
             'ohlc': [
@@ -232,25 +234,25 @@ class MT5Service:
                 'bars_returned': len(rates)
             }
         }
-        
+
         logger.info(
             f"Successfully read indicators for {symbol} {timeframe} "
             f"(tier: {tier}, bars: {len(rates)})"
         )
         return result
-    
+
     def _read_buffer(self, handle, buffer_index, count):
         """Read indicator buffer and filter EMPTY_VALUE"""
         try:
             buffer = mt5.copy_buffer(handle, buffer_index, 0, count)
-            
+
             if buffer is None:
                 logger.warning(f"Failed to read buffer {buffer_index}")
                 return []
-            
+
             # MT5 EMPTY_VALUE constant
             EMPTY_VALUE = 2147483647
-            
+
             # Filter out EMPTY_VALUE and invalid values
             result = []
             for i, val in enumerate(buffer):
@@ -259,13 +261,13 @@ class MT5Service:
                         'index': i,
                         'value': float(val)
                     })
-            
+
             return result
-            
+
         except Exception as e:
             logger.error(f"Error reading buffer {buffer_index}: {e}")
             return []
-    
+
     def _extract_fractals(self, handle, rates, count):
         """Extract fractal markers from YOUR indicator"""
         try:
@@ -273,12 +275,12 @@ class MT5Service:
             # Buffer 1 = Lower fractals (bottoms)
             peaks_buffer = mt5.copy_buffer(handle, 0, 0, count)
             bottoms_buffer = mt5.copy_buffer(handle, 1, 0, count)
-            
+
             EMPTY_VALUE = 2147483647
-            
+
             peaks = []
             bottoms = []
-            
+
             if peaks_buffer is not None:
                 for i, val in enumerate(peaks_buffer):
                     if val != EMPTY_VALUE and 0 < val < 1000000:
@@ -286,7 +288,7 @@ class MT5Service:
                             'time': int(rates[i]['time']),
                             'price': float(val)
                         })
-            
+
             if bottoms_buffer is not None:
                 for i, val in enumerate(bottoms_buffer):
                     if val != EMPTY_VALUE and 0 < val < 1000000:
@@ -294,23 +296,23 @@ class MT5Service:
                             'time': int(rates[i]['time']),
                             'price': float(val)
                         })
-            
+
             return {
                 'peaks': peaks,
                 'bottoms': bottoms
             }
-            
+
         except Exception as e:
             logger.error(f"Error extracting fractals: {e}")
             return {'peaks': [], 'bottoms': []}
-    
+
     def get_accessible_symbols(self, tier: str) -> list:
         """
         V5: Get list of symbols accessible by tier
-        
+
         Args:
             tier: User tier ('FREE' or 'PRO')
-        
+
         Returns:
             list: List of accessible symbol strings
         """
@@ -342,7 +344,7 @@ def check_api_key():
 def get_tier_from_request():
     """
     V5: Extract tier from request header
-    
+
     Next.js will send the user's tier in X-User-Tier header
     Default to FREE if not provided
     """
@@ -364,17 +366,17 @@ def health():
 def get_symbols():
     """
     V5: Get symbols accessible by tier
-    
+
     Headers:
         X-API-Key: API authentication key
         X-User-Tier: User tier (FREE or PRO)
     """
     if not check_api_key():
         return jsonify({'error': 'Unauthorized'}), 401
-    
+
     tier = get_tier_from_request()
     symbols = mt5_service.get_accessible_symbols(tier)
-    
+
     return jsonify({
         'success': True,
         'tier': tier,
@@ -385,23 +387,23 @@ def get_symbols():
 def get_indicators(symbol, timeframe):
     """
     V5: Get indicator data from MT5 with tier-based access control
-    
+
     Headers:
         X-API-Key: API authentication key
         X-User-Tier: User tier (FREE or PRO)
-    
+
     Query Parameters:
         bars: Number of bars to fetch (default: 1000)
-    
+
     Returns:
         JSON with OHLC, horizontal lines, diagonal lines, and fractals
     """
     if not check_api_key():
         return jsonify({'error': 'Unauthorized'}), 401
-    
+
     # V5: Get tier from request
     tier = get_tier_from_request()
-    
+
     # V5: Validate symbol access
     if not mt5_service.validate_symbol_access(symbol, tier):
         accessible = mt5_service.get_accessible_symbols(tier)
@@ -412,9 +414,9 @@ def get_indicators(symbol, timeframe):
             'accessible_symbols': accessible,
             'upgrade_required': tier == 'FREE'
         }), 403
-    
+
     bars = int(request.args.get('bars', 1000))
-    
+
     try:
         # V5: Pass tier to service method
         data = mt5_service.get_indicators(symbol, timeframe, bars, tier)
@@ -432,12 +434,12 @@ def get_indicators(symbol, timeframe):
 def get_timeframes():
     """
     V5: Get list of available timeframes
-    
+
     Returns all timeframes supported in V5
     """
     if not check_api_key():
         return jsonify({'error': 'Unauthorized'}), 401
-    
+
     return jsonify({
         'success': True,
         'timeframes': ['M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'D1']  # V5 list
@@ -457,19 +459,19 @@ import sys
 def create_app():
     app = Flask(__name__)
     CORS(app)
-    
+
     # Configure logger
     logger.remove()
     logger.add(sys.stderr, level="INFO")
     logger.add("logs/mt5-service.log", rotation="10 MB", retention="7 days")
-    
+
     # V5: Log startup
     logger.info("Starting MT5 Service V5")
-    
+
     # Register routes
     from app.routes.indicators import bp as indicators_bp
     app.register_blueprint(indicators_bp, url_prefix='/api')
-    
+
     return app
 ```
 
@@ -560,7 +562,7 @@ export async function GET(
   try {
     // V5: Get user session and tier
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -574,7 +576,7 @@ export async function GET(
         {
           error: `${tier} tier cannot access ${symbol}`,
           upgrade_required: tier === 'FREE',
-          accessible_symbols: tier === 'FREE' ? ['XAUUSD'] : null
+          accessible_symbols: tier === 'FREE' ? ['XAUUSD'] : null,
         },
         { status: 403 }
       );
@@ -590,7 +592,7 @@ export async function GET(
       {
         headers: {
           'X-API-Key': MT5_API_KEY,
-          'X-User-Tier': tier,  // V5: Pass tier to Flask
+          'X-User-Tier': tier, // V5: Pass tier to Flask
         },
       }
     );
@@ -645,17 +647,20 @@ Once Flask service is ready, you need to:
 ## V5 Key Changes Summary
 
 ### Timeframe Updates
+
 - ❌ **REMOVED**: M1, M5
 - ✅ **ADDED**: H2, H8
 - **Final list**: M15, M30, H1, H2, H4, H8, D1
 
 ### Tier-Based Access
+
 - **FREE tier**: XAUUSD only, all 7 timeframes
 - **PRO tier**: 10 symbols, all 7 timeframes
 - **Validation**: Flask validates BEFORE reading indicators
 - **Headers**: Next.js passes tier via X-User-Tier header
 
 ### Commercial Model
+
 - YOUR MT5 is the ONLY data source
 - Users CANNOT connect their own MT5
 - All data served from your single MT5 terminal

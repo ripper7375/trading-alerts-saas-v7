@@ -1,4 +1,5 @@
 # Unified Authentication Implementation Plan
+
 # SaaS User + Affiliate Dual Role Support
 
 **Version:** 1.0
@@ -27,12 +28,14 @@
 ### Current Situation
 
 **✅ Completed (Part 5 Batch 1):**
+
 - NextAuth v4 with Google OAuth + email/password
 - JWT sessions with `tier` and `role` fields
 - Permission system for tier-based access
 - Secure account linking (verified-only)
 
 **❌ Missing for Unified Auth:**
+
 - No `isAffiliate` field in User model or session
 - No affiliate-specific permissions
 - Separate Affiliate model planned (would require dual auth)
@@ -56,6 +59,7 @@
 ```
 
 **User Flow:**
+
 ```
 1. User registers → User record (role=USER, isAffiliate=false, tier=FREE)
 2. User signs in (Google/email) → Single session
@@ -80,6 +84,7 @@
 ### ✅ What's Good
 
 **File: lib/auth/auth-options.ts**
+
 - ✅ Line 59: `role: user.role` already in authorize()
 - ✅ Line 138: `role: 'USER'` set for new OAuth users
 - ✅ Line 172: `token.role = user.role` in JWT callback
@@ -87,16 +92,19 @@
 - ✅ Verified-only OAuth linking (lines 85-90)
 
 **File: lib/auth/session.ts**
+
 - ✅ Line 66: `getUserRole()` helper exists
 - ✅ Line 96: `requireAdmin()` checks role
 - ✅ Good session helpers for tier checks
 
 **File: lib/auth/permissions.ts**
+
 - ✅ Line 34: `userRole = session.user.role`
 - ✅ Line 37: Admin bypass for all features
 - ✅ Symbol/timeframe validation by tier
 
 **File: types/next-auth.d.ts**
+
 - ✅ Line 9: `role: string` in Session.user
 - ✅ Line 16: `role: string` in User
 - ✅ Line 24: `role: string` in JWT
@@ -104,12 +112,14 @@
 ### ⚠️ What Needs Modification
 
 **Missing Fields:**
+
 - ❌ No `isAffiliate` field in User model
 - ❌ No `isAffiliate` in session/JWT
 - ❌ No affiliate-specific permissions
 - ❌ No `AffiliateProfile` model (needs to be 1-to-1 with User)
 
 **Type Limitations:**
+
 - ⚠️ `role: string` too generic (should be `'USER' | 'ADMIN'`)
 - ⚠️ No affiliate status tracking
 
@@ -283,6 +293,7 @@ model Commission {
 ```
 
 **Migration command:**
+
 ```bash
 npx prisma migrate dev --name add_affiliate_support_to_user
 ```
@@ -301,26 +312,26 @@ declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
-      tier: 'FREE' | 'PRO';        // ← MAKE SPECIFIC
-      role: 'USER' | 'ADMIN';      // ← MAKE SPECIFIC
-      isAffiliate: boolean;        // ← ADD THIS
+      tier: 'FREE' | 'PRO'; // ← MAKE SPECIFIC
+      role: 'USER' | 'ADMIN'; // ← MAKE SPECIFIC
+      isAffiliate: boolean; // ← ADD THIS
       image?: string;
     } & DefaultSession['user'];
   }
 
   interface User extends DefaultUser {
-    tier: 'FREE' | 'PRO';          // ← MAKE SPECIFIC
-    role: 'USER' | 'ADMIN';        // ← MAKE SPECIFIC
-    isAffiliate: boolean;          // ← ADD THIS
+    tier: 'FREE' | 'PRO'; // ← MAKE SPECIFIC
+    role: 'USER' | 'ADMIN'; // ← MAKE SPECIFIC
+    isAffiliate: boolean; // ← ADD THIS
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT extends DefaultJWT {
     id: string;
-    tier: 'FREE' | 'PRO';          // ← MAKE SPECIFIC
-    role: 'USER' | 'ADMIN';        // ← MAKE SPECIFIC
-    isAffiliate: boolean;          // ← ADD THIS
+    tier: 'FREE' | 'PRO'; // ← MAKE SPECIFIC
+    role: 'USER' | 'ADMIN'; // ← MAKE SPECIFIC
+    isAffiliate: boolean; // ← ADD THIS
   }
 }
 ```
@@ -341,7 +352,7 @@ return {
   image: user.image,
   tier: user.tier,
   role: user.role,
-  isAffiliate: user.isAffiliate,  // ← ADD THIS
+  isAffiliate: user.isAffiliate, // ← ADD THIS
 };
 ```
 
@@ -358,7 +369,7 @@ await prisma.user.create({
     tier: 'FREE',
     role: 'USER',
     isActive: true,
-    isAffiliate: false,  // ← ADD THIS
+    isAffiliate: false, // ← ADD THIS
     accounts: {
       create: {
         type: _account.type,
@@ -556,21 +567,25 @@ model Subscription {
 ### Database Migration Steps
 
 **Step 1: Create migration**
+
 ```bash
 npx prisma migrate dev --name add_affiliate_support_to_user
 ```
 
 **Step 2: Verify migration**
+
 ```bash
 npx prisma migrate status
 ```
 
 **Step 3: Generate Prisma client**
+
 ```bash
 npx prisma generate
 ```
 
 **Step 4: Test migration**
+
 ```bash
 npx prisma db push --preview-feature
 ```
@@ -578,11 +593,13 @@ npx prisma db push --preview-feature
 ### Backward Compatibility
 
 **Existing users:**
+
 - All existing User records will have `isAffiliate = false` by default
 - No breaking changes to existing functionality
 - Existing sessions continue to work
 
 **Data migration (if needed):**
+
 ```typescript
 // scripts/migrate-existing-affiliates.ts
 // If you have existing Affiliate records in a separate table
@@ -830,6 +847,7 @@ export async function POST(req: Request) {
 ### Part 5 (Authentication) - REVISED
 
 **Batch 1 (COMPLETED):**
+
 - ✅ File 1: types/next-auth.d.ts
 - ✅ File 2: lib/auth/errors.ts
 - ✅ File 3: lib/auth/auth-options.ts
@@ -837,6 +855,7 @@ export async function POST(req: Request) {
 - ✅ File 5: lib/auth/permissions.ts
 
 **Batch 2 (TO DO - with unified auth):**
+
 - File 6: app/api/auth/[...nextauth]/route.ts (exports authOptions)
 - File 7: middleware.ts (route protection)
 - File 8: app/api/auth/session/route.ts (session refresh)
@@ -844,6 +863,7 @@ export async function POST(req: Request) {
 - File 10: app/(auth)/login/page.tsx
 
 **Changes needed:**
+
 - ✅ Session helpers already support `isAffiliate`
 - ✅ Permissions can check affiliate status
 - ✅ No separate affiliate JWT needed
@@ -853,11 +873,13 @@ export async function POST(req: Request) {
 ### Part 17A (Affiliate Portal) - REVISED
 
 **OLD approach (WRONG):**
+
 - ❌ Separate Affiliate model with email
 - ❌ Separate JWT auth system
 - ❌ Separate login at /affiliate/login
 
 **NEW approach (UNIFIED):**
+
 - ✅ AffiliateProfile linked to User (1-to-1)
 - ✅ Same NextAuth system
 - ✅ Session includes `isAffiliate` flag
@@ -866,45 +888,53 @@ export async function POST(req: Request) {
 **File changes:**
 
 **File 1: prisma/schema.prisma (UPDATE)**
+
 - Add AffiliateProfile, AffiliateCode, Commission models
 - Add `isAffiliate` to User model
 - Add `affiliateCodeId` to Subscription model
 
 **File 3: DELETE - lib/auth/affiliate-auth.ts**
+
 - ❌ NOT NEEDED - Use unified NextAuth
 
 **File 4-7: UPDATE affiliate utilities**
+
 - Keep code generator, commission calculator, etc.
 - Change to use `userId` instead of `affiliateId`
 
 **File 11: app/api/affiliate/auth/register/route.ts → RENAME**
+
 - NEW: `app/api/affiliate/apply/route.ts`
 - Change from "register new affiliate" to "apply for affiliate status"
 - Updates existing User record instead of creating new Affiliate
 
 **File 13: DELETE - app/api/affiliate/auth/login/route.ts**
+
 - ❌ NOT NEEDED - Use regular /login
 
 **File 14: DELETE - app/api/affiliate/auth/logout/route.ts**
+
 - ❌ NOT NEEDED - Use regular /api/auth/signout
 
 **All affiliate API routes:**
+
 - Use `requireAffiliate()` instead of custom JWT validation
 - Access user via `session.user.id`
 - Query AffiliateProfile via `userId` relation
 
 **Example:**
+
 ```typescript
 // OLD (separate auth)
 const affiliatePayload = verifyAffiliateToken(req.headers.get('Authorization'));
 const profile = await prisma.affiliate.findUnique({
-  where: { id: affiliatePayload.affiliateId }
+  where: { id: affiliatePayload.affiliateId },
 });
 
 // NEW (unified auth)
 const session = await requireAffiliate();
 const profile = await prisma.affiliateProfile.findUnique({
-  where: { userId: session.user.id }
+  where: { userId: session.user.id },
 });
 ```
 
@@ -915,6 +945,7 @@ const profile = await prisma.affiliateProfile.findUnique({
 **No changes needed** - Admin routes already use `requireAdmin()`
 
 **Affiliate admin routes:**
+
 ```typescript
 // app/api/admin/affiliates/approve/route.ts
 const session = await requireAdmin();
@@ -1057,6 +1088,7 @@ if (event.type === 'checkout.session.completed') {
 ### Unit Tests
 
 **Test 1: isAffiliate field in session**
+
 ```typescript
 // __tests__/lib/auth/session.test.ts
 describe('isAffiliate()', () => {
@@ -1079,23 +1111,31 @@ describe('requireAffiliate()', () => {
 
   it('should reject non-affiliate users', async () => {
     mockSession({ user: { isAffiliate: false } });
-    await expect(requireAffiliate()).rejects.toThrow('Affiliate status required');
+    await expect(requireAffiliate()).rejects.toThrow(
+      'Affiliate status required'
+    );
   });
 });
 ```
 
 **Test 2: Affiliate application flow**
+
 ```typescript
 // __tests__/api/affiliate/apply.test.ts
 describe('POST /api/affiliate/apply', () => {
   it('should convert user to affiliate', async () => {
     const user = await createTestUser();
-    const response = await POST({
-      fullName: 'John Doe',
-      country: 'US',
-      paymentMethod: 'BANK_TRANSFER',
-      paymentDetails: { /* ... */ },
-    }, user);
+    const response = await POST(
+      {
+        fullName: 'John Doe',
+        country: 'US',
+        paymentMethod: 'BANK_TRANSFER',
+        paymentDetails: {
+          /* ... */
+        },
+      },
+      user
+    );
 
     expect(response.status).toBe(200);
 
@@ -1108,7 +1148,12 @@ describe('POST /api/affiliate/apply', () => {
 
   it('should reject if already affiliate', async () => {
     const affiliate = await createTestAffiliate();
-    const response = await POST({ /* ... */ }, affiliate);
+    const response = await POST(
+      {
+        /* ... */
+      },
+      affiliate
+    );
 
     expect(response.status).toBe(400);
     expect(response.body.error).toBe('Already an affiliate');
@@ -1117,6 +1162,7 @@ describe('POST /api/affiliate/apply', () => {
 ```
 
 **Test 3: Dual role access**
+
 ```typescript
 // __tests__/integration/dual-role.test.ts
 describe('Dual role user (SaaS + Affiliate)', () => {
@@ -1137,6 +1183,7 @@ describe('Dual role user (SaaS + Affiliate)', () => {
 ### Integration Tests
 
 **Test 4: OAuth sign-in with affiliate status**
+
 ```typescript
 describe('Google OAuth with existing affiliate', () => {
   it('should preserve isAffiliate on OAuth login', async () => {
@@ -1145,7 +1192,11 @@ describe('Google OAuth with existing affiliate', () => {
       data: {
         email: 'john@example.com',
         isAffiliate: true,
-        affiliateProfile: { create: { /* ... */ } },
+        affiliateProfile: {
+          create: {
+            /* ... */
+          },
+        },
       },
     });
 
@@ -1159,15 +1210,20 @@ describe('Google OAuth with existing affiliate', () => {
 ```
 
 **Test 5: Affiliate code usage prevents self-usage**
+
 ```typescript
 describe('Affiliate code self-usage prevention', () => {
   it('should reject when affiliate tries to use own code', async () => {
     const affiliate = await createTestAffiliate();
     const code = await createTestCode(affiliate);
 
-    const response = await POST('/api/checkout/apply-code', {
-      code: code.code,
-    }, affiliate);
+    const response = await POST(
+      '/api/checkout/apply-code',
+      {
+        code: code.code,
+      },
+      affiliate
+    );
 
     expect(response.status).toBe(400);
     expect(response.body.error).toContain('Cannot use your own affiliate code');
@@ -1178,6 +1234,7 @@ describe('Affiliate code self-usage prevention', () => {
 ### Manual Testing Checklist
 
 **Scenario 1: New user becomes affiliate**
+
 - [ ] User registers with email/password
 - [ ] User verifies email
 - [ ] User signs in
@@ -1190,6 +1247,7 @@ describe('Affiliate code self-usage prevention', () => {
 - [ ] User still has access to /dashboard
 
 **Scenario 2: Existing affiliate signs in with Google**
+
 - [ ] User has existing account with isAffiliate=true
 - [ ] User signs in with Google OAuth
 - [ ] Session includes isAffiliate=true
@@ -1197,6 +1255,7 @@ describe('Affiliate code self-usage prevention', () => {
 - [ ] User can access SaaS features
 
 **Scenario 3: Affiliate uses code at checkout**
+
 - [ ] Affiliate has active codes
 - [ ] Affiliate tries to use own code → REJECTED
 - [ ] Regular user uses affiliate's code → ACCEPTED

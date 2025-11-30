@@ -1,4 +1,9 @@
-import type { User as PrismaUser, Alert, Watchlist, Subscription } from '@prisma/client';
+import type {
+  User as PrismaUser,
+  Alert,
+  Watchlist,
+  Subscription,
+} from '@prisma/client';
 import type { Tier } from './tier';
 
 /**

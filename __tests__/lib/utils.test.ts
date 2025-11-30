@@ -1,4 +1,11 @@
-import { cn, formatCurrency, formatDate, truncate, sleep, generateId } from '@/lib/utils';
+import {
+  cn,
+  formatCurrency,
+  formatDate,
+  truncate,
+  sleep,
+  generateId,
+} from '@/lib/utils';
 
 describe('Utils - cn (className merger)', () => {
   it('should merge class names correctly', () => {

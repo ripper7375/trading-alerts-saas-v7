@@ -55,6 +55,7 @@ export default function Component() {
 ### Pages Affected
 
 **All UI frontend pages with affiliate-related content:**
+
 - ✅ Marketing homepage (pricing section)
 - ✅ Pricing page
 - ✅ Checkout page
@@ -84,7 +85,7 @@ Step 6: Repeat for next page
 
 ### Copy this prompt to v0.dev:
 
-```markdown
+````markdown
 I need to update this existing React/Next.js component to use dynamic affiliate discount and commission percentages from a centralized configuration system (SystemConfig) instead of hardcoded values.
 
 ## Context
@@ -105,27 +106,30 @@ This component has hardcoded percentages (20%, 20%, $23.20, etc.) that need to b
 ## Specific Requirements
 
 **Import statement to add:**
+
 ```typescript
 import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
 ```
+````
 
 **Hook usage pattern:**
+
 ```typescript
 const {
-  discountPercent,           // Current discount % (e.g., 20)
-  commissionPercent,         // Current commission % (e.g., 20)
-  calculateDiscountedPrice   // Helper: (price) => discounted price
+  discountPercent, // Current discount % (e.g., 20)
+  commissionPercent, // Current commission % (e.g., 20)
+  calculateDiscountedPrice, // Helper: (price) => discounted price
 } = useAffiliateConfig();
 ```
 
 **Values to replace:**
 
-| Hardcoded Value | Replace With |
-|-----------------|--------------|
-| `20%` (discount) | `{discountPercent}%` |
-| `20%` (commission) | `{commissionPercent}%` |
-| `$23.20` (discounted price) | `${calculateDiscountedPrice(29.00).toFixed(2)}` |
-| `$5.80` (discount amount) | `${(29.00 - calculateDiscountedPrice(29.00)).toFixed(2)}` |
+| Hardcoded Value             | Replace With                                                                  |
+| --------------------------- | ----------------------------------------------------------------------------- |
+| `20%` (discount)            | `{discountPercent}%`                                                          |
+| `20%` (commission)          | `{commissionPercent}%`                                                        |
+| `$23.20` (discounted price) | `${calculateDiscountedPrice(29.00).toFixed(2)}`                               |
+| `$5.80` (discount amount)   | `${(29.00 - calculateDiscountedPrice(29.00)).toFixed(2)}`                     |
 | `$4.64` (commission amount) | `${(calculateDiscountedPrice(29.00) * (commissionPercent / 100)).toFixed(2)}` |
 
 ## Current Component Code
@@ -135,6 +139,7 @@ const {
 ## Expected Output
 
 Please provide the updated component with:
+
 1. Import statement added
 2. Hook called at top of component function
 3. All hardcoded percentages replaced with dynamic values
@@ -149,7 +154,8 @@ Please provide the updated component with:
 - Ensure the component remains a client component ('use client')
 - Do NOT change component structure, props, or exports
 - Comments explaining the changes are appreciated
-```
+
+````
 
 ---
 
@@ -179,7 +185,7 @@ export default function PricingCard() {
     </div>
   );
 }
-```
+````
 
 **Step 5: Send to v0.dev and wait for response**
 
@@ -195,7 +201,7 @@ export default function PricingCard() {
 
 ### Copy this prompt to v0.dev:
 
-```markdown
+````markdown
 I need to create a new [PAGE DESCRIPTION] component for my Next.js 15 application that displays affiliate discount and commission information.
 
 ## Important Requirements
@@ -207,20 +213,24 @@ I've attached SYSTEMCONFIG-USAGE-GUIDE.md which explains our centralized configu
 ## SystemConfig Integration Requirements
 
 **1. Import the hook:**
+
 ```typescript
 import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
 ```
+````
 
 **2. Use the hook in component:**
+
 ```typescript
 const {
-  discountPercent,           // Current discount % (e.g., 20)
-  commissionPercent,         // Current commission % (e.g., 20)
-  calculateDiscountedPrice   // Helper: (price) => discounted price
+  discountPercent, // Current discount % (e.g., 20)
+  commissionPercent, // Current commission % (e.g., 20)
+  calculateDiscountedPrice, // Helper: (price) => discounted price
 } = useAffiliateConfig();
 ```
 
 **3. Display dynamic values:**
+
 - Discount percentage: `{discountPercent}%`
 - Commission percentage: `{commissionPercent}%`
 - Discounted price: `${calculateDiscountedPrice(29.00).toFixed(2)}`
@@ -231,6 +241,7 @@ const {
 [DESCRIBE YOUR COMPONENT REQUIREMENTS HERE]
 
 Example:
+
 - Display a pricing card with regular and discounted prices
 - Show affiliate commission percentage
 - Include a "Get Code" button
@@ -243,6 +254,7 @@ Example:
 [DESCRIBE DESIGN/STYLE PREFERENCES HERE]
 
 Example:
+
 - Modern, clean design
 - Dark mode support
 - Purple accent color (#8B5CF6)
@@ -259,12 +271,14 @@ Example:
 ## Expected Output
 
 Please provide a complete Next.js 15 client component that:
+
 1. Imports and uses the useAffiliateConfig hook correctly
 2. Displays all percentages and prices dynamically
 3. Matches the design requirements
 4. Is fully responsive
 5. Includes loading and error states (from the hook)
-```
+
+````
 
 ---
 
@@ -308,7 +322,7 @@ Please revise the component to use the dynamic values from useAffiliateConfig ho
 - Replace "$5.80" with ${(29.00 - calculateDiscountedPrice(29.00)).toFixed(2)}
 
 The component should display different values if admin changes the percentages from 20%/20% to 25%/25% or any other combination.
-```
+````
 
 ---
 
@@ -317,19 +331,19 @@ The component should display different values if admin changes the percentages f
 ### Pattern 1: Hardcoded Discount Percentage in Text
 
 **Before (v0.dev generated):**
+
 ```tsx
-<p className="text-sm text-green-600">
-  Save 20% with affiliate code!
-</p>
+<p className="text-sm text-green-600">Save 20% with affiliate code!</p>
 ```
 
 **After (SystemConfig compatible):**
+
 ```tsx
 const { discountPercent } = useAffiliateConfig();
 
 <p className="text-sm text-green-600">
   Save {discountPercent}% with affiliate code!
-</p>
+</p>;
 ```
 
 ---
@@ -337,6 +351,7 @@ const { discountPercent } = useAffiliateConfig();
 ### Pattern 2: Hardcoded Commission Percentage
 
 **Before:**
+
 ```tsx
 <div className="commission">
   <span className="text-2xl font-bold">20%</span>
@@ -345,13 +360,14 @@ const { discountPercent } = useAffiliateConfig();
 ```
 
 **After:**
+
 ```tsx
 const { commissionPercent } = useAffiliateConfig();
 
 <div className="commission">
   <span className="text-2xl font-bold">{commissionPercent}%</span>
   <span className="text-sm">Commission per sale</span>
-</div>
+</div>;
 ```
 
 ---
@@ -359,6 +375,7 @@ const { commissionPercent } = useAffiliateConfig();
 ### Pattern 3: Hardcoded Discounted Price
 
 **Before:**
+
 ```tsx
 <div className="pricing">
   <p className="text-3xl font-bold">$23.20</p>
@@ -367,15 +384,16 @@ const { commissionPercent } = useAffiliateConfig();
 ```
 
 **After:**
+
 ```tsx
 const { calculateDiscountedPrice } = useAffiliateConfig();
-const regularPrice = 29.00;
+const regularPrice = 29.0;
 const discountedPrice = calculateDiscountedPrice(regularPrice);
 
 <div className="pricing">
   <p className="text-3xl font-bold">${discountedPrice.toFixed(2)}</p>
   <p className="text-sm line-through">${regularPrice.toFixed(2)}</p>
-</div>
+</div>;
 ```
 
 ---
@@ -383,6 +401,7 @@ const discountedPrice = calculateDiscountedPrice(regularPrice);
 ### Pattern 4: Hardcoded Calculation in JSX
 
 **Before:**
+
 ```tsx
 <span>
   Discount: $5.80
@@ -396,6 +415,7 @@ const discountedPrice = calculateDiscountedPrice(regularPrice);
 ```
 
 **After:**
+
 ```tsx
 const { discountPercent, commissionPercent, calculateDiscountedPrice } = useAffiliateConfig();
 const regularPrice = 29.00;
@@ -419,6 +439,7 @@ const commissionAmount = discountedPrice * (commissionPercent / 100);
 ### Pattern 5: Hardcoded Values in Functions
 
 **Before:**
+
 ```tsx
 const calculateSavings = (price: number) => {
   return price * 0.2; // Hardcoded 20%
@@ -431,8 +452,10 @@ const calculateCommission = (price: number) => {
 ```
 
 **After:**
+
 ```tsx
-const { discountPercent, commissionPercent, calculateDiscountedPrice } = useAffiliateConfig();
+const { discountPercent, commissionPercent, calculateDiscountedPrice } =
+  useAffiliateConfig();
 
 const calculateSavings = (price: number) => {
   return price * (discountPercent / 100); // Dynamic
@@ -449,26 +472,28 @@ const calculateCommission = (price: number) => {
 ### Pattern 6: Hardcoded in Array/Object Data
 
 **Before:**
+
 ```tsx
 const pricingTiers = [
   {
     name: 'Regular',
-    price: 29.00,
-    features: ['Access to all features']
+    price: 29.0,
+    features: ['Access to all features'],
   },
   {
     name: 'With Code',
-    price: 23.20, // Hardcoded
+    price: 23.2, // Hardcoded
     discount: '20% off', // Hardcoded
-    features: ['Access to all features', 'Save $5.80'] // Hardcoded
-  }
+    features: ['Access to all features', 'Save $5.80'], // Hardcoded
+  },
 ];
 ```
 
 **After:**
+
 ```tsx
 const { discountPercent, calculateDiscountedPrice } = useAffiliateConfig();
-const regularPrice = 29.00;
+const regularPrice = 29.0;
 const discountedPrice = calculateDiscountedPrice(regularPrice);
 const savings = regularPrice - discountedPrice;
 
@@ -476,14 +501,14 @@ const pricingTiers = [
   {
     name: 'Regular',
     price: regularPrice,
-    features: ['Access to all features']
+    features: ['Access to all features'],
   },
   {
     name: 'With Code',
     price: discountedPrice, // Dynamic
     discount: `${discountPercent}% off`, // Dynamic
-    features: ['Access to all features', `Save $${savings.toFixed(2)}`] // Dynamic
-  }
+    features: ['Access to all features', `Save $${savings.toFixed(2)}`], // Dynamic
+  },
 ];
 ```
 
@@ -492,23 +517,21 @@ const pricingTiers = [
 ### Pattern 7: Conditional Rendering Based on Discount
 
 **Before:**
+
 ```tsx
-{hasDiscount && (
-  <Badge className="bg-green-500">
-    20% OFF
-  </Badge>
-)}
+{
+  hasDiscount && <Badge className="bg-green-500">20% OFF</Badge>;
+}
 ```
 
 **After:**
+
 ```tsx
 const { discountPercent } = useAffiliateConfig();
 
-{hasDiscount && (
-  <Badge className="bg-green-500">
-    {discountPercent}% OFF
-  </Badge>
-)}
+{
+  hasDiscount && <Badge className="bg-green-500">{discountPercent}% OFF</Badge>;
+}
 ```
 
 ---
@@ -516,20 +539,24 @@ const { discountPercent } = useAffiliateConfig();
 ### Pattern 8: Calculations in useState/useMemo
 
 **Before:**
+
 ```tsx
-const [totalPrice, setTotalPrice] = useState(23.20); // Hardcoded
+const [totalPrice, setTotalPrice] = useState(23.2); // Hardcoded
 
 const finalPrice = useMemo(() => {
-  return 29.00 * 0.8; // Hardcoded 20% discount
+  return 29.0 * 0.8; // Hardcoded 20% discount
 }, []);
 ```
 
 **After:**
+
 ```tsx
 const { calculateDiscountedPrice } = useAffiliateConfig();
-const regularPrice = 29.00;
+const regularPrice = 29.0;
 
-const [totalPrice, setTotalPrice] = useState(() => calculateDiscountedPrice(regularPrice));
+const [totalPrice, setTotalPrice] = useState(() =>
+  calculateDiscountedPrice(regularPrice)
+);
 
 const finalPrice = useMemo(() => {
   return calculateDiscountedPrice(regularPrice); // Dynamic
@@ -543,15 +570,18 @@ const finalPrice = useMemo(() => {
 After v0.dev updates your code, verify these items:
 
 ### Import Check
+
 - [ ] Component imports `useAffiliateConfig` from `@/lib/hooks/useAffiliateConfig`
 - [ ] Import statement is at the top of the file
 
 ### Hook Usage Check
+
 - [ ] Component calls `useAffiliateConfig()` hook
 - [ ] Hook is called at the top of the component function (before any returns)
 - [ ] Values are destructured: `{ discountPercent, commissionPercent, calculateDiscountedPrice }`
 
 ### Hardcoded Value Check
+
 - [ ] No hardcoded "20%" for discount
 - [ ] No hardcoded "20%" for commission
 - [ ] No hardcoded "$23.20" for discounted price
@@ -560,16 +590,19 @@ After v0.dev updates your code, verify these items:
 - [ ] No hardcoded "0.2" or "0.8" multipliers
 
 ### Dynamic Value Check
+
 - [ ] Discount percentage uses `{discountPercent}%`
 - [ ] Commission percentage uses `{commissionPercent}%`
 - [ ] Discounted price uses `calculateDiscountedPrice(29.00)`
 - [ ] All calculations use dynamic values, not hardcoded
 
 ### Client Component Check
+
 - [ ] Component has `'use client'` directive at top
 - [ ] No Server Component patterns (async component, direct DB calls)
 
 ### Functionality Check
+
 - [ ] Component compiles without errors
 - [ ] Component displays correctly in browser
 - [ ] Values update when SystemConfig changes (test by manually changing config)
@@ -639,14 +672,11 @@ import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
 
 export default function PricingSection() {
   // ✅ Import and use the hook
-  const {
-    discountPercent,
-    commissionPercent,
-    calculateDiscountedPrice
-  } = useAffiliateConfig();
+  const { discountPercent, commissionPercent, calculateDiscountedPrice } =
+    useAffiliateConfig();
 
   // Define regular price (this can be hardcoded)
-  const regularPrice = 29.00;
+  const regularPrice = 29.0;
 
   // Calculate dynamic values
   const discountedPrice = calculateDiscountedPrice(regularPrice);
@@ -690,7 +720,8 @@ export default function PricingSection() {
         </div>
 
         <p className="text-center text-sm text-gray-600 mt-8">
-          Become an affiliate and earn {commissionPercent}% commission on every sale!
+          Become an affiliate and earn {commissionPercent}% commission on every
+          sale!
         </p>
       </div>
     </section>
@@ -706,6 +737,7 @@ I need to update this pricing section component to use dynamic percentages from 
 [Attached: SYSTEMCONFIG-USAGE-GUIDE.md]
 
 Please update this component to:
+
 1. Import useAffiliateConfig from '@/lib/hooks/useAffiliateConfig'
 2. Replace hardcoded 20% discount with {discountPercent}%
 3. Replace hardcoded 20% commission with {commissionPercent}%
@@ -724,7 +756,11 @@ Current code:
 
 ```tsx
 // components/affiliate/earnings-widget.tsx
-export default function EarningsWidget({ salesCount = 0 }: { salesCount: number }) {
+export default function EarningsWidget({
+  salesCount = 0,
+}: {
+  salesCount: number;
+}) {
   // ❌ Hardcoded commission percentage and price
   const commissionPerSale = 4.64;
   const totalEarnings = salesCount * commissionPerSale;
@@ -775,15 +811,16 @@ export default function EarningsWidget({ salesCount = 0 }: { salesCount: number 
 
 import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
 
-export default function EarningsWidget({ salesCount = 0 }: { salesCount: number }) {
+export default function EarningsWidget({
+  salesCount = 0,
+}: {
+  salesCount: number;
+}) {
   // ✅ Use dynamic configuration
-  const {
-    commissionPercent,
-    calculateDiscountedPrice
-  } = useAffiliateConfig();
+  const { commissionPercent, calculateDiscountedPrice } = useAffiliateConfig();
 
   // Calculate dynamic values
-  const regularPrice = 29.00;
+  const regularPrice = 29.0;
   const discountedPrice = calculateDiscountedPrice(regularPrice);
   const commissionPerSale = discountedPrice * (commissionPercent / 100);
   const totalEarnings = salesCount * commissionPerSale;
@@ -802,9 +839,7 @@ export default function EarningsWidget({ salesCount = 0 }: { salesCount: number 
 
         <div>
           <p className="text-sm text-gray-600">Per Sale</p>
-          <p className="text-2xl font-bold">
-            ${commissionPerSale.toFixed(2)}
-          </p>
+          <p className="text-2xl font-bold">${commissionPerSale.toFixed(2)}</p>
         </div>
 
         <div>
@@ -822,8 +857,8 @@ export default function EarningsWidget({ salesCount = 0 }: { salesCount: number 
 
       <div className="mt-6 p-4 bg-purple-50 rounded">
         <p className="text-sm text-purple-800">
-          Each customer pays ${discountedPrice.toFixed(2)}/month.
-          You earn {commissionPercent}% of that!
+          Each customer pays ${discountedPrice.toFixed(2)}/month. You earn{' '}
+          {commissionPercent}% of that!
         </p>
       </div>
     </div>
@@ -840,12 +875,12 @@ export default function EarningsWidget({ salesCount = 0 }: { salesCount: number 
 ```tsx
 // components/checkout-summary.tsx
 export default function CheckoutSummary({
-  hasCode = false
+  hasCode = false,
 }: {
-  hasCode: boolean
+  hasCode: boolean;
 }) {
-  const regularPrice = 29.00;
-  const discountedPrice = hasCode ? 23.20 : regularPrice; // ❌ Hardcoded
+  const regularPrice = 29.0;
+  const discountedPrice = hasCode ? 23.2 : regularPrice; // ❌ Hardcoded
 
   return (
     <div className="bg-gray-50 rounded-lg p-6">
@@ -896,17 +931,14 @@ export default function CheckoutSummary({
 import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
 
 export default function CheckoutSummary({
-  hasCode = false
+  hasCode = false,
 }: {
-  hasCode: boolean
+  hasCode: boolean;
 }) {
   // ✅ Use dynamic configuration
-  const {
-    discountPercent,
-    calculateDiscountedPrice
-  } = useAffiliateConfig();
+  const { discountPercent, calculateDiscountedPrice } = useAffiliateConfig();
 
-  const regularPrice = 29.00;
+  const regularPrice = 29.0;
   const discountedPrice = hasCode
     ? calculateDiscountedPrice(regularPrice)
     : regularPrice;
@@ -1014,6 +1046,7 @@ export default function CheckoutSummary({
 ### The Golden Rules for v0.dev + SystemConfig
 
 **✅ ALWAYS DO:**
+
 - Upload SYSTEMCONFIG-USAGE-GUIDE.md before asking v0.dev to update/create
 - Use PROMPT TEMPLATE 1 for updating existing pages
 - Use PROMPT TEMPLATE 2 for creating new pages
@@ -1021,12 +1054,14 @@ export default function CheckoutSummary({
 - Check for hardcoded percentages and replace them
 
 **❌ NEVER DO:**
+
 - Ask v0.dev to create affiliate-related pages without mentioning SystemConfig
 - Hardcode percentages like 20%, 20%, $23.20, etc.
 - Skip uploading SYSTEMCONFIG-USAGE-GUIDE.md
 - Accept code with hardcoded values without requesting fixes
 
 **🔍 SEARCH FOR THESE IN v0.dev OUTPUT:**
+
 - `20%` → Should be `{discountPercent}%` or `{commissionPercent}%`
 - `$23.20` → Should be `${calculateDiscountedPrice(29.00).toFixed(2)}`
 - `$5.80` → Should be calculated dynamically
@@ -1034,6 +1069,7 @@ export default function CheckoutSummary({
 - `0.2` or `0.8` → Should use `discountPercent / 100`
 
 **✅ VERIFY THESE IN v0.dev OUTPUT:**
+
 - `import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';`
 - `const { discountPercent, commissionPercent, calculateDiscountedPrice } = useAffiliateConfig();`
 - `'use client'` at the top of the file
@@ -1046,21 +1082,25 @@ export default function CheckoutSummary({
 You'll know your v0.dev integration is successful when:
 
 ✅ **All existing pages updated:**
+
 - All ~20 original pages now use `useAffiliateConfig()` hook
 - No hardcoded percentages remain
 - All pages compile without errors
 
 ✅ **New pages created correctly:**
+
 - Any new page you create uses the hook from the start
 - v0.dev consistently generates SystemConfig-compatible code
 - No need to manually retrofit new pages
 
 ✅ **Admin can change percentages:**
+
 - Admin changes commission from 20% to 25% in dashboard
 - All pages update within 5 minutes
 - No code deployment needed
 
 ✅ **Developers understand the system:**
+
 - Team knows to upload SYSTEMCONFIG-USAGE-GUIDE.md to v0.dev
 - Team uses the prompt templates
 - Team verifies generated code before accepting
@@ -1083,7 +1123,7 @@ I see the code still has hardcoded values. Please review SYSTEMCONFIG-USAGE-GUID
    - "20%" (commission) → `{commissionPercent}%`
    - "$23.20" → `${calculateDiscountedPrice(29.00).toFixed(2)}`
    - "$5.80" → `${(29.00 - calculateDiscountedPrice(29.00)).toFixed(2)}`
-   - "$4.64" → `${(calculateDiscountedPrice(29.00) * (commissionPercent / 100)).toFixed(2)}`
+   - "$4.64" → `${(calculateDiscountedPrice(29.00) \* (commissionPercent / 100)).toFixed(2)}`
 
 Please provide the complete updated component with NO hardcoded percentages or prices.
 ```

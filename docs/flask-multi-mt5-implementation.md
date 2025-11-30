@@ -5,6 +5,7 @@
 This guide provides **complete implementation code** for managing 15 MT5 terminal connections in your Flask service.
 
 **Architecture:**
+
 ```
 Flask Service
     ↓

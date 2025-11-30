@@ -14,9 +14,9 @@ REQUIREMENTS:
 2. CURRENT PLAN CARD (Gradient Card - Enhanced with Affiliate Discount):
    - Card: bg-gradient-to-r from-blue-600 to-purple-600, text-white, rounded-2xl, shadow-2xl, p-8, mb-8
    - Badges row (flex gap-2, mb-4):
-     * "PRO TIER ⭐" (bg-white/20, text-white, rounded-full, px-4, py-2)
-     * "✓ ACTIVE" (bg-white/20, text-white, rounded-full, px-4, py-2)
-     * "🎉 20% AFFILIATE DISCOUNT" (bg-green-400/30, text-white, rounded-full, px-4, py-2) - CONDITIONAL
+     - "PRO TIER ⭐" (bg-white/20, text-white, rounded-full, px-4, py-2)
+     - "✓ ACTIVE" (bg-white/20, text-white, rounded-full, px-4, py-2)
+     - "🎉 20% AFFILIATE DISCOUNT" (bg-green-400/30, text-white, rounded-full, px-4, py-2) - CONDITIONAL
 
    - Plan name: "Pro Plan" (text-4xl, font-bold, mt-4)
 
@@ -33,9 +33,9 @@ REQUIREMENTS:
      - Savings label: "Lifetime 20% off" (bg-green-400, text-green-900, px-2 py-1, rounded-full, text-xs, font-semibold, ml-2)
 
    - Renewal date (TWO VERSIONS):
-     * WITHOUT: "Renews on Feb 15, 2025" (text-xl, text-white/90, mt-2)
-     * WITH: "Renews on Feb 15, 2025 at $23.20" (text-xl, text-white/90, mt-2)
-       + Sub-text: "Your 20% affiliate discount is permanent" (text-sm, text-white/80, mt-1)
+     - WITHOUT: "Renews on Feb 15, 2025" (text-xl, text-white/90, mt-2)
+     - WITH: "Renews on Feb 15, 2025 at $23.20" (text-xl, text-white/90, mt-2)
+       - Sub-text: "Your 20% affiliate discount is permanent" (text-sm, text-white/80, mt-1)
 
    - Member since: "Member since Jan 15, 2025" (text-lg, text-white/80)
 
@@ -44,28 +44,28 @@ REQUIREMENTS:
      - Layout: flex items-center gap-3
      - Icon: 🎉 (text-2xl)
      - Content:
-       * Heading: "Affiliate Discount Active" (font-semibold, text-lg)
-       * Details: "20% off • Code: REF-ABC123XYZ" (text-white/90, text-sm)
-       * Savings: "You save $5.80/month" (text-white/80, text-xs)
+       - Heading: "Affiliate Discount Active" (font-semibold, text-lg)
+       - Details: "20% off • Code: REF-ABC123XYZ" (text-white/90, text-sm)
+       - Savings: "You save $5.80/month" (text-white/80, text-xs)
 
    - Features grid (2 columns on desktop, 1 on mobile, mt-6):
-     * ✅ 15 Symbols
-     * ✅ 9 Timeframes (M5-D1)
-     * ✅ 20 Alerts
-     * ✅ 50 Watchlist Items
-     * ✅ Email & Push Notifications
-     * ✅ 300 API Requests/hour
+     - ✅ 15 Symbols
+     - ✅ 9 Timeframes (M5-D1)
+     - ✅ 20 Alerts
+     - ✅ 50 Watchlist Items
+     - ✅ Email & Push Notifications
+     - ✅ 300 API Requests/hour
 
 3. PAYMENT METHOD SECTION:
    - Section heading: "💳 Payment Method" (text-2xl, font-bold, mb-6, mt-12)
    - Card: white bg, rounded-xl, shadow-lg, p-6
    - Layout: flex items-center justify-between
    - Left side:
-     * Card icon: 💳 with Visa logo
-     * "Visa ending in ****4242" (text-xl, font-semibold)
-     * "Expires: 12/2026" (text-sm, text-gray-600)
+     - Card icon: 💳 with Visa logo
+     - "Visa ending in \*\*\*\*4242" (text-xl, font-semibold)
+     - "Expires: 12/2026" (text-sm, text-gray-600)
    - Right side:
-     * Button: "Update Card" (border-2, border-gray-300, px-4, py-2, rounded-lg, hover:border-blue-600)
+     - Button: "Update Card" (border-2, border-gray-300, px-4, py-2, rounded-lg, hover:border-blue-600)
 
 4. AFFILIATE DISCOUNT SUMMARY (NEW - conditional section):
    - Position: AFTER Payment Method, BEFORE Usage Statistics
@@ -78,18 +78,18 @@ REQUIREMENTS:
    - Heading: "Lifetime 20% Discount" (text-2xl, font-bold, text-gray-900, mb-2)
    - Description: "You're saving $5.80/month ($69.60/year) with your affiliate code." (text-gray-700, mb-4)
    - Code display:
-     * Label: "Your referral code:" (text-sm, text-gray-600)
-     * Code: "REF-ABC123XYZ" (bg-white, px-4, py-2, rounded-lg, font-mono, text-lg, border-2 border-gray-300, mt-1)
+     - Label: "Your referral code:" (text-sm, text-gray-600)
+     - Code: "REF-ABC123XYZ" (bg-white, px-4, py-2, rounded-lg, font-mono, text-lg, border-2 border-gray-300, mt-1)
 
    Right Column (Stats):
    - Stat 1:
-     * Label: "Total Saved So Far" (text-sm, text-gray-600)
-     * Value: "$17.40" (text-3xl, font-bold, text-green-600)
-     * Subtext: "Across 3 billing cycles" (text-xs, text-gray-500)
+     - Label: "Total Saved So Far" (text-sm, text-gray-600)
+     - Value: "$17.40" (text-3xl, font-bold, text-green-600)
+     - Subtext: "Across 3 billing cycles" (text-xs, text-gray-500)
    - Stat 2 (mt-4):
-     * Label: "Projected Annual Savings" (text-sm, text-gray-600)
-     * Value: "$69.60" (text-2xl, font-bold, text-blue-600)
-     * Subtext: "Over 12 months" (text-xs, text-gray-500)
+     - Label: "Projected Annual Savings" (text-sm, text-gray-600)
+     - Value: "$69.60" (text-2xl, font-bold, text-blue-600)
+     - Subtext: "Over 12 months" (text-xs, text-gray-500)
 
    Important Notice (below card):
    - Text: "ℹ️ Your discount is permanent and will continue as long as you maintain your subscription. If you cancel and re-subscribe, the discount will no longer apply." (text-sm, text-gray-600, italic, mt-4)
@@ -100,20 +100,20 @@ REQUIREMENTS:
    - Three usage items (stack vertically, gap-6):
 
    Item 1 - Alerts:
-   * Label: "Alerts" with usage "8/20" (float right, text-2xl, font-bold)
-   * Progress bar: h-4, bg-gray-200, rounded-full, fill 40% with bg-green-500
-   * Text below: "40% used" (text-sm, text-gray-600)
+   - Label: "Alerts" with usage "8/20" (float right, text-2xl, font-bold)
+   - Progress bar: h-4, bg-gray-200, rounded-full, fill 40% with bg-green-500
+   - Text below: "40% used" (text-sm, text-gray-600)
 
    Item 2 - Watchlist:
-   * Label: "Watchlist Items" with usage "12/50" (float right, text-2xl, font-bold)
-   * Progress bar: h-4, bg-gray-200, rounded-full, fill 24% with bg-blue-500
-   * Text below: "24% used" (text-sm, text-gray-600)
+   - Label: "Watchlist Items" with usage "12/50" (float right, text-2xl, font-bold)
+   - Progress bar: h-4, bg-gray-200, rounded-full, fill 24% with bg-blue-500
+   - Text below: "24% used" (text-sm, text-gray-600)
 
    Item 3 - API Calls:
-   * Label: "API Calls (Peak Hour)" with usage "245/300" (float right, text-2xl, font-bold)
-   * Progress bar: h-4, bg-gray-200, rounded-full, fill 82% with bg-yellow-500
-   * Warning badge: "⚠️ High usage" (text-orange-600, text-xs) next to label
-   * Text below: "82% used" (text-sm, text-gray-600)
+   - Label: "API Calls (Peak Hour)" with usage "245/300" (float right, text-2xl, font-bold)
+   - Progress bar: h-4, bg-gray-200, rounded-full, fill 82% with bg-yellow-500
+   - Warning badge: "⚠️ High usage" (text-orange-600, text-xs) next to label
+   - Text below: "82% used" (text-sm, text-gray-600)
 
 6. BILLING HISTORY (Updated with Discount):
    - Section heading: "📄 Billing History" (text-2xl, font-bold, mb-6, mt-12)
@@ -123,18 +123,17 @@ REQUIREMENTS:
    - TWO VERSIONS OF DATA:
 
    WITHOUT discount:
-   * Row 1: Feb 15, 2025 | Pro Plan - Monthly | $29.00 | Paid ✓ | [Download PDF]
-   * Row 2: Jan 15, 2025 | Pro Plan - Monthly | $29.00 | Paid ✓ | [Download PDF]
-   * Row 3: Dec 15, 2024 | Pro Plan - Monthly | $29.00 | Paid ✓ | [Download PDF]
+   - Row 1: Feb 15, 2025 | Pro Plan - Monthly | $29.00 | Paid ✓ | [Download PDF]
+   - Row 2: Jan 15, 2025 | Pro Plan - Monthly | $29.00 | Paid ✓ | [Download PDF]
+   - Row 3: Dec 15, 2024 | Pro Plan - Monthly | $29.00 | Paid ✓ | [Download PDF]
 
    WITH discount:
-   * Row 1: Feb 15, 2025 | Pro Plan - Monthly (20% off) ℹ️ | $23.20 | Paid ✓ | [Download PDF]
-   * Row 2: Jan 15, 2025 | Pro Plan - Monthly (20% off) ℹ️ | $23.20 | Paid ✓ | [Download PDF]
-   * Row 3: Dec 15, 2024 | Pro Plan - Monthly (20% off) ℹ️ | $23.20 | Paid ✓ | [Download PDF]
-
-   - Info icon (ℹ️) has tooltip on hover: "Original: $29.00 | Discount: -$5.80 | Paid: $23.20"
-   - Table styling: Striped rows (hover:bg-gray-50)
-   - Pagination below: "Page 1 of 3" with [Previous] [Next] buttons
+   - Row 1: Feb 15, 2025 | Pro Plan - Monthly (20% off) ℹ️ | $23.20 | Paid ✓ | [Download PDF]
+   - Row 2: Jan 15, 2025 | Pro Plan - Monthly (20% off) ℹ️ | $23.20 | Paid ✓ | [Download PDF]
+   - Row 3: Dec 15, 2024 | Pro Plan - Monthly (20% off) ℹ️ | $23.20 | Paid ✓ | [Download PDF]
+   * Info icon (ℹ️) has tooltip on hover: "Original: $29.00 | Discount: -$5.80 | Paid: $23.20"
+   * Table styling: Striped rows (hover:bg-gray-50)
+   * Pagination below: "Page 1 of 3" with [Previous] [Next] buttons
 
 7. SUBSCRIPTION ACTIONS (Enhanced with Discount Warning):
    - Section heading: "⚙️ Manage Subscription" (text-2xl, font-bold, mb-6, mt-12)
@@ -142,36 +141,37 @@ REQUIREMENTS:
    - Grid: 2 columns on desktop, 1 on mobile, gap-6
 
    Action Card 1 (Enhanced):
-   * Icon: 💰 (text-4xl, mb-3)
-   * Title: "Switch to Annual" (text-lg, font-semibold, mb-2)
-   * Description (TWO VERSIONS):
+   - Icon: 💰 (text-4xl, mb-3)
+   - Title: "Switch to Annual" (text-lg, font-semibold, mb-2)
+   - Description (TWO VERSIONS):
      - WITHOUT: "Save $58/year by switching"
      - WITH: "Annual price with your 20% discount: $232/year" (text-sm, text-green-600, font-medium, mt-1)
-       + Original: "$290/year" (text-gray-400, line-through, text-sm)
-       + Total savings: "Save $127.60/year total" (text-xs, text-gray-600)
-   * Button: "Switch to Annual" (border-2, border-blue-600, text-blue-600, px-4, py-2, rounded-lg, hover:bg-blue-50, w-full)
+       - Original: "$290/year" (text-gray-400, line-through, text-sm)
+       - Total savings: "Save $127.60/year total" (text-xs, text-gray-600)
+   - Button: "Switch to Annual" (border-2, border-blue-600, text-blue-600, px-4, py-2, rounded-lg, hover:bg-blue-50, w-full)
 
    Action Card 2:
-   * Icon: ⏸️ (text-4xl, mb-3)
-   * Title: "Pause Subscription" (text-lg, font-semibold, mb-2)
-   * Description: "Take a break for up to 3 months" (text-sm, text-gray-600, mb-4)
-   * Button: "Pause" (border-2, border-gray-300, text-gray-700, px-4, py-2, rounded-lg, hover:border-yellow-500, w-full)
+   - Icon: ⏸️ (text-4xl, mb-3)
+   - Title: "Pause Subscription" (text-lg, font-semibold, mb-2)
+   - Description: "Take a break for up to 3 months" (text-sm, text-gray-600, mb-4)
+   - Button: "Pause" (border-2, border-gray-300, text-gray-700, px-4, py-2, rounded-lg, hover:border-yellow-500, w-full)
 
 8. DOWNGRADE SECTION (Enhanced with Discount Warning):
    - Card: bg-gray-50, border-2 border-gray-300, rounded-xl, p-6, mt-12
    - Heading: "Want to downgrade?" (text-xl, font-semibold, text-gray-700, mb-2)
    - Description: "Switch to FREE tier anytime. You'll keep your data but lose PRO features." (text-sm, text-gray-600, mb-4)
    - Warning list (text-sm):
-     * ⚠️ Limited to 5 symbols (currently: 15) (text-orange-600)
-     * ⚠️ Only 3 timeframes (currently: 9) (text-orange-600)
-     * ⚠️ Only 5 alerts (currently: 20) (text-orange-600)
-     * ⚠️ You'll LOSE your 20% affiliate discount permanently (cannot be re-applied) (text-red-600, font-semibold, bg-red-50, p-2, rounded) - CONDITIONAL
+     - ⚠️ Limited to 5 symbols (currently: 15) (text-orange-600)
+     - ⚠️ Only 3 timeframes (currently: 9) (text-orange-600)
+     - ⚠️ Only 5 alerts (currently: 20) (text-orange-600)
+     - ⚠️ You'll LOSE your 20% affiliate discount permanently (cannot be re-applied) (text-red-600, font-semibold, bg-red-50, p-2, rounded) - CONDITIONAL
 
    - Buttons (flex, gap-3, mt-6):
-     * "Keep PRO Plan" (bg-blue-600, text-white, px-6, py-3, rounded-lg, hover:bg-blue-700)
-     * "Downgrade to FREE" (border-2, border-gray-300, text-gray-700, px-6, py-3, rounded-lg, hover:border-red-500, hover:text-red-600)
+     - "Keep PRO Plan" (bg-blue-600, text-white, px-6, py-3, rounded-lg, hover:bg-blue-700)
+     - "Downgrade to FREE" (border-2, border-gray-300, text-gray-700, px-6, py-3, rounded-lg, hover:border-red-500, hover:text-red-600)
 
 DESIGN NOTES:
+
 - Use gradient card for current plan to make it stand out
 - Progress bars use semantic colors: green (healthy), blue (normal), yellow/orange (warning)
 - Consistent spacing: mb-12 between major sections, mb-6 for section headings
@@ -180,6 +180,7 @@ DESIGN NOTES:
 - Conditional rendering: Only show affiliate sections if discount is active
 
 TECHNICAL:
+
 - Export as default component
 - TypeScript with props interface (see below)
 - Use shadcn/ui: Card, Button, Badge, Progress, Table

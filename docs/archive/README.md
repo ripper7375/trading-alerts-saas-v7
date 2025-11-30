@@ -13,6 +13,7 @@ This directory contains historical documentation that is no longer actively used
 ## Why Files Are Archived
 
 Files are moved here when they are:
+
 1. Planning documents for completed work
 2. Checklists with all items completed
 3. Redundant summaries (when multiple docs cover same feature)

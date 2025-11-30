@@ -162,10 +162,10 @@ export function BarGraph() {
   return (
     <Card className='@container/card !pt-3'>
       <CardHeader className='flex flex-col items-stretch space-y-0 border-b !p-0 sm:flex-row'>
-        <div className='flex flex-1 flex-col justify-center gap-1 px-6 !py-0'>
+        <div className='flex flex-1 flex-col justify-center gap-1 !py-0 px-6'>
           <CardTitle>Bar Chart - Interactive</CardTitle>
           <CardDescription>
-            <span className='hidden @[540px]/card:block'>
+            <span className='@[540px]/card:block hidden'>
               Total for the last 3 months
             </span>
             <span className='@[540px]/card:hidden'>Last 3 months</span>
@@ -179,13 +179,13 @@ export function BarGraph() {
               <button
                 key={chart}
                 data-active={activeChart === chart}
-                className='data-[active=true]:bg-primary/5 hover:bg-primary/5 relative flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left transition-colors duration-200 even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6'
+                className='data-[active=true]:bg-primary/5 hover:bg-primary/5 relative flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left transition-colors duration-200 even:border-l sm:border-l sm:border-t-0 sm:px-8 sm:py-6'
                 onClick={() => setActiveChart(chart)}
               >
                 <span className='text-muted-foreground text-xs'>
                   {chartConfig[chart].label}
                 </span>
-                <span className='text-lg leading-none font-bold sm:text-3xl'>
+                <span className='text-lg font-bold leading-none sm:text-3xl'>
                   {total[key as keyof typeof total]?.toLocaleString()}
                 </span>
               </button>

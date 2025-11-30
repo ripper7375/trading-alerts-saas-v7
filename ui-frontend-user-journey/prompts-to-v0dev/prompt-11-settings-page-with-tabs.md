@@ -215,5 +215,4 @@ Use lucide-react icons
 State management for: activeTab, formData, unsavedChanges
 Mock save functions for each section
 
-
 Generate complete, production-ready code with all 7 tabs, navigation logic, and responsive layout that I can copy and run immediately.

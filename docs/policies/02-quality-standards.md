@@ -11,12 +11,14 @@ This document defines what "good code" looks like for the Trading Alerts SaaS pr
 ### 1.1 Types vs Interfaces - When to Use Each
 
 **Use `type` when:**
+
 - Defining unions: `type Status = 'active' | 'inactive' | 'pending'`
 - Defining utility types: `type Partial<T>`, `type Pick<T, K>`
 - Aliasing primitives: `type UserId = string`
 - Defining function signatures: `type Handler = (req: Request) => Response`
 
 **Use `interface` when:**
+
 - Defining object shapes: `interface User { id: string; name: string }`
 - Extending other interfaces: `interface Admin extends User { permissions: string[] }`
 - Defining class contracts: `class UserService implements IUserService { ... }`
@@ -28,7 +30,16 @@ This document defines what "good code" looks like for the Trading Alerts SaaS pr
 ```typescript
 // ✅ GOOD - Use type for unions
 type UserTier = 'FREE' | 'PRO';
-type Timeframe = 'M5' | 'M15' | 'M30' | 'H1' | 'H2' | 'H4' | 'H8' | 'H12' | 'D1';
+type Timeframe =
+  | 'M5'
+  | 'M15'
+  | 'M30'
+  | 'H1'
+  | 'H2'
+  | 'H4'
+  | 'H8'
+  | 'H12'
+  | 'D1';
 
 // ✅ GOOD - Use interface for object shapes
 interface Alert {
@@ -45,7 +56,8 @@ interface Alert {
 type CreateAlertHandler = (data: CreateAlertInput) => Promise<Alert>;
 
 // ❌ BAD - Don't use type for simple object shapes when interface is clearer
-type Alert = {  // Should be interface
+type Alert = {
+  // Should be interface
   id: string;
   userId: string;
   // ...
@@ -111,29 +123,29 @@ function initLegacyClient(config: any): LegacyClient {
 ```typescript
 // ❌ BAD - Assuming values exist
 function getUserEmail(userId: string) {
-  const user = users.find(u => u.id === userId);
-  return user.email;  // Error if user is undefined!
+  const user = users.find((u) => u.id === userId);
+  return user.email; // Error if user is undefined!
 }
 
 // ✅ GOOD - Optional chaining + nullish coalescing
 function getUserEmail(userId: string): string | null {
-  const user = users.find(u => u.id === userId);
-  return user?.email ?? null;  // Safe: returns null if user undefined
+  const user = users.find((u) => u.id === userId);
+  return user?.email ?? null; // Safe: returns null if user undefined
 }
 
 // ✅ GOOD - Explicit null check with type narrowing
 function getUserEmail(userId: string): string {
-  const user = users.find(u => u.id === userId);
+  const user = users.find((u) => u.id === userId);
   if (!user) {
     throw new Error(`User ${userId} not found`);
   }
-  return user.email;  // TypeScript knows user is defined here
+  return user.email; // TypeScript knows user is defined here
 }
 
 // ✅ GOOD - Using optional chaining in session handling
 export async function GET(req: Request) {
   const session = await getServerSession();
-  const userId = session?.user?.id;  // Safe: undefined if session or user null
+  const userId = session?.user?.id; // Safe: undefined if session or user null
 
   if (!userId) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
@@ -151,13 +163,14 @@ export async function GET(req: Request) {
 
 ```typescript
 // ❌ BAD EXAMPLE - Multiple issues
-function createAlert(data) {  // No parameter types
+function createAlert(data) {
+  // No parameter types
   const alert = {
-    id: Math.random(),  // Should use proper ID generation
+    id: Math.random(), // Should use proper ID generation
     ...data,
-    createdAt: new Date()
+    createdAt: new Date(),
   };
-  return db.save(alert);  // No return type, no error handling
+  return db.save(alert); // No return type, no error handling
 }
 
 // ✅ GOOD EXAMPLE - Properly typed
@@ -178,7 +191,7 @@ async function createAlert(
   try {
     const alert = await prisma.alert.create({
       data: {
-        id: cuid(),  // Proper ID generation
+        id: cuid(), // Proper ID generation
         userId,
         symbol: data.symbol,
         timeframe: data.timeframe,
@@ -218,10 +231,7 @@ export async function GET(req: NextRequest) {
     // 1. Authentication
     const session = await getServerSession();
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // 2. Business logic
@@ -232,7 +242,6 @@ export async function GET(req: NextRequest) {
 
     // 3. Success response
     return NextResponse.json(alerts);
-
   } catch (error) {
     // 4. Error handling
     console.error('GET /api/alerts error:', error);
@@ -315,12 +324,11 @@ export async function POST(req: Request) {
     const body = await req.json();
     const alert = await createAlert(userId, body);
     return Response.json(alert);
-
   } catch (error) {
     // Log with context
     console.error('POST /api/alerts error:', {
-      userId,           // Who experienced the error
-      action: 'create_alert',  // What they were trying to do
+      userId, // Who experienced the error
+      action: 'create_alert', // What they were trying to do
       timestamp: new Date().toISOString(),
       error: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
@@ -357,22 +365,21 @@ export async function POST(req: Request) {
     // Validate input
     const result = createAlertSchema.safeParse(body);
     if (!result.success) {
-      return Response.json({
-        error: 'Invalid input',
-        details: result.error.issues,
-      }, { status: 400 });  // 400 Bad Request for validation errors
+      return Response.json(
+        {
+          error: 'Invalid input',
+          details: result.error.issues,
+        },
+        { status: 400 }
+      ); // 400 Bad Request for validation errors
     }
 
     // Proceed with validated data
     const alert = await createAlert(result.data);
     return Response.json(alert);
-
   } catch (error) {
     console.error('POST /api/alerts error:', error);
-    return Response.json(
-      { error: 'Failed to create alert' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Failed to create alert' }, { status: 500 });
   }
 }
 
@@ -383,7 +390,7 @@ export async function GET(req: Request) {
   if (!session?.user?.id) {
     return Response.json(
       { error: 'You must be logged in to view alerts' },
-      { status: 401 }  // 401 Unauthorized
+      { status: 401 } // 401 Unauthorized
     );
   }
 
@@ -402,10 +409,13 @@ export async function GET(
     // Check if user's tier can access this symbol/timeframe
     validateChartAccess(userTier, params.symbol, params.timeframe);
   } catch (error) {
-    return Response.json({
-      error: `${userTier} tier cannot access ${params.symbol} on ${params.timeframe}`,
-      message: 'Upgrade to PRO for access to all symbols and timeframes',
-    }, { status: 403 });  // 403 Forbidden for tier restrictions
+    return Response.json(
+      {
+        error: `${userTier} tier cannot access ${params.symbol} on ${params.timeframe}`,
+        message: 'Upgrade to PRO for access to all symbols and timeframes',
+      },
+      { status: 403 }
+    ); // 403 Forbidden for tier restrictions
   }
 
   // Continue...
@@ -424,18 +434,14 @@ export async function GET(
     if (!alert) {
       return Response.json(
         { error: 'Alert not found' },
-        { status: 404 }  // 404 Not Found
+        { status: 404 } // 404 Not Found
       );
     }
 
     return Response.json(alert);
-
   } catch (error) {
     console.error('GET /api/alerts/[id] error:', error);
-    return Response.json(
-      { error: 'Failed to fetch alert' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Failed to fetch alert' }, { status: 500 });
   }
 }
 ```
@@ -452,7 +458,7 @@ export async function GET(
 
 **Pattern:**
 
-```typescript
+````typescript
 /**
  * Creates a new alert for a user with tier validation
  *
@@ -480,7 +486,7 @@ export async function createAlert(
 ): Promise<Alert> {
   // Implementation
 }
-```
+````
 
 ---
 
@@ -513,7 +519,9 @@ for (const alert of alerts) {
 // to encourage PRO upgrades while still providing value
 const alertCount = await prisma.alert.count({ where: { userId } });
 if (userTier === 'FREE' && alertCount >= 5) {
-  throw new ForbiddenError('FREE tier limited to 5 alerts. Upgrade to PRO for 20 alerts.');
+  throw new ForbiddenError(
+    'FREE tier limited to 5 alerts. Upgrade to PRO for 20 alerts.'
+  );
 }
 ```
 
@@ -522,6 +530,7 @@ if (userTier === 'FREE' && alertCount >= 5) {
 ### 3.3 What to Document vs What's Obvious
 
 **Document:**
+
 - Business logic and rules
 - Non-obvious algorithms
 - Workarounds for bugs/limitations
@@ -530,6 +539,7 @@ if (userTier === 'FREE' && alertCount >= 5) {
 - Magic numbers
 
 **Don't document:**
+
 - Obvious code (`i++` doesn't need "increment i")
 - Language features (`const x = 5` doesn't need "declare constant")
 - Standard patterns everyone knows
@@ -538,35 +548,35 @@ if (userTier === 'FREE' && alertCount >= 5) {
 // ✅ GOOD - Document business rules
 export const TIER_LIMITS = {
   FREE: {
-    symbols: 5,        // BTCUSD, EURUSD, USDJPY, US30, XAUUSD
-    timeframes: 3,     // H1, H4, D1 only
-    maxAlerts: 5,      // Limit to encourage PRO upgrades
+    symbols: 5, // BTCUSD, EURUSD, USDJPY, US30, XAUUSD
+    timeframes: 3, // H1, H4, D1 only
+    maxAlerts: 5, // Limit to encourage PRO upgrades
     maxWatchlist: 5,
-    rateLimit: 60,     // requests per hour
+    rateLimit: 60, // requests per hour
   },
   PRO: {
-    symbols: 15,       // All symbols including AUDJPY, GBPJPY, etc.
-    timeframes: 9,     // All timeframes including M5, H12
+    symbols: 15, // All symbols including AUDJPY, GBPJPY, etc.
+    timeframes: 9, // All timeframes including M5, H12
     maxAlerts: 20,
     maxWatchlist: 50,
-    rateLimit: 300,    // requests per hour
+    rateLimit: 300, // requests per hour
   },
 } as const;
 
 // ❌ BAD - Over-documenting obvious code
 // Declare a constant called userId
-const userId = session.user.id;  // No comment needed - obvious
+const userId = session.user.id; // No comment needed - obvious
 
 // ❌ BAD - Redundant comment
 // Return the response
-return Response.json(data);  // No comment needed - obvious
+return Response.json(data); // No comment needed - obvious
 ```
 
 ---
 
 ### 3.4 Documentation Examples
 
-```typescript
+````typescript
 // ✅ EXCELLENT - Component with comprehensive JSDoc
 /**
  * Alert creation form with tier-aware symbol/timeframe selection
@@ -591,7 +601,7 @@ return Response.json(data);  // No comment needed - obvious
 export function AlertForm({ onSuccess, onError }: AlertFormProps) {
   // Implementation
 }
-```
+````
 
 ---
 
@@ -602,12 +612,14 @@ export function AlertForm({ onSuccess, onError }: AlertFormProps) {
 **Default: Server Components**
 
 **Use Server Components (default) when:**
+
 - Component doesn't need interactivity (buttons, forms, state)
 - Fetching data from database or API
 - Rendering static content
 - SEO important
 
 **Use Client Components ('use client') when:**
+
 - Using React hooks (useState, useEffect, etc.)
 - Handling user interactions (onClick, onChange)
 - Using browser APIs (localStorage, window)
@@ -683,6 +695,7 @@ export function AlertCard({ alert }: { alert: Alert }) {
 **Rule:** Keep state as local as possible. Use global state only when necessary.
 
 **State management options (in order of preference):**
+
 1. **Local state (useState)** - For component-specific state
 2. **URL state (searchParams)** - For shareable state (filters, pagination)
 3. **Context** - For subtree-wide state (theme, settings)
@@ -1029,10 +1042,7 @@ export async function GET(req: NextRequest) {
     // a. Authentication
     const session = await getServerSession();
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // c. Business logic (no tier validation needed - viewing own alerts)
@@ -1043,7 +1053,6 @@ export async function GET(req: NextRequest) {
 
     // d. Response matching OpenAPI schema
     return NextResponse.json(alerts);
-
   } catch (error) {
     console.error('GET /api/alerts error:', { error });
     return NextResponse.json(
@@ -1059,10 +1068,7 @@ export async function POST(req: NextRequest) {
     // a. Authentication
     const session = await getServerSession();
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // b. Input validation
@@ -1102,7 +1108,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: `${userTier} tier allows maximum ${maxAlerts} alerts`,
-          message: userTier === 'FREE' ? 'Upgrade to PRO for 20 alerts' : undefined,
+          message:
+            userTier === 'FREE' ? 'Upgrade to PRO for 20 alerts' : undefined,
         },
         { status: 403 }
       );
@@ -1121,7 +1128,6 @@ export async function POST(req: NextRequest) {
 
     // e. Response matching OpenAPI schema
     return NextResponse.json(alert, { status: 201 });
-
   } catch (error) {
     console.error('POST /api/alerts error:', { error });
     return NextResponse.json(
@@ -1218,15 +1224,15 @@ for (const user of users) {
 // ✅ GOOD - Single query with include
 const users = await prisma.user.findMany({
   include: {
-    alerts: true,  // Fetch all alerts in one query
+    alerts: true, // Fetch all alerts in one query
   },
 });
 
 // ✅ GOOD - Pagination for large datasets
 const alerts = await prisma.alert.findMany({
   where: { userId },
-  take: 20,          // Limit results
-  skip: page * 20,   // Offset for pagination
+  take: 20, // Limit results
+  skip: page * 20, // Offset for pagination
   orderBy: { createdAt: 'desc' },
 });
 
@@ -1295,8 +1301,8 @@ const expensiveResult = useMemo(() => {
 }, [data]);
 
 // Don't use for simple operations:
-const doubled = useMemo(() => value * 2, [value]);  // ❌ Overkill
-const doubled = value * 2;  // ✅ Just calculate it
+const doubled = useMemo(() => value * 2, [value]); // ❌ Overkill
+const doubled = value * 2; // ✅ Just calculate it
 ```
 
 **useCallback - For stable function references:**
@@ -1370,11 +1376,11 @@ if (!result.success) {
 ```typescript
 // ✅ Prisma prevents SQL injection automatically
 const user = await prisma.user.findUnique({
-  where: { email: userInput },  // Safe - Prisma parameterizes queries
+  where: { email: userInput }, // Safe - Prisma parameterizes queries
 });
 
 // ❌ NEVER use raw SQL with user input
-await prisma.$executeRaw`SELECT * FROM users WHERE email = ${userInput}`;  // DON'T DO THIS
+await prisma.$executeRaw`SELECT * FROM users WHERE email = ${userInput}`; // DON'T DO THIS
 ```
 
 ---
@@ -1406,7 +1412,7 @@ import { validateChartAccess } from '@/lib/tier/validation';
 const session = await getServerSession();
 const userTier = session?.user?.tier || 'FREE';
 
-validateChartAccess(userTier, symbol, timeframe);  // Throws if unauthorized
+validateChartAccess(userTier, symbol, timeframe); // Throws if unauthorized
 ```
 
 ---
@@ -1414,6 +1420,7 @@ validateChartAccess(userTier, symbol, timeframe);  // Throws if unauthorized
 ## Summary
 
 These quality standards ensure:
+
 - **Type Safety**: Catch bugs at compile time
 - **Error Resilience**: Graceful handling of failures
 - **Maintainability**: Clear documentation and patterns

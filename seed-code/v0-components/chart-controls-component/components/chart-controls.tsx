@@ -1,22 +1,22 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { RefreshCw } from "lucide-react"
-import { SymbolSelector } from "./symbol-selector"
-import { TimeframeSelector } from "./timeframe-selector"
-import { UpgradeModal } from "./upgrade-modal"
-import type { UserTier } from "@/lib/chart-data"
-import { cn } from "@/lib/utils"
+import { useState } from 'react';
+import { RefreshCw } from 'lucide-react';
+import { SymbolSelector } from './symbol-selector';
+import { TimeframeSelector } from './timeframe-selector';
+import { UpgradeModal } from './upgrade-modal';
+import type { UserTier } from '@/lib/chart-data';
+import { cn } from '@/lib/utils';
 
 interface ChartControlsProps {
-  userTier: UserTier
-  selectedSymbol: string
-  selectedTimeframe: string
-  onSymbolChange: (symbol: string) => void
-  onTimeframeChange: (timeframe: string) => void
-  isRefreshing?: boolean
-  onRefresh?: () => void
-  lastUpdated?: string
+  userTier: UserTier;
+  selectedSymbol: string;
+  selectedTimeframe: string;
+  onSymbolChange: (symbol: string) => void;
+  onTimeframeChange: (timeframe: string) => void;
+  isRefreshing?: boolean;
+  onRefresh?: () => void;
+  lastUpdated?: string;
 }
 
 export function ChartControls({
@@ -27,32 +27,35 @@ export function ChartControls({
   onTimeframeChange,
   isRefreshing = false,
   onRefresh,
-  lastUpdated = "5s ago",
+  lastUpdated = '5s ago',
 }: ChartControlsProps) {
   const [upgradeModal, setUpgradeModal] = useState<{
-    isOpen: boolean
-    itemType: "symbol" | "timeframe"
-    itemName: string
+    isOpen: boolean;
+    itemType: 'symbol' | 'timeframe';
+    itemName: string;
   }>({
     isOpen: false,
-    itemType: "symbol",
-    itemName: "",
-  })
+    itemType: 'symbol',
+    itemName: '',
+  });
 
-  const handleUpgradeClick = (itemType: "symbol" | "timeframe", itemName: string) => {
+  const handleUpgradeClick = (
+    itemType: 'symbol' | 'timeframe',
+    itemName: string
+  ) => {
     setUpgradeModal({
       isOpen: true,
       itemType,
       itemName,
-    })
-  }
+    });
+  };
 
   const handleCloseModal = () => {
     setUpgradeModal({
       ...upgradeModal,
       isOpen: false,
-    })
-  }
+    });
+  };
 
   return (
     <>
@@ -87,9 +90,16 @@ export function ChartControls({
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
                 title="Refresh data"
               >
-                <RefreshCw className={cn("w-5 h-5 text-gray-600", isRefreshing && "animate-spin")} />
+                <RefreshCw
+                  className={cn(
+                    'w-5 h-5 text-gray-600',
+                    isRefreshing && 'animate-spin'
+                  )}
+                />
               </button>
-              <span className="text-xs text-gray-500 whitespace-nowrap">Updated {lastUpdated}</span>
+              <span className="text-xs text-gray-500 whitespace-nowrap">
+                Updated {lastUpdated}
+              </span>
             </div>
           )}
         </div>
@@ -100,9 +110,9 @@ export function ChartControls({
             <span className="text-xs text-gray-500">
               Current Plan: <span className="font-semibold">{userTier}</span>
             </span>
-            {userTier === "FREE" && (
+            {userTier === 'FREE' && (
               <button
-                onClick={() => handleUpgradeClick("symbol", "all features")}
+                onClick={() => handleUpgradeClick('symbol', 'all features')}
                 className="text-xs text-blue-600 hover:text-blue-700 font-semibold hover:underline"
               >
                 Upgrade to PRO →
@@ -120,5 +130,5 @@ export function ChartControls({
         itemName={upgradeModal.itemName}
       />
     </>
-  )
+  );
 }

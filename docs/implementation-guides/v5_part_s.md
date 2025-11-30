@@ -17,6 +17,7 @@ Payment processing for emerging markets (India, Nigeria, Pakistan, Vietnam, Indo
 **Problem:** Stripe requires international credit cards, which many users in emerging markets don't have.
 
 **Solution:** dLocal supports 50+ local payment methods:
+
 - India: UPI, Paytm, PhonePe, Google Pay
 - Nigeria: Bank Transfer, Paystack, Flutterwave
 - Pakistan: EasyPaisa, JazzCash, Bank Transfer
@@ -46,20 +47,21 @@ Payment processing for emerging markets (India, Nigeria, Pakistan, Vietnam, Indo
 
 ### 1. Supported Countries & Currencies
 
-| Country | Currency | Code | Example Price (Monthly) |
-|---------|----------|------|------------------------|
-| India | Indian Rupee | INR | ₹2,450 ($29 × 84.5) |
-| Nigeria | Nigerian Naira | NGN | ₦46,400 ($29 × 1,600) |
-| Pakistan | Pakistani Rupee | PKR | ₨8,120 ($29 × 280) |
-| Vietnam | Vietnamese Dong | VND | ₫730,000 ($29 × 25,172) |
-| Indonesia | Indonesian Rupiah | IDR | Rp459,550 ($29 × 15,850) |
-| Thailand | Thai Baht | THB | ฿1,015 ($29 × 35) |
-| South Africa | South African Rand | ZAR | R551 ($29 × 19) |
-| Turkey | Turkish Lira | TRY | ₺1,015 ($29 × 35) |
+| Country      | Currency           | Code | Example Price (Monthly)  |
+| ------------ | ------------------ | ---- | ------------------------ |
+| India        | Indian Rupee       | INR  | ₹2,450 ($29 × 84.5)      |
+| Nigeria      | Nigerian Naira     | NGN  | ₦46,400 ($29 × 1,600)    |
+| Pakistan     | Pakistani Rupee    | PKR  | ₨8,120 ($29 × 280)       |
+| Vietnam      | Vietnamese Dong    | VND  | ₫730,000 ($29 × 25,172)  |
+| Indonesia    | Indonesian Rupiah  | IDR  | Rp459,550 ($29 × 15,850) |
+| Thailand     | Thai Baht          | THB  | ฿1,015 ($29 × 35)        |
+| South Africa | South African Rand | ZAR  | R551 ($29 × 19)          |
+| Turkey       | Turkish Lira       | TRY  | ₺1,015 ($29 × 35)        |
 
 ### 2. Pricing Plans
 
 **3-Day PRO Trial** (dLocal Exclusive):
+
 - Price: $1.99 USD (converted to local currency)
 - Duration: 3 days
 - Features: Full PRO access
@@ -67,6 +69,7 @@ Payment processing for emerging markets (India, Nigeria, Pakistan, Vietnam, Indo
 - Available: dLocal countries only
 
 **Monthly PRO**:
+
 - Price: $29 USD (converted to local currency)
 - Duration: 30 days
 - Features: Full PRO access
@@ -77,26 +80,31 @@ Payment processing for emerging markets (India, Nigeria, Pakistan, Vietnam, Indo
 ### 3. Payment Flow
 
 **Step 1: Country Detection**
+
 - Detect user country from IP address (use ipapi.co or similar)
 - If country is one of 8 supported → Show dLocal option
 - If country is other → Show Stripe only
 
 **Step 2: Plan Selection**
+
 - User selects: 3-Day Trial ($1.99) OR Monthly ($29)
 - If monthly: Show discount code input
 - Display price in local currency
 
 **Step 3: Payment Method Selection**
+
 - Fetch available payment methods from dLocal API for user's country
 - Display payment methods as grid (icons + names)
 - User selects payment method
 
 **Step 4: Create Payment**
+
 - Call dLocal API to create payment
 - Receive redirect URL
 - Redirect user to dLocal-hosted payment page
 
 **Step 5: Payment Completion**
+
 - dLocal processes payment
 - dLocal redirects back to our success URL
 - We verify payment status via dLocal API
@@ -105,12 +113,14 @@ Payment processing for emerging markets (India, Nigeria, Pakistan, Vietnam, Indo
 - Send confirmation email
 
 **Step 6: Payment Status**
+
 - User can check payment status on billing page
 - Show: "Payment pending", "Payment successful", "Payment failed"
 
 ### 4. Payment Status Sync
 
 **Webhook Handler:**
+
 - dLocal sends webhook on payment status change
 - Events: `payment.completed`, `payment.failed`, `payment.refunded`
 - Verify webhook signature
@@ -119,6 +129,7 @@ Payment processing for emerging markets (India, Nigeria, Pakistan, Vietnam, Indo
 - If failed: Send failure email with retry instructions
 
 **Status Polling (Backup):**
+
 - If webhook not received within 10 minutes, poll dLocal API
 - Check payment status every 2 minutes (max 5 attempts)
 - Update status when received
@@ -126,12 +137,14 @@ Payment processing for emerging markets (India, Nigeria, Pakistan, Vietnam, Indo
 ### 5. Subscription Expiry & Renewal
 
 **Expiry Checking (Cron Job):**
+
 - Run daily at midnight UTC
 - Find all dLocal PRO subscriptions expiring today
 - Send renewal reminder email (3 days before, 1 day before)
 - On expiry day: Downgrade to FREE tier
 
 **Renewal Flow:**
+
 - No auto-renewal for dLocal (manual only)
 - User clicks "Renew" button → Redirected to checkout
 - Select same plan (3-day or monthly)
@@ -142,17 +155,19 @@ Payment processing for emerging markets (India, Nigeria, Pakistan, Vietnam, Indo
 ## Currency Conversion
 
 **Exchange Rate API:**
+
 - Use exchangerate-api.com or similar
 - Fetch rates once per day
 - Cache rates in Redis (24-hour TTL)
 - Formula: `Local Price = USD Price × Exchange Rate`
 
 **Price Display:**
+
 ```typescript
 function getLocalPrice(usdPrice: number, currency: string): string {
-  const rate = await getExchangeRate(currency)
-  const localPrice = usdPrice * rate
-  return formatCurrency(localPrice, currency)
+  const rate = await getExchangeRate(currency);
+  const localPrice = usdPrice * rate;
+  return formatCurrency(localPrice, currency);
 }
 
 // Example:
@@ -161,6 +176,7 @@ function getLocalPrice(usdPrice: number, currency: string): string {
 ```
 
 **Rounding Rules:**
+
 - Round to nearest whole number for most currencies
 - For IDR and VND: Round to nearest 100 (e.g., 459,550 → 459,600)
 
@@ -169,6 +185,7 @@ function getLocalPrice(usdPrice: number, currency: string): string {
 ## Payment Methods by Country
 
 **India (INR):**
+
 - UPI
 - Paytm
 - PhonePe
@@ -176,39 +193,46 @@ function getLocalPrice(usdPrice: number, currency: string): string {
 - Bank Transfer
 
 **Nigeria (NGN):**
+
 - Bank Transfer
 - USSD
 - Paystack
 - Flutterwave
 
 **Pakistan (PKR):**
+
 - EasyPaisa
 - JazzCash
 - Bank Transfer
 
 **Vietnam (VND):**
+
 - MoMo
 - ZaloPay
 - ViettelPay
 - Bank Transfer
 
 **Indonesia (IDR):**
+
 - GoPay
 - OVO
 - DANA
 - Bank Transfer
 
 **Thailand (THB):**
+
 - TrueMoney
 - PromptPay
 - Bank Transfer
 
 **South Africa (ZAR):**
+
 - SnapScan
 - Instant EFT
 - Bank Transfer
 
 **Turkey (TRY):**
+
 - Credit Card
 - Bank Transfer
 
@@ -219,14 +243,16 @@ function getLocalPrice(usdPrice: number, currency: string): string {
 ### dLocal API Endpoints
 
 **1. Create Payment:**
+
 ```
 POST https://api.dlocal.com/v2/payments
 ```
 
 **Request:**
+
 ```json
 {
-  "amount": 2450.50,
+  "amount": 2450.5,
   "currency": "INR",
   "country": "IN",
   "payment_method_id": "UPI",
@@ -238,6 +264,7 @@ POST https://api.dlocal.com/v2/payments
 ```
 
 **Response:**
+
 ```json
 {
   "id": "PAY-123",
@@ -247,26 +274,30 @@ POST https://api.dlocal.com/v2/payments
 ```
 
 **2. Get Payment Status:**
+
 ```
 GET https://api.dlocal.com/v2/payments/{payment_id}
 ```
 
 **Response:**
+
 ```json
 {
   "id": "PAY-123",
   "status": "completed",
-  "amount": 2450.50,
+  "amount": 2450.5,
   "currency": "INR"
 }
 ```
 
 **3. Get Payment Methods:**
+
 ```
 GET https://api.dlocal.com/v2/payment-methods?country={country_code}
 ```
 
 **Response:**
+
 ```json
 {
   "payment_methods": [
@@ -284,29 +315,36 @@ GET https://api.dlocal.com/v2/payment-methods?country={country_code}
 ### Our API Endpoints
 
 **POST /api/dlocal/payment-methods**
+
 - Query: `?country={country_code}`
 - Return: List of available payment methods for country
 
 **POST /api/dlocal/exchange-rate**
+
 - Query: `?currency={currency_code}`
 - Return: Current exchange rate
 
 **POST /api/dlocal/convert**
+
 - Body: `{ usdAmount: 29, currency: 'INR' }`
 - Return: Converted amount in local currency
 
 **POST /api/dlocal/create-payment**
+
 - Body: `{ plan: '3day' | 'monthly', paymentMethodId: 'UPI', country: 'IN' }`
 - Return: Payment object with redirect URL
 
 **GET /api/dlocal/payment-status/[id]**
+
 - Return: Payment status
 
 **POST /api/dlocal/validate-discount**
+
 - Body: `{ code: 'SAVE10' }`
 - Return: `{ valid: true, discount: 10 }` or `{ valid: false }`
 
 **POST /api/webhooks/dlocal**
+
 - Webhook handler for dLocal payment events
 
 ---
@@ -316,21 +354,25 @@ GET https://api.dlocal.com/v2/payment-methods?country={country_code}
 ### Unified Checkout Page
 
 **Country Detection:**
+
 - Auto-detect country from IP
 - Show flag and country name
 - Allow manual country change (dropdown)
 
 **Payment Provider Selection:**
+
 - If Stripe country: Show Stripe option only
 - If dLocal country: Show both Stripe and dLocal options
 - Clear indication of which provider supports which methods
 
 **Plan Selection:**
+
 - Two cards: "3-Day Trial ($1.99)" and "Monthly ($29)"
 - 3-Day Trial: Only for dLocal countries, prominent badge "Try PRO for $1.99"
 - Monthly: Available for all, option to enter discount code
 
 **Payment Method Grid:**
+
 - Display as grid of cards (3-4 per row)
 - Each card shows:
   - Payment method logo
@@ -339,11 +381,13 @@ GET https://api.dlocal.com/v2/payment-methods?country={country_code}
 - Highlight selected method with border
 
 **Price Display:**
+
 - Show price in USD and local currency
 - Example: "$29 USD (₹2,450 INR)"
 - Update real-time when discount code applied
 
 **Continue Button:**
+
 - Disabled until plan and payment method selected
 - Loading state during payment creation
 - Redirect to dLocal payment page
@@ -351,6 +395,7 @@ GET https://api.dlocal.com/v2/payment-methods?country={country_code}
 ### Billing Page Integration
 
 **dLocal Subscription Section:**
+
 - Show "Active until {expiryDate}"
 - "Renew Now" button (manual renewal)
 - Payment history table (past dLocal payments)
@@ -365,6 +410,7 @@ GET https://api.dlocal.com/v2/payment-methods?country={country_code}
 **Subject:** Payment Successful - Welcome to PRO! 🎉
 
 **Body:**
+
 ```
 Hi {name},
 
@@ -385,6 +431,7 @@ Trading Alerts Team
 **Subject:** Your PRO subscription expires in 3 days
 
 **Body:**
+
 ```
 Hi {name},
 
@@ -408,6 +455,7 @@ Trading Alerts Team
 **Subject:** Your PRO subscription has expired
 
 **Body:**
+
 ```
 Hi {name},
 
@@ -425,6 +473,7 @@ Trading Alerts Team
 **Subject:** Payment Failed - Please retry
 
 **Body:**
+
 ```
 Hi {name},
 
@@ -444,6 +493,7 @@ Trading Alerts Team
 ## Database Schema
 
 **Payment Model:**
+
 ```prisma
 model Payment {
   id              String   @id @default(cuid())
@@ -471,6 +521,7 @@ model Payment {
 ```
 
 **Subscription Model (Update):**
+
 ```prisma
 model Subscription {
   // ... existing fields
@@ -486,21 +537,25 @@ model Subscription {
 ## Discount Codes
 
 **Supported Discounts:**
+
 - SAVE5: 5% off monthly plan
 - SAVE10: 10% off monthly plan
 - SAVE15: 15% off monthly plan
 
 **Validation:**
+
 - Codes are case-insensitive
 - Only valid for monthly plan (not 3-day trial)
 - One code per purchase
 - No expiration (always valid)
 
 **Application:**
+
 - Apply before currency conversion
 - Example: $29 - 10% = $26.10 → Convert to INR
 
 **Storage:**
+
 - Store used codes in Payment metadata
 - Track discount usage for analytics
 
@@ -511,6 +566,7 @@ model Subscription {
 ### Webhook Verification
 
 **dLocal Webhook Signature:**
+
 ```typescript
 function verifyWebhookSignature(
   payload: string,
@@ -520,13 +576,14 @@ function verifyWebhookSignature(
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(payload)
-    .digest('hex')
+    .digest('hex');
 
-  return signature === expectedSignature
+  return signature === expectedSignature;
 }
 ```
 
 **Best Practices:**
+
 - Always verify signature before processing
 - Use environment variable for webhook secret
 - Log all webhook events
@@ -535,11 +592,13 @@ function verifyWebhookSignature(
 ### Payment Data Security
 
 **DO NOT Store:**
+
 - Credit card numbers
 - Bank account numbers
 - Payment method credentials
 
 **DO Store:**
+
 - dLocal payment ID
 - Payment status
 - Amount and currency
@@ -552,16 +611,19 @@ function verifyWebhookSignature(
 ### Test Mode
 
 **dLocal Test API:**
+
 - Use sandbox environment: https://sandbox.dlocal.com
 - Test API keys from dLocal dashboard
 - Test payment methods available
 
 **Test Payment Methods:**
+
 - UPI: Use test UPI ID `test@upi`
 - Card: Use test card numbers from dLocal docs
 - Bank Transfer: Simulate with test credentials
 
 **Test Scenarios:**
+
 - Successful payment → Verify PRO access granted
 - Failed payment → Verify error handling
 - Expired subscription → Verify downgrade to FREE
@@ -574,16 +636,19 @@ function verifyWebhookSignature(
 ### Caching
 
 **Exchange Rates:**
+
 - Cache for 24 hours
 - Update once per day at midnight UTC
 
 **Payment Methods:**
+
 - Cache for 1 hour per country
 - Invalidate on dLocal API updates
 
 ### Webhook Processing
 
 **Async Processing:**
+
 - Receive webhook → Return 200 OK immediately
 - Queue event for background processing
 - Process asynchronously to avoid timeout

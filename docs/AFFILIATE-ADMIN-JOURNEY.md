@@ -34,6 +34,7 @@
 This document describes the complete journey for two key user types in the affiliate marketing platform:
 
 ### Affiliate Marketers (Side 1 of Marketplace)
+
 - **Role:** Promote Trading Alerts SaaS to potential customers
 - **Goal:** Earn commissions from successful conversions
 - **Access:** Self-service portal at `/affiliate/*`
@@ -45,6 +46,7 @@ This document describes the complete journey for two key user types in the affil
   - Monitor performance
 
 ### Platform Administrators (Platform Operator)
+
 - **Role:** Manage affiliate program and business operations
 - **Goal:** Optimize affiliate performance and profitability
 - **Access:** Admin panel at `/admin/affiliates/*`
@@ -56,7 +58,9 @@ This document describes the complete journey for two key user types in the affil
   - Monitor aggregate performance
 
 ### Connection to End Users
+
 The affiliate and admin journeys are **largely separate** from the end user journey. The only connection point is:
+
 - **User applies discount code at checkout** → Affiliate earns commission
 
 This connection is documented separately in the main user journey documentation.
@@ -121,36 +125,43 @@ This connection is documented separately in the main user journey documentation.
 #### Step 1: Affiliate Fills Registration Form
 
 **Required Fields:**
+
 - Email (unique, validated)
 - Password (min 8 characters, hashed with bcrypt)
 - Full Name
 - Country (ISO country code)
 
 **Optional Fields:**
+
 - Social media URLs (Facebook, Instagram, Twitter, YouTube, TikTok)
 
 **Payment Preference (Required - Choose One):**
 
 **Option A: Bank Transfer**
+
 - Bank Name
 - Bank Account Number
 - Bank Account Holder Name
 
 **Option B: Cryptocurrency**
+
 - Crypto Wallet Address
 - Preferred Cryptocurrency (BTC, ETH, USDT)
 
 **Option C: Global E-Wallet**
+
 - Global Wallet Type (PayPal, Payoneer, Wise)
 - Wallet Email or ID
 
 **Option D: Local E-Wallet**
+
 - Local Wallet Type (GCash, Maya, TrueMoney, etc.)
 - Wallet Phone Number or ID
 
 #### Step 2: Form Validation
 
 **Frontend Validation:**
+
 - Email format valid
 - Password strength check
 - Password confirmation matches
@@ -159,6 +170,7 @@ This connection is documented separately in the main user journey documentation.
 - Terms & conditions checked
 
 **API Call:**
+
 ```
 POST /api/affiliate/auth/register
 
@@ -180,12 +192,14 @@ Request Body:
 #### Step 3: Backend Processing
 
 **Database Operations:**
+
 1. Check if email already exists
 2. Hash password with bcrypt
 3. Create Affiliate record with status = `PENDING_VERIFICATION`
 4. Generate email verification token (JWT, expires in 24 hours)
 
 **Database Record Created:**
+
 ```prisma
 Affiliate {
   id: "clf1234567890",
@@ -210,6 +224,7 @@ Affiliate {
 #### Step 4: Success Response
 
 **API Response:**
+
 ```json
 {
   "success": true,
@@ -219,6 +234,7 @@ Affiliate {
 ```
 
 **UI Feedback:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  ✓ Registration Successful!                             │
@@ -237,6 +253,7 @@ Affiliate {
 **Email Trigger:** Automated email sent via Resend/SendGrid
 
 **Email Template:**
+
 ```
 Subject: Verify Your Affiliate Account - Trading Alerts
 
@@ -266,6 +283,7 @@ Trading Alerts Team
 #### Step 1: Affiliate Clicks Verification Link
 
 **Link Format:**
+
 ```
 https://trading-alerts.com/affiliate/verify?token=eyJhbGciOiJIUzI1NiIs...
 ```
@@ -275,6 +293,7 @@ https://trading-alerts.com/affiliate/verify?token=eyJhbGciOiJIUzI1NiIs...
 #### Step 2: Token Validation
 
 **API Call:**
+
 ```
 POST /api/affiliate/auth/verify-email
 
@@ -285,6 +304,7 @@ Request Body:
 ```
 
 **Backend Processing:**
+
 1. Decode JWT token
 2. Check if token expired
 3. Check if email already verified
@@ -297,6 +317,7 @@ Request Body:
 **Trigger:** Email verification successful
 
 **Automated Process:**
+
 ```
 1. Query: Get newly verified affiliate
 2. Generate 15 discount codes:
@@ -312,6 +333,7 @@ Request Body:
 ```
 
 **Database Records Created (15 codes):**
+
 ```prisma
 AffiliateCode {
   id: "code_001",
@@ -331,6 +353,7 @@ AffiliateCode {
 #### Step 4: Welcome Email Sent
 
 **Email Template:**
+
 ```
 Subject: Welcome to Trading Alerts Affiliate Program!
 
@@ -367,6 +390,7 @@ Trading Alerts Team
 #### Step 5: Verification Success Page
 
 **UI Display:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  ✓ Email Verified Successfully!                         │
@@ -391,6 +415,7 @@ Trading Alerts Team
 **URL:** `/affiliate/login`
 
 **Page Components:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │         Trading Alerts - Affiliate Login                │
@@ -415,6 +440,7 @@ Trading Alerts Team
 #### Step 2: Login Authentication
 
 **API Call:**
+
 ```
 POST /api/affiliate/auth/login
 
@@ -426,6 +452,7 @@ Request Body:
 ```
 
 **Backend Processing:**
+
 1. Find Affiliate by email
 2. Verify password with bcrypt
 3. Check status = ACTIVE (reject if PENDING_VERIFICATION or SUSPENDED)
@@ -433,6 +460,7 @@ Request Body:
 5. Update lastLoginAt timestamp
 
 **API Response:**
+
 ```json
 {
   "success": true,
@@ -520,6 +548,7 @@ Request Body:
 #### Step 4: Data Loading (API Calls)
 
 **API Call 1: Get Dashboard Stats**
+
 ```
 GET /api/affiliate/dashboard/stats
 
@@ -535,6 +564,7 @@ Response:
 ```
 
 **API Call 2: Get Code Inventory**
+
 ```
 GET /api/affiliate/dashboard/code-inventory
 
@@ -559,6 +589,7 @@ Response:
 ```
 
 **API Call 3: Get Active Codes**
+
 ```
 GET /api/affiliate/dashboard/codes?status=ACTIVE
 
@@ -637,6 +668,7 @@ Response:
 ```
 
 **API Call:**
+
 ```
 GET /api/affiliate/dashboard/commission-report?month=2025-11
 
@@ -723,6 +755,7 @@ Response:
 ```
 
 **API Call:**
+
 ```
 GET /api/affiliate/dashboard/code-inventory?month=2025-11
 
@@ -769,15 +802,17 @@ Response:
 **Interaction:** Click [📋 Copy] button next to any active code
 
 **Frontend Action:**
+
 ```javascript
 // Copy to clipboard
-navigator.clipboard.writeText('SMITH-K4M9P7Q2')
+navigator.clipboard.writeText('SMITH-K4M9P7Q2');
 
 // Show toast notification
-"Code SMITH-K4M9P7Q2 copied to clipboard!"
+('Code SMITH-K4M9P7Q2 copied to clipboard!');
 ```
 
 **Sharing Strategy (Affiliate's Responsibility):**
+
 - Post on Facebook: "Get 10% off Trading Alerts PRO with code SMITH-K4M9P7Q2!"
 - Instagram story with code overlay
 - YouTube video description with code
@@ -837,6 +872,7 @@ navigator.clipboard.writeText('SMITH-K4M9P7Q2')
 ```
 
 **API Call:**
+
 ```
 PUT /api/affiliate/profile/payment
 
@@ -873,6 +909,7 @@ Response:
 #### Channel 1: Email Notification
 
 **Email Template:**
+
 ```
 Subject: 🎉 Your code was just used! You earned $4.64
 
@@ -898,6 +935,7 @@ Trading Alerts Team
 #### Channel 2: In-App Notification
 
 **Dashboard Notification Badge:**
+
 ```
 ┌─────────────────────────────────────┐
 │  🔔 Notifications (1 new)           │
@@ -911,6 +949,7 @@ Trading Alerts Team
 #### Channel 3: Optional SMS (Future Enhancement)
 
 **SMS Format:**
+
 ```
 Trading Alerts: Your code SMITH-K4M9P7Q2 was used! +$4.64 commission. View details: https://ta.co/aff/cmm/xyz
 ```
@@ -968,6 +1007,7 @@ Trading Alerts: Your code SMITH-K4M9P7Q2 was used! +$4.64 commission. View detai
 ```
 
 **API Call:**
+
 ```
 GET /api/admin/affiliates?page=1&limit=20&status=all&sort=earnings
 
@@ -1081,6 +1121,7 @@ Response:
 ```
 
 **API Call:**
+
 ```
 GET /api/admin/affiliates/clf1234567890
 
@@ -1192,6 +1233,7 @@ Response:
 ```
 
 **API Call:**
+
 ```
 GET /api/admin/reports/profit-loss?months=3
 
@@ -1290,6 +1332,7 @@ Response:
 ```
 
 **API Call:**
+
 ```
 GET /api/admin/reports/sales-performance?month=2025-11
 
@@ -1379,6 +1422,7 @@ Response:
 ```
 
 **API Call:**
+
 ```
 GET /api/admin/reports/commission-owings
 
@@ -1465,6 +1509,7 @@ Response:
 ```
 
 **API Call:**
+
 ```
 GET /api/admin/reports/code-inventory?month=2025-11
 
@@ -1551,6 +1596,7 @@ Response:
 ```
 
 **API Call:**
+
 ```
 POST /api/admin/affiliates/clf1234567890/distribute-codes
 
@@ -1581,6 +1627,7 @@ Response:
 ```
 
 **Email Sent to Affiliate:**
+
 ```
 Subject: Bonus Codes Distributed!
 
@@ -1662,6 +1709,7 @@ Trading Alerts Team
 ```
 
 **API Call:**
+
 ```
 POST /api/admin/commissions/pay
 
@@ -1689,6 +1737,7 @@ Response:
 ```
 
 **Database Updates:**
+
 ```sql
 -- Update all pending commissions for this affiliate
 UPDATE commissions
@@ -1705,6 +1754,7 @@ WHERE id = 'clf9876543210';
 ```
 
 **Email Sent to Affiliate:**
+
 ```
 Subject: Commission Payment Processed - $435.00
 
@@ -1788,6 +1838,7 @@ Trading Alerts Team
 ```
 
 **API Call:**
+
 ```
 POST /api/admin/codes/code_001/cancel
 
@@ -1813,6 +1864,7 @@ Response:
 ```
 
 **Database Update:**
+
 ```sql
 UPDATE affiliate_codes
 SET status = 'CANCELLED',
@@ -1822,6 +1874,7 @@ WHERE id = 'code_001';
 ```
 
 **Email Sent to Affiliate (if checked):**
+
 ```
 Subject: Discount Code Cancelled - SMITH-A7K9P2M5
 
@@ -2104,6 +2157,7 @@ Admin                 Frontend                Backend              Database
 ### Database Changes
 
 **SystemConfig Table:**
+
 ```sql
 -- Before
 UPDATE SystemConfig
@@ -2118,6 +2172,7 @@ updatedAt: '2025-11-15 15:45:00'
 ```
 
 **SystemConfigHistory Table (Audit Trail):**
+
 ```sql
 INSERT INTO SystemConfigHistory (
   id, configKey, oldValue, newValue, changedBy, changedAt, reason
@@ -2137,6 +2192,7 @@ INSERT INTO SystemConfigHistory (
 ### Impact on Existing Data
 
 **Existing Codes (DO NOT CHANGE):**
+
 ```sql
 -- 523 existing codes keep original 20% commission
 SELECT id, code, discountPercent, commissionPercent
@@ -2149,6 +2205,7 @@ Result:
 ```
 
 **New Codes (USE NEW VALUES):**
+
 ```sql
 -- Next monthly distribution (Dec 1) generates codes with 25% commission
 -- Code distribution cron job fetches from SystemConfig:
@@ -2187,6 +2244,7 @@ VALUES (25.0, ...);  -- Uses updated value
    - Code distribution emails reference current percentages
 
 **Update Mechanism:**
+
 - SWR refreshes /api/config/affiliate every 5 minutes
 - Admin can force immediate refresh by reloading page
 - Cache invalidation ensures consistency
@@ -2200,6 +2258,7 @@ VALUES (25.0, ...);  -- Uses updated value
 **Scenario:** Affiliate has used all 15 codes and wants more before next monthly distribution
 
 **Affiliate Action:**
+
 1. Login to dashboard
 2. Navigate to Profile → Contact Admin
 3. Fill request form:
@@ -2223,19 +2282,23 @@ VALUES (25.0, ...);  -- Uses updated value
 ```
 
 **Admin Receives:**
+
 - Email notification: "John Smith requested 10 additional codes"
 - Dashboard notification badge
 
 **Admin Review:**
+
 1. Navigate to Affiliate Details for John Smith
 2. Review performance (100% conversion rate)
 3. Decide: Approve or Reject
 
 **If Approved:**
+
 - Admin distributes 10 codes manually
 - Email sent to affiliate: "Your request has been approved! 10 new codes distributed."
 
 **If Rejected:**
+
 - Admin sends message: "Thank you for your request. Please wait for next monthly distribution on Dec 1."
 
 ---
@@ -2245,6 +2308,7 @@ VALUES (25.0, ...);  -- Uses updated value
 **Scenario:** Admin detects fraudulent activity
 
 **Admin Action:**
+
 1. Navigate to Affiliate Details
 2. Click [Suspend Account]
 3. Fill suspension form:
@@ -2271,6 +2335,7 @@ VALUES (25.0, ...);  -- Uses updated value
 ```
 
 **API Call:**
+
 ```
 POST /api/admin/affiliates/clf1234567890/suspend
 
@@ -2285,12 +2350,14 @@ Request Body:
 ```
 
 **Effects:**
+
 - Affiliate status changed to SUSPENDED
 - All active codes deactivated
 - Login disabled
 - Pending commissions held
 
 **Email Sent to Affiliate:**
+
 ```
 Subject: Account Suspended - Action Required
 
@@ -2318,6 +2385,7 @@ Trading Alerts Team
 **Scenario:** Affiliate wants to change from Bank Transfer to Cryptocurrency
 
 **Affiliate Action:**
+
 1. Login to dashboard
 2. Navigate to Profile → Payment Settings
 3. Change payment method from Bank Transfer to Cryptocurrency
@@ -2325,6 +2393,7 @@ Trading Alerts Team
 5. Click [Update Payment Method]
 
 **Backend Processing:**
+
 ```
 POST /api/affiliate/profile/payment
 
@@ -2337,10 +2406,12 @@ Request:
 ```
 
 **Admin Notification:**
+
 - Email: "John Smith updated payment method from BANK_TRANSFER to CRYPTO"
 - Admin can view change history in Affiliate Details
 
 **Impact on Next Payment:**
+
 - Future commission payments will use new crypto wallet
 - Admin sees updated payment details in Commission Owings Report
 
@@ -2353,62 +2424,64 @@ Request:
 **Schedule:** 1st day of each month, 00:00 UTC
 
 **Cron Configuration:**
+
 ```typescript
 // api/cron/distribute-codes/route.ts
 
 export async function GET(req: NextRequest) {
   // Verify cron secret
-  const authHeader = req.headers.get('authorization')
+  const authHeader = req.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   // 1. Query all active affiliates
   const activeAffiliates = await prisma.affiliate.findMany({
-    where: { status: 'ACTIVE' }
-  })
+    where: { status: 'ACTIVE' },
+  });
 
   // 2. For each affiliate, generate 15 codes
   for (const affiliate of activeAffiliates) {
-    const codes = []
+    const codes = [];
     for (let i = 0; i < 15; i++) {
-      const randomCode = await generateRandomCode(affiliate.fullName)
+      const randomCode = await generateRandomCode(affiliate.fullName);
       codes.push({
         code: randomCode,
         affiliateId: affiliate.id,
         status: 'ACTIVE',
         discountPercent: 20.0,
         commissionPercent: 20.0,
-        expiresAt: endOfMonth(new Date())
-      })
+        expiresAt: endOfMonth(new Date()),
+      });
     }
 
     // 3. Bulk insert codes
-    await prisma.affiliateCode.createMany({ data: codes })
+    await prisma.affiliateCode.createMany({ data: codes });
 
     // 4. Update affiliate stats
     await prisma.affiliate.update({
       where: { id: affiliate.id },
-      data: { codesDistributed: { increment: 15 } }
-    })
+      data: { codesDistributed: { increment: 15 } },
+    });
 
     // 5. Send email notification
     await sendEmail({
       to: affiliate.email,
       subject: 'Monthly Codes Distributed',
-      body: `Hi ${affiliate.fullName}, your 15 new codes are ready!`
-    })
+      body: `Hi ${affiliate.fullName}, your 15 new codes are ready!`,
+    });
   }
 
   return NextResponse.json({
     success: true,
     affiliatesProcessed: activeAffiliates.length,
-    codesDistributed: activeAffiliates.length * 15
-  })
+    codesDistributed: activeAffiliates.length * 15,
+  });
 }
 ```
 
 **vercel.json:**
+
 ```json
 {
   "crons": [
@@ -2427,14 +2500,15 @@ export async function GET(req: NextRequest) {
 **Schedule:** Last day of each month, 23:59 UTC
 
 **Cron Job:**
+
 ```typescript
 // api/cron/expire-codes/route.ts
 
 export async function GET(req: NextRequest) {
   // Verify cron secret
-  const authHeader = req.headers.get('authorization')
+  const authHeader = req.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   // Find all ACTIVE codes that expire today
@@ -2442,29 +2516,30 @@ export async function GET(req: NextRequest) {
     where: {
       status: 'ACTIVE',
       expiresAt: {
-        lte: new Date()
-      }
+        lte: new Date(),
+      },
     },
     data: {
-      status: 'EXPIRED'
-    }
-  })
+      status: 'EXPIRED',
+    },
+  });
 
   // Send summary email to admin
   await sendEmail({
     to: 'admin@trading-alerts.com',
     subject: 'Monthly Code Expiry Report',
-    body: `${expiredCodes.count} codes expired on ${new Date().toLocaleDateString()}`
-  })
+    body: `${expiredCodes.count} codes expired on ${new Date().toLocaleDateString()}`,
+  });
 
   return NextResponse.json({
     success: true,
-    codesExpired: expiredCodes.count
-  })
+    codesExpired: expiredCodes.count,
+  });
 }
 ```
 
 **vercel.json:**
+
 ```json
 {
   "crons": [
@@ -2487,6 +2562,7 @@ export async function GET(req: NextRequest) {
 **Subject:** Verify Your Affiliate Account - Trading Alerts
 
 **Body:**
+
 ```
 Hi [Full Name],
 
@@ -2513,6 +2589,7 @@ Trading Alerts Team
 **Subject:** Welcome to Trading Alerts Affiliate Program!
 
 **Body:**
+
 ```
 Hi [Full Name],
 
@@ -2552,6 +2629,7 @@ Trading Alerts Team
 **Subject:** 🎉 Your code was just used! You earned $[Amount]
 
 **Body:**
+
 ```
 Hi [Full Name],
 
@@ -2581,6 +2659,7 @@ Trading Alerts Team
 **Subject:** Monthly Codes Distributed - 15 New Codes
 
 **Body:**
+
 ```
 Hi [Full Name],
 
@@ -2614,6 +2693,7 @@ Trading Alerts Team
 **Subject:** Commission Payment Processed - $[Amount]
 
 **Body:**
+
 ```
 Hi [Full Name],
 
@@ -2646,6 +2726,7 @@ Trading Alerts Team
 **Subject:** Account Suspended - Action Required
 
 **Body:**
+
 ```
 Dear [Full Name],
 
@@ -2673,6 +2754,7 @@ Trading Alerts Team
 **Subject:** New Affiliate Registered - [Full Name]
 
 **Body:**
+
 ```
 New affiliate has joined the program:
 
@@ -2701,6 +2783,7 @@ SOCIAL MEDIA:
 **Subject:** Code Request - [Affiliate Name] wants [Quantity] codes
 
 **Body:**
+
 ```
 Affiliate has requested additional codes:
 
@@ -2725,6 +2808,7 @@ REASON:
 **Scenario:** Affiliate tries to register with email already in system
 
 **API Response:**
+
 ```json
 {
   "success": false,
@@ -2734,6 +2818,7 @@ REASON:
 ```
 
 **UI Display:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  ❌ Registration Failed                                  │
@@ -2751,6 +2836,7 @@ REASON:
 **Scenario:** Affiliate clicks verification link after 24 hours
 
 **API Response:**
+
 ```json
 {
   "success": false,
@@ -2760,6 +2846,7 @@ REASON:
 ```
 
 **UI Display:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  ⚠️  Verification Link Expired                          │
@@ -2778,6 +2865,7 @@ REASON:
 **Scenario:** Affiliate tries to login before verifying email
 
 **API Response:**
+
 ```json
 {
   "success": false,
@@ -2787,6 +2875,7 @@ REASON:
 ```
 
 **UI Display:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  ⚠️  Email Not Verified                                 │
@@ -2805,6 +2894,7 @@ REASON:
 **Scenario:** Affiliate tries to login with suspended account
 
 **API Response:**
+
 ```json
 {
   "success": false,
@@ -2814,6 +2904,7 @@ REASON:
 ```
 
 **UI Display:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  🚫 Account Suspended                                    │
@@ -2832,6 +2923,7 @@ REASON:
 **Scenario:** User enters invalid or expired affiliate code at checkout
 
 **API Response:**
+
 ```json
 {
   "success": false,
@@ -2841,6 +2933,7 @@ REASON:
 ```
 
 **UI Display (Checkout Page):**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Discount Code                                          │
@@ -2858,6 +2951,7 @@ REASON:
 **Scenario:** User tries to use affiliate code that was already used by another user
 
 **API Response:**
+
 ```json
 {
   "success": false,
@@ -2867,6 +2961,7 @@ REASON:
 ```
 
 **UI Display:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Discount Code                                          │
@@ -2885,6 +2980,7 @@ REASON:
 **Scenario:** Admin tries to mark commission as paid but database update fails
 
 **API Response:**
+
 ```json
 {
   "success": false,
@@ -2894,6 +2990,7 @@ REASON:
 ```
 
 **UI Display:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  ❌ Payment Processing Failed                            │
@@ -2913,6 +3010,7 @@ REASON:
 **Scenario:** Automated monthly code distribution fails
 
 **Admin Email Notification:**
+
 ```
 Subject: ⚠️ URGENT - Monthly Code Distribution Failed
 
@@ -2939,6 +3037,7 @@ System Administrator
 ```
 
 **Admin Action:**
+
 - Navigate to Admin Panel → System → Cron Jobs
 - Click [Run Manual Distribution]
 - System distributes codes to all affiliates who didn't receive them
@@ -2951,6 +3050,7 @@ System Administrator
 This document comprehensively covers:
 
 ✅ **Affiliate Journey:**
+
 - Registration & onboarding
 - Email verification
 - First login & dashboard
@@ -2958,6 +3058,7 @@ This document comprehensively covers:
 - Code usage notifications
 
 ✅ **Admin Journey:**
+
 - Affiliate management (list, details)
 - Business intelligence reports (P&L, Sales Performance, Commission Owings, Code Inventory)
 - Manual code distribution
@@ -2965,23 +3066,28 @@ This document comprehensively covers:
 - Code cancellation
 
 ✅ **Affiliate-Admin Interactions:**
+
 - Code requests
 - Account suspensions
 - Payment method updates
 
 ✅ **Automated Processes:**
+
 - Monthly code distribution (Vercel Cron)
 - Monthly code expiry (Vercel Cron)
 
 ✅ **Email Notifications:**
+
 - 8 different email templates for various triggers
 
 ✅ **Error Scenarios:**
+
 - 8 common error cases with proper handling
 
 ---
 
 **Next Steps:**
+
 1. Create mermaid diagrams for these journeys
 2. Minimal update to user journey (checkout discount code)
 3. Update remaining documentation (DB schema, OpenAPI spec, etc.)

@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 
 /**
  * Database Seed Helper Functions
- * 
+ *
  * Provides reusable functions for programmatically seeding the database
  * Used by both the seed script and application initialization
  * Follows Prisma best practices for database operations
@@ -309,7 +309,6 @@ export async function seedCompleteSetup(
     results.alerts = await seedSampleAlerts(prisma, results.admin.id);
 
     return results;
-
   } catch (error) {
     console.error('❌ Seeding setup failed:', error);
     throw error;
@@ -348,17 +347,18 @@ export async function cleanupTestData(
     // Delete in reverse dependency order
     await prisma.fraudAlert.deleteMany({ where: { userId: user.id } });
     await prisma.payment.deleteMany({ where: { userId: user.id } });
-    
+
     // Delete watchlist items first
     for (const watchlist of user.watchlists) {
-      await prisma.watchlistItem.deleteMany({ where: { watchlistId: watchlist.id } });
+      await prisma.watchlistItem.deleteMany({
+        where: { watchlistId: watchlist.id },
+      });
     }
     await prisma.watchlist.deleteMany({ where: { userId: user.id } });
     await prisma.alert.deleteMany({ where: { userId: user.id } });
-    
+
     // Delete user last
     await prisma.user.delete({ where: { id: user.id } });
-
   } catch (error) {
     console.error('❌ Cleanup failed:', error);
     throw error;

@@ -11,6 +11,7 @@ The V5 project structure is divided into **18 logical parts** that can be built 
 **Scope:** Root-level configuration files
 
 **Folders & Files:**
+
 ```
 trading-alerts-saas/
 ├── .vscode/
@@ -30,6 +31,7 @@ trading-alerts-saas/
 ```
 
 **Key Changes from V4:**
+
 - ✅ `next.config.js` - Updated for Next.js 15
 - ✅ `package.json` - Next.js 15, React 19 dependencies
 - ✅ `.env.example` - 2-tier system variables
@@ -43,6 +45,7 @@ trading-alerts-saas/
 **Scope:** Database layer with Prisma
 
 **Folders & Files:**
+
 ```
 prisma/
 ├── schema.prisma
@@ -70,56 +73,59 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Create first admin user
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@tradingalerts.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
-  
-  const hashedPassword = await bcrypt.hash(adminPassword, 10);
-  
-  const admin = await prisma.user.upsert({
-    where: { email: adminEmail },
-    update: {},
-    create: {
-      email: adminEmail,
-      name: 'Admin User',
-      password: hashedPassword,
-      role: 'ADMIN',
-      tier: 'PRO',
-      emailVerified: new Date(),
-      isActive: true,
-    },
-  });
-  
-  console.log('✅ Admin user created:', admin.email);
+// Create first admin user
+const adminEmail = process.env.ADMIN_EMAIL || 'admin@tradingalerts.com';
+const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
+
+const hashedPassword = await bcrypt.hash(adminPassword, 10);
+
+const admin = await prisma.user.upsert({
+where: { email: adminEmail },
+update: {},
+create: {
+email: adminEmail,
+name: 'Admin User',
+password: hashedPassword,
+role: 'ADMIN',
+tier: 'PRO',
+emailVerified: new Date(),
+isActive: true,
+},
+});
+
+console.log('✅ Admin user created:', admin.email);
 }
 
 main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+.catch((e) => {
+console.error(e);
+process.exit(1);
+})
+.finally(async () => {
+await prisma.$disconnect();
+});
 Add to package.json:
 
 {
-  "scripts": {
-    "db:seed": "ts-node prisma/seed.ts"
-  },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
-  }
+"scripts": {
+"db:seed": "ts-node prisma/seed.ts"
+},
+"prisma": {
+"seed": "ts-node prisma/seed.ts"
+}
 }
 Run after first migration:
 
 # Create database
+
 npx prisma migrate dev --name init
 
 # Seed admin user
+
 pnpm db:seed
 
 # Or with custom credentials
+
 ADMIN_EMAIL=your@email.com ADMIN_PASSWORD=SecurePass123! pnpm db:seed
 Default Credentials (CHANGE IN PRODUCTION):
 
@@ -135,6 +141,7 @@ Change password in Settings
 You now have admin access to /admin dashboard
 
 **Key Changes from V4:**
+
 - ✅ `schema.prisma` - 2 tiers (FREE/PRO), WatchlistItem model
 - ✅ Remove ENTERPRISE enum
 - ✅ Add WatchlistItem model for symbol+timeframe
@@ -148,6 +155,7 @@ You now have admin access to /admin dashboard
 **Scope:** TypeScript types for V5
 
 **Folders & Files:**
+
 ```
 types/
 ├── index.ts
@@ -159,6 +167,7 @@ types/
 ```
 
 **Key Changes from V4:**
+
 - ✅ Add `tier.ts` - Tier types and constants
 - ✅ Update `user.ts` - Remove ENTERPRISE
 - ✅ Update all types for 2-tier system
@@ -172,6 +181,7 @@ types/
 **Scope:** Core tier management system (NEW in V5)
 
 **Folders & Files:**
+
 ```
 lib/tier/
 ├── constants.ts     # NEW - TIER_SYMBOLS, TIMEFRAMES
@@ -183,6 +193,7 @@ lib/config/
 ```
 
 **Key Changes from V5:**
+
 - ✅ NEW folder: `lib/tier/`
 - ✅ Timeframes: M5, H12 added; FREE tier limited to 3 timeframes (H1, H4, D1)
 - ✅ Symbol lists per tier: FREE (5 symbols), PRO (15 symbols)
@@ -199,6 +210,7 @@ lib/config/
 **Scope:** Complete auth system with Google OAuth + Email/Password
 
 **Authentication Stack:**
+
 - NextAuth.js v4.24.5 (already installed)
 - Google OAuth 2.0 provider
 - Email/Password credentials provider
@@ -206,6 +218,7 @@ lib/config/
 - Verified-only account linking (security-first)
 
 **Folders & Files:**
+
 ```
 app/(auth)/
 ├── layout.tsx
@@ -241,6 +254,7 @@ prisma/schema.prisma            # Updated: User.password nullable, Account model
 ```
 
 **Key Changes from V4:**
+
 - ✅ Default new users to FREE tier (both OAuth and email/password)
 - ✅ Add tier to JWT and session
 - ✅ NEW: `permissions.ts` for tier-based access
@@ -251,6 +265,7 @@ prisma/schema.prisma            # Updated: User.password nullable, Account model
 - ✅ **NEW: Profile picture from Google OAuth (fallback strategy)**
 
 **OAuth Security Features:**
+
 - 🔒 Verified-only account linking (prevents account takeover)
 - 🔒 Auto-verified email for Google OAuth users
 - 🔒 Separate auth method tracking (credentials/google/both)
@@ -265,6 +280,7 @@ prisma/schema.prisma            # Updated: User.password nullable, Account model
 **Scope:** Complete Flask microservice
 
 **Folders & Files:**
+
 ```
 mt5-service/
 ├── app/
@@ -295,6 +311,7 @@ mt5-service/
 ```
 
 **Key Changes from V5:**
+
 - ✅ NEW: `tier_service.py`
 - ✅ Updated timeframe mapping: M5, H12 added; 9 total timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
 - ✅ Tier validation for BOTH symbols AND timeframes before reading indicators
@@ -312,6 +329,7 @@ mt5-service/
 **Scope:** Next.js API routes for indicators and tier checking
 
 **Folders & Files:**
+
 ```
 app/api/tier/
 ├── symbols/route.ts         # NEW: Get allowed symbols
@@ -327,6 +345,7 @@ lib/api/
 ```
 
 **Key Changes from V4:**
+
 - ✅ NEW folder: `app/api/tier/`
 - ✅ Tier validation in indicators API
 - ✅ Symbol access checking before Flask call
@@ -340,6 +359,7 @@ lib/api/
 **Scope:** Main dashboard and layout
 
 **Folders & Files:**
+
 ```
 app/(dashboard)/
 ├── layout.tsx              # Updated: Show tier badge
@@ -358,6 +378,7 @@ components/dashboard/
 ```
 
 **Key Changes from V4:**
+
 - ✅ Show user tier in header
 - ✅ Tier-based navigation items
 - ✅ Dashboard stats per tier
@@ -371,6 +392,7 @@ components/dashboard/
 **Scope:** Trading charts and TradingView integration
 
 **Folders & Files:**
+
 ```
 app/(dashboard)/charts/
 ├── page.tsx                # Updated: Tier-filtered symbols
@@ -388,6 +410,7 @@ hooks/
 ```
 
 **Key Changes from V5:**
+
 - ✅ Timeframe selector: M5, H12 added; FREE tier limited to H1, H4, D1
 - ✅ Symbol selector shows tier-allowed symbols (FREE: 5 symbols, PRO: 15 symbols)
 - ✅ Chart page validates BOTH symbol AND timeframe access
@@ -402,6 +425,7 @@ hooks/
 **Scope:** Symbol+Timeframe watchlist management
 
 **Folders & Files:**
+
 ```
 app/(dashboard)/watchlist/
 └── page.tsx                # NEW: Symbol+timeframe UI
@@ -421,6 +445,7 @@ hooks/
 ```
 
 **Key Changes from V4:**
+
 - ✅ Complete rewrite: Symbol+timeframe combinations
 - ✅ Tier-based symbol filtering
 - ✅ WatchlistItem model usage
@@ -434,6 +459,7 @@ hooks/
 **Scope:** Alert management and notifications
 
 **Folders & Files:**
+
 ```
 app/(dashboard)/alerts/
 ├── page.tsx
@@ -457,6 +483,7 @@ hooks/
 ```
 
 **Key Changes from V4:**
+
 - ✅ Alert form shows only tier-allowed symbols
 - ✅ API validates symbol access before creating alert
 
@@ -469,16 +496,19 @@ hooks/
 **Scope:** Subscription and payment system
 
 **Pricing:**
+
 - FREE tier: $0/month (XAUUSD only, 5 alerts)
-- PRO tier: $29/month (10 symbols, 20 alerts)  # ← CONFIRMED
+- PRO tier: $29/month (10 symbols, 20 alerts) # ← CONFIRMED
 
 **Features:**
+
 - Stripe integration for PRO upgrades
 - Webhook handling for subscription events
 - Invoice management
 - Upgrade/downgrade flows
 
 **Folders & Files:**
+
 ```
 app/(marketing)/pricing/
 └── page.tsx                # Updated: FREE vs PRO only
@@ -506,6 +536,7 @@ lib/stripe/
 ```
 
 **Key Changes from V4:**
+
 - ✅ Remove ENTERPRISE tier completely
 - ✅ Pricing page: FREE (XAUUSD) vs PRO (10 symbols)
 - ✅ Symbol comparison table
@@ -520,6 +551,7 @@ lib/stripe/
 **Scope:** User settings pages
 
 **Folders & Files:**
+
 ```
 app/(dashboard)/settings/
 ├── layout.tsx
@@ -549,6 +581,7 @@ components/providers/
 ```
 
 **Key Changes from V4:**
+
 - ✅ Billing page: Show FREE/PRO tiers
 - ✅ Remove Enterprise mentions
 
@@ -561,6 +594,7 @@ components/providers/
 **Scope:** Admin pages and APIs
 
 **Folders & Files:**
+
 ```
 app/(dashboard)/admin/
 ├── layout.tsx
@@ -577,6 +611,7 @@ app/api/admin/
 ```
 
 **Key Changes from V4:**
+
 - ✅ Track FREE vs PRO user distribution
 - ✅ Revenue analytics per tier
 - ✅ API usage per tier
@@ -590,6 +625,7 @@ app/api/admin/
 **Scope:** Notification system and WebSocket
 
 **Folders & Files:**
+
 ```
 app/api/notifications/
 ├── route.ts
@@ -613,6 +649,7 @@ hooks/
 ```
 
 **Key Changes from V4:**
+
 - ✅ Monitor tier-based system health
 - ✅ Track per-tier metrics
 
@@ -625,6 +662,7 @@ hooks/
 **Scope:** Helper functions and deployment
 
 **Folders & Files:**
+
 ```
 lib/email/
 └── email.ts
@@ -678,6 +716,7 @@ tests/                     # Future: Testing
 ```
 
 **Key Changes from V5:**
+
 - ✅ NEW: `watchlist.ts` validation for symbol+timeframe combinations
 - ✅ Updated constants: M5, H12 added; 9 total timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
 - ✅ Updated symbol constants: 15 total symbols (added AUDJPY, GBPJPY, NZDUSD, USDCAD, USDCHF)
@@ -690,24 +729,24 @@ tests/                     # Future: Testing
 
 ## 📊 Summary Statistics
 
-| Part | Name | Files | Priority | Complexity |
-|------|------|-------|----------|------------|
-| 1 | Foundation | ~12 | ⭐⭐⭐ | Low |
-| 2 | Database | ~4 | ⭐⭐⭐ | Medium |
-| 3 | Types | ~6 | ⭐⭐⭐ | Low |
-| 4 | Tier System | ~4 | ⭐⭐⭐ | Medium |
-| 5 | Authentication | ~17 | ⭐⭐⭐ | High |
-| 6 | Flask Service | ~15 | ⭐⭐⭐ | High |
-| 7 | Indicators API | ~6 | ⭐⭐⭐ | Medium |
-| 8 | Dashboard | ~9 | ⭐⭐ | Medium |
-| 9 | Charts | ~8 | ⭐⭐⭐ | High |
-| 10 | Watchlist | ~8 | ⭐⭐ | Medium |
-| 11 | Alerts | ~10 | ⭐⭐ | Medium |
-| 12 | E-commerce | ~11 | ⭐⭐⭐ | High |
-| 13 | Settings | ~17 | ⭐⭐ | Low |
-| 14 | Admin | ~9 | ⭐ | Medium |
-| 15 | Notifications | ~9 | ⭐⭐ | Medium |
-| 16 | Utilities | ~25 | ⭐⭐ | Low |
+| Part | Name           | Files | Priority | Complexity |
+| ---- | -------------- | ----- | -------- | ---------- |
+| 1    | Foundation     | ~12   | ⭐⭐⭐   | Low        |
+| 2    | Database       | ~4    | ⭐⭐⭐   | Medium     |
+| 3    | Types          | ~6    | ⭐⭐⭐   | Low        |
+| 4    | Tier System    | ~4    | ⭐⭐⭐   | Medium     |
+| 5    | Authentication | ~17   | ⭐⭐⭐   | High       |
+| 6    | Flask Service  | ~15   | ⭐⭐⭐   | High       |
+| 7    | Indicators API | ~6    | ⭐⭐⭐   | Medium     |
+| 8    | Dashboard      | ~9    | ⭐⭐     | Medium     |
+| 9    | Charts         | ~8    | ⭐⭐⭐   | High       |
+| 10   | Watchlist      | ~8    | ⭐⭐     | Medium     |
+| 11   | Alerts         | ~10   | ⭐⭐     | Medium     |
+| 12   | E-commerce     | ~11   | ⭐⭐⭐   | High       |
+| 13   | Settings       | ~17   | ⭐⭐     | Low        |
+| 14   | Admin          | ~9    | ⭐       | Medium     |
+| 15   | Notifications  | ~9    | ⭐⭐     | Medium     |
+| 16   | Utilities      | ~25   | ⭐⭐     | Low        |
 
 **Total: ~170 files across 16 parts**
 
@@ -716,6 +755,7 @@ tests/                     # Future: Testing
 ## 🎯 Build Order Recommendation
 
 ### **Phase 1: Foundation (Week 1)**
+
 ```
 Parts 1, 2, 3, 4
 - Root config
@@ -725,6 +765,7 @@ Parts 1, 2, 3, 4
 ```
 
 ### **Phase 2: Core Systems (Week 2)**
+
 ```
 Parts 5, 6
 - Authentication
@@ -732,6 +773,7 @@ Parts 5, 6
 ```
 
 ### **Phase 3: Main Features (Week 3-4)**
+
 ```
 Parts 7, 8, 9
 - Indicators API
@@ -740,6 +782,7 @@ Parts 7, 8, 9
 ```
 
 ### **Phase 4: User Features (Week 5)**
+
 ```
 Parts 10, 11, 12
 - Watchlist
@@ -748,6 +791,7 @@ Parts 10, 11, 12
 ```
 
 ### **Phase 5: Polish (Week 6)**
+
 ```
 Parts 13, 14, 15, 16
 - Settings
@@ -765,6 +809,7 @@ Parts 13, 14, 15, 16
 **Purpose:** These files serve as visual prototypes and coding patterns for Aider to build production-ready components for the complete Trading Alerts SaaS V7 UI.
 
 **Complete Folder Structure:**
+
 ```
 seed-code/v0-components/
 ├── README.md                          # Complete mapping guide (20 components)
@@ -831,14 +876,14 @@ seed-code/v0-components/
 
 **Component Categories:**
 
-| Category | Components | Purpose |
-|----------|------------|---------|
-| Public Pages | 3 | Marketing, pricing, registration |
-| Authentication | 2 | Login, password reset |
-| Dashboard Pages | 8 | Main app pages (dashboard, watchlist, alerts, settings) |
-| Reusable Components | 4 | UI components (controls, empty states, notifications, menus) |
-| Existing Seed | 3 | Original seed components (layouts, charts, alerts) |
-| **Total** | **20** | **Complete UI frontend coverage** |
+| Category            | Components | Purpose                                                      |
+| ------------------- | ---------- | ------------------------------------------------------------ |
+| Public Pages        | 3          | Marketing, pricing, registration                             |
+| Authentication      | 2          | Login, password reset                                        |
+| Dashboard Pages     | 8          | Main app pages (dashboard, watchlist, alerts, settings)      |
+| Reusable Components | 4          | UI components (controls, empty states, notifications, menus) |
+| Existing Seed       | 3          | Original seed components (layouts, charts, alerts)           |
+| **Total**           | **20**     | **Complete UI frontend coverage**                            |
 
 **How Aider Uses These Files:**
 
@@ -958,6 +1003,7 @@ Production Files:
 **Usage in .aider.conf.yml:**
 
 All seed component files are configured as `read-only` references in Aider's configuration. Aider reads these files to understand:
+
 - UI layout patterns and structure
 - Component composition and nesting
 - Styling conventions (Tailwind CSS classes)
@@ -967,17 +1013,17 @@ All seed component files are configured as `read-only` references in Aider's con
 
 **API Endpoints Required (from all 17 new components):**
 
-| Endpoint | Method | Used By | Purpose |
-|----------|--------|---------|---------|
-| `/api/auth/register` | POST | Registration | Create user account |
-| `/api/auth/forgot-password` | POST | Forgot Password | Send reset email |
-| `/api/dashboard/stats` | GET | Dashboard Overview | Get user stats |
-| `/api/watchlist` | GET, POST, DELETE | Watchlist Page | Manage watchlist |
-| `/api/alerts` | GET, POST, PATCH, DELETE | Alert Modal, Alerts List | Manage alerts |
-| `/api/tier/symbols` | GET | Chart Controls | Get allowed symbols |
-| `/api/subscription` | GET, POST | Billing Page | Manage subscription |
-| `/api/user/profile` | GET, PATCH | Profile Settings | Update profile |
-| `/api/notifications` | GET, PATCH | Notification Bell | Manage notifications |
+| Endpoint                    | Method                   | Used By                  | Purpose              |
+| --------------------------- | ------------------------ | ------------------------ | -------------------- |
+| `/api/auth/register`        | POST                     | Registration             | Create user account  |
+| `/api/auth/forgot-password` | POST                     | Forgot Password          | Send reset email     |
+| `/api/dashboard/stats`      | GET                      | Dashboard Overview       | Get user stats       |
+| `/api/watchlist`            | GET, POST, DELETE        | Watchlist Page           | Manage watchlist     |
+| `/api/alerts`               | GET, POST, PATCH, DELETE | Alert Modal, Alerts List | Manage alerts        |
+| `/api/tier/symbols`         | GET                      | Chart Controls           | Get allowed symbols  |
+| `/api/subscription`         | GET, POST                | Billing Page             | Manage subscription  |
+| `/api/user/profile`         | GET, PATCH               | Profile Settings         | Update profile       |
+| `/api/notifications`        | GET, PATCH               | Notification Bell        | Manage notifications |
 
 **Production File Mapping (Complete):**
 
@@ -1167,6 +1213,7 @@ app/api/cron/
 ```
 
 **Vercel Cron Configuration:**
+
 ```json
 {
   "crons": [
@@ -1242,6 +1289,7 @@ prisma/
 ```
 
 **Migration Files:**
+
 ```
 prisma/migrations/
 └── 20251114_add_affiliate_marketing/
@@ -1251,6 +1299,7 @@ prisma/migrations/
 ### 17.9 Key Features
 
 **Affiliate Portal:**
+
 - ✅ Self-service registration with payment preferences (Bank, Crypto, Wallets)
 - ✅ Email verification → Auto-distribute 15 codes
 - ✅ Separate JWT authentication system
@@ -1259,6 +1308,7 @@ prisma/migrations/
 - ✅ Profile management with payment method updates
 
 **Admin Portal:**
+
 - ✅ Affiliate list with search, filter, pagination
 - ✅ Individual affiliate details with performance metrics
 - ✅ Manual code distribution (bonus codes)
@@ -1270,12 +1320,14 @@ prisma/migrations/
   4. Aggregate Code Inventory (system-wide)
 
 **Automation:**
+
 - ✅ Monthly code distribution (15 codes per active affiliate)
 - ✅ Monthly code expiry (end of month)
 - ✅ Email notifications (8 types)
 - ✅ Commission calculation at checkout (via Stripe webhook)
 
 **Security:**
+
 - ✅ Separate authentication system (no shared sessions)
 - ✅ Cryptographically secure code generation (crypto.randomBytes)
 - ✅ Code validation (ACTIVE, not expired, not used)
@@ -1284,21 +1336,22 @@ prisma/migrations/
 
 ### 17.10 File Count
 
-| Category | Files | Description |
-|----------|-------|-------------|
-| Affiliate Portal Pages | 8 | Registration, login, dashboard, reports, profile |
-| Affiliate API Routes | 11 | Auth, dashboard stats, reports |
-| Admin Portal Pages | 5 | List, details, 4 BI reports |
-| Admin API Routes | 14 | CRUD, reports, commission payment |
-| Cron Jobs | 3 | Distribution, expiry, reports |
-| Business Logic | 8 | Code gen, validation, reports |
-| Components | 15 | Forms, tables, reports, modals |
-| Database | 3 | Affiliate, AffiliateCode, Commission models |
-| **Total** | **67** | **Estimated 120 hours** |
+| Category               | Files  | Description                                      |
+| ---------------------- | ------ | ------------------------------------------------ |
+| Affiliate Portal Pages | 8      | Registration, login, dashboard, reports, profile |
+| Affiliate API Routes   | 11     | Auth, dashboard stats, reports                   |
+| Admin Portal Pages     | 5      | List, details, 4 BI reports                      |
+| Admin API Routes       | 14     | CRUD, reports, commission payment                |
+| Cron Jobs              | 3      | Distribution, expiry, reports                    |
+| Business Logic         | 8      | Code gen, validation, reports                    |
+| Components             | 15     | Forms, tables, reports, modals                   |
+| Database               | 3      | Affiliate, AffiliateCode, Commission models      |
+| **Total**              | **67** | **Estimated 120 hours**                          |
 
 ### 17.11 Integration Points
 
 **Modified Files (from existing parts):**
+
 ```
 app/
 ├── api/
@@ -1310,6 +1363,7 @@ prisma/schema.prisma                       # Add 3 new models + enum
 ```
 
 **Dependencies (no new packages required):**
+
 - Uses existing: bcrypt, jsonwebtoken, @prisma/client
 - Uses existing: stripe, resend (for emails)
 - Uses existing: vercel/cron
@@ -1325,6 +1379,7 @@ prisma/schema.prisma                       # Add 3 new models + enum
 ### 18.1 Core Features
 
 **Business Requirements:**
+
 - ✅ Support 8 emerging markets (IN, NG, PK, VN, ID, TH, ZA, TR)
 - ✅ 50+ local payment methods (UPI, Paytm, JazzCash, GoPay, etc.)
 - ✅ Unified checkout page (Stripe + dLocal together)
@@ -1336,6 +1391,7 @@ prisma/schema.prisma                       # Add 3 new models + enum
 - ✅ Discount codes on monthly plans ONLY (NOT 3-day)
 
 **Technical Requirements:**
+
 - ✅ Webhook signature verification
 - ✅ Payment transaction logging
 - ✅ Cron jobs for renewal reminders & expiry
@@ -1344,15 +1400,15 @@ prisma/schema.prisma                       # Add 3 new models + enum
 
 ### 18.2 Key Differences from Stripe
 
-| Feature | Stripe | dLocal |
-|---------|--------|--------|
-| Auto-Renewal | ✅ Yes | ❌ NO - Manual renewal required |
-| Free Trial | ✅ 7 days | ❌ NO trial period |
-| Plans | Monthly only | **3-day** + Monthly |
-| Discount Codes | ✅ All plans | ❌ Monthly ONLY (not 3-day) |
-| Renewal Notifications | Stripe manages | **We send** 3 days before expiry |
-| Expiry Handling | Stripe auto-downgrades | **We downgrade** via cron job |
-| Payment Flow | Card authorization | Redirect to local payment page |
+| Feature               | Stripe                 | dLocal                           |
+| --------------------- | ---------------------- | -------------------------------- |
+| Auto-Renewal          | ✅ Yes                 | ❌ NO - Manual renewal required  |
+| Free Trial            | ✅ 7 days              | ❌ NO trial period               |
+| Plans                 | Monthly only           | **3-day** + Monthly              |
+| Discount Codes        | ✅ All plans           | ❌ Monthly ONLY (not 3-day)      |
+| Renewal Notifications | Stripe manages         | **We send** 3 days before expiry |
+| Expiry Handling       | Stripe auto-downgrades | **We downgrade** via cron job    |
+| Payment Flow          | Card authorization     | Redirect to local payment page   |
 
 ### 18.3 Database Schema (Additions)
 
@@ -1516,22 +1572,22 @@ vercel.json                                          # UPDATED - Add cron jobs
 
 ### 18.5 API Endpoints (7 new)
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/payments/dlocal/methods` | GET | Get available payment methods for country |
-| `/api/payments/dlocal/exchange-rate` | GET | Get USD to local currency rate |
-| `/api/payments/dlocal/convert` | GET | Convert USD amount to local currency |
-| `/api/payments/dlocal/create` | POST | Create dLocal payment |
-| `/api/payments/dlocal/validate-discount` | POST | Validate discount code |
-| `/api/payments/dlocal/[paymentId]` | GET | Get payment status |
-| `/api/webhooks/dlocal` | POST | Payment status webhooks |
+| Endpoint                                 | Method | Purpose                                   |
+| ---------------------------------------- | ------ | ----------------------------------------- |
+| `/api/payments/dlocal/methods`           | GET    | Get available payment methods for country |
+| `/api/payments/dlocal/exchange-rate`     | GET    | Get USD to local currency rate            |
+| `/api/payments/dlocal/convert`           | GET    | Convert USD amount to local currency      |
+| `/api/payments/dlocal/create`            | POST   | Create dLocal payment                     |
+| `/api/payments/dlocal/validate-discount` | POST   | Validate discount code                    |
+| `/api/payments/dlocal/[paymentId]`       | GET    | Get payment status                        |
+| `/api/webhooks/dlocal`                   | POST   | Payment status webhooks                   |
 
 ### 18.6 Cron Jobs (2 new)
 
-| Cron Job | Schedule | Purpose |
-|----------|----------|---------|
-| `check-expiring-subscriptions` | Daily 00:00 UTC | Send renewal reminders (3 days before expiry) |
-| `downgrade-expired-subscriptions` | Hourly | Downgrade PRO → FREE on expiry |
+| Cron Job                          | Schedule        | Purpose                                       |
+| --------------------------------- | --------------- | --------------------------------------------- |
+| `check-expiring-subscriptions`    | Daily 00:00 UTC | Send renewal reminders (3 days before expiry) |
+| `downgrade-expired-subscriptions` | Hourly          | Downgrade PRO → FREE on expiry                |
 
 **Vercel Cron Configuration:**
 
@@ -1560,25 +1616,26 @@ vercel.json                                          # UPDATED - Add cron jobs
 
 ### 18.8 Supported Countries & Payment Methods
 
-| Country | Currency | Popular Methods |
-|---------|----------|----------------|
-| India (IN) | INR (₹) | UPI, Paytm, PhonePe, Net Banking |
-| Nigeria (NG) | NGN (₦) | Bank Transfer, USSD, Paystack, Verve |
-| Pakistan (PK) | PKR (Rs) | JazzCash, Easypaisa |
-| Vietnam (VN) | VND (₫) | VNPay, MoMo, ZaloPay |
-| Indonesia (ID) | IDR (Rp) | GoPay, OVO, Dana, ShopeePay |
-| Thailand (TH) | THB (฿) | TrueMoney, Rabbit LINE Pay, Thai QR |
-| South Africa (ZA) | ZAR (R) | Instant EFT, EFT |
-| Turkey (TR) | TRY (₺) | Bank Transfer, Local Cards |
+| Country           | Currency | Popular Methods                      |
+| ----------------- | -------- | ------------------------------------ |
+| India (IN)        | INR (₹)  | UPI, Paytm, PhonePe, Net Banking     |
+| Nigeria (NG)      | NGN (₦)  | Bank Transfer, USSD, Paystack, Verve |
+| Pakistan (PK)     | PKR (Rs) | JazzCash, Easypaisa                  |
+| Vietnam (VN)      | VND (₫)  | VNPay, MoMo, ZaloPay                 |
+| Indonesia (ID)    | IDR (Rp) | GoPay, OVO, Dana, ShopeePay          |
+| Thailand (TH)     | THB (฿)  | TrueMoney, Rabbit LINE Pay, Thai QR  |
+| South Africa (ZA) | ZAR (R)  | Instant EFT, EFT                     |
+| Turkey (TR)       | TRY (₺)  | Bank Transfer, Local Cards           |
 
 ### 18.9 Pricing
 
-| Plan | Duration | Price (USD) | Discount Codes | Auto-Renewal |
-|------|----------|-------------|----------------|--------------|
-| **3-Day** | 3 days | $1.99 | ❌ NO | ❌ NO |
-| **Monthly** | 30 days | $29.00 | ✅ YES | ❌ NO |
+| Plan        | Duration | Price (USD) | Discount Codes | Auto-Renewal |
+| ----------- | -------- | ----------- | -------------- | ------------ |
+| **3-Day**   | 3 days   | $1.99       | ❌ NO          | ❌ NO        |
+| **Monthly** | 30 days  | $29.00      | ✅ YES         | ❌ NO        |
 
 **Local Currency Examples (India):**
+
 - 3-day: $1.99 = ₹165 (at ~83 INR/USD)
 - Monthly: $29.00 = ₹2,407 (at ~83 INR/USD)
 
@@ -1658,18 +1715,18 @@ CRON_SECRET=your_cron_secret_here
 
 ### 18.13 File Count
 
-| Category | Files | Description |
-|----------|-------|-------------|
-| Type Definitions | 1 | dLocal types |
-| Services | 4 | Currency, payment methods, payments, country detection |
-| API Routes | 9 | Payment endpoints + webhooks + cron |
-| Cron Jobs | 2 | Renewal reminders + expiry |
-| Frontend Components | 6 | Country selector, plan selector, payment methods, etc. |
-| Email Templates | 4 | Confirmation, reminders, expiry, failure |
-| Database | 2 | Payment model + Subscription updates |
-| Documentation | 4 | Policy, OpenAPI, guide, summary |
-| Configuration | 2 | vercel.json + .env updates |
-| **Total** | **34 new** | **+ 11 updates = 45 files total** |
+| Category            | Files      | Description                                            |
+| ------------------- | ---------- | ------------------------------------------------------ |
+| Type Definitions    | 1          | dLocal types                                           |
+| Services            | 4          | Currency, payment methods, payments, country detection |
+| API Routes          | 9          | Payment endpoints + webhooks + cron                    |
+| Cron Jobs           | 2          | Renewal reminders + expiry                             |
+| Frontend Components | 6          | Country selector, plan selector, payment methods, etc. |
+| Email Templates     | 4          | Confirmation, reminders, expiry, failure               |
+| Database            | 2          | Payment model + Subscription updates                   |
+| Documentation       | 4          | Policy, OpenAPI, guide, summary                        |
+| Configuration       | 2          | vercel.json + .env updates                             |
+| **Total**           | **34 new** | **+ 11 updates = 45 files total**                      |
 
 **Estimated Time:** 120 hours (4 weeks)
 
@@ -1686,6 +1743,7 @@ docs/trading_alerts_openapi.yaml         # Add dLocal endpoints
 ```
 
 **Dependencies (no new packages required):**
+
 - Uses existing: crypto (Node.js built-in)
 - Uses existing: @prisma/client, stripe
 - Uses existing: resend (for emails)
@@ -1694,6 +1752,7 @@ docs/trading_alerts_openapi.yaml         # Add dLocal endpoints
 ### 18.15 Testing Checklist
 
 **Unit Tests:**
+
 - [ ] Currency conversion (USD → INR, NGN, PKR, etc.)
 - [ ] Discount code validation (reject on 3-day plan)
 - [ ] Payment methods fetching
@@ -1701,6 +1760,7 @@ docs/trading_alerts_openapi.yaml         # Add dLocal endpoints
 - [ ] Expiry date calculations
 
 **Integration Tests:**
+
 - [ ] Complete payment flow (mock dLocal API)
 - [ ] Webhook handling (PAID, REJECTED, CANCELLED)
 - [ ] Subscription creation
@@ -1708,6 +1768,7 @@ docs/trading_alerts_openapi.yaml         # Add dLocal endpoints
 - [ ] Cron job execution
 
 **E2E Tests (Manual):**
+
 - [ ] India → UPI → Monthly → Discount code → Payment success
 - [ ] Pakistan → 3-day → No discount → Payment success
 - [ ] Renewal reminder sent 3 days before expiry
@@ -1738,26 +1799,26 @@ docs/trading_alerts_openapi.yaml         # Add dLocal endpoints
 
 ## 📊 Updated Summary Statistics
 
-| Part | Name | Files | Priority | Complexity |
-|------|------|-------|----------|------------|
-| 1 | Foundation | ~12 | ⭐⭐⭐ | Low |
-| 2 | Database | ~4 | ⭐⭐⭐ | Medium |
-| 3 | Types | ~6 | ⭐⭐⭐ | Low |
-| 4 | Tier System | ~4 | ⭐⭐⭐ | Medium |
-| 5 | Authentication | ~17 | ⭐⭐⭐ | High |
-| 6 | Flask Service | ~15 | ⭐⭐⭐ | High |
-| 7 | Indicators API | ~6 | ⭐⭐⭐ | Medium |
-| 8 | Dashboard | ~9 | ⭐⭐ | Medium |
-| 9 | Charts | ~8 | ⭐⭐⭐ | High |
-| 10 | Watchlist | ~8 | ⭐⭐ | Medium |
-| 11 | Alerts | ~10 | ⭐⭐ | Medium |
-| 12 | E-commerce | ~11 | ⭐⭐⭐ | High |
-| 13 | Settings | ~17 | ⭐⭐ | Low |
-| 14 | Admin | ~9 | ⭐ | Medium |
-| 15 | Notifications | ~9 | ⭐⭐ | Medium |
-| 16 | Utilities | ~25 | ⭐⭐ | Low |
-| 17 | Affiliate Marketing | ~67 | ⭐⭐ | High |
-| 18 | dLocal Payments | ~45 | ⭐⭐ | High |
-| **Seed** | **V0 Components** | **~50** | **⭐⭐⭐** | **Reference** |
+| Part     | Name                | Files   | Priority   | Complexity    |
+| -------- | ------------------- | ------- | ---------- | ------------- |
+| 1        | Foundation          | ~12     | ⭐⭐⭐     | Low           |
+| 2        | Database            | ~4      | ⭐⭐⭐     | Medium        |
+| 3        | Types               | ~6      | ⭐⭐⭐     | Low           |
+| 4        | Tier System         | ~4      | ⭐⭐⭐     | Medium        |
+| 5        | Authentication      | ~17     | ⭐⭐⭐     | High          |
+| 6        | Flask Service       | ~15     | ⭐⭐⭐     | High          |
+| 7        | Indicators API      | ~6      | ⭐⭐⭐     | Medium        |
+| 8        | Dashboard           | ~9      | ⭐⭐       | Medium        |
+| 9        | Charts              | ~8      | ⭐⭐⭐     | High          |
+| 10       | Watchlist           | ~8      | ⭐⭐       | Medium        |
+| 11       | Alerts              | ~10     | ⭐⭐       | Medium        |
+| 12       | E-commerce          | ~11     | ⭐⭐⭐     | High          |
+| 13       | Settings            | ~17     | ⭐⭐       | Low           |
+| 14       | Admin               | ~9      | ⭐         | Medium        |
+| 15       | Notifications       | ~9      | ⭐⭐       | Medium        |
+| 16       | Utilities           | ~25     | ⭐⭐       | Low           |
+| 17       | Affiliate Marketing | ~67     | ⭐⭐       | High          |
+| 18       | dLocal Payments     | ~45     | ⭐⭐       | High          |
+| **Seed** | **V0 Components**   | **~50** | **⭐⭐⭐** | **Reference** |
 
 **Total: ~170 production files + ~50 seed reference files (20 components)**

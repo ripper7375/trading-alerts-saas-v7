@@ -12,11 +12,11 @@ pnpm install -D jest-environment-jsdom
 Create `jest.config.js`:
 
 ```javascript
-const nextJest = require('next/jest')
+const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({
   dir: './',
-})
+});
 
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
@@ -31,15 +31,15 @@ const customJestConfig = {
     '!**/*.d.ts',
     '!**/node_modules/**',
   ],
-}
+};
 
-module.exports = createJestConfig(customJestConfig)
+module.exports = createJestConfig(customJestConfig);
 ```
 
 Create `jest.setup.js`:
 
 ```javascript
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 ```
 
 ---
@@ -87,26 +87,26 @@ Update `next.config.js`:
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  
+
   // Next.js 15 features
   experimental: {
-    ppr: true,  // Partial Prerendering
-    reactCompiler: true,  // React Compiler
+    ppr: true, // Partial Prerendering
+    reactCompiler: true, // React Compiler
   },
-  
+
   // Environment variables
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
   },
-  
+
   // Image optimization
   images: {
     domains: ['yourdomain.com'],
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
 ```
 
 ### 12.3 Vercel Deployment (Next.js 15)
@@ -165,19 +165,19 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: trading_alerts
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
   mt5-service:
     build: ./mt5-service
     ports:
-      - "5001:5001"
+      - '5001:5001'
     environment:
       - MT5_LOGIN=${MT5_LOGIN}
       - MT5_PASSWORD=${MT5_PASSWORD}
@@ -194,6 +194,7 @@ volumes:
 ## 13. Timeline & Milestones
 
 ### Week 1-2: Foundation & Authentication
+
 - [x] Next.js 15 project setup
 - [x] Database schema & Prisma
 - [ ] **SERVICE 1: Registration System**
@@ -209,6 +210,7 @@ volumes:
 - [ ] **ATTACH YOUR .mq5 indicators for next phase**
 
 ### Week 3-4: Core Features & MT5 Integration
+
 - [ ] Flask MT5 microservice (needs YOUR indicators)
 - [ ] Indicator API routes with tier validation
 - [ ] Trading chart component
@@ -220,6 +222,7 @@ volumes:
   - Account management
 
 ### Week 5-6: Advanced Settings & Polish
+
 - [ ] **SERVICE 3.4-3.9: Complete Settings**
   - Privacy settings
   - Billing integration (2-tier system)
@@ -233,6 +236,7 @@ volumes:
 - [ ] MVP deployment
 
 ### Week 7-10: E-commerce & Admin (Early Stage)
+
 - [ ] **SERVICE 4: Admin Dashboard**
   - Admin overview page
   - User management (FREE/PRO tiers)
@@ -251,6 +255,7 @@ volumes:
 - [ ] Performance optimization
 
 ### Week 11-16: Notifications & Alerts (Mid Stage)
+
 - [ ] **SERVICE 6: System Notifications**
   - Notification bell component
   - Real-time notifications (WebSocket)
@@ -264,6 +269,7 @@ volumes:
 - [ ] Push notifications setup
 
 ### Week 17-20: Mobile & PWA (Late Stage)
+
 - [ ] PWA optimization
 - [ ] Mobile app builds
 - [ ] Push notifications
@@ -271,6 +277,7 @@ volumes:
 - [ ] Mobile-optimized UI
 
 ### Week 21+: ML & Advanced Features (Ultimate Stage)
+
 - [ ] ML model integration
 - [ ] Signal generation
 - [ ] Advanced admin features
@@ -283,6 +290,7 @@ volumes:
 ## 14. Cost Estimation & Revenue Projections
 
 ### 14.1 Development Phase (MVP)
+
 - Developer time: 6 weeks
 - Infrastructure: $0 (free tiers)
 - **Total MVP Cost: $0**
@@ -290,6 +298,7 @@ volumes:
 ### 14.2 Production Scale - 100 Users
 
 **Infrastructure Costs:**
+
 ```
 Vercel (Next.js 15): $20/month
 Railway (Flask + PostgreSQL): $25/month
@@ -300,12 +309,14 @@ Total Infrastructure: ~$56/month
 ```
 
 **User Distribution (Conservative):**
+
 ```
 FREE tier: 90 users (90%)
 PRO tier: 10 users (10%)
 ```
 
 **Revenue:**
+
 ```
 FREE: 90 × $0 = $0
 PRO: 10 × $29 = $290/month
@@ -314,6 +325,7 @@ Total Revenue: $290/month
 ```
 
 **Profit Margin:**
+
 ```
 Revenue: $290/month
 Costs: $56/month
@@ -323,6 +335,7 @@ Profit: $234/month (417% ROI)
 ### 14.3 Production Scale - 1,000 Users
 
 **Infrastructure Costs:**
+
 ```
 Vercel Pro: $150/month
 Railway (scaled): $100/month
@@ -334,12 +347,14 @@ Total Infrastructure: ~$365/month
 ```
 
 **User Distribution (Conservative):**
+
 ```
 FREE tier: 850 users (85%)
 PRO tier: 150 users (15%)
 ```
 
 **Revenue:**
+
 ```
 FREE: 850 × $0 = $0
 PRO: 150 × $29 = $4,350/month
@@ -348,6 +363,7 @@ Total Revenue: $4,350/month
 ```
 
 **Profit Margin:**
+
 ```
 Revenue: $4,350/month
 Costs: $365/month
@@ -358,6 +374,7 @@ Annual Profit: ~$47,820/year
 ### 14.4 Production Scale - 10,000 Users
 
 **Infrastructure Costs:**
+
 ```
 Vercel Enterprise: $500/month
 Railway (auto-scaled): $400/month
@@ -371,12 +388,14 @@ Total Infrastructure: ~$1,600/month
 ```
 
 **User Distribution (Conservative):**
+
 ```
 FREE tier: 8,000 users (80%)
 PRO tier: 2,000 users (20%)
 ```
 
 **Revenue:**
+
 ```
 FREE: 8,000 × $0 = $0
 PRO: 2,000 × $29 = $58,000/month
@@ -385,6 +404,7 @@ Total Revenue: $58,000/month
 ```
 
 **Profit Margin:**
+
 ```
 Revenue: $58,000/month
 Costs: $1,600/month
@@ -395,6 +415,7 @@ Annual Profit: ~$676,800/year
 ### 14.5 Break-Even Analysis
 
 **Monthly Break-Even Points:**
+
 ```
 100 users scale: 2 PRO users needed to break even
 1,000 users scale: 13 PRO users needed to break even
@@ -402,6 +423,7 @@ Annual Profit: ~$676,800/year
 ```
 
 **Conversion Rate Impact:**
+
 ```
 At 5% PRO conversion (100 users):
   Revenue: $145/month | Profit: $89/month
@@ -419,6 +441,7 @@ At 20% PRO conversion (10,000 users):
 ### 14.6 Annual Revenue Projections
 
 **Conservative Growth Path:**
+
 ```
 Year 1:
   Q1: 100 users (10% PRO) = $290/month
@@ -438,6 +461,7 @@ Year 2:
 ### 14.7 Cost Per User Economics
 
 **At Different Scales:**
+
 ```
 100 users:
   Cost per user: $0.56/month
@@ -456,6 +480,7 @@ Year 2:
 ```
 
 **Key Insights:**
+
 - Infrastructure costs scale linearly
 - Revenue scales with PRO conversion rate
 - Profit margins improve with scale
@@ -490,25 +515,25 @@ Sentry.init({
 ```typescript
 // Track API response times with tier context
 export async function monitoredFetch(
-  url: string, 
+  url: string,
   options?: RequestInit,
   tier?: 'FREE' | 'PRO'
 ) {
   const start = Date.now();
-  
+
   try {
     const response = await fetch(url, options);
     const duration = Date.now() - start;
-    
-    await logMetric('api_response_time', duration, { 
+
+    await logMetric('api_response_time', duration, {
       url,
-      tier: tier || 'unknown'
+      tier: tier || 'unknown',
     });
-    
+
     return response;
   } catch (error) {
     Sentry.captureException(error, {
-      tags: { tier: tier || 'unknown' }
+      tags: { tier: tier || 'unknown' },
     });
     throw error;
   }
@@ -524,18 +549,16 @@ export async function GET() {
     database: await checkDatabase(),
     redis: await checkRedis(),
     mt5Service: await checkMT5Service(),
-    tierDistribution: await checkTierDistribution()
+    tierDistribution: await checkTierDistribution(),
   };
 
-  const allHealthy = Object.values(checks).every(
-    check => check.healthy
-  );
+  const allHealthy = Object.values(checks).every((check) => check.healthy);
 
   return Response.json(
-    { 
-      status: allHealthy ? 'healthy' : 'degraded', 
+    {
+      status: allHealthy ? 'healthy' : 'degraded',
       checks,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     },
     { status: allHealthy ? 200 : 503 }
   );
@@ -544,15 +567,15 @@ export async function GET() {
 async function checkTierDistribution() {
   const stats = await prisma.user.groupBy({
     by: ['tier'],
-    _count: true
+    _count: true,
   });
 
   return {
     healthy: true,
     details: {
-      freeUsers: stats.find(s => s.tier === 'FREE')?._count || 0,
-      proUsers: stats.find(s => s.tier === 'PRO')?._count || 0
-    }
+      freeUsers: stats.find((s) => s.tier === 'FREE')?._count || 0,
+      proUsers: stats.find((s) => s.tier === 'PRO')?._count || 0,
+    },
   };
 }
 ```
@@ -593,6 +616,7 @@ Let's begin!
 ### V5 Key Changes Summary
 
 **1. Timeframes (7 total):**
+
 ```
 ✅ ADDED: H2, H8
 ❌ REMOVED: M1, M5
@@ -600,16 +624,18 @@ Let's begin!
 ```
 
 **2. Commercial Model:**
+
 ```
 ✅ 2-Tier System: FREE | PRO (removed ENTERPRISE)
 ✅ FREE: XAUUSD only, all 7 timeframes
-✅ PRO: 10 symbols (AUDUSD, BTCUSD, ETHUSD, EURUSD, 
+✅ PRO: 10 symbols (AUDUSD, BTCUSD, ETHUSD, EURUSD,
         GBPUSD, NDX100, US30, USDJPY, XAGUSD, XAUUSD)
 ✅ Single data source: YOUR MT5 terminal only
 ✅ Users cannot connect their own MT5
 ```
 
 **3. Technology Stack:**
+
 ```
 ✅ Next.js 15 with React 19
 ✅ Turbopack for faster builds
@@ -618,6 +644,7 @@ Let's begin!
 ```
 
 **4. Revenue Model:**
+
 ```
 ✅ FREE tier: $0/month (1 symbol)
 ✅ PRO tier: $29/month (10 symbols)
@@ -645,6 +672,7 @@ This comprehensive V5 implementation plan provides everything you need to build 
 6. **System Notifications** - Critical monitoring and real-time alerts
 
 **✅ V5 Specific Updates:**
+
 - Updated timeframes (M15, M30, H1, H2, H4, H8, D1)
 - 2-tier commercial model (FREE: XAUUSD | PRO: 10 symbols)
 - Next.js 15 with React 19
@@ -676,6 +704,7 @@ This comprehensive V5 implementation plan provides everything you need to build 
 ### V5 Revenue Potential
 
 **With just 1,000 users at 15% PRO conversion:**
+
 ```
 Monthly Revenue: $4,350
 Monthly Costs: $365
@@ -684,6 +713,7 @@ Annual Profit: ~$47,820
 ```
 
 **At scale (10,000 users, 20% PRO conversion):**
+
 ```
 Monthly Revenue: $58,000
 Monthly Costs: $1,600
@@ -695,4 +725,4 @@ Annual Profit: ~$676,800
 
 ---
 
-*This is V5 - The complete, revenue-focused implementation guide with Next.js 15, 2-tier pricing, and updated timeframes.*
+_This is V5 - The complete, revenue-focused implementation guide with Next.js 15, 2-tier pricing, and updated timeframes._

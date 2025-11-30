@@ -40,12 +40,14 @@
 ## Development Workflow - Phase 3: Autonomous Building
 
 ### Aider's Role:
+
 - **Autonomous Builder:** Generates code following policies
 - **Automated Validator:** Executes validation tools
 - **Decision Maker:** Approves, auto-fixes, or escalates based on results
 - **Progress Tracker:** Updates PROGRESS.md
 
 ### Validation System:
+
 1. **TypeScript** (`tsc --noEmit`) - Type checking
 2. **ESLint** (`next lint`) - Code quality
 3. **Prettier** (`prettier --check`) - Formatting
@@ -53,8 +55,11 @@
 
 ### Workflow:
 ```
+
 Aider → Generate Code → npm run validate → Aider Decides → Approve/Fix/Escalate
+
 ```
+
 ```
 
 ---
@@ -69,12 +74,14 @@ Aider → Generate Code → npm run validate → Aider Decides → Approve/Fix/E
 ## Phase 3: Automated Building & Validation
 
 ### Setup (Complete):
+
 ✅ Aider configured as autonomous builder & validator
 ✅ Validation tools configured (TypeScript, ESLint, Prettier, Custom validator)
 ✅ Policies loaded in `.aider.conf.yml`
 ✅ Validation scripts in `package.json`
 
 ### Workflow:
+
 1. Start Aider: `aider`
 2. Load part: `/read docs/build-orders/part-XX.md`
 3. Build: `"Build Part XX file-by-file"`
@@ -86,11 +93,13 @@ Aider → Generate Code → npm run validate → Aider Decides → Approve/Fix/E
    - 🚨 ESCALATE → Ask human
 
 ### Commands:
+
 - `npm run validate` - Run all validation
 - `npm run fix` - Auto-fix issues
 - `npm test` - Run tests
 
 ### Documentation:
+
 - See `VALIDATION-SETUP-GUIDE.md` for complete guide
 - See `docs/CLAUDE-CODE-WORKFLOW-ANALYSIS.md` for workflow details
 ```
@@ -108,6 +117,7 @@ Aider → Generate Code → npm run validate → Aider Decides → Approve/Fix/E
 **Date:** 2025-11-24
 
 ### Validation Tools Configured:
+
 - ✅ TypeScript (tsconfig.json)
 - ✅ ESLint (.eslintrc.json)
 - ✅ Prettier (.prettierrc)
@@ -115,6 +125,7 @@ Aider → Generate Code → npm run validate → Aider Decides → Approve/Fix/E
 - ✅ Package scripts (npm run validate, npm run fix)
 
 ### Aider Role:
+
 - ✅ Autonomous code generation
 - ✅ Automated validation execution
 - ✅ Approve/Fix/Escalate decisions
@@ -134,18 +145,20 @@ Aider → Generate Code → npm run validate → Aider Decides → Approve/Fix/E
 
 **Add:**
 
-```markdown
+````markdown
 ## Automated Validation System
 
 This project uses a fully automated validation system powered by Aider:
 
 ### Validation Tools:
+
 - **TypeScript** - Type checking
 - **ESLint** - Code quality
 - **Prettier** - Formatting
 - **Custom Validator** - Policy compliance
 
 ### Quick Start:
+
 ```bash
 # Run validation
 npm run validate
@@ -156,16 +169,20 @@ npm run fix
 # Run tests
 npm test
 ```
+````
 
 ### Phase 3 Development:
+
 Aider serves as the autonomous builder and validator:
+
 1. Generates code following policies
 2. Runs automated validation
 3. Makes approve/fix/escalate decisions
 4. Commits approved code
 
 See `VALIDATION-SETUP-GUIDE.md` for complete documentation.
-```
+
+````
 
 ---
 
@@ -187,16 +204,18 @@ Aider acts as autonomous builder and validator for all 170+ files.
 5. **Custom Validator** - Policy compliance checking
 
 ### Workflow:
-```
+````
+
 ┌─────────────────────────────────────┐
-│          AIDER (MiniMax M2)         │
+│ AIDER (MiniMax M2) │
 ├─────────────────────────────────────┤
-│ 1. Read policies & requirements     │
-│ 2. Generate code                    │
+│ 1. Read policies & requirements │
+│ 2. Generate code │
 │ 3. Run validation (npm run validate)│
 │ 4. Make decision (approve/fix/escalate)│
-│ 5. Act (commit/fix/ask human)       │
+│ 5. Act (commit/fix/ask human) │
 └─────────────────────────────────────┘
+
 ```
 
 ### Success Metrics:
@@ -216,30 +235,34 @@ Aider acts as autonomous builder and validator for all 170+ files.
 
 **Section to Add:** (After existing Phase 1 content)
 
-```markdown
+````markdown
 ## Phase 2: Validation System Setup (COMPLETE)
 
 ### Validation Tools Configured:
 
 #### TypeScript Configuration (tsconfig.json):
+
 - Strict mode enabled
 - No implicit any
 - Null safety checks
 - Type consistency validation
 
 #### ESLint Configuration (.eslintrc.json):
+
 - Next.js + TypeScript rules
 - No explicit any (error)
 - React hooks validation
 - Import organization
 
 #### Prettier Configuration (.prettierrc):
+
 - Single quotes
 - Semicolons
 - 80 character line length
 - Consistent formatting
 
 #### Custom Policy Validator (scripts/validate-file.js):
+
 - Authentication checks
 - Tier validation
 - Error handling
@@ -247,6 +270,7 @@ Aider acts as autonomous builder and validator for all 170+ files.
 - Input validation (Zod schemas)
 
 ### Package Scripts:
+
 ```json
 {
   "validate": "Run all validation",
@@ -257,8 +281,10 @@ Aider acts as autonomous builder and validator for all 170+ files.
   "fix": "Auto-fix ESLint + Prettier"
 }
 ```
+````
 
 ### Aider Configuration:
+
 - `.aider.conf.yml` updated with validator role
 - Policies loaded automatically
 - Autonomous validation execution
@@ -273,7 +299,8 @@ Aider acts as autonomous builder and validator for all 170+ files.
 [COPY ENTIRE CONTENTS OF MINIMAX-TROUBLESHOOTING.md HERE]
 
 This ensures all MiniMax-related troubleshooting is documented in Phase 1 policies.
-```
+
+````
 
 ---
 
@@ -301,7 +328,7 @@ git commit -m "docs: update all documentation to reflect Aider validator role
 - Updated README.md with validation system info
 - Updated v7_overview.md with Phase 3 details
 - Updated v7_phase_1_policies.md with MINIMAX troubleshooting"
-```
+````
 
 ---
 

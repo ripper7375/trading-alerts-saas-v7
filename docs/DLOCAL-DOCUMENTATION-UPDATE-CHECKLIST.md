@@ -8,6 +8,7 @@
 ## ✅ COMPLETED UPDATES
 
 ### 1. Critical Workflow Files
+
 - [x] **.aider.conf.yml** - Added `docs/policies/07-dlocal-integration-rules.md` and `docs/dlocal-openapi-endpoints.yaml` to read list
 - [x] **PROGRESS.md** - Updated file count (289), part count (18), estimated time (293 hours)
 - [x] **README.md** - Added dLocal features, updated API specs, updated project structure
@@ -24,23 +25,28 @@
 ### 2. Architecture & Design Documents
 
 #### **ARCHITECTURE.md** - ⚠️ High Priority
+
 **Location:** `/ARCHITECTURE.md`
 
 **Changes Needed:**
+
 1. Add payment gateway architecture section
 2. Update component diagram to show dual payment providers
 3. Add dLocal API integration points
 4. Document early renewal logic for dLocal subscriptions
 
 **Specific Additions:**
+
 ```markdown
 ## Payment Architecture
 
 ### Dual Payment Provider System
+
 - **Stripe**: International credit/debit cards, auto-renewal
 - **dLocal**: Local payment methods (8 countries), manual renewal
 
 ### Payment Flow
+
 1. User selects country → System detects available payment methods
 2. User selects payment provider (Stripe or dLocal)
 3. For dLocal: Currency conversion USD → local currency
@@ -48,6 +54,7 @@
 5. Webhook updates subscription with early renewal support
 
 ### Database Schema
+
 - Single `Subscription` model with provider-specific fields
 - `Payment` model for transaction audit trail
 - `FraudAlert` model for 3-day plan abuse detection
@@ -56,6 +63,7 @@
 ---
 
 #### **docs/diagrams/diagram-06-db-schema.mermaid** - ⚠️ High Priority
+
 **Location:** `/docs/diagrams/diagram-06-db-schema.mermaid`
 
 **Changes Needed:**
@@ -133,13 +141,16 @@ erDiagram
 ### 3. Policy Documents (Aider Read Files)
 
 #### **docs/policies/00-tier-specifications.md** - ⚠️ Medium Priority
+
 **Changes Needed:**
+
 - No major changes needed (tier restrictions apply regardless of payment provider)
 - Consider adding note that dLocal users pay in local currency but get same PRO tier benefits
 
 ---
 
 #### **docs/policies/01-approval-policies.md** - ⚠️ Medium Priority
+
 **Changes Needed:**
 Add dLocal-specific approval criteria:
 
@@ -147,7 +158,9 @@ Add dLocal-specific approval criteria:
 ## Payment Provider Validation
 
 ### dLocal Subscriptions
+
 ✅ AUTO-APPROVE if:
+
 - Uses `threeDayValidator.canPurchaseThreeDayPlan()` for 3-day plans
 - Implements early renewal logic (extends from current expiry)
 - Marks `hasUsedThreeDayPlan = true` after 3-day purchase
@@ -155,6 +168,7 @@ Add dLocal-specific approval criteria:
 - Currency conversion ONLY for dLocal (not Stripe)
 
 ❌ REJECT if:
+
 - Shows cancellation UI for dLocal users
 - Applies auto-renewal logic to dLocal
 - Allows 3-day plan purchase with active subscription
@@ -164,25 +178,30 @@ Add dLocal-specific approval criteria:
 ---
 
 #### **docs/policies/02-quality-standards.md** - ⚠️ Low Priority
+
 **Changes Needed:**
+
 - Add validation rules for payment provider conditionals
 - Add test coverage requirements for dual payment system
 
 ---
 
 #### **docs/policies/03-architecture-rules.md** - ⚠️ High Priority
+
 **Changes Needed:**
 Add payment architecture rules:
 
-```markdown
+````markdown
 ## Payment Provider Architecture
 
 ### Rule: Single Subscription Model
+
 - ✅ ONE `Subscription` model for both Stripe and dLocal
 - ✅ Provider-specific fields are nullable
 - ❌ NO separate tables for dLocal subscriptions
 
 ### Rule: Provider-Specific Logic Isolation
+
 ```typescript
 // ✅ GOOD: Provider logic separated
 if (subscription.provider === 'STRIPE') {
@@ -196,12 +215,15 @@ if (subscription.provider === 'DLOCAL') {
 // ❌ BAD: Mixed provider logic
 await cancelSubscription(subscriptionId); // Assumes auto-renewal
 ```
+````
 
 ### Rule: Early Renewal Support (dLocal Only)
+
 - Monthly dLocal subscriptions can be renewed BEFORE expiry
 - System extends from current expiry: `remainingDays + 30 = totalDays`
 - 3-day plans CANNOT be purchased if user has active subscription
-```
+
+````
 
 ---
 
@@ -217,21 +239,24 @@ Add dLocal-specific escalation triggers:
 - Currency conversion logic unclear (Stripe vs dLocal)
 - Fraud detection thresholds not defined
 - Exchange rate source ambiguous
-```
+````
 
 ---
 
 #### **docs/policies/05-coding-patterns.md** - ⚠️ Medium Priority
+
 **Changes Needed:**
 Add dLocal-specific patterns:
 
-```markdown
+````markdown
 ## Pattern 12: Payment Provider Conditional Rendering
 
 ### Context
+
 Show different UI based on payment provider (Stripe vs dLocal)
 
 ### Pattern
+
 ```typescript
 'use client';
 
@@ -270,7 +295,9 @@ export function SubscriptionSettings() {
   );
 }
 ```
-```
+````
+
+````
 
 ---
 
@@ -299,21 +326,25 @@ Update Part 18 in the implementation order:
 - Webhook handling with early renewal support
 - Admin fraud monitoring dashboard
 - Frontend payment selection UI
-```
+````
 
 ---
 
 ### 4. Phase Documents
 
 #### **docs/v7/v7_phase_1_policies.md** - ⚠️ Low Priority
+
 **Changes Needed:**
+
 - Update policy count: 7 policies (add reference to 07-dlocal-integration-rules.md)
 - Update estimated completion time if needed
 
 ---
 
 #### **docs/v7/v7_phase_3_building.md** - ⚠️ Medium Priority
+
 **Changes Needed:**
+
 - Update total file count: 289 files
 - Update total parts: 18 parts
 - Update estimated time: 293 hours (including Part 18)
@@ -324,6 +355,7 @@ Update Part 18 in the implementation order:
 ### 5. OpenAPI Specifications
 
 #### **trading_alerts_openapi.yaml** - ⚠️ High Priority
+
 **Changes Needed:**
 Add dLocal payment endpoints to the main spec (or reference the separate dLocal spec):
 
@@ -347,6 +379,7 @@ paths:
 ### 6. User Journey Documents
 
 #### **docs/ui-frontend-user-journey/saas-user-journey-updated.md** - ⚠️ Medium Priority
+
 **Changes Needed:**
 Update checkout journey to include dLocal option:
 
@@ -386,6 +419,7 @@ Update checkout journey to include dLocal option:
 ---
 
 #### **docs/ui-frontend-user-journey/mermaid-diagrams/journey-2-upgrade-pro.mermaid** - ⚠️ Medium Priority
+
 **Changes Needed:**
 Add payment provider selection node:
 
@@ -408,6 +442,7 @@ graph TD
 ### 7. Affiliate Documents
 
 #### **docs/AFFILIATE-ADMIN-JOURNEY.md** - ⚠️ Low Priority
+
 **Changes Needed:**
 Add note about discount codes working with dLocal monthly plans:
 
@@ -415,15 +450,18 @@ Add note about discount codes working with dLocal monthly plans:
 ## Discount Code Compatibility
 
 ### Stripe Subscriptions
+
 - ✅ All plans support discount codes
 - ✅ 7-day free trial + discount code
 
 ### dLocal Subscriptions
+
 - ✅ Monthly plans support discount codes
 - ❌ 3-day plans DO NOT support discount codes
 - ❌ No free trial period
 
 ### Affiliate Impact
+
 - Affiliates earn commissions on dLocal monthly subscriptions
 - Affiliates do NOT earn commissions on 3-day plans (too low margin)
 ```
@@ -431,12 +469,14 @@ Add note about discount codes working with dLocal monthly plans:
 ---
 
 #### **docs/AFFILIATE-MARKETING-DESIGN.md** - ⚠️ Low Priority
+
 **Changes Needed:**
 Similar to above - clarify discount code compatibility
 
 ---
 
 #### **docs/DISCOUNT-CODE-CORRECTION-SUMMARY.md** - ⚠️ Low Priority
+
 **Changes Needed:**
 Update with dLocal 3-day plan restriction:
 
@@ -444,6 +484,7 @@ Update with dLocal 3-day plan restriction:
 ## Discount Code Rules
 
 ### Updated Rules (with dLocal)
+
 1. Stripe: All plans support discount codes
 2. dLocal Monthly: Supports discount codes (20% off)
 3. dLocal 3-Day: NO discount codes (prevents abuse)
@@ -454,12 +495,15 @@ Update with dLocal 3-day plan restriction:
 ### 8. Journey Diagrams (Affiliate)
 
 #### **ui-frontend-user-journey/journey-4-affiliate-registration.mermaid** - ⚠️ Very Low Priority
+
 **Changes Needed:** None (affiliate registration unaffected by payment provider)
 
 #### **ui-frontend-user-journey/journey-5-affiliate-dashboard.mermaid** - ⚠️ Very Low Priority
+
 **Changes Needed:** None (commission tracking works regardless of payment provider)
 
 #### **ui-frontend-user-journey/journey-6-admin-affiliate-management.mermaid** - ⚠️ Very Low Priority
+
 **Changes Needed:** None
 
 ---
@@ -467,18 +511,23 @@ Update with dLocal 3-day plan restriction:
 ### 9. Miscellaneous Documents
 
 #### **AFFILIATE-MARKETING-INTEGRATION-CHECKLIST.md** - ⚠️ Very Low Priority
+
 **Changes Needed:** None
 
 #### **AFFILIATE-SYSTEM-COMPREHENSIVE-UPDATE-SUMMARY.md** - ⚠️ Very Low Priority
+
 **Changes Needed:** None
 
 #### **AFFILIATE-SYSTEM-SETTINGS-DESIGN.md** - ⚠️ Very Low Priority
+
 **Changes Needed:** None
 
 #### **AFFILIATE-SYSTEM-UPDATES-NEEDED.md** - ⚠️ Very Low Priority
+
 **Changes Needed:** None
 
 #### **SUBSCRIPTION-MODEL-CLARIFICATION.md** - ⚠️ Low Priority
+
 **Changes Needed:**
 Add dLocal subscription model:
 
@@ -486,12 +535,14 @@ Add dLocal subscription model:
 ## Subscription Models by Provider
 
 ### Stripe
+
 - Auto-renewal: YES
 - Free trial: 7 days
 - Plans: Monthly only
 - Cancellation: Yes (stops auto-renewal)
 
 ### dLocal
+
 - Auto-renewal: NO (manual renewal required)
 - Free trial: NO
 - Plans: 3-day (one-time) + Monthly
@@ -503,19 +554,20 @@ Add dLocal subscription model:
 
 ## 📊 Update Priority Summary
 
-| Priority | Files | Status |
-|----------|-------|--------|
-| **High** | 4 files | ⚠️ Pending |
-| **Medium** | 6 files | ⚠️ Pending |
-| **Low** | 8 files | ⚠️ Pending |
+| Priority     | Files   | Status      |
+| ------------ | ------- | ----------- |
+| **High**     | 4 files | ⚠️ Pending  |
+| **Medium**   | 6 files | ⚠️ Pending  |
+| **Low**      | 8 files | ⚠️ Pending  |
 | **Very Low** | 6 files | ⚠️ Optional |
-| **Complete** | 8 files | ✅ Done |
+| **Complete** | 8 files | ✅ Done     |
 
 ---
 
 ## 🎯 Recommended Update Sequence
 
 ### Phase 1: Critical for Aider Workflow (Do First)
+
 1. ✅ .aider.conf.yml
 2. ✅ PROGRESS.md
 3. ✅ README.md
@@ -525,12 +577,14 @@ Add dLocal subscription model:
 7. ⚠️ trading_alerts_openapi.yaml (or keep separate - already in .aider.conf.yml)
 
 ### Phase 2: Important for Code Quality (Do Second)
+
 8. ⚠️ docs/policies/01-approval-policies.md
 9. ⚠️ docs/policies/05-coding-patterns.md
 10. ⚠️ docs/policies/06-aider-instructions.md
 11. ⚠️ docs/v7/v7_phase_3_building.md
 
 ### Phase 3: Documentation Consistency (Do Third)
+
 12. ⚠️ docs/ui-frontend-user-journey/saas-user-journey-updated.md
 13. ⚠️ docs/ui-frontend-user-journey/mermaid-diagrams/journey-2-upgrade-pro.mermaid
 14. ⚠️ docs/AFFILIATE-ADMIN-JOURNEY.md
@@ -538,6 +592,7 @@ Add dLocal subscription model:
 16. ⚠️ SUBSCRIPTION-MODEL-CLARIFICATION.md
 
 ### Phase 4: Optional Enhancements (Do Last or Skip)
+
 17. Low priority affiliate documents
 18. Very low priority journey diagrams
 

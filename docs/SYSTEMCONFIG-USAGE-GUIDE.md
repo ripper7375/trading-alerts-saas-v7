@@ -62,11 +62,11 @@ model SystemConfigHistory {
 
 ### Current Configuration Keys:
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| `affiliate_discount_percent` | number | 20.0 | Customer discount percentage |
-| `affiliate_commission_percent` | number | 20.0 | Affiliate commission percentage |
-| `affiliate_codes_per_month` | number | 15 | Codes distributed per affiliate monthly |
+| Key                            | Type   | Default | Description                             |
+| ------------------------------ | ------ | ------- | --------------------------------------- |
+| `affiliate_discount_percent`   | number | 20.0    | Customer discount percentage            |
+| `affiliate_commission_percent` | number | 20.0    | Affiliate commission percentage         |
+| `affiliate_codes_per_month`    | number | 15      | Codes distributed per affiliate monthly |
 
 ---
 
@@ -208,6 +208,7 @@ git push
 ### Pages That Auto-Detect SystemConfig:
 
 ✅ **Current Pages (Already Implemented):**
+
 - Marketing homepage
 - Pricing page
 - Checkout page
@@ -216,6 +217,7 @@ git push
 - Admin affiliate management
 
 ✅ **Future Pages (Will Auto-Detect When You Add Them):**
+
 - Affiliate analytics dashboard (when you create it)
 - Affiliate leaderboard page (when you create it)
 - Public affiliate program info page (when you create it)
@@ -231,19 +233,21 @@ git push
 export function useAffiliateConfig() {
   // SWR fetches from /api/config/affiliate
   const { data } = useSWR<AffiliateConfig>('/api/config/affiliate', {
-    refreshInterval: 300000,  // 5 minutes
+    refreshInterval: 300000, // 5 minutes
     revalidateOnFocus: true,
   });
 
   return {
-    discountPercent: data?.discountPercent ?? 20,     // Current value
+    discountPercent: data?.discountPercent ?? 20, // Current value
     commissionPercent: data?.commissionPercent ?? 20, // Current value
-    calculateDiscountedPrice: (price) => price * (1 - (data?.discountPercent ?? 20) / 100),
+    calculateDiscountedPrice: (price) =>
+      price * (1 - (data?.discountPercent ?? 20) / 100),
   };
 }
 ```
 
 **What this means:**
+
 - ANY component that imports and uses this hook automatically gets current values
 - The hook handles fetching, caching, auto-refresh
 - You just use the values in your UI
@@ -315,11 +319,11 @@ grep -r "× 0.2" app/ components/ lib/
 
 ```typescript
 // Before
-const discountAmount = price * 0.2;  // ❌ Hardcoded 20%
+const discountAmount = price * 0.2; // ❌ Hardcoded 20%
 
 // After
 const { discountPercent } = useAffiliateConfig();
-const discountAmount = price * (discountPercent / 100);  // ✅ Dynamic
+const discountAmount = price * (discountPercent / 100); // ✅ Dynamic
 ```
 
 #### Step 3: Update Email Templates
@@ -353,7 +357,7 @@ import { prisma } from '@/lib/prisma';
 export async function sendAffiliateWelcomeEmail(affiliateId: string) {
   // Fetch config from database directly (server-side)
   const commissionConfig = await prisma.systemConfig.findUnique({
-    where: { key: 'affiliate_commission_percent' }
+    where: { key: 'affiliate_commission_percent' },
   });
 
   const commissionPercent = parseFloat(commissionConfig?.value || '20.0');
@@ -366,7 +370,7 @@ export async function sendAffiliateWelcomeEmail(affiliateId: string) {
   await sendEmail({
     to: affiliate.email,
     subject: 'Welcome to Affiliate Program',
-    html: emailHtml
+    html: emailHtml,
   });
 }
 ```
@@ -407,21 +411,21 @@ await prisma.systemConfig.createMany({
       value: '20.0',
       valueType: 'number',
       description: 'Default discount percentage for affiliate codes',
-      category: 'affiliate'
+      category: 'affiliate',
     },
     {
       key: 'affiliate_commission_percent',
       value: '20.0',
       valueType: 'number',
       description: 'Default commission percentage for affiliates',
-      category: 'affiliate'
+      category: 'affiliate',
     },
     {
       key: 'affiliate_codes_per_month',
       value: '15',
       valueType: 'number',
       description: 'Number of codes distributed to each affiliate monthly',
-      category: 'affiliate'
+      category: 'affiliate',
     },
 
     // 🆕 NEW SETTING
@@ -430,7 +434,7 @@ await prisma.systemConfig.createMany({
       value: '50',
       valueType: 'number',
       description: 'Number of sales required to earn bonus reward',
-      category: 'affiliate'
+      category: 'affiliate',
     },
   ],
   skipDuplicates: true,
@@ -445,7 +449,7 @@ export interface AffiliateConfig {
   discountPercent: number;
   commissionPercent: number;
   codesPerMonth: number;
-  bonusThreshold: number;        // 🆕 NEW
+  bonusThreshold: number; // 🆕 NEW
   regularPrice: number;
   lastUpdated: string;
 }
@@ -464,7 +468,7 @@ export function useAffiliateConfig() {
     config: data,
     discountPercent: data?.discountPercent ?? 20,
     commissionPercent: data?.commissionPercent ?? 20,
-    bonusThreshold: data?.bonusThreshold ?? 50,  // 🆕 NEW
+    bonusThreshold: data?.bonusThreshold ?? 50, // 🆕 NEW
     calculateDiscountedPrice: (regularPrice: number) => {
       const discount = data?.discountPercent ?? 20;
       return regularPrice * (1 - discount / 100);
@@ -488,22 +492,24 @@ export async function GET(req: NextRequest) {
             'affiliate_discount_percent',
             'affiliate_commission_percent',
             'affiliate_codes_per_month',
-            'affiliate_bonus_threshold',  // 🆕 NEW
-          ]
-        }
-      }
+            'affiliate_bonus_threshold', // 🆕 NEW
+          ],
+        },
+      },
     });
 
-    const configMap = Object.fromEntries(
-      configs.map(c => [c.key, c.value])
-    );
+    const configMap = Object.fromEntries(configs.map((c) => [c.key, c.value]));
 
     return NextResponse.json({
-      discountPercent: parseFloat(configMap.affiliate_discount_percent || '20.0'),
-      commissionPercent: parseFloat(configMap.affiliate_commission_percent || '20.0'),
+      discountPercent: parseFloat(
+        configMap.affiliate_discount_percent || '20.0'
+      ),
+      commissionPercent: parseFloat(
+        configMap.affiliate_commission_percent || '20.0'
+      ),
       codesPerMonth: parseInt(configMap.affiliate_codes_per_month || '15'),
-      bonusThreshold: parseInt(configMap.affiliate_bonus_threshold || '50'),  // 🆕 NEW
-      regularPrice: 29.00,
+      bonusThreshold: parseInt(configMap.affiliate_bonus_threshold || '50'), // 🆕 NEW
+      regularPrice: 29.0,
       lastUpdated: configs[0]?.updatedAt || new Date(),
     });
   } catch (error) {
@@ -577,7 +583,13 @@ export async function PATCH(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { discountPercent, commissionPercent, codesPerMonth, bonusThreshold, reason } = body;
+  const {
+    discountPercent,
+    commissionPercent,
+    codesPerMonth,
+    bonusThreshold,
+    reason,
+  } = body;
 
   const changes = [];
 
@@ -586,7 +598,7 @@ export async function PATCH(req: NextRequest) {
   // 🆕 Handle new setting
   if (bonusThreshold !== undefined) {
     const current = await prisma.systemConfig.findUnique({
-      where: { key: 'affiliate_bonus_threshold' }
+      where: { key: 'affiliate_bonus_threshold' },
     });
 
     await prisma.systemConfig.update({
@@ -594,7 +606,7 @@ export async function PATCH(req: NextRequest) {
       data: {
         value: bonusThreshold.toString(),
         updatedBy: session.user.id,
-      }
+      },
     });
 
     if (current && current.value !== bonusThreshold.toString()) {
@@ -605,7 +617,7 @@ export async function PATCH(req: NextRequest) {
           newValue: bonusThreshold.toString(),
           changedBy: session.user.email,
           reason,
-        }
+        },
       });
 
       changes.push({
@@ -618,7 +630,8 @@ export async function PATCH(req: NextRequest) {
 
   return NextResponse.json({
     success: true,
-    message: 'Affiliate settings updated. Changes will propagate across all pages within 5 minutes.',
+    message:
+      'Affiliate settings updated. Changes will propagate across all pages within 5 minutes.',
     changes,
   });
 }
@@ -662,12 +675,13 @@ Now admin can change the bonus threshold from the dashboard, and all pages using
 **Authentication:** None (public)
 
 **Response:**
+
 ```json
 {
   "discountPercent": 20.0,
   "commissionPercent": 20.0,
   "codesPerMonth": 15,
-  "regularPrice": 29.00,
+  "regularPrice": 29.0,
   "lastUpdated": "2025-11-16T15:30:00Z"
 }
 ```
@@ -675,6 +689,7 @@ Now admin can change the bonus threshold from the dashboard, and all pages using
 **Caching:** 5 minutes (300 seconds)
 
 **Usage:**
+
 ```typescript
 const response = await fetch('/api/config/affiliate');
 const config = await response.json();
@@ -690,6 +705,7 @@ console.log(config.discountPercent); // 20.0
 **Authentication:** Required (Admin only)
 
 **Response:**
+
 ```json
 {
   "discountPercent": {
@@ -719,6 +735,7 @@ console.log(config.discountPercent); // 20.0
 **Authentication:** Required (Admin only)
 
 **Request Body:**
+
 ```json
 {
   "discountPercent": 25.0,
@@ -729,6 +746,7 @@ console.log(config.discountPercent); // 20.0
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -757,11 +775,13 @@ console.log(config.discountPercent); // 20.0
 **Authentication:** Required (Admin only)
 
 **Query Parameters:**
+
 - `limit` (number, default: 50) - Number of history entries
 - `offset` (number, default: 0) - Pagination offset
 - `configKey` (string, optional) - Filter by specific setting
 
 **Response:**
+
 ```json
 {
   "history": [
@@ -790,6 +810,7 @@ console.log(config.discountPercent); // 20.0
 **Location:** `lib/hooks/useAffiliateConfig.ts`
 
 **Usage:**
+
 ```typescript
 import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
 
@@ -818,16 +839,17 @@ function MyComponent() {
 
 **Return Values:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `config` | `AffiliateConfig \| undefined` | Full config object |
-| `discountPercent` | `number` | Current discount % (fallback: 20) |
-| `commissionPercent` | `number` | Current commission % (fallback: 20) |
-| `calculateDiscountedPrice` | `(price: number) => number` | Helper to calculate discounted price |
-| `isLoading` | `boolean` | True while fetching config |
-| `error` | `any` | Error object if fetch failed |
+| Property                   | Type                           | Description                          |
+| -------------------------- | ------------------------------ | ------------------------------------ |
+| `config`                   | `AffiliateConfig \| undefined` | Full config object                   |
+| `discountPercent`          | `number`                       | Current discount % (fallback: 20)    |
+| `commissionPercent`        | `number`                       | Current commission % (fallback: 20)  |
+| `calculateDiscountedPrice` | `(price: number) => number`    | Helper to calculate discounted price |
+| `isLoading`                | `boolean`                      | True while fetching config           |
+| `error`                    | `any`                          | Error object if fetch failed         |
 
 **Caching Behavior:**
+
 - Auto-refreshes every 5 minutes
 - Revalidates on window focus
 - Deduplicates requests within 1 minute
@@ -847,29 +869,39 @@ export async function POST(req: NextRequest) {
   // 1. Fetch current config from SystemConfig
   const configs = await prisma.systemConfig.findMany({
     where: {
-      key: { in: ['affiliate_discount_percent', 'affiliate_commission_percent', 'affiliate_codes_per_month'] }
-    }
+      key: {
+        in: [
+          'affiliate_discount_percent',
+          'affiliate_commission_percent',
+          'affiliate_codes_per_month',
+        ],
+      },
+    },
   });
 
-  const configMap = Object.fromEntries(configs.map(c => [c.key, c.value]));
+  const configMap = Object.fromEntries(configs.map((c) => [c.key, c.value]));
 
-  const discountPercent = parseFloat(configMap.affiliate_discount_percent || '20.0');
-  const commissionPercent = parseFloat(configMap.affiliate_commission_percent || '20.0');
+  const discountPercent = parseFloat(
+    configMap.affiliate_discount_percent || '20.0'
+  );
+  const commissionPercent = parseFloat(
+    configMap.affiliate_commission_percent || '20.0'
+  );
   const codesPerMonth = parseInt(configMap.affiliate_codes_per_month || '15');
 
   // 2. Generate codes with current config values
   const activeAffiliates = await prisma.affiliate.findMany({
-    where: { status: 'ACTIVE' }
+    where: { status: 'ACTIVE' },
   });
 
   for (const affiliate of activeAffiliates) {
     const codes = Array.from({ length: codesPerMonth }, () => ({
       code: generateSecureCode(),
       affiliateId: affiliate.id,
-      discountPercent,      // ✅ From SystemConfig
-      commissionPercent,    // ✅ From SystemConfig
+      discountPercent, // ✅ From SystemConfig
+      commissionPercent, // ✅ From SystemConfig
       expiresAt: endOfMonth(),
-      status: 'ACTIVE'
+      status: 'ACTIVE',
     }));
 
     await prisma.affiliateCode.createMany({ data: codes });
@@ -887,13 +919,16 @@ export async function POST(req: NextRequest) {
 
 ```typescript
 // app/api/admin/affiliates/[id]/distribute-codes/route.ts
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   // Fetch current config
   const discountConfig = await prisma.systemConfig.findUnique({
-    where: { key: 'affiliate_discount_percent' }
+    where: { key: 'affiliate_discount_percent' },
   });
   const commissionConfig = await prisma.systemConfig.findUnique({
-    where: { key: 'affiliate_commission_percent' }
+    where: { key: 'affiliate_commission_percent' },
   });
 
   const discountPercent = parseFloat(discountConfig?.value || '20.0');
@@ -901,18 +936,20 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   // Generate codes
   const codes = await Promise.all(
-    Array(15).fill(null).map(() =>
-      prisma.affiliateCode.create({
-        data: {
-          code: generateSecureCode(),
-          affiliateId: params.id,
-          discountPercent,      // ✅ From SystemConfig
-          commissionPercent,    // ✅ From SystemConfig
-          expiresAt: endOfMonth(),
-          status: 'ACTIVE'
-        }
-      })
-    )
+    Array(15)
+      .fill(null)
+      .map(() =>
+        prisma.affiliateCode.create({
+          data: {
+            code: generateSecureCode(),
+            affiliateId: params.id,
+            discountPercent, // ✅ From SystemConfig
+            commissionPercent, // ✅ From SystemConfig
+            expiresAt: endOfMonth(),
+            status: 'ACTIVE',
+          },
+        })
+      )
   );
 
   return NextResponse.json({ codesDistributed: codes.length });
@@ -928,11 +965,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 ```typescript
 // lib/email/send-welcome.ts
 export async function sendAffiliateWelcomeEmail(affiliateId: string) {
-  const affiliate = await prisma.affiliate.findUnique({ where: { id: affiliateId } });
+  const affiliate = await prisma.affiliate.findUnique({
+    where: { id: affiliateId },
+  });
 
   // Fetch current commission percentage
   const commissionConfig = await prisma.systemConfig.findUnique({
-    where: { key: 'affiliate_commission_percent' }
+    where: { key: 'affiliate_commission_percent' },
   });
 
   const commissionPercent = parseFloat(commissionConfig?.value || '20.0');
@@ -947,7 +986,7 @@ export async function sendAffiliateWelcomeEmail(affiliateId: string) {
   await sendEmail({
     to: affiliate.email,
     subject: 'Welcome to Affiliate Program',
-    html: emailHtml
+    html: emailHtml,
   });
 }
 ```
@@ -1000,12 +1039,12 @@ test('generates codes with current config percentages', async () => {
   // Set config to custom values
   await prisma.systemConfig.update({
     where: { key: 'affiliate_discount_percent' },
-    data: { value: '25.0' }
+    data: { value: '25.0' },
   });
 
   await prisma.systemConfig.update({
     where: { key: 'affiliate_commission_percent' },
-    data: { value: '30.0' }
+    data: { value: '30.0' },
   });
 
   // Generate codes
@@ -1013,7 +1052,7 @@ test('generates codes with current config percentages', async () => {
 
   // Verify codes have correct percentages
   const codes = await prisma.affiliateCode.findMany({
-    where: { affiliateId: 'affiliate123' }
+    where: { affiliateId: 'affiliate123' },
   });
 
   expect(codes[0].discountPercent).toBe(25.0);
@@ -1028,10 +1067,12 @@ test('generates codes with current config percentages', async () => {
 ### Issue 1: Page Shows Old Percentages After Admin Changed Them
 
 **Symptoms:**
+
 - Admin changed commission to 25% in dashboard
 - Page still shows 20% commission
 
 **Causes:**
+
 1. SWR cache hasn't refreshed yet (wait up to 5 minutes)
 2. Browser cache preventing API call
 3. Page not using `useAffiliateConfig()` hook
@@ -1066,10 +1107,12 @@ import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
 ### Issue 2: New Page Doesn't Show Dynamic Percentages
 
 **Symptoms:**
+
 - Created new page
 - Page shows undefined or NaN for percentages
 
 **Cause:**
+
 - Forgot to import hook
 - Hook not called in component
 - Component is server-side (can't use hooks)
@@ -1105,11 +1148,13 @@ export default async function NewServerPage() {
 ### Issue 3: Admin Settings Page Not Saving Changes
 
 **Symptoms:**
+
 - Admin clicks "Save Changes"
 - Page shows success message
 - But SystemConfig table not updated
 
 **Cause:**
+
 - PATCH endpoint not updating database
 - Missing authentication
 - Wrong API route
@@ -1130,7 +1175,7 @@ export async function PATCH(req: NextRequest) {
     data: {
       value: body.commissionPercent.toString(),
       updatedBy: session.user.id,
-    }
+    },
   });
 
   console.log('Updated config:', updated);
@@ -1144,12 +1189,14 @@ export async function PATCH(req: NextRequest) {
 ### Issue 4: Codes Generated Before Config Change Still Using Old Percentages
 
 **Symptoms:**
+
 - Admin changed commission to 25%
 - But existing codes still show 20%
 
 **This is Expected Behavior!**
 
 **Explanation:**
+
 - Existing codes are snapshots (immutable)
 - They keep their original percentages
 - Only NEW codes use updated percentages
@@ -1221,6 +1268,7 @@ WHERE createdAt > '2025-11-15 15:00:00';
 ### The Only Requirement:
 
 **Frontend (Client Components):**
+
 ```typescript
 import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
 
@@ -1228,9 +1276,10 @@ const { discountPercent, commissionPercent } = useAffiliateConfig();
 ```
 
 **Backend (Server-Side):**
+
 ```typescript
 const config = await prisma.systemConfig.findUnique({
-  where: { key: 'affiliate_commission_percent' }
+  where: { key: 'affiliate_commission_percent' },
 });
 const commissionPercent = parseFloat(config?.value || '20.0');
 ```

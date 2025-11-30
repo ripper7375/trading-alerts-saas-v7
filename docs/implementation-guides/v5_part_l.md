@@ -32,6 +32,7 @@ Enable users to upgrade from FREE to PRO tier, manage subscriptions, view invoic
 ###1. 2-Tier Pricing Model
 
 **FREE Tier:**
+
 - Price: $0/month (no payment required)
 - Features:
   - 5 symbols (XAUUSD only in V5)
@@ -40,6 +41,7 @@ Enable users to upgrade from FREE to PRO tier, manage subscriptions, view invoic
   - Basic support
 
 **PRO Tier:**
+
 - Price: $29/month
 - Billing: Monthly recurring via Stripe
 - Features:
@@ -52,6 +54,7 @@ Enable users to upgrade from FREE to PRO tier, manage subscriptions, view invoic
 ### 2. Subscription Lifecycle
 
 **User Journey - Upgrade to PRO:**
+
 1. User on FREE tier clicks "Upgrade to PRO" button
 2. System creates Stripe Checkout session
 3. User redirected to Stripe-hosted checkout page
@@ -62,6 +65,7 @@ Enable users to upgrade from FREE to PRO tier, manage subscriptions, view invoic
 8. User redirected back to dashboard with PRO access
 
 **User Journey - Cancel PRO (Downgrade to FREE):**
+
 1. User on PRO tier clicks "Cancel Subscription" button
 2. System shows confirmation modal: "Are you sure? You'll lose PRO features."
 3. User confirms cancellation
@@ -72,6 +76,7 @@ Enable users to upgrade from FREE to PRO tier, manage subscriptions, view invoic
 8. User continues with FREE tier access
 
 **Subscription Status Sync:**
+
 - System syncs with Stripe via webhooks (real-time)
 - Backup: Daily cron job checks subscription status for all PRO users
 - If Stripe subscription inactive → downgrade to FREE
@@ -84,10 +89,12 @@ Enable users to upgrade from FREE to PRO tier, manage subscriptions, view invoic
 // Create Checkout Session
 const session = await stripe.checkout.sessions.create({
   customer_email: user.email,
-  line_items: [{
-    price: process.env.STRIPE_PRO_PRICE_ID, // $29/month
-    quantity: 1,
-  }],
+  line_items: [
+    {
+      price: process.env.STRIPE_PRO_PRICE_ID, // $29/month
+      quantity: 1,
+    },
+  ],
   mode: 'subscription',
   success_url: `${process.env.NEXTAUTH_URL}/dashboard?upgrade=success`,
   cancel_url: `${process.env.NEXTAUTH_URL}/pricing?upgrade=cancelled`,
@@ -95,7 +102,7 @@ const session = await stripe.checkout.sessions.create({
     userId: user.id,
     tier: 'PRO',
   },
-})
+});
 ```
 
 **Required Stripe Products:**
@@ -111,6 +118,7 @@ const session = await stripe.checkout.sessions.create({
 **Critical Events:**
 
 **`checkout.session.completed`:**
+
 - User completed payment
 - Action:
   1. Extract userId from metadata
@@ -120,6 +128,7 @@ const session = await stripe.checkout.sessions.create({
   5. Log event
 
 **`customer.subscription.updated`:**
+
 - Subscription details changed (e.g., payment method updated)
 - Action:
   1. Log event
@@ -127,6 +136,7 @@ const session = await stripe.checkout.sessions.create({
   3. If status changed from active → inactive: downgrade to FREE
 
 **`customer.subscription.deleted`:**
+
 - Subscription cancelled or expired
 - Action:
   1. Update user tier to FREE
@@ -135,6 +145,7 @@ const session = await stripe.checkout.sessions.create({
   4. Log event
 
 **`invoice.payment_failed`:**
+
 - Payment failed (expired card, insufficient funds)
 - Action:
   1. Send payment failure email to user
@@ -143,6 +154,7 @@ const session = await stripe.checkout.sessions.create({
   4. Log event
 
 **`invoice.payment_succeeded`:**
+
 - Monthly payment successful
 - Action:
   1. Update subscription nextBillingDate
@@ -150,6 +162,7 @@ const session = await stripe.checkout.sessions.create({
   3. Log event
 
 **Webhook Security:**
+
 - Verify webhook signature using Stripe webhook secret
 - Return 400 Bad Request if signature invalid
 - Return 200 OK immediately after processing
@@ -158,23 +171,26 @@ const session = await stripe.checkout.sessions.create({
 ### 5. Invoice Management
 
 **Invoice History:**
+
 - Fetch invoices from Stripe API
 - Display in user's billing settings page
 - Show: Date, Amount, Status (Paid/Failed), Download link
 
 **Invoice Data:**
+
 ```typescript
 interface Invoice {
-  id: string
-  date: Date
-  amount: number          // $29.00
-  status: 'paid' | 'open' | 'failed'
-  invoicePdfUrl: string   // Stripe-hosted PDF
-  description: string     // "Trading Alerts PRO - Monthly"
+  id: string;
+  date: Date;
+  amount: number; // $29.00
+  status: 'paid' | 'open' | 'failed';
+  invoicePdfUrl: string; // Stripe-hosted PDF
+  description: string; // "Trading Alerts PRO - Monthly"
 }
 ```
 
 **Pagination:**
+
 - Show last 12 invoices (1 year)
 - Load more on demand
 
@@ -185,10 +201,12 @@ interface Invoice {
 ### Pricing Page (`/pricing`)
 
 **Layout:**
+
 - 2 pricing cards side-by-side (FREE vs PRO)
 - Comparison table below cards
 
 **FREE Card:**
+
 - Title: "FREE"
 - Price: "$0/month"
 - Features list with checkmarks
@@ -196,6 +214,7 @@ interface Invoice {
 - Style: Simple, muted colors
 
 **PRO Card:**
+
 - Title: "PRO"
 - Price: "$29/month"
 - Popular badge: "⭐ Most Popular"
@@ -215,6 +234,7 @@ interface Invoice {
 ### Billing Settings Page (`/settings/billing`)
 
 **Current Subscription Section:**
+
 - Display current tier (FREE or PRO)
 - If PRO:
   - Show next billing date
@@ -223,11 +243,13 @@ interface Invoice {
   - Button: "Update Payment Method" → Opens Stripe portal
 
 **Invoice History Section:**
+
 - Table of past invoices
 - Columns: Date, Description, Amount, Status, Download
 - Download button opens Stripe PDF in new tab
 
 **Upgrade Section (if on FREE):**
+
 - "Upgrade to PRO" button
 - Shows PRO benefits
 - Prominent call-to-action
@@ -235,12 +257,14 @@ interface Invoice {
 ### Upgrade Success Flow
 
 **After Successful Payment:**
+
 1. Redirect to `/dashboard?upgrade=success`
 2. Show success toast: "🎉 Welcome to PRO! Your account has been upgraded."
 3. Dashboard immediately shows PRO features unlocked
 4. User receives confirmation email
 
 **After Cancelled Checkout:**
+
 1. Redirect to `/pricing?upgrade=cancelled`
 2. Show info message: "Upgrade cancelled. You can upgrade anytime!"
 
@@ -249,6 +273,7 @@ interface Invoice {
 **When User Clicks "Cancel Subscription":**
 
 **Modal Content:**
+
 ```
 ⚠️ Cancel PRO Subscription?
 
@@ -272,6 +297,7 @@ Your subscription will be cancelled immediately.
 **Subject:** Welcome to Trading Alerts PRO! 🎉
 
 **Body:**
+
 ```
 Hi {name},
 
@@ -297,6 +323,7 @@ Trading Alerts Team
 **Subject:** Your PRO subscription has been cancelled
 
 **Body:**
+
 ```
 Hi {name},
 
@@ -318,6 +345,7 @@ Trading Alerts Team
 **Subject:** Payment Failed - Action Required
 
 **Body:**
+
 ```
 Hi {name},
 
@@ -340,6 +368,7 @@ Trading Alerts Team
 **Subject:** Payment Receipt - Trading Alerts PRO
 
 **Body:**
+
 ```
 Hi {name},
 
@@ -364,6 +393,7 @@ Trading Alerts Team
 **Purpose:** Create Stripe Checkout session for PRO upgrade
 
 **Request:**
+
 ```json
 {
   "priceId": "price_xxx", // Stripe Price ID for $29/month
@@ -373,6 +403,7 @@ Trading Alerts Team
 ```
 
 **Response:**
+
 ```json
 {
   "sessionId": "cs_xxx",
@@ -381,6 +412,7 @@ Trading Alerts Team
 ```
 
 **Logic:**
+
 1. Verify user is authenticated
 2. Check user is on FREE tier (can't upgrade if already PRO)
 3. Create Stripe Checkout session
@@ -394,6 +426,7 @@ Trading Alerts Team
 **Request:** Empty body
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -403,6 +436,7 @@ Trading Alerts Team
 ```
 
 **Logic:**
+
 1. Verify user is authenticated
 2. Check user is on PRO tier
 3. Fetch Stripe subscription ID from database
@@ -416,13 +450,14 @@ Trading Alerts Team
 **Purpose:** List user's invoices
 
 **Response:**
+
 ```json
 {
   "invoices": [
     {
       "id": "in_xxx",
       "date": "2025-11-01",
-      "amount": 29.00,
+      "amount": 29.0,
       "status": "paid",
       "invoicePdfUrl": "https://pay.stripe.com/invoice/xxx/pdf",
       "description": "Trading Alerts PRO - Monthly"
@@ -432,6 +467,7 @@ Trading Alerts Team
 ```
 
 **Logic:**
+
 1. Verify user is authenticated
 2. Fetch Stripe customer ID from database
 3. Fetch invoices from Stripe API
@@ -446,6 +482,7 @@ Trading Alerts Team
 **Response:** `200 OK` (empty body)
 
 **Logic:**
+
 1. Verify webhook signature
 2. Extract event type and data
 3. Route to appropriate handler based on event type
@@ -459,6 +496,7 @@ Trading Alerts Team
 ### Common Errors
 
 **User Already on PRO:**
+
 ```json
 {
   "error": "Already subscribed",
@@ -468,6 +506,7 @@ Trading Alerts Team
 ```
 
 **User Not on PRO (trying to cancel):**
+
 ```json
 {
   "error": "No subscription",
@@ -477,6 +516,7 @@ Trading Alerts Team
 ```
 
 **Stripe API Error:**
+
 ```json
 {
   "error": "Payment processing failed",
@@ -486,6 +526,7 @@ Trading Alerts Team
 ```
 
 **Webhook Signature Invalid:**
+
 ```json
 {
   "error": "Invalid signature",
@@ -501,6 +542,7 @@ Trading Alerts Team
 ### Manual Testing Checklist
 
 **Upgrade Flow:**
+
 - [ ] FREE user can access checkout
 - [ ] Stripe checkout page loads correctly
 - [ ] Test card payment succeeds (use Stripe test card: 4242424242424242)
@@ -510,6 +552,7 @@ Trading Alerts Team
 - [ ] User redirected to dashboard with success message
 
 **Downgrade Flow:**
+
 - [ ] PRO user can cancel subscription
 - [ ] Confirmation modal displays
 - [ ] Subscription cancelled in Stripe
@@ -517,6 +560,7 @@ Trading Alerts Team
 - [ ] Cancellation email sent
 
 **Invoice History:**
+
 - [ ] Invoices display correctly
 - [ ] Download links work
 - [ ] Pagination works (if more than 12 invoices)
@@ -524,14 +568,17 @@ Trading Alerts Team
 ### Stripe Test Cards
 
 **Successful Payment:**
+
 - Card: 4242 4242 4242 4242
 - Exp: Any future date
 - CVC: Any 3 digits
 
 **Payment Failure:**
+
 - Card: 4000 0000 0000 0341 (Card declined)
 
 **3D Secure Required:**
+
 - Card: 4000 0025 0000 3155
 
 ---
@@ -541,23 +588,21 @@ Trading Alerts Team
 ### Webhook Security
 
 **Signature Verification:**
+
 ```typescript
-const sig = req.headers['stripe-signature']
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+const sig = req.headers['stripe-signature'];
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 try {
-  const event = stripe.webhooks.constructEvent(
-    req.body,
-    sig,
-    webhookSecret
-  )
+  const event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
   // Process event
 } catch (err) {
-  return res.status(400).send(`Webhook Error: ${err.message}`)
+  return res.status(400).send(`Webhook Error: ${err.message}`);
 }
 ```
 
 **Best Practices:**
+
 - Always verify signature before processing
 - Use environment variable for webhook secret
 - Log all webhook events
@@ -566,16 +611,19 @@ try {
 ### PCI Compliance
 
 **Stripe Handles:**
+
 - Credit card storage
 - Payment processing
 - PCI compliance
 
 **We NEVER:**
+
 - Store credit card numbers
 - Handle raw card data
 - Process payments directly
 
 **We Store:**
+
 - Stripe customer ID
 - Stripe subscription ID
 - Subscription status
@@ -586,11 +634,13 @@ try {
 ## Migration from V4
 
 **Changes:**
+
 - Remove ENTERPRISE tier completely
 - Update pricing: PRO is now $29/month (was $19/month in V4)
 - Simplify subscription logic (only 2 tiers instead of 3)
 
 **Database Migration:**
+
 ```sql
 -- Update existing ENTERPRISE users to PRO
 UPDATE users SET tier = 'PRO' WHERE tier = 'ENTERPRISE';
@@ -606,21 +656,25 @@ UPDATE users SET tier = 'PRO' WHERE tier = 'ENTERPRISE';
 ### Webhook Processing
 
 **Async Processing:**
+
 - Receive webhook → Return 200 OK immediately
 - Queue event for background processing
 - Process event asynchronously (avoids timeout)
 
 **Retry Logic:**
+
 - Stripe retries failed webhooks automatically
 - Implement idempotency to handle duplicate events
 
 ### Invoice Fetching
 
 **Caching:**
+
 - Cache invoice list for 5 minutes
 - Invalidate cache on new payment
 
 **Pagination:**
+
 - Fetch invoices in batches of 12
 - Load more on demand
 

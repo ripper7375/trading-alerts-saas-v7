@@ -24,11 +24,13 @@ These scripts automatically generate TypeScript types from your OpenAPI specific
 **Output:** `lib/api-client/` directory with TypeScript types
 
 **Usage:**
+
 ```bash
 sh scripts/openapi/generate-nextjs-types.sh
 ```
 
 **Generated Types Include:**
+
 - `UserProfile` - User account data
 - `Alert` - Trading alert object
 - `CreateAlertRequest` - Request to create new alert
@@ -44,11 +46,13 @@ sh scripts/openapi/generate-nextjs-types.sh
 **Output:** `lib/mt5-client/` directory with TypeScript types
 
 **Usage:**
+
 ```bash
 sh scripts/openapi/generate-flask-types.sh
 ```
 
 **Generated Types Include:**
+
 - `IndicatorData` - Technical indicator values
 - `MarketData` - Real-time market data
 - `SymbolInfo` - Trading symbol information
@@ -90,29 +94,29 @@ sh scripts/openapi/generate-flask-types.sh
 
 ```typescript
 // Import auto-generated types
-import { Alert, CreateAlertRequest, TierType } from '@/lib/api-client'
+import { Alert, CreateAlertRequest, TierType } from '@/lib/api-client';
 
 // Use types in your component
 const createAlert = async (data: CreateAlertRequest): Promise<Alert> => {
   const response = await fetch('/api/alerts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  })
+    body: JSON.stringify(data),
+  });
 
-  return response.json() as Alert
-}
+  return response.json() as Alert;
+};
 ```
 
 ### In Your Code (API Route)
 
 ```typescript
 // Import auto-generated types
-import { Alert, CreateAlertRequest } from '@/lib/api-client'
-import { NextRequest, NextResponse } from 'next/server'
+import { Alert, CreateAlertRequest } from '@/lib/api-client';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
-  const body: CreateAlertRequest = await request.json()
+  const body: CreateAlertRequest = await request.json();
 
   // TypeScript now knows exactly what fields are in CreateAlertRequest!
   // Your IDE will auto-complete: body.symbol, body.timeframe, body.condition, etc.
@@ -125,9 +129,9 @@ export async function POST(request: NextRequest) {
     symbol: body.symbol,
     timeframe: body.timeframe,
     // TypeScript ensures you include all required fields!
-  }
+  };
 
-  return NextResponse.json(alert)
+  return NextResponse.json(alert);
 }
 ```
 
@@ -136,6 +140,7 @@ export async function POST(request: NextRequest) {
 ### Error: "openapi-generator-cli: command not found"
 
 **Solution:** The script will auto-install it, but if it fails:
+
 ```bash
 npm install -g @openapitools/openapi-generator-cli
 ```
@@ -143,6 +148,7 @@ npm install -g @openapitools/openapi-generator-cli
 ### Error: "docs/trading_alerts_openapi.yaml not found"
 
 **Solution:** Ensure you're running the script from the project root:
+
 ```bash
 cd /path/to/trading-alerts-saas-v7
 sh scripts/openapi/generate-nextjs-types.sh
@@ -155,6 +161,7 @@ sh scripts/openapi/generate-nextjs-types.sh
 ### Generated files have errors
 
 **Solution:** Check your OpenAPI spec file for syntax errors:
+
 ```bash
 # Validate the OpenAPI spec
 npx @apidevtools/swagger-cli validate docs/trading_alerts_openapi.yaml
@@ -181,6 +188,7 @@ Using these scripts with MiniMax M2:
 For now, these scripts are **ready but not yet runnable** because you haven't built the Next.js application. They're documented and committed to your repository.
 
 **In Phase 3**, you'll:
+
 1. Create the Next.js project structure
 2. Run these scripts to generate types
 3. Use the types throughout your application

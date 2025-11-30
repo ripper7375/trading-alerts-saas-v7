@@ -11,15 +11,18 @@
 ## 1. Core Principles
 
 ### 1.1 Additive, Not Replacement
+
 - Google OAuth is ADDED to existing email/password authentication
 - Email/password login MUST continue working (even though not implemented yet)
 - All new users (OAuth or email) start as FREE tier
 - No breaking changes to future authentication flow
 
 ### 1.2 Security First (CRITICAL)
+
 Based on Decision #3 - this is the MOST IMPORTANT policy:
 
 **Account Linking Strategy: VERIFIED-ONLY**
+
 ```typescript
 // CRITICAL SECURITY RULE
 if (existingUser && !existingUser.emailVerified) {
@@ -29,11 +32,13 @@ if (existingUser && !existingUser.emailVerified) {
 ```
 
 **Why This Matters:**
+
 - Prevents account takeover vulnerability
 - Attacker cannot hijack OAuth user by registering unverified email first
 - Industry-standard security practice
 
 ### 1.3 Tier Independence
+
 - ALL new users (OAuth or email) start as FREE tier
 - Authentication method does NOT affect tier
 - Payment provider selection is independent of auth method
@@ -46,9 +51,11 @@ if (existingUser && !existingUser.emailVerified) {
 **Reference:** `docs/decisions/google-oauth-decisions.md`
 
 ### 2.1 NextAuth Version: v4 (Decision #1)
+
 **Required:** NextAuth.js v4.24.5 (already installed)
 
 **Code Pattern:**
+
 ```typescript
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
@@ -64,13 +71,16 @@ export { handler as GET, handler as POST };
 ```
 
 **DO NOT use v5 patterns:**
+
 - ❌ `import { auth } from '@/auth'`
 - ❌ Separate `auth.ts` config file
 
 ### 2.2 Session Strategy: JWT (Decision #2)
+
 **Required:** JWT sessions (cookie-based, no database)
 
 **Configuration:**
+
 ```typescript
 // NO adapter (JWT sessions don't need Prisma adapter)
 session: {
@@ -80,6 +90,7 @@ session: {
 ```
 
 **DO NOT:**
+
 - ❌ Add `adapter: PrismaAdapter(prisma)`
 - ❌ Create Session model in Prisma schema
 - ❌ Use `strategy: 'database'`
@@ -89,13 +100,14 @@ session: {
 ### 2.3 Database Schema (Decisions #4, #10)
 
 **Prisma Schema Requirements:**
+
 ```prisma
 model User {
   password      String?   // ← NULLABLE (Decision #4)
   emailVerified DateTime? // ← NULLABLE (Decision #5)
   image         String?   // ← Google profile picture
   accounts      Account[] // ← OAuth provider accounts
-  
+
   // NO sessions relation (JWT strategy)
 }
 
@@ -126,6 +138,7 @@ model Account {
 ### 2.4 Account Linking: Verified-Only (Decision #3)
 
 **Implementation in signIn callback:**
+
 ```typescript
 callbacks: {
   async signIn({ user, account, profile }) {
@@ -172,9 +185,11 @@ callbacks: {
 ## 3. File Implementation Rules
 
 ### 3.1 NextAuth Configuration
+
 **File:** `app/api/auth/[...nextauth]/route.ts`
 
 **MUST Include:**
+
 - ✅ NextAuth v4 import pattern
 - ✅ GoogleProvider with correct credentials
 - ✅ CredentialsProvider (for future email/password)
@@ -185,6 +200,7 @@ callbacks: {
 - ✅ session callback with tier and role
 
 **Template:**
+
 ```typescript
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
@@ -309,7 +325,7 @@ export const authOptions: NextAuthOptions = {
   events: {
     async signIn({ user, account, isNewUser }) {
       console.log(\`User \${user.email} signed in via \${account?.provider}\`);
-      
+
       if (isNewUser && account?.provider === 'google') {
         console.log(\`New user registered via Google OAuth: \${user.email}\`);
       }
@@ -324,9 +340,11 @@ export { handler as GET, handler as POST };
 ```
 
 ### 3.2 Type Definitions
+
 **File:** `types/next-auth.d.ts`
 
 **Template:**
+
 ```typescript
 import { DefaultSession, DefaultUser } from 'next-auth';
 import { JWT, DefaultJWT } from 'next-auth/jwt';
@@ -357,9 +375,11 @@ declare module 'next-auth/jwt' {
 ```
 
 ### 3.3 Environment Variables
+
 **File:** `.env.example`
 
 **Add these variables:**
+
 ```bash
 # Google OAuth Configuration
 GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
@@ -375,12 +395,14 @@ NEXTAUTH_SECRET=generate_with_openssl_rand_base64_32
 ## 4. Code Quality Standards
 
 ### 4.1 TypeScript
+
 - All OAuth functions MUST have explicit types
 - No `any` types in OAuth code
 - Use type definitions from `types/next-auth.d.ts`
 - All parameters and return types specified
 
 ### 4.2 Error Handling (Decision #8)
+
 **Strategy: Specific Errors**
 
 ```typescript
@@ -394,15 +416,17 @@ try {
 ```
 
 **Error Helper:**
+
 ```typescript
 // lib/auth/errors.ts
 export function getOAuthErrorMessage(errorType: string): string {
   const errors: Record<string, string> = {
-    'OAuthSignin': 'Failed to connect to Google. Please try again.',
-    'OAuthCallback': 'Google authorization failed. Please try again.',
-    'OAuthAccountNotLinked': 'Email already in use. Please sign in with your password first.',
-    'EmailCreateAccount': 'Email already registered. Please sign in instead.',
-    'Callback': 'Authentication error. Please try again.',
+    OAuthSignin: 'Failed to connect to Google. Please try again.',
+    OAuthCallback: 'Google authorization failed. Please try again.',
+    OAuthAccountNotLinked:
+      'Email already in use. Please sign in with your password first.',
+    EmailCreateAccount: 'Email already registered. Please sign in instead.',
+    Callback: 'Authentication error. Please try again.',
   };
 
   return errors[errorType] || 'An unexpected error occurred. Please try again.';
@@ -410,6 +434,7 @@ export function getOAuthErrorMessage(errorType: string): string {
 ```
 
 ### 4.3 Security Checklist
+
 - [ ] No `allowDangerousEmailAccountLinking: true`
 - [ ] Email verification enforced (verified-only linking)
 - [ ] OAuth users auto-verified (Google confirmed)
@@ -424,6 +449,7 @@ export function getOAuthErrorMessage(errorType: string): string {
 ## 5. Testing Requirements
 
 ### 5.1 Manual Testing Checklist
+
 - [ ] Google OAuth signup creates FREE tier user
 - [ ] Google OAuth login works for existing users
 - [ ] Email/password login works (when implemented)
@@ -434,6 +460,7 @@ export function getOAuthErrorMessage(errorType: string): string {
 - [ ] Error messages display correctly
 
 ### 5.2 Edge Cases to Test
+
 - [ ] User cancels Google consent screen
 - [ ] User tries to link with unverified email (should REJECT)
 - [ ] OAuth callback timeout/failure
@@ -445,11 +472,13 @@ export function getOAuthErrorMessage(errorType: string): string {
 ## 6. Database Migration
 
 **Migration Command:**
+
 ```bash
 npx prisma migrate dev --name initial_schema_with_oauth
 ```
 
 **Expected Tables:**
+
 - ✅ User (with password nullable, emailVerified, image, accounts relation)
 - ✅ Account (OAuth provider linking)
 - ❌ NO Session table (JWT sessions)
@@ -460,6 +489,7 @@ npx prisma migrate dev --name initial_schema_with_oauth
 ## 7. Common Pitfalls to Avoid
 
 ### ❌ DO NOT:
+
 1. Use `allowDangerousEmailAccountLinking: true` (security risk)
 2. Add Prisma adapter (JWT sessions don't need it)
 3. Create Session model (not needed for JWT)
@@ -470,6 +500,7 @@ npx prisma migrate dev --name initial_schema_with_oauth
 8. Skip email verification for OAuth users (auto-verify is correct)
 
 ### ✅ DO:
+
 1. Follow verified-only account linking strategy
 2. Use JWT sessions (faster, serverless-friendly)
 3. Handle errors gracefully with specific messages
@@ -484,6 +515,7 @@ npx prisma migrate dev --name initial_schema_with_oauth
 ## 8. Success Criteria
 
 ✅ **Implementation Complete When:**
+
 - Google OAuth button appears on login/register
 - Users can sign up with Google (creates FREE tier)
 - Users can sign in with Google
@@ -500,6 +532,7 @@ npx prisma migrate dev --name initial_schema_with_oauth
 ## 9. Escalation Triggers
 
 **Escalate to Human if:**
+
 - Security concern discovered
 - Decision conflicts with existing code
 - Breaking change required
@@ -514,6 +547,7 @@ npx prisma migrate dev --name initial_schema_with_oauth
 ## 10. Implementation Priority Order
 
 ### Phase 1: Database Foundation
+
 1. Create/update Prisma schema with User and Account models
 2. Ensure password is nullable (String?)
 3. Add emailVerified field (DateTime?)
@@ -522,6 +556,7 @@ npx prisma migrate dev --name initial_schema_with_oauth
 6. Run migration
 
 ### Phase 2: NextAuth Configuration
+
 7. Create `app/api/auth/[...nextauth]/route.ts`
 8. Configure GoogleProvider (no dangerous linking)
 9. Configure CredentialsProvider (structure only)
@@ -531,16 +566,19 @@ npx prisma migrate dev --name initial_schema_with_oauth
 13. Implement session callback (tier/role)
 
 ### Phase 3: Type Definitions
+
 14. Create `types/next-auth.d.ts`
 15. Extend Session interface
 16. Extend User interface
 17. Extend JWT interface
 
 ### Phase 4: Environment Setup
+
 18. Update `.env.example` with OAuth variables
 19. Document environment variable requirements
 
 ### Phase 5: UI Components (Future)
+
 20. Login page with OAuth button (when UI is built)
 21. Register page with OAuth button (when UI is built)
 
@@ -553,12 +591,14 @@ npx prisma migrate dev --name initial_schema_with_oauth
 **OpenAPI Contract:** `docs/trading_alerts_openapi.yaml` (OAuth section)
 
 **Key Files:**
+
 - Config: `app/api/auth/[...nextauth]/route.ts`
 - Schema: `prisma/schema.prisma`
 - Types: `types/next-auth.d.ts`
 - Errors: `lib/auth/errors.ts`
 
 **Environment:**
+
 - Dev: `.env.local`
 - Prod: Vercel environment variables
 - Example: `.env.example`

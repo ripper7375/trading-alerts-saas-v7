@@ -1,6 +1,7 @@
 # Trading Alerts SaaS - Complete User Journey
 
 ## 📋 Table of Contents
+
 1. [Page Structure Overview](#page-structure-overview)
 2. [Journey 1: New Visitor (FREE Tier)](#journey-1-new-visitor-free-tier)
 3. [Journey 2: Upgrading to PRO](#journey-2-upgrading-to-pro)
@@ -11,6 +12,7 @@
 ## Page Structure Overview
 
 ### 🌐 **Public Pages** (Not logged in)
+
 1. **Homepage** (`/`)
 2. **Pricing Page** (`/pricing`)
 3. **Login Page** (`/login`)
@@ -18,6 +20,7 @@
 5. **Forgot Password** (`/forgot-password`)
 
 ### 🔒 **Protected Pages** (Must be logged in)
+
 6. **Dashboard Home** (`/dashboard`)
 7. **Live Charts** (`/dashboard/charts`)
 8. **Alerts Management** (`/dashboard/alerts`)
@@ -70,6 +73,7 @@ I land on the homepage. Clean, modern design with Tailwind CSS and shadcn/ui com
 ```
 
 **My Actions:**
+
 1. I scroll down to see features
 2. I notice the "FREE" badge on certain features
 3. I click **"See Pricing"** to understand the tiers
@@ -108,6 +112,7 @@ I land on the homepage. Clean, modern design with Tailwind CSS and shadcn/ui com
 ```
 
 **My Thoughts:**
+
 - "I can start with FREE to test the system"
 - "5 symbols including XAUUSD (Gold) - that's what I trade!"
 - "If I like it, $29/month for PRO seems reasonable"
@@ -144,6 +149,7 @@ I click **"Start Free"** on the FREE tier card.
 ```
 
 **My Experience:**
+
 1. I fill in:
    - Name: "John Trader"
    - Email: "john@example.com"
@@ -155,6 +161,7 @@ I click **"Start Free"** on the FREE tier card.
 4. I click **"Create Account"**
 
 **Backend Process (I don't see this):**
+
 - POST request to `/api/auth/register`
 - Password hashed with bcrypt
 - User created in PostgreSQL with `tier: "FREE"`
@@ -210,6 +217,7 @@ I click **"Start Free"** on the FREE tier card.
 ```
 
 **Left Sidebar Menu:**
+
 ```
 ┌──────────────────┐
 │ 🏠 Dashboard    │ ← Currently here
@@ -221,6 +229,7 @@ I click **"Start Free"** on the FREE tier card.
 ```
 
 **My Thoughts:**
+
 - "Clean interface, not overwhelming"
 - "I see I have 0/5 slots used - good!"
 - "Let me add XAUUSD to my watchlist first"
@@ -268,6 +277,7 @@ I click **"+ Add Symbol to Watchlist"**
 ```
 
 **My Experience:**
+
 1. I select **XAUUSD** from dropdown
 2. I select **H1** timeframe
 3. I click **"Add to Watchlist"**
@@ -368,6 +378,7 @@ The chart area now uses **TradingView Lightweight Charts** library, providing pr
    - Double-click: Reset to auto
 
 **Technical Implementation:**
+
 ```typescript
 // components/charts/trading-chart.tsx
 import { createChart, ColorType } from 'lightweight-charts';
@@ -462,6 +473,7 @@ Every 60 seconds (FREE tier) or 30 seconds (PRO tier), the chart updates:
    - Current price line animates to new position
 
 2. **Update Indicator:**
+
    ```
    │  Last updated: Just now ✓              │
    │  Next update in: 57s                   │
@@ -562,6 +574,7 @@ I click **"Create Alert"** on the B-B1 support line.
 ```
 
 **My Experience:**
+
 1. Form is pre-filled with the line I clicked (B-B1 support)
 2. I can adjust tolerance (default 0.10% is fine)
 3. I check Email and Push notifications
@@ -569,11 +582,13 @@ I click **"Create Alert"** on the B-B1 support line.
 5. I click **"Create Alert"**
 
 **Validation:**
+
 - ✅ Symbol is in my FREE tier allowance (XAUUSD)
 - ✅ Timeframe is in my FREE tier allowance (H1)
 - ✅ I have 0/5 alerts, so I can create this
 
 **Backend Process:**
+
 - POST `/api/alerts`
 - Validates tier access
 - Creates alert in PostgreSQL
@@ -632,12 +647,14 @@ Modal closes, I'm back on the chart.
 ```
 
 **My Experience:**
+
 1. I see my alert is **Active** and **Watching**
 2. Real-time updates show current price and distance
 3. Clean card layout with all important info
 4. Easy actions: View Chart, Edit, Delete
 
 **[⋮] Menu Options:**
+
 ```
 ┌──────────────────┐
 │ 📊 View Chart   │
@@ -655,6 +672,7 @@ Modal closes, I'm back on the chart.
 **Scenario:** Gold price drops from $2,650.50 to $2,645.80 (enters the alert zone)
 
 **1. Email Notification:**
+
 ```
 From: Trading Alerts <alerts@tradingalerts.com>
 To: john@example.com
@@ -683,6 +701,7 @@ Manage your alerts: https://tradingalerts.com/dashboard/alerts
 ```
 
 **2. Push Notification:**
+
 ```
 ┌──────────────────────────────┐
 │ 🔔 Trading Alerts            │
@@ -866,13 +885,15 @@ When I visit `/dashboard/alerts` again:
 ```
 
 **My Experience:**
-1. *(Optional)* I enter discount code from affiliate (e.g., SMITH-A7K9P2M5)
+
+1. _(Optional)_ I enter discount code from affiliate (e.g., SMITH-A7K9P2M5)
 2. I click **"Apply"** and see discount applied ($29 → $26.10)
 3. I enter my payment details (Stripe embedded form)
 4. Card validation happens in real-time
 5. I click **"Start 7-Day Trial"**
 
 **Backend Process (Discount Code Flow):**
+
 1. User enters code and clicks "Apply"
 2. POST `/api/checkout/validate-code`
    - Validates code exists and is ACTIVE
@@ -883,6 +904,7 @@ When I visit `/dashboard/alerts` again:
 4. Code stored in session for use during payment
 
 **Backend Process (Payment Flow):**
+
 - POST `/api/webhooks/stripe`
 - Creates Stripe customer
 - Creates subscription with trial period (price: $23.20 if discount applied)
@@ -897,7 +919,7 @@ When I visit `/dashboard/alerts` again:
 
 **Result:**
 ✅ "Welcome to PRO! Your trial starts now."
-*(If discount used)* ✅ "Discount code applied! You saved $5.80/month."
+_(If discount used)_ ✅ "Discount code applied! You saved $5.80/month."
 
 ---
 
@@ -1101,6 +1123,7 @@ When I visit `/dashboard/alerts` again:
 ## 🎨 UI/UX Design Patterns
 
 ### Color Scheme (Throughout All Pages)
+
 ```
 Background: #FFFFFF (Light mode) / #0F1419 (Dark mode)
 Primary: #3B82F6 (Blue - Actions, Links)
@@ -1121,6 +1144,7 @@ TradingView Chart Colors:
 ```
 
 ### Component Library (shadcn/ui + TradingView)
+
 - **Buttons:** Rounded, hover effects, loading states
 - **Cards:** Shadow-sm, border, hover:border-primary
 - **Forms:** Inline validation, error messages
@@ -1136,6 +1160,7 @@ TradingView Chart Colors:
 ### TradingView Chart Integration Details
 
 **Technical Stack:**
+
 ```typescript
 // components/charts/trading-chart.tsx
 import { createChart, ColorType, CrosshairMode } from 'lightweight-charts';
@@ -1188,6 +1213,7 @@ const supportLine = chart.addLineSeries({
 ```
 
 **Data Flow:**
+
 1. **Backend API** (`/api/indicators?symbol=XAUUSD&timeframe=H1`):
    - Flask microservice calls MT5 indicators
    - Fractal Horizontal Line_V5.mq5 calculates support/resistance
@@ -1209,6 +1235,7 @@ const supportLine = chart.addLineSeries({
 **Interactive Features:**
 
 1. **Crosshair Tooltips:**
+
 ```typescript
 chart.subscribeCrosshairMove((param) => {
   if (param.time) {
@@ -1226,6 +1253,7 @@ chart.subscribeCrosshairMove((param) => {
 ```
 
 2. **Line Click Detection:**
+
 ```typescript
 chart.subscribeClick((param) => {
   const nearestLine = findNearestLine(param.point.y);
@@ -1237,6 +1265,7 @@ chart.subscribeClick((param) => {
 ```
 
 3. **Zoom/Pan Handlers:**
+
 ```typescript
 // Scroll wheel zoom
 chart.applyOptions({
@@ -1253,19 +1282,18 @@ chart.applyOptions({
 ```
 
 ### Responsive Design
-- **Desktop (1920x1080):** 
+
+- **Desktop (1920x1080):**
   - Full sidebar
   - Large TradingView chart (1200x600px)
   - All chart controls visible
   - Fractal markers clearly labeled
-  
-- **Tablet (768x1024):** 
+- **Tablet (768x1024):**
   - Collapsible sidebar
   - Medium TradingView chart (700x450px)
   - Touch-optimized controls
   - Simplified fractal markers
-  
-- **Mobile (375x667):** 
+- **Mobile (375x667):**
   - Bottom nav
   - Stacked layout
   - TradingView chart (350x400px)
@@ -1318,6 +1346,7 @@ chart.applyOptions({
 ## 📱 Mobile Experience Highlights
 
 ### Bottom Navigation (Mobile)
+
 ```
 ┌─────────────────────────────────────────┐
 │                                         │
@@ -1333,6 +1362,7 @@ chart.applyOptions({
 ### Mobile TradingView Chart Features
 
 **Touch Gestures:**
+
 - **Single Tap:** Show crosshair at that point
 - **Long Press:** Show line details tooltip
 - **Pinch:** Zoom in/out (scales time axis)
@@ -1341,6 +1371,7 @@ chart.applyOptions({
 - **Double Tap:** Reset zoom to fit all data
 
 **Mobile-Optimized Controls:**
+
 ```
 ┌─────────────────────────────────────────┐
 │ XAUUSD H1                    [⋮] [↻]   │
@@ -1374,6 +1405,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 ### Mobile Chart Performance
 
 **Optimizations:**
+
 - Reduced number of visible candles (100 vs 200 on desktop)
 - Simplified fractal markers (no labels, only symbols)
 - Lazy loading of historical data
@@ -1382,6 +1414,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 - Efficient re-rendering with React.memo
 
 **Loading State:**
+
 ```
 ┌─────────────────────────────────────┐
 │ 📊 Loading XAUUSD H1...             │
@@ -1395,6 +1428,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 ## ⚡ Performance & Loading States
 
 ### Initial Page Load
+
 ```
 ┌────────────────────────────────────────┐
 │  ⏳ Loading Trading Alerts...          │
@@ -1407,6 +1441,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 ### Chart Loading Sequence
 
 **Step 1: Container Ready**
+
 ```
 ┌────────────────────────────────────────┐
 │  📊 XAUUSD H1                          │
@@ -1420,6 +1455,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 ```
 
 **Step 2: Loading Data**
+
 ```
 ┌────────────────────────────────────────┐
 │  📊 XAUUSD H1                          │
@@ -1435,6 +1471,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 ```
 
 **Step 3: Rendering**
+
 ```
 ┌────────────────────────────────────────┐
 │  📊 XAUUSD H1                          │
@@ -1450,6 +1487,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 ```
 
 **Step 4: Complete**
+
 ```
 ┌────────────────────────────────────────┐
 │  📊 XAUUSD H1                    [⟳]  │
@@ -1467,7 +1505,9 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 ### Real-time Updates (No disruption)
 
 **Smooth Update Mechanism:**
+
 1. **Background Fetch** (30s/60s interval):
+
    ```typescript
    const updateChart = async () => {
      const newData = await fetchLatestCandle();
@@ -1479,6 +1519,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
    ```
 
 2. **Visual Feedback:**
+
    ```
    │  Last updated: 2s ago ✓              │
    │  Next update: 28s                    │
@@ -1497,6 +1538,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
    - Timeframe change: Cached if available
 
 **Performance Metrics:**
+
 - Initial Load: < 2 seconds
 - Chart Render: < 500ms
 - Symbol Switch: < 1 second
@@ -1508,6 +1550,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 ## 🎯 Key User Experience Wins
 
 ### 1. **Zero Learning Curve**
+
 - Intuitive navigation
 - Pre-filled forms
 - Contextual tooltips
@@ -1515,6 +1558,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 - **TradingView-standard chart interactions** (familiar to traders)
 
 ### 2. **Speed & Responsiveness**
+
 - Server Components = fast initial load
 - Optimistic updates = instant feedback
 - **TradingView Lightweight Charts** = smooth rendering
@@ -1523,12 +1567,14 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 - **Hardware-accelerated graphics** for charts
 
 ### 3. **Tier System Clarity**
+
 - Always visible: FREE vs PRO badge
 - No surprises: Locked features show 🔒
 - Upgrade prompts: At right moment
 - Trial period: Risk-free testing
 
 ### 4. **Alert System Excellence**
+
 - One-click alert creation from chart
 - **Click directly on TradingView lines** to create alerts
 - Pre-filled with intelligent defaults
@@ -1536,6 +1582,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 - Clear trigger conditions
 
 ### 5. **Professional Trading Focus**
+
 - Clean, distraction-free interface
 - **Industry-standard TradingView charts**
 - Focus on actionable signals
@@ -1544,6 +1591,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 - **Interactive chart exploration** with zoom/pan
 
 ### 6. **Chart Interaction Excellence**
+
 - **Crosshair with detailed tooltips**
 - **Smooth zoom and pan** (mouse/touch)
 - **Real-time price updates** without flashing
@@ -1556,6 +1604,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 ## 🚀 Summary: Why This Works
 
 **For Beginners:**
+
 - FREE tier lets them learn without commitment
 - **TradingView charts are familiar and easy to use**
 - Visual fractal lines make technical analysis accessible
@@ -1564,6 +1613,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 - **Interactive chart exploration** builds confidence
 
 **For Experienced Traders:**
+
 - PRO tier has serious capabilities (15 symbols, 9 timeframes)
 - **Professional-grade TradingView charts** match their expectations
 - Multi-point fractal validation = high confidence
@@ -1573,6 +1623,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 - **Industry-standard UI** doesn't require retraining
 
 **For Everyone:**
+
 - Clean, modern interface (not cluttered like MT5)
 - **Smooth, responsive charts** with no lag
 - Mobile-friendly (trade on the go)
@@ -1588,6 +1639,7 @@ On mobile, fractal line details appear below the chart in a horizontally scrolla
 ### Chart Technology Stack
 
 **Frontend:**
+
 ```
 Next.js 15 (App Router)
 ├── TradingView Lightweight Charts (GitHub: tradingview/lightweight-charts)
@@ -1598,6 +1650,7 @@ Next.js 15 (App Router)
 ```
 
 **Integration Points:**
+
 ```
 components/charts/
 ├── trading-chart.tsx          # Main TradingView wrapper
@@ -1623,6 +1676,7 @@ components/charts/
 ```
 
 **Data Flow:**
+
 ```
 User Action → Frontend Request → Backend API → Flask Microservice
      ↓              ↓                  ↓              ↓
@@ -1637,6 +1691,7 @@ TradingView   Parse Data       PostgreSQL      Fractals
 ```
 
 **MQL5 Indicators:**
+
 - **Fractal Horizontal Line_V5.mq5**: Calculates P-P and B-B horizontal lines
 - **Fractal Diagonal Line_V4.mq5**: Calculates B-P and P-B diagonal trendlines
 - Both indicators output JSON via Flask microservice
@@ -1647,6 +1702,7 @@ TradingView   Parse Data       PostgreSQL      Fractals
 ## 📊 User Journey Metrics
 
 ### FREE User Success Path
+
 1. **Day 1:** Sign up, add XAUUSD to watchlist, **explore TradingView chart**
 2. **Day 2:** Create first alert on support level, **use zoom to analyze**
 3. **Day 3:** Alert triggers, review chart **with interactive crosshair**
@@ -1655,6 +1711,7 @@ TradingView   Parse Data       PostgreSQL      Fractals
 6. **Day 30:** Convert to PRO or stay FREE (both valid)
 
 ### PRO User Success Path
+
 1. **Day 1:** Upgrade, add 10+ symbols to watchlist, **try M5/M15 timeframes**
 2. **Day 2:** Create alerts on multiple pairs, **use advanced chart features**
 3. **Day 7:** First profitable trade from alert, **chart zoom helped analysis**

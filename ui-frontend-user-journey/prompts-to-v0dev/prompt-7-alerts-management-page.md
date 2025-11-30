@@ -1,4 +1,5 @@
 ## **PROMPT 7: Alerts List Page**
+
 ===========================================================
 
 Create an alerts management page component for Next.js 15 using TypeScript, Tailwind CSS, and shadcn/ui.
@@ -146,8 +147,7 @@ Message: "Create your first alert to get notified about price movements" (text-g
 CTA: [+ Create Your First Alert] (bg-blue-600, text-white, px-8, py-4, rounded-lg, text-lg, hover:bg-blue-700)
 If no triggered alerts:
 
-Simple message: "No alerts have triggered in the last 7 days" (text-gray-500, italic)
-8. BULK ACTIONS (Select multiple):
+Simple message: "No alerts have triggered in the last 7 days" (text-gray-500, italic) 8. BULK ACTIONS (Select multiple):
 
 Checkbox on each card (top-left corner)
 When any selected, show action bar at top (sticky):

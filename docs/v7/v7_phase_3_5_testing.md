@@ -1,4 +1,5 @@
 # PHASE 3.5: TESTING & QUALITY ASSURANCE
+
 ## Trading Alerts SaaS V7 - Complete Testing Implementation
 
 **Timeline:** Week 14-16 (17 hours over 3 weeks)  
@@ -13,6 +14,7 @@
 ### When You Get a Failure Notification:
 
 **1. Quick Commands (GitHub CLI):**
+
 ```bash
 # View latest failed run
 gh run view --log-failed
@@ -25,6 +27,7 @@ gh run watch
 ```
 
 **2. Aider Prompt Template:**
+
 ```
 GitHub Actions test failed.
 
@@ -38,6 +41,7 @@ Please fix.
 ```
 
 **3. Local Verification Checklist:**
+
 ```bash
 pnpm test              # Must pass ✅
 pnpm test:coverage     # Check % ✅
@@ -45,12 +49,14 @@ pnpm build             # Must succeed ✅
 ```
 
 **4. Never Do:**
+
 - ❌ Push without local verification
 - ❌ Skip running tests locally
 - ❌ Ignore warning signs
 - ❌ Commit broken code "temporarily"
 
 **5. Always Do:**
+
 - ✅ Read the full error message
 - ✅ Copy exact error text to Aider
 - ✅ Verify fix locally before pushing
@@ -62,14 +68,14 @@ pnpm build             # Must succeed ✅
 
 ### What This Phase Covers:
 
-| Testing Type | Coverage | Duration | Automation |
-|--------------|----------|----------|------------|
-| **Unit Tests** | Business logic, utilities | 4 hours | GitHub Actions |
-| **Component Tests** | React components | 3 hours | GitHub Actions |
-| **API Tests** | All 42 endpoints | 4 hours | GitHub Actions + Postman |
-| **Integration Tests** | End-to-end flows | 3 hours | GitHub Actions |
-| **Schema Validation** | Zod runtime checks | 2 hours | GitHub Actions |
-| **Failure Protections** | PR blocking, notifications | 1 hour | GitHub Settings |
+| Testing Type            | Coverage                   | Duration | Automation               |
+| ----------------------- | -------------------------- | -------- | ------------------------ |
+| **Unit Tests**          | Business logic, utilities  | 4 hours  | GitHub Actions           |
+| **Component Tests**     | React components           | 3 hours  | GitHub Actions           |
+| **API Tests**           | All 42 endpoints           | 4 hours  | GitHub Actions + Postman |
+| **Integration Tests**   | End-to-end flows           | 3 hours  | GitHub Actions           |
+| **Schema Validation**   | Zod runtime checks         | 2 hours  | GitHub Actions           |
+| **Failure Protections** | PR blocking, notifications | 1 hour   | GitHub Settings          |
 
 **Total Time:** 17 hours  
 **Your Time:** ~4 hours (setup + review + failure handling)  
@@ -121,6 +127,7 @@ pnpm build             # Must succeed ✅
 ### STEP 1: Install Jest and Dependencies (15 minutes)
 
 **Commands:**
+
 ```bash
 # Install Jest and TypeScript support
 pnpm add -D jest @types/jest ts-jest
@@ -133,6 +140,7 @@ pnpm add -D @testing-library/jest-dom
 ```
 
 **Expected Output:**
+
 ```
 ✅ jest@29.7.0
 ✅ @types/jest@29.5.12
@@ -161,10 +169,7 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  testMatch: [
-    '**/__tests__/**/*.test.ts',
-    '**/__tests__/**/*.test.tsx',
-  ],
+  testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx'],
   collectCoverageFrom: [
     'lib/**/*.{ts,tsx}',
     'app/**/*.{ts,tsx}',
@@ -232,6 +237,7 @@ mkdir -p __tests__/integration
 ```
 
 **Expected structure:**
+
 ```
 trading-alerts-saas-v7/
 ├── __tests__/
@@ -276,11 +282,11 @@ describe('functionName', () => {
   it('should handle normal case', () => {
     expect(result).toBe(expected);
   });
-  
+
   it('should handle edge case', () => {
     expect(result).toBe(expected);
   });
-  
+
   it('should throw error for invalid input', () => {
     expect(() => fn()).toThrow();
   });
@@ -348,7 +354,11 @@ describe('formatDate', () => {
 **Example Test:** `__tests__/lib/tier-validation.test.ts`
 
 ```typescript
-import { validateTierAccess, canAccessSymbol, getSymbolLimit } from '@/lib/tier-validation';
+import {
+  validateTierAccess,
+  canAccessSymbol,
+  getSymbolLimit,
+} from '@/lib/tier-validation';
 
 describe('validateTierAccess', () => {
   it('should allow FREE tier to access XAUUSD', () => {
@@ -409,6 +419,7 @@ pnpm test:watch
 ```
 
 **Expected Output:**
+
 ```
 PASS  __tests__/lib/utils.test.ts
 PASS  __tests__/lib/tier-validation.test.ts
@@ -489,10 +500,7 @@ const customJestConfig = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  testMatch: [
-    '**/__tests__/**/*.test.ts',
-    '**/__tests__/**/*.test.tsx',
-  ],
+  testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx'],
   collectCoverageFrom: [
     'components/**/*.{ts,tsx}',
     'app/**/*.{ts,tsx}',
@@ -547,7 +555,7 @@ describe('ComponentName', () => {
     render(<Component />);
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
-  
+
   it('should handle click events', async () => {
     const handleClick = jest.fn();
     render(<Component onClick={handleClick} />);
@@ -575,7 +583,7 @@ describe('Button Component', () => {
   it('should handle click events', async () => {
     const handleClick = jest.fn();
     render(<Button onClick={handleClick}>Click me</Button>);
-    
+
     await userEvent.click(screen.getByRole('button'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
@@ -681,10 +689,10 @@ describe('WatchlistTable Component', () => {
   it('should handle delete action', async () => {
     const handleDelete = jest.fn();
     render(<WatchlistTable symbols={mockSymbols} onDelete={handleDelete} />);
-    
+
     const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
     await userEvent.click(deleteButtons[0]);
-    
+
     expect(handleDelete).toHaveBeenCalledWith('1');
   });
 
@@ -716,6 +724,7 @@ pnpm test:coverage
 ```
 
 **Expected Output:**
+
 ```
 PASS  __tests__/components/ui/button.test.tsx
 PASS  __tests__/components/dashboard/symbol-card.test.tsx
@@ -779,6 +788,7 @@ pnpm add -D newman newman-reporter-htmlextra
 ### STEP 2: Create Postman Collections (2 hours)
 
 **Create directory structure:**
+
 ```bash
 mkdir -p postman/collections
 mkdir -p postman/environments
@@ -1156,6 +1166,7 @@ fi
 ```
 
 **Make executable:**
+
 ```bash
 chmod +x scripts/api-tests/run-newman.sh
 ```
@@ -1194,6 +1205,7 @@ pnpm test:api
 ```
 
 **Expected Output:**
+
 ```
 🚀 Starting API Tests with Newman...
 📦 Starting Next.js server...
@@ -1241,6 +1253,7 @@ Trading Alerts SaaS - Next.js API
 ```
 
 **Reports generated:**
+
 - `postman/reports/nextjs-api-report.html`
 - `postman/reports/flask-api-report.html`
 
@@ -1514,10 +1527,12 @@ describe('Tier Enforcement Journey', () => {
     });
 
     userId = result.user.id;
-    authToken = (await loginUser({
-      email: 'tier-test@example.com',
-      password: 'SecurePass123!',
-    })).token;
+    authToken = (
+      await loginUser({
+        email: 'tier-test@example.com',
+        password: 'SecurePass123!',
+      })
+    ).token;
   });
 
   afterAll(async () => {
@@ -1561,8 +1576,16 @@ describe('Tier Enforcement Journey', () => {
 
   it('should allow PRO tier to add up to 10 symbols', async () => {
     const symbols = [
-      'XAUUSD', 'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD',
-      'USDCAD', 'NZDUSD', 'USDCHF', 'BTCUSD', 'ETHUSD',
+      'XAUUSD',
+      'EURUSD',
+      'GBPUSD',
+      'USDJPY',
+      'AUDUSD',
+      'USDCAD',
+      'NZDUSD',
+      'USDCHF',
+      'BTCUSD',
+      'ETHUSD',
     ];
 
     // Add all 10 symbols
@@ -1591,6 +1614,7 @@ pnpm test:coverage
 ```
 
 **Expected Output:**
+
 ```
 PASS  __tests__/integration/user-journey.test.ts
 PASS  __tests__/integration/tier-enforcement.test.ts
@@ -1668,12 +1692,23 @@ export const loginSchema = z.object({
 
 // Watchlist schemas
 export const addWatchlistSchema = z.object({
-  symbol: z.enum([
-    'XAUUSD', 'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD',
-    'USDCAD', 'NZDUSD', 'USDCHF', 'BTCUSD', 'ETHUSD'
-  ], {
-    errorMap: () => ({ message: 'Invalid trading symbol' }),
-  }),
+  symbol: z.enum(
+    [
+      'XAUUSD',
+      'EURUSD',
+      'GBPUSD',
+      'USDJPY',
+      'AUDUSD',
+      'USDCAD',
+      'NZDUSD',
+      'USDCHF',
+      'BTCUSD',
+      'ETHUSD',
+    ],
+    {
+      errorMap: () => ({ message: 'Invalid trading symbol' }),
+    }
+  ),
 });
 
 export const removeWatchlistSchema = z.object({
@@ -1699,7 +1734,9 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type AddWatchlistInput = z.infer<typeof addWatchlistSchema>;
 export type CreateAlertInput = z.infer<typeof createAlertSchema>;
-export type UpgradeSubscriptionInput = z.infer<typeof upgradeSubscriptionSchema>;
+export type UpgradeSubscriptionInput = z.infer<
+  typeof upgradeSubscriptionSchema
+>;
 ```
 
 ---
@@ -1790,7 +1827,7 @@ describe('Zod Schema Validation', () => {
     it('should accept valid symbols', () => {
       const validSymbols = ['XAUUSD', 'EURUSD', 'BTCUSD'];
 
-      validSymbols.forEach(symbol => {
+      validSymbols.forEach((symbol) => {
         const result = addWatchlistSchema.safeParse({ symbol });
         expect(result.success).toBe(true);
       });
@@ -1800,7 +1837,9 @@ describe('Zod Schema Validation', () => {
       const result = addWatchlistSchema.safeParse({ symbol: 'INVALID' });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toContain('Invalid trading symbol');
+        expect(result.error.issues[0].message).toContain(
+          'Invalid trading symbol'
+        );
       }
     });
   });
@@ -1810,7 +1849,7 @@ describe('Zod Schema Validation', () => {
       const validData = {
         symbol: 'XAUUSD',
         condition: 'ABOVE',
-        targetPrice: 2050.50,
+        targetPrice: 2050.5,
         enabled: true,
       };
 
@@ -1837,7 +1876,7 @@ describe('Zod Schema Validation', () => {
       const invalidData = {
         symbol: 'XAUUSD',
         condition: 'INVALID_CONDITION',
-        targetPrice: 2050.50,
+        targetPrice: 2050.5,
         enabled: true,
       };
 
@@ -1924,6 +1963,7 @@ pnpm test __tests__/lib/validations.test.ts
 ```
 
 **Expected Output:**
+
 ```
 PASS  __tests__/lib/validations.test.ts
   Zod Schema Validation
@@ -2279,6 +2319,7 @@ echo "✅ Test database ready!"
 ```
 
 **Make executable:**
+
 ```bash
 chmod +x scripts/ci/setup-test-db.sh
 ```
@@ -2332,7 +2373,7 @@ jobs:
 
 **Update:** `README.md` (add badges)
 
-```markdown
+````markdown
 # Trading Alerts SaaS V7
 
 ![Tests](https://github.com/yourusername/trading-alerts-saas-v7/actions/workflows/tests.yml/badge.svg)
@@ -2356,15 +2397,18 @@ pnpm test:integration
 # All tests with coverage
 pnpm test:coverage
 ```
+````
 
 ### CI/CD
 
 All tests run automatically on:
+
 - Push to `main` or `develop`
 - Pull requests to `main` or `develop`
 
 Test results: [GitHub Actions](https://github.com/yourusername/trading-alerts-saas-v7/actions)
-```
+
+````
 
 ---
 
@@ -2374,7 +2418,7 @@ Test results: [GitHub Actions](https://github.com/yourusername/trading-alerts-sa
 git add .github/workflows postman/environments/ci.postman_environment.json scripts/ci
 git commit -m "ci: add GitHub Actions workflows for automated testing"
 git push
-```
+````
 
 **Wait for GitHub Actions to run** (~5-10 minutes)
 
@@ -2391,6 +2435,7 @@ git push
    - ✅ Production Build Check
 
 **Expected Result:**
+
 ```
 ✅ Tests workflow passed
   ✅ Unit & Component Tests (28 passed)
@@ -2439,7 +2484,7 @@ git push
 
 ✅ Require status checks to pass before merging
    ✅ Require branches to be up to date before merging
-   
+
    Status checks required:
    ✅ Unit & Component Tests
    ✅ API Tests
@@ -2460,11 +2505,13 @@ git push
 #### **A. Email Notifications (Default - Already Active)**
 
 GitHub automatically sends emails when:
+
 - ✅ Workflow fails
 - ✅ Workflow succeeds after previous failure
 - ✅ You're mentioned in PR comments
 
 **Configure:** Settings → Notifications → Actions
+
 ```
 ✅ Send notifications for failed workflows only
 ✅ Send notifications for workflows you triggered
@@ -2483,7 +2530,7 @@ jobs:
     runs-on: ubuntu-latest
     if: failure()
     needs: [unit-and-component-tests, api-tests, integration-tests]
-    
+
     steps:
       - name: Send Slack notification
         uses: slackapi/slack-github-action@v1.24.0
@@ -2570,6 +2617,7 @@ Test Failure Detected
 #### **Method 1: GitHub Web UI (Easiest)**
 
 **Steps:**
+
 1. Go to **Actions** tab in repository
 2. Click the **failed workflow run**
 3. Click the **failed job** (e.g., "Unit & Component Tests")
@@ -2580,7 +2628,7 @@ Test Failure Detected
 ```
 ❌ Tests  #123  main  2 minutes ago
    └─ Run #123: feat: add new feature
-   
+
 Jobs:
 ✅ Unit & Component Tests — Passed
 ❌ API Tests — Failed (click to expand)
@@ -2623,6 +2671,7 @@ Error: Process completed with exit code 1.
 #### **Method 2: Download Artifacts**
 
 **Steps:**
+
 1. Go to failed workflow run
 2. Scroll to **bottom** of page
 3. Find **"Artifacts"** section
@@ -2712,7 +2761,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 
 **Use this prompt template:**
 
-```
+````
 GitHub Actions test failed. Here's the complete failure report:
 
 ─────────────────────────────────────────────
@@ -2729,7 +2778,7 @@ Error Message:
 Test Code:
 ```[language]
 [paste relevant test code]
-```
+````
 
 Expected Behavior:
 [describe what should happen]
@@ -2745,6 +2794,7 @@ ACTION REQUIRED
 ─────────────────────────────────────────────
 
 Please:
+
 1. Analyze the function being tested
 2. Identify why it's failing
 3. Fix the logic to match expected behavior
@@ -2752,6 +2802,7 @@ Please:
 5. Commit with descriptive message
 
 Investigate and fix this issue.
+
 ```
 
 ---
@@ -2768,12 +2819,13 @@ Aider will:
 **Example Aider output:**
 
 ```
+
 [Aider - Analyzing test failure]
 ───────────────────────────────────────────────
 
 📖 Reading:
 ✓ lib/tier-validation.ts
-✓ __tests__/lib/tier-validation.test.ts
+✓ **tests**/lib/tier-validation.test.ts
 
 🔍 Analysis:
 Found the issue in lib/tier-validation.ts line 15
@@ -2789,7 +2841,8 @@ Fix: Add proper tier restriction logic
 
 💾 Committing...
 ✅ Committed: fix(tier-validation): enforce FREE tier restrictions
-```
+
+````
 
 ---
 
@@ -2809,7 +2862,7 @@ pnpm test:coverage
 
 # Build check
 pnpm build
-```
+````
 
 **All must pass before pushing! ✅**
 
@@ -2847,6 +2900,7 @@ All checks passed! PR can be merged ✅
 #### **Scenario 1: Unit Test Failure**
 
 **Symptom:**
+
 ```
 ❌ Unit & Component Tests
    FAIL __tests__/lib/utils.test.ts
@@ -2854,6 +2908,7 @@ All checks passed! PR can be merged ✅
 ```
 
 **Aider prompt:**
+
 ```
 Unit test failed in __tests__/lib/utils.test.ts
 
@@ -2867,12 +2922,14 @@ Please fix lib/utils.ts formatCurrency function to return format "USD X,XXX.XX"
 #### **Scenario 2: API Test Failure**
 
 **Symptom:**
+
 ```
 ❌ API Tests
    Newman: POST /api/watchlist returned 500 instead of 201
 ```
 
 **Aider prompt:**
+
 ```
 API test failed. POST /api/watchlist returns 500 error.
 
@@ -2892,12 +2949,14 @@ Please fix database connection handling and add proper error messages.
 #### **Scenario 3: Integration Test Timeout**
 
 **Symptom:**
+
 ```
 ❌ Integration Tests
    Test timeout: "User can upgrade to PRO" exceeded 5000ms
 ```
 
 **Aider prompt:**
+
 ```
 Integration test timeout in __tests__/integration/user-journey.test.ts
 
@@ -2916,12 +2975,14 @@ Please investigate and optimize the upgrade flow.
 #### **Scenario 4: Build Failure**
 
 **Symptom:**
+
 ```
 ❌ Production Build Check
    Error: Cannot find module '@/lib/missing-import'
 ```
 
 **Aider prompt:**
+
 ```
 Build failed with missing import error.
 
@@ -3196,16 +3257,16 @@ pnpm build
 
 ### Time Investment:
 
-| Milestone | Setup | Writing Tests | Running Tests | Total |
-|-----------|-------|---------------|---------------|-------|
-| 3.5.1 Unit | 30 min | 2h | 10 min | 2h 40m |
-| 3.5.2 Component | 15 min | 2h | 10 min | 2h 25m |
-| 3.5.3 API | 20 min | 2h | 10 min | 2h 30m |
-| 3.5.4 Integration | 0 min | 2h 30m | 10 min | 2h 40m |
-| 3.5.5 Schema | 5 min | 1h 30m | 5 min | 1h 40m |
-| 3.5.6 CI/CD | 30 min | 1h | 10 min | 1h 40m |
-| 3.5.7 Protections | 15 min | 30 min | 15 min | 1h |
-| **TOTAL** | **1h 55m** | **11h 30m** | **1h 10m** | **14h 35m** |
+| Milestone         | Setup      | Writing Tests | Running Tests | Total       |
+| ----------------- | ---------- | ------------- | ------------- | ----------- |
+| 3.5.1 Unit        | 30 min     | 2h            | 10 min        | 2h 40m      |
+| 3.5.2 Component   | 15 min     | 2h            | 10 min        | 2h 25m      |
+| 3.5.3 API         | 20 min     | 2h            | 10 min        | 2h 30m      |
+| 3.5.4 Integration | 0 min      | 2h 30m        | 10 min        | 2h 40m      |
+| 3.5.5 Schema      | 5 min      | 1h 30m        | 5 min         | 1h 40m      |
+| 3.5.6 CI/CD       | 30 min     | 1h            | 10 min        | 1h 40m      |
+| 3.5.7 Protections | 15 min     | 30 min        | 15 min        | 1h          |
+| **TOTAL**         | **1h 55m** | **11h 30m**   | **1h 10m**    | **14h 35m** |
 
 **Your Active Time:** ~4-5 hours (setup + review + configuration)  
 **AI Time:** ~10 hours (writing tests)  
@@ -3242,6 +3303,7 @@ pnpm build
 **Issue 1: Jest tests fail to import Next.js modules**
 
 **Solution:**
+
 ```javascript
 // Update jest.config.js
 const nextJest = require('next/jest');
@@ -3251,6 +3313,7 @@ const createJestConfig = nextJest({ dir: './' });
 **Issue 2: Newman cannot find collections**
 
 **Solution:**
+
 ```bash
 # Verify file paths
 ls postman/collections/
@@ -3263,6 +3326,7 @@ $(pwd)/postman/collections/nextjs-api.postman_collection.json
 **Issue 3: GitHub Actions fails on database setup**
 
 **Solution:**
+
 ```yaml
 # Add health check to postgres service
 services:
@@ -3277,6 +3341,7 @@ services:
 **Issue 4: Tests pass locally but fail in CI**
 
 **Solution:**
+
 ```bash
 # Run tests in CI mode locally
 pnpm test:ci
@@ -3290,6 +3355,7 @@ pnpm test:ci
 ## 📚 ADDITIONAL RESOURCES
 
 ### Documentation:
+
 - Jest: https://jestjs.io/docs/getting-started
 - React Testing Library: https://testing-library.com/docs/react-testing-library/intro/
 - Newman: https://learning.postman.com/docs/running-collections/using-newman-cli/
@@ -3297,6 +3363,7 @@ pnpm test:ci
 - GitHub Actions: https://docs.github.com/en/actions
 
 ### Best Practices:
+
 - Write tests that test behavior, not implementation
 - Mock external dependencies
 - Use descriptive test names

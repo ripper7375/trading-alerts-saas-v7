@@ -16,14 +16,14 @@ All critical documentation has been completed. Google OAuth integration is **100
 
 ### ✅ Documentation Created (6 Files)
 
-| File | Lines | Status | Purpose |
-|------|-------|--------|---------|
-| **1. `docs/decisions/google-oauth-decisions.md`** | 1,487 | ✅ Committed | All 12 decisions with full reasoning |
-| **2. `docs/google-oauth-integration-summary.md`** | 660 | ✅ Committed | Executive summary for Human |
-| **3. `docs/setup/google-oauth-setup.md`** | 498 | ✅ Committed | Step-by-step Google Cloud Console guide |
-| **4. `docs/policies/08-google-oauth-implementation-rules.md`** | 572 | ✅ Committed | Aider policy with implementation rules |
-| **5. `docs/OAUTH_IMPLEMENTATION_READY.md`** | This file | ✅ Created | Final handoff document |
-| **6. Additional testing/OpenAPI docs** | TBD | ⏸️ Optional | Can be created during/after implementation |
+| File                                                           | Lines     | Status       | Purpose                                    |
+| -------------------------------------------------------------- | --------- | ------------ | ------------------------------------------ |
+| **1. `docs/decisions/google-oauth-decisions.md`**              | 1,487     | ✅ Committed | All 12 decisions with full reasoning       |
+| **2. `docs/google-oauth-integration-summary.md`**              | 660       | ✅ Committed | Executive summary for Human                |
+| **3. `docs/setup/google-oauth-setup.md`**                      | 498       | ✅ Committed | Step-by-step Google Cloud Console guide    |
+| **4. `docs/policies/08-google-oauth-implementation-rules.md`** | 572       | ✅ Committed | Aider policy with implementation rules     |
+| **5. `docs/OAUTH_IMPLEMENTATION_READY.md`**                    | This file | ✅ Created   | Final handoff document                     |
+| **6. Additional testing/OpenAPI docs**                         | TBD       | ⏸️ Optional  | Can be created during/after implementation |
 
 **Total Documentation:** 3,717+ lines of comprehensive guidance
 
@@ -31,20 +31,20 @@ All critical documentation has been completed. Google OAuth integration is **100
 
 ## 🔐 THE 12 DECISIONS (Quick Reference)
 
-| # | Decision | Choice | Critical? |
-|---|----------|--------|-----------|
-| 1 | NextAuth Version | **v4** (already installed) | Medium |
-| 2 | Session Strategy | **JWT** (27% faster, serverless) | High |
-| 3 | Account Linking | **Verified-only** (prevents takeover) | **🔴 CRITICAL** |
-| 4 | Password Nullable | **Yes (String?)** | Medium |
-| 5 | Email Verification | **Auto-verify OAuth** | Medium |
-| 6 | Profile Picture | **Fallback (Google as default)** | Low |
-| 7 | Production Setup | **Single domain** | Low |
-| 8 | Error Handling | **Specific errors** | Medium |
-| 9 | Testing Strategy | **Localhost + Manual** | Low |
-| 10 | Database Migration | **Not needed (greenfield)** | Medium |
-| 11 | Callback URLs | **One app, multiple URIs** | Low |
-| 12 | Tier Upgrade UX | **Standard onboarding** | Low |
+| #   | Decision           | Choice                                | Critical?       |
+| --- | ------------------ | ------------------------------------- | --------------- |
+| 1   | NextAuth Version   | **v4** (already installed)            | Medium          |
+| 2   | Session Strategy   | **JWT** (27% faster, serverless)      | High            |
+| 3   | Account Linking    | **Verified-only** (prevents takeover) | **🔴 CRITICAL** |
+| 4   | Password Nullable  | **Yes (String?)**                     | Medium          |
+| 5   | Email Verification | **Auto-verify OAuth**                 | Medium          |
+| 6   | Profile Picture    | **Fallback (Google as default)**      | Low             |
+| 7   | Production Setup   | **Single domain**                     | Low             |
+| 8   | Error Handling     | **Specific errors**                   | Medium          |
+| 9   | Testing Strategy   | **Localhost + Manual**                | Low             |
+| 10  | Database Migration | **Not needed (greenfield)**           | Medium          |
+| 11  | Callback URLs      | **One app, multiple URIs**            | Low             |
+| 12  | Tier Upgrade UX    | **Standard onboarding**               | Low             |
 
 ---
 
@@ -86,6 +86,7 @@ if (existingUser && !existingUser.emailVerified) {
 ## ✅ HUMAN SETUP COMPLETED
 
 ### What You've Done
+
 - ✅ Google Cloud project created: "Trading Alerts SaaS"
 - ✅ OAuth consent screen configured (External, Testing)
 - ✅ Scopes added: userinfo.email, userinfo.profile
@@ -97,6 +98,7 @@ if (existingUser && !existingUser.emailVerified) {
 - ✅ NEXTAUTH_SECRET generated
 
 ### Environment Variables Ready
+
 ```bash
 GOOGLE_CLIENT_ID=✅ Set
 GOOGLE_CLIENT_SECRET=✅ Set
@@ -112,33 +114,34 @@ DATABASE_URL=✅ Set
 ### Implementation Tasks (11 Files)
 
 **Phase 1: Database Schema (2 files)**
+
 1. ✅ Create `prisma/schema.prisma` with:
    - User model (password nullable, emailVerified, image, accounts relation)
    - Account model (OAuth provider linking)
    - NO Session model (JWT sessions)
 2. ✅ Run migration: `npx prisma migrate dev --name initial_with_oauth`
 
-**Phase 2: NextAuth Configuration (2 files)**
-3. ✅ Create `app/api/auth/[...nextauth]/route.ts`
-   - NextAuth v4 pattern
-   - GoogleProvider (credentials from env)
-   - CredentialsProvider (structure for future)
-   - Session: 'jwt' (NO adapter)
-   - signIn callback (verified-only linking)
-   - jwt callback (tier/role)
-   - session callback (tier/role)
+**Phase 2: NextAuth Configuration (2 files)** 3. ✅ Create `app/api/auth/[...nextauth]/route.ts`
+
+- NextAuth v4 pattern
+- GoogleProvider (credentials from env)
+- CredentialsProvider (structure for future)
+- Session: 'jwt' (NO adapter)
+- signIn callback (verified-only linking)
+- jwt callback (tier/role)
+- session callback (tier/role)
 
 4. ✅ Create `types/next-auth.d.ts`
    - Extend Session interface
    - Extend User interface
    - Extend JWT interface
 
-**Phase 3: Support Files (3 files)**
-5. ✅ Update `.env.example`
-   - Add GOOGLE_CLIENT_ID
-   - Add GOOGLE_CLIENT_SECRET
-   - Add NEXTAUTH_URL
-   - Add NEXTAUTH_SECRET
+**Phase 3: Support Files (3 files)** 5. ✅ Update `.env.example`
+
+- Add GOOGLE_CLIENT_ID
+- Add GOOGLE_CLIENT_SECRET
+- Add NEXTAUTH_URL
+- Add NEXTAUTH_SECRET
 
 6. ✅ Create `lib/auth/errors.ts` (optional)
    - OAuth error message mapper
@@ -147,11 +150,7 @@ DATABASE_URL=✅ Set
 7. ✅ Update `package.json` (verify)
    - Confirm next-auth@^4.24.5 present
 
-**Phase 4: UI Components (4 files - when UI is built)**
-8. ⏸️ Update `app/(auth)/login/page.tsx` (future)
-9. ⏸️ Update `app/(auth)/register/page.tsx` (future)
-10. ⏸️ Create `components/auth/social-auth-buttons.tsx` (future)
-11. ⏸️ Create `middleware.ts` with OAuth routes (future)
+**Phase 4: UI Components (4 files - when UI is built)** 8. ⏸️ Update `app/(auth)/login/page.tsx` (future) 9. ⏸️ Update `app/(auth)/register/page.tsx` (future) 10. ⏸️ Create `components/auth/social-auth-buttons.tsx` (future) 11. ⏸️ Create `middleware.ts` with OAuth routes (future)
 
 ### Aider Can Start With Phase 1-3 (Core Implementation)
 
@@ -160,12 +159,14 @@ DATABASE_URL=✅ Set
 ## 📋 IMPLEMENTATION CHECKLIST FOR AIDER
 
 ### Before Starting
+
 - [ ] Read: `docs/decisions/google-oauth-decisions.md` (all 12 decisions)
 - [ ] Read: `docs/policies/08-google-oauth-implementation-rules.md` (implementation rules)
 - [ ] Verify: `next-auth@^4.24.5` in package.json
 - [ ] Verify: `.env.local` has Google OAuth credentials
 
 ### Phase 1: Database
+
 - [ ] Create Prisma schema with User and Account models
 - [ ] Ensure password is nullable (String?)
 - [ ] Add emailVerified field (DateTime?)
@@ -176,6 +177,7 @@ DATABASE_URL=✅ Set
 - [ ] Verify schema with `npx prisma studio`
 
 ### Phase 2: NextAuth Config
+
 - [ ] Create `app/api/auth/[...nextauth]/route.ts`
 - [ ] Use NextAuth v4 pattern (not v5)
 - [ ] Add GoogleProvider with env credentials
@@ -188,6 +190,7 @@ DATABASE_URL=✅ Set
 - [ ] TypeScript compiles without errors
 
 ### Phase 3: Types
+
 - [ ] Create `types/next-auth.d.ts`
 - [ ] Extend Session interface
 - [ ] Extend User interface
@@ -195,10 +198,12 @@ DATABASE_URL=✅ Set
 - [ ] No TypeScript errors
 
 ### Phase 4: Environment
+
 - [ ] Update `.env.example` with OAuth variables
 - [ ] Document all required environment variables
 
 ### Validation
+
 - [ ] All TypeScript errors resolved
 - [ ] Prisma schema validates
 - [ ] Migration successful
@@ -239,7 +244,7 @@ model User {
   payments            Payment[]
   fraudAlerts         FraudAlert[]
   accounts            Account[]  // ← OAuth accounts
-  
+
   @@index([email])
 }
 
@@ -293,7 +298,7 @@ export const authOptions: NextAuthOptions = {
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         // Email/password logic (future)
@@ -302,7 +307,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: credentials.email },
         });
 
         if (!user || !user.password) {
@@ -311,15 +316,15 @@ export const authOptions: NextAuthOptions = {
 
         // Validate password...
         return user;
-      }
-    })
+      },
+    }),
   ],
 
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === 'google') {
         const existingUser = await prisma.user.findUnique({
-          where: { email: user.email! }
+          where: { email: user.email! },
         });
 
         // CRITICAL: Verified-only linking
@@ -350,8 +355,8 @@ export const authOptions: NextAuthOptions = {
       session.user.tier = token.tier as string;
       session.user.role = token.role as string;
       return session;
-    }
-  }
+    },
+  },
 };
 
 const handler = NextAuth(authOptions);
@@ -363,6 +368,7 @@ export { handler as GET, handler as POST };
 ## ✅ SUCCESS CRITERIA
 
 ### Implementation Complete When:
+
 - [x] Documentation complete (6 files)
 - [x] Human setup complete (Google OAuth configured)
 - [ ] Aider implements Phase 1-3 (core implementation)
@@ -373,6 +379,7 @@ export { handler as GET, handler as POST };
 - [ ] All environment variables documented
 
 ### Testing Complete When:
+
 - [ ] Can create database with Prisma
 - [ ] Can run `npx prisma studio` and see User/Account tables
 - [ ] NextAuth route responds at `/api/auth/providers`
@@ -385,15 +392,18 @@ export { handler as GET, handler as POST };
 ## 📚 REFERENCE DOCUMENTS
 
 ### For Aider (Read These)
+
 1. **Decision Document** (MUST READ): `docs/decisions/google-oauth-decisions.md`
 2. **Policy 08** (MUST FOLLOW): `docs/policies/08-google-oauth-implementation-rules.md`
 3. **Setup Guide** (Reference): `docs/setup/google-oauth-setup.md`
 
 ### For Human (Already Read)
+
 1. **Executive Summary**: `docs/google-oauth-integration-summary.md`
 2. **This Document**: `docs/OAUTH_IMPLEMENTATION_READY.md`
 
 ### Environment
+
 - **Dev**: `.env.local` (already configured)
 - **Example**: `.env.example` (to be updated by Aider)
 
@@ -402,6 +412,7 @@ export { handler as GET, handler as POST };
 ## 🚀 NEXT STEPS
 
 ### Immediate (Aider - 6-8 hours)
+
 1. ✅ Read decision document thoroughly
 2. ✅ Read Policy 08 thoroughly
 3. ✅ Implement Phase 1 (Database schema)
@@ -412,12 +423,14 @@ export { handler as GET, handler as POST };
 8. ✅ Commit all changes
 
 ### After Core Implementation (Human - 30 min)
+
 9. ⏸️ Review Aider's implementation
 10. ⏸️ Run `npx prisma studio` to verify schema
 11. ⏸️ Check `/api/auth/providers` endpoint
 12. ⏸️ Approve for Phase 4 (UI integration)
 
 ### Future (Phase 4 - UI Integration)
+
 13. ⏸️ Create login/register pages with OAuth buttons
 14. ⏸️ Test OAuth flow end-to-end
 15. ⏸️ Deploy to staging
@@ -428,6 +441,7 @@ export { handler as GET, handler as POST };
 ## ⚡ QUICK START FOR AIDER
 
 **Command to start:**
+
 ```bash
 # Aider should read these files first
 aider docs/decisions/google-oauth-decisions.md \
@@ -435,6 +449,7 @@ aider docs/decisions/google-oauth-decisions.md \
 ```
 
 **First task:**
+
 > "Implement Google OAuth integration Phase 1-3 (core backend).
 > Follow all 12 decisions from google-oauth-decisions.md.
 > Follow Policy 08 implementation rules.
@@ -447,15 +462,15 @@ aider docs/decisions/google-oauth-decisions.md \
 
 ## 📊 ESTIMATED TIMELINE
 
-| Phase | Task | Time | Status |
-|-------|------|------|--------|
-| **Phase 0** | Analysis & Decisions | 2 hours | ✅ DONE |
-| **Phase 1** | Human Google OAuth Setup | 15 min | ✅ DONE |
-| **Phase 2** | Documentation | 2 hours | ✅ DONE |
-| **Phase 3** | Aider Core Implementation | 6-8 hours | ⏳ NEXT |
-| **Phase 4** | UI Integration | 4-6 hours | ⏸️ Future |
-| **Phase 5** | Human Testing | 2-3 hours | ⏸️ Future |
-| **Phase 6** | Production Deployment | 1 hour | ⏸️ Future |
+| Phase       | Task                      | Time      | Status    |
+| ----------- | ------------------------- | --------- | --------- |
+| **Phase 0** | Analysis & Decisions      | 2 hours   | ✅ DONE   |
+| **Phase 1** | Human Google OAuth Setup  | 15 min    | ✅ DONE   |
+| **Phase 2** | Documentation             | 2 hours   | ✅ DONE   |
+| **Phase 3** | Aider Core Implementation | 6-8 hours | ⏳ NEXT   |
+| **Phase 4** | UI Integration            | 4-6 hours | ⏸️ Future |
+| **Phase 5** | Human Testing             | 2-3 hours | ⏸️ Future |
+| **Phase 6** | Production Deployment     | 1 hour    | ⏸️ Future |
 
 **Total:** 17-22 hours (mostly autonomous)
 
@@ -468,6 +483,7 @@ aider docs/decisions/google-oauth-decisions.md \
 **Mission:** Complete Google OAuth integration documentation workflow ✅ **COMPLETE**
 
 **Delivered:**
+
 - ✅ All 12 critical decisions made and documented
 - ✅ Comprehensive 3,717+ lines of documentation
 - ✅ Google OAuth credentials obtained and configured

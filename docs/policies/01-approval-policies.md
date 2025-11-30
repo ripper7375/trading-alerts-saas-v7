@@ -13,6 +13,7 @@ Aider should **automatically commit** code when ALL of the following conditions 
 ### 1.1 Code Quality Requirements
 
 ✅ **TypeScript Types:**
+
 - All functions have explicit return types
 - All parameters have type annotations
 - No `any` types (except in rare, justified cases with JSDoc explanation)
@@ -21,15 +22,22 @@ Aider should **automatically commit** code when ALL of the following conditions 
 **Why this matters:** TypeScript catches bugs before runtime. Without proper types, you lose type safety benefits and may ship bugs to production.
 
 **Example - Good:**
+
 ```typescript
-function createAlert(userId: string, symbol: string, timeframe: string): Promise<Alert> {
+function createAlert(
+  userId: string,
+  symbol: string,
+  timeframe: string
+): Promise<Alert> {
   // Implementation
 }
 ```
 
 **Example - Bad:**
+
 ```typescript
-function createAlert(userId, symbol, timeframe) {  // ❌ No types
+function createAlert(userId, symbol, timeframe) {
+  // ❌ No types
   // Implementation
 }
 ```
@@ -37,6 +45,7 @@ function createAlert(userId, symbol, timeframe) {  // ❌ No types
 ---
 
 ✅ **Error Handling:**
+
 - All API routes wrapped in try/catch
 - All Prisma queries wrapped in try/catch
 - All external API calls (MT5, Stripe) wrapped in try/catch
@@ -46,6 +55,7 @@ function createAlert(userId, symbol, timeframe) {  // ❌ No types
 **Why this matters:** Unhandled errors crash the app. Proper error handling keeps the app running and helps you debug issues.
 
 **Example - Good:**
+
 ```typescript
 export async function GET(req: Request) {
   try {
@@ -64,6 +74,7 @@ export async function GET(req: Request) {
 ---
 
 ✅ **JSDoc Comments:**
+
 - All public functions have JSDoc comments
 - JSDoc includes: description, @param for each parameter, @returns
 - Complex logic has inline comments explaining "why", not "what"
@@ -71,6 +82,7 @@ export async function GET(req: Request) {
 **Why this matters:** JSDoc helps other developers (and future you) understand code. IDEs show JSDoc in autocomplete, making the API self-documenting.
 
 **Example - Good:**
+
 ```typescript
 /**
  * Creates a new alert for a user with tier validation
@@ -80,7 +92,11 @@ export async function GET(req: Request) {
  * @returns Promise resolving to created alert
  * @throws ForbiddenError if user's tier cannot access symbol/timeframe
  */
-async function createAlert(userId: string, symbol: string, timeframe: string): Promise<Alert> {
+async function createAlert(
+  userId: string,
+  symbol: string,
+  timeframe: string
+): Promise<Alert> {
   // Implementation
 }
 ```
@@ -90,6 +106,7 @@ async function createAlert(userId: string, symbol: string, timeframe: string): P
 ### 1.2 Security Requirements
 
 ✅ **No Secrets in Code:**
+
 - No API keys, passwords, tokens in code
 - All secrets in .env files (gitignored)
 - .env.example provided with placeholder values
@@ -98,18 +115,21 @@ async function createAlert(userId: string, symbol: string, timeframe: string): P
 **Why this matters:** Committing secrets to GitHub exposes them publicly. Attackers scan GitHub for exposed keys and exploit them within minutes.
 
 **Example - Good:**
+
 ```typescript
-const apiKey = process.env.MT5_API_KEY;  // ✅ From environment
+const apiKey = process.env.MT5_API_KEY; // ✅ From environment
 ```
 
 **Example - Bad:**
+
 ```typescript
-const apiKey = "sk_live_abc123xyz";  // ❌ Hardcoded secret
+const apiKey = 'sk_live_abc123xyz'; // ❌ Hardcoded secret
 ```
 
 ---
 
 ✅ **Input Validation:**
+
 - All user inputs validated with Zod schemas
 - SQL injection prevented (Prisma handles this, but validate inputs)
 - XSS prevention (sanitize user-generated content)
@@ -118,6 +138,7 @@ const apiKey = "sk_live_abc123xyz";  // ❌ Hardcoded secret
 **Why this matters:** User inputs are the #1 attack vector. Validation prevents malicious data from reaching your database or being executed as code.
 
 **Example - Good:**
+
 ```typescript
 import { z } from 'zod';
 
@@ -129,7 +150,7 @@ const createAlertSchema = z.object({
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const validated = createAlertSchema.parse(body);  // ✅ Throws if invalid
+  const validated = createAlertSchema.parse(body); // ✅ Throws if invalid
   // Use validated data
 }
 ```
@@ -137,6 +158,7 @@ export async function POST(req: Request) {
 ---
 
 ✅ **Tier Validation:**
+
 - All endpoints that serve symbol/timeframe data validate tier access
 - FREE tier users cannot access PRO-only symbols (AUDJPY, GBPJPY, etc.)
 - FREE tier users cannot access PRO-only timeframes (M5, M15, M30, H2, H8, H12)
@@ -145,15 +167,19 @@ export async function POST(req: Request) {
 **Why this matters:** Tier validation is your business model. Without it, users get PRO features for free, and you lose revenue.
 
 **Example - Good:**
+
 ```typescript
 import { validateChartAccess } from '@/lib/tier/validation';
 
-export async function GET(req: Request, { params }: { params: { symbol: string; timeframe: string } }) {
+export async function GET(
+  req: Request,
+  { params }: { params: { symbol: string; timeframe: string } }
+) {
   const session = await getServerSession();
   const userTier = session?.user?.tier || 'FREE';
 
   // Validate tier access - throws ForbiddenError if unauthorized
-  validateChartAccess(userTier, params.symbol, params.timeframe);  // ✅
+  validateChartAccess(userTier, params.symbol, params.timeframe); // ✅
 
   // Proceed with data fetching...
 }
@@ -164,6 +190,7 @@ export async function GET(req: Request, { params }: { params: { symbol: string; 
 ### 1.3 API Contract Compliance
 
 ✅ **Matches OpenAPI Specification:**
+
 - Response structure matches trading_alerts_openapi.yaml or flask_mt5_openapi.yaml exactly
 - All required fields present
 - Correct HTTP status codes (200, 400, 401, 403, 404, 500)
@@ -172,6 +199,7 @@ export async function GET(req: Request, { params }: { params: { symbol: string; 
 **Why this matters:** OpenAPI spec is your contract with the frontend. Violating it breaks the frontend and causes runtime errors.
 
 **Example - From OpenAPI:**
+
 ```yaml
 # trading_alerts_openapi.yaml
 AlertResponse:
@@ -188,6 +216,7 @@ AlertResponse:
 ```
 
 **Corresponding API route - Good:**
+
 ```typescript
 export async function GET(req: Request) {
   const alerts = await prisma.alert.findMany();
@@ -199,7 +228,7 @@ export async function GET(req: Request) {
     timeframe: alert.timeframe,
     condition: alert.condition,
     isActive: alert.isActive,
-    createdAt: alert.createdAt.toISOString(),  // ✅ All required fields, correct format
+    createdAt: alert.createdAt.toISOString(), // ✅ All required fields, correct format
   });
 }
 ```
@@ -209,6 +238,7 @@ export async function GET(req: Request) {
 ### 1.4 Architecture Compliance
 
 ✅ **Files in Correct Locations:**
+
 - Files placed according to v5-structure-division.md
 - API routes in `app/api/`
 - Components in `components/`
@@ -219,6 +249,7 @@ export async function GET(req: Request) {
 **Why this matters:** Consistent structure makes the codebase navigable. Future developers (or AI assistants) can find files easily.
 
 **Example - Correct locations:**
+
 ```
 app/api/alerts/route.ts                    ✅ API route
 components/alerts/alert-form.tsx           ✅ React component
@@ -231,6 +262,7 @@ lib/tier/validation.ts                     ✅ Tier validation logic
 ### 1.5 Claude Code Validation Results
 
 ✅ **Validation Thresholds:**
+
 - **0 Critical issues** (security, contract violations)
 - **≤2 High issues** (missing error handling, wrong types, tier validation missing)
 - Medium/Low issues acceptable (will be auto-fixed if possible)
@@ -238,6 +270,7 @@ lib/tier/validation.ts                     ✅ Tier validation logic
 **Why this matters:** Claude Code validation catches issues before commit. These thresholds balance quality with autonomous progress.
 
 **Validation Severity Levels:**
+
 - **Critical:** Security vulnerabilities, API contract violations, exposed secrets
 - **High:** Missing error handling, incorrect types, missing tier validation
 - **Medium:** Missing JSDoc, suboptimal patterns
@@ -271,11 +304,13 @@ Aider should **automatically fix and retry** (max 3 attempts) when issues are **
 ### 2.1 Fixable Issues
 
 ✅ **Missing TypeScript Types:**
+
 - Add explicit return types to functions
 - Add type annotations to parameters
 - Define interfaces for complex objects
 
 **Auto-fix strategy:**
+
 ```typescript
 // Before (High issue)
 function createAlert(userId, symbol) {
@@ -291,11 +326,13 @@ function createAlert(userId: string, symbol: string): Promise<Alert> {
 ---
 
 ✅ **Missing Error Handling:**
+
 - Wrap API routes in try/catch
 - Wrap Prisma queries in try/catch
 - Add error logging
 
 **Auto-fix strategy:**
+
 ```typescript
 // Before (High issue)
 export async function GET(req: Request) {
@@ -321,10 +358,12 @@ export async function GET(req: Request) {
 ---
 
 ✅ **Missing JSDoc Comments:**
+
 - Add JSDoc to all public functions
 - Include @param, @returns, description
 
 **Auto-fix strategy:**
+
 ```typescript
 // Before (Medium issue)
 async function createAlert(userId: string, symbol: string): Promise<Alert> {
@@ -346,6 +385,7 @@ async function createAlert(userId: string, symbol: string): Promise<Alert> {
 ---
 
 ✅ **ESLint/Prettier Errors:**
+
 - Run `pnpm lint --fix`
 - Run `pnpm format`
 
@@ -383,6 +423,7 @@ Aider should **STOP and notify you** when encountering:
 ### 3.1 Critical Security Vulnerabilities
 
 **Escalate immediately when detecting:**
+
 - SQL injection vulnerabilities
 - XSS vulnerabilities
 - Authentication bypass attempts
@@ -393,6 +434,7 @@ Aider should **STOP and notify you** when encountering:
 **Why escalate:** Security issues require human review. Auto-fixing security bugs can introduce new vulnerabilities.
 
 **Example escalation:**
+
 ```
 ⚠️ ESCALATION: Critical Security Issue
 
@@ -423,6 +465,7 @@ Awaiting human approval before proceeding.
 ### 3.2 API Contract Violations (Can't Auto-Fix)
 
 **Escalate when:**
+
 - OpenAPI spec requires a field that doesn't exist in database schema
 - Response structure doesn't match OpenAPI schema after 3 fix attempts
 - Missing required fields that require schema changes
@@ -431,6 +474,7 @@ Awaiting human approval before proceeding.
 **Why escalate:** Contract violations often require schema changes or spec updates, which are architectural decisions.
 
 **Example escalation:**
+
 ```
 ⚠️ ESCALATION: API Contract Violation
 
@@ -455,6 +499,7 @@ Which approach should I take?
 ### 3.3 Policy Conflicts or Gaps
 
 **Escalate when:**
+
 - Two policies contradict each other
 - Scenario not covered by any policy
 - Unclear requirements in specs
@@ -463,6 +508,7 @@ Which approach should I take?
 **Why escalate:** Policy gaps need human clarification to improve the system.
 
 **Example escalation:**
+
 ```
 ⚠️ ESCALATION: Policy Gap
 
@@ -488,6 +534,7 @@ Add section to 01-approval-policies.md: "Inactive Account Handling"
 ### 3.4 Architectural Design Decisions
 
 **Escalate when:**
+
 - Multiple valid architectural approaches exist
 - Need to choose a pattern (e.g., server component vs client component)
 - New folder structure needed not covered by v5-structure-division.md
@@ -496,6 +543,7 @@ Add section to 01-approval-policies.md: "Inactive Account Handling"
 **Why escalate:** Architectural decisions have long-term impacts and should involve human judgment.
 
 **Example escalation:**
+
 ```
 ⚠️ ESCALATION: Architectural Decision
 
@@ -526,6 +574,7 @@ Which approach should I implement?
 ### 3.5 New Dependency Additions
 
 **Escalate when:**
+
 - New npm package needed (not in package.json)
 - New pip package needed (for Flask service)
 - Dependency adds significant bundle size
@@ -534,6 +583,7 @@ Which approach should I implement?
 **Why escalate:** Dependencies add attack surface, bundle size, and maintenance burden. Human approval ensures necessity.
 
 **Example escalation:**
+
 ```
 ⚠️ ESCALATION: New Dependency Required
 
@@ -564,6 +614,7 @@ Approve adding date-fns?
 ### 3.6 Database Schema Changes (Prisma Migrations)
 
 **Escalate when:**
+
 - New table/model needed
 - Adding/removing fields from existing models
 - Changing field types (data migration required)
@@ -572,6 +623,7 @@ Approve adding date-fns?
 **Why escalate:** Schema changes are irreversible in production. Human review prevents data loss.
 
 **Example escalation:**
+
 ```
 ⚠️ ESCALATION: Database Schema Change
 
@@ -609,6 +661,7 @@ Approve schema change + migration?
 ### 3.7 Breaking Changes to Existing APIs
 
 **Escalate when:**
+
 - Changing API response structure that breaks frontend
 - Removing API endpoints
 - Changing required fields
@@ -617,6 +670,7 @@ Approve schema change + migration?
 **Why escalate:** Breaking changes can crash the production app. Need coordination with frontend.
 
 **Example escalation:**
+
 ```
 ⚠️ ESCALATION: Breaking API Change
 
@@ -662,7 +716,8 @@ Which approach?
 ### 3.8 Claude Code Validation Failures (>3 High Issues)
 
 **Escalate when:**
-- >3 High severity issues after auto-fix attempts
+
+- > 3 High severity issues after auto-fix attempts
 - Any Critical issues
 - Repeated auto-fix failures (3 attempts exhausted)
 - Unclear how to fix validation errors
@@ -670,6 +725,7 @@ Which approach?
 **Why escalate:** Persistent validation failures indicate misunderstanding of requirements or complex issues needing human review.
 
 **Example escalation:**
+
 ```
 ⚠️ ESCALATION: Validation Failure After 3 Attempts
 
@@ -703,6 +759,7 @@ Need human guidance:
 ### 3.9 Unclear Requirements from Specs
 
 **Escalate when:**
+
 - Specs are ambiguous or contradictory
 - Missing information needed for implementation
 - Conflicting requirements from different docs
@@ -711,6 +768,7 @@ Need human guidance:
 **Why escalate:** Implementing based on wrong assumptions wastes time. Better to clarify upfront.
 
 **Example escalation:**
+
 ```
 ⚠️ ESCALATION: Unclear Requirement
 
@@ -740,6 +798,7 @@ Need clarification on alert condition specification before implementing parser.
 ### 3.10 Test Failures
 
 **Escalate when:**
+
 - TypeScript compilation errors after code generation
 - Jest tests fail after changes
 - Build failures (pnpm build)
@@ -748,6 +807,7 @@ Need clarification on alert condition specification before implementing parser.
 **Why escalate:** Test failures indicate broken functionality. Need to fix before proceeding.
 
 **Example escalation:**
+
 ```
 ⚠️ ESCALATION: TypeScript Compilation Error
 
@@ -832,6 +892,7 @@ When you (human) receive an escalation:
 5. **Tell Aider your decision and reasoning**
 
 **Example response:**
+
 ```
 Decision: Option 1 - Add "triggeredAt" field to Prisma schema
 
@@ -895,17 +956,17 @@ Validate with Claude Code
 
 ## Approval Conditions Quick Reference
 
-| Condition | Check | Severity if Missing |
-|-----------|-------|---------------------|
-| TypeScript types | All functions typed | High |
-| Error handling | try/catch on all API routes | High |
-| JSDoc comments | All public functions | Medium |
-| No secrets | No hardcoded keys | Critical |
-| Input validation | Zod validation on all inputs | High |
-| Tier validation | Symbol/timeframe access checked | Critical |
-| OpenAPI compliance | Response matches spec | Critical |
-| Architecture compliance | File in correct location | Medium |
-| Claude Code validation | 0 Critical, ≤2 High | - |
+| Condition               | Check                           | Severity if Missing |
+| ----------------------- | ------------------------------- | ------------------- |
+| TypeScript types        | All functions typed             | High                |
+| Error handling          | try/catch on all API routes     | High                |
+| JSDoc comments          | All public functions            | Medium              |
+| No secrets              | No hardcoded keys               | Critical            |
+| Input validation        | Zod validation on all inputs    | High                |
+| Tier validation         | Symbol/timeframe access checked | Critical            |
+| OpenAPI compliance      | Response matches spec           | Critical            |
+| Architecture compliance | File in correct location        | Medium              |
+| Claude Code validation  | 0 Critical, ≤2 High             | -                   |
 
 **If ANY Critical → ESCALATE**
 **If >2 High → ESCALATE**
@@ -982,6 +1043,7 @@ The affiliate marketing 2-sided marketplace introduces unique validation require
 ### 7.1 Affiliate Authentication Requirements
 
 ✅ **Separate JWT Secret:**
+
 - Affiliate routes MUST use `AFFILIATE_JWT_SECRET` (NOT user JWT secret)
 - Token payload MUST include `type: 'AFFILIATE'` discriminator
 - Token validation MUST check type field
@@ -990,6 +1052,7 @@ The affiliate marketing 2-sided marketplace introduces unique validation require
 **Why this matters:** Affiliate and user authentication must be completely separate to prevent privilege escalation and maintain clear security boundaries.
 
 **Example - Good:**
+
 ```typescript
 // lib/auth/affiliate-auth.ts
 export function generateAffiliateToken(affiliate: Affiliate): string {
@@ -997,10 +1060,10 @@ export function generateAffiliateToken(affiliate: Affiliate): string {
     {
       id: affiliate.id,
       email: affiliate.email,
-      type: 'AFFILIATE',  // ✅ Type discriminator
-      status: affiliate.status
+      type: 'AFFILIATE', // ✅ Type discriminator
+      status: affiliate.status,
     },
-    process.env.AFFILIATE_JWT_SECRET!,  // ✅ Separate secret
+    process.env.AFFILIATE_JWT_SECRET!, // ✅ Separate secret
     { expiresIn: '7d' }
   );
 }
@@ -1016,6 +1079,7 @@ export function validateAffiliateToken(token: string) {
 ```
 
 **Example - Bad:**
+
 ```typescript
 // ❌ Using same secret as users
 const token = jwt.sign(affiliate, process.env.JWT_SECRET);
@@ -1029,6 +1093,7 @@ const token = jwt.sign({ id: affiliate.id }, process.env.JWT_SECRET);
 ### 7.2 Affiliate Code Generation
 
 ✅ **Cryptographically Secure Code Generation:**
+
 - MUST use `crypto.randomBytes(16).toString('hex')` or equivalent
 - Code length MUST be ≥12 characters
 - MUST check uniqueness before saving
@@ -1037,6 +1102,7 @@ const token = jwt.sign({ id: affiliate.id }, process.env.JWT_SECRET);
 **Why this matters:** Predictable codes allow attackers to guess valid codes and abuse discounts.
 
 **Example - Good:**
+
 ```typescript
 import crypto from 'crypto';
 
@@ -1045,7 +1111,10 @@ function generateAffiliateCode(affiliateName: string): string {
   const random = crypto.randomBytes(16).toString('hex');
 
   // Optional: Prefix with sanitized affiliate name (first 4 chars, uppercase)
-  const prefix = affiliateName.slice(0, 4).toUpperCase().replace(/[^A-Z]/g, '');
+  const prefix = affiliateName
+    .slice(0, 4)
+    .toUpperCase()
+    .replace(/[^A-Z]/g, '');
 
   // Combine: SMIT-a7f3e9d1c2b4a1f6 (total length >12)
   return `${prefix}-${random.slice(0, 12)}`;
@@ -1065,21 +1134,22 @@ async function createUniqueCode(affiliateName: string): Promise<string> {
 ```
 
 **Example - Bad:**
+
 ```typescript
 // ❌ Predictable pattern
 function generateCode(affiliate: Affiliate) {
-  return `${affiliate.name}-${affiliate.id}`;  // Easy to guess
+  return `${affiliate.name}-${affiliate.id}`; // Easy to guess
 }
 
 // ❌ Sequential
 let codeCounter = 1000;
 function generateCode() {
-  return `CODE-${codeCounter++}`;  // Attacker can enumerate
+  return `CODE-${codeCounter++}`; // Attacker can enumerate
 }
 
 // ❌ Not cryptographically secure
 function generateCode() {
-  return Math.random().toString(36).substring(7);  // Math.random() is NOT secure
+  return Math.random().toString(36).substring(7); // Math.random() is NOT secure
 }
 ```
 
@@ -1088,6 +1158,7 @@ function generateCode() {
 ### 7.3 Commission Calculation Validation
 
 ✅ **Commission Calculation Requirements:**
+
 - MUST create commissions ONLY via Stripe webhook (not manual creation)
 - MUST validate affiliate code before creating commission
 - MUST use exact formula: `netRevenue × (commissionPercent / 100)`
@@ -1097,6 +1168,7 @@ function generateCode() {
 **Why this matters:** Commission calculations involve money. Incorrect calculations or manual commission creation enables fraud.
 
 **Example - Good:**
+
 ```typescript
 // app/api/webhooks/stripe/route.ts
 export async function POST(req: NextRequest) {
@@ -1109,7 +1181,7 @@ export async function POST(req: NextRequest) {
     if (affiliateCodeValue) {
       // 1. Validate code exists and is ACTIVE
       const code = await prisma.affiliateCode.findUnique({
-        where: { code: affiliateCodeValue }
+        where: { code: affiliateCodeValue },
       });
 
       if (!code || code.status !== 'ACTIVE') {
@@ -1139,8 +1211,8 @@ export async function POST(req: NextRequest) {
           netRevenue,
           commissionPercent,
           commissionAmount,
-          status: 'PENDING',  // ✅ Awaits admin payment
-        }
+          status: 'PENDING', // ✅ Awaits admin payment
+        },
       });
 
       // 5. Mark code as USED
@@ -1149,8 +1221,8 @@ export async function POST(req: NextRequest) {
         data: {
           status: 'USED',
           usedAt: new Date(),
-          usedByUserId: session.metadata.userId
-        }
+          usedByUserId: session.metadata.userId,
+        },
       });
     }
   }
@@ -1160,6 +1232,7 @@ export async function POST(req: NextRequest) {
 ```
 
 **Example - Bad:**
+
 ```typescript
 // ❌ Manual commission creation (bypasses Stripe)
 export async function POST(req: NextRequest) {
@@ -1170,16 +1243,16 @@ export async function POST(req: NextRequest) {
     data: {
       affiliateId,
       commissionAmount: amount,
-      status: 'PENDING'
-    }
+      status: 'PENDING',
+    },
   });
 }
 
 // ❌ Wrong calculation
-const commission = regularPrice * 0.30;  // Should be netRevenue × 0.30
+const commission = regularPrice * 0.3; // Should be netRevenue × 0.30
 
 // ❌ Creating as PAID immediately
-status: 'PAID'  // Should start as PENDING
+status: 'PAID'; // Should start as PENDING
 ```
 
 ---
@@ -1187,11 +1260,13 @@ status: 'PAID'  // Should start as PENDING
 ### 7.4 Affiliate Payment Method Validation
 
 ✅ **Payment Method Field Validation:**
+
 - MUST validate payment method is one of: `BANK_TRANSFER | CRYPTO | GLOBAL_WALLET | LOCAL_WALLET`
 - MUST validate required fields based on payment method
 - MUST validate optional fields are null when not applicable
 
 **Required field combinations:**
+
 ```typescript
 // BANK_TRANSFER requires:
 - bankName (string, min 1)
@@ -1212,6 +1287,7 @@ status: 'PAID'  // Should start as PENDING
 ```
 
 **Example - Good:**
+
 ```typescript
 const paymentMethodSchemas = {
   BANK_TRANSFER: z.object({
@@ -1253,12 +1329,14 @@ const validated = schema.parse(data);
 ### 7.5 Accounting-Style Report Validation
 
 ✅ **Report Structure Requirements:**
+
 - MUST follow accounting format: Opening Balance → Activity → Closing Balance
 - MUST match opening balance = previous closing balance
 - MUST include drill-down capability (summary → detail)
 - MUST aggregate correctly
 
 **Example - Commission Report:**
+
 ```typescript
 // Good structure
 {
@@ -1301,6 +1379,7 @@ const validated = schema.parse(data);
 ```
 
 **Validation:**
+
 ```typescript
 // Validate accounting balance
 const calculated = openingBalance + earned - paid;
@@ -1341,16 +1420,16 @@ When validating affiliate marketing files, ensure:
 
 ### 7.7 Affiliate-Specific Quick Reference
 
-| Requirement | Check | Severity if Violated |
-|-------------|-------|---------------------|
-| Separate JWT secret | Uses AFFILIATE_JWT_SECRET | Critical |
-| Token type discriminator | Includes type: 'AFFILIATE' | Critical |
-| Crypto-secure code generation | Uses crypto.randomBytes() | Critical |
-| Commission via webhook only | Created in Stripe webhook handler | Critical |
-| Correct commission formula | netRevenue × commissionPercent | High |
-| Payment method validation | Required fields present | High |
-| Accounting balance reconciliation | opening + earned - paid = closing | High |
-| Code uniqueness check | Checks existing before creating | Medium |
+| Requirement                       | Check                             | Severity if Violated |
+| --------------------------------- | --------------------------------- | -------------------- |
+| Separate JWT secret               | Uses AFFILIATE_JWT_SECRET         | Critical             |
+| Token type discriminator          | Includes type: 'AFFILIATE'        | Critical             |
+| Crypto-secure code generation     | Uses crypto.randomBytes()         | Critical             |
+| Commission via webhook only       | Created in Stripe webhook handler | Critical             |
+| Correct commission formula        | netRevenue × commissionPercent    | High                 |
+| Payment method validation         | Required fields present           | High                 |
+| Accounting balance reconciliation | opening + earned - paid = closing | High                 |
+| Code uniqueness check             | Checks existing before creating   | Medium               |
 
 **If ANY Critical violated → ESCALATE immediately**
 
@@ -1359,6 +1438,7 @@ When validating affiliate marketing files, ensure:
 ### 7.8 Dynamic Configuration System (SystemConfig)
 
 ✅ **Centralized Settings Management:**
+
 - Frontend MUST use `useAffiliateConfig()` hook to fetch current percentages
 - NEVER hardcode discount or commission percentages (20%, 20%, etc.)
 - Code generation MUST read from SystemConfig table for default values
@@ -1367,6 +1447,7 @@ When validating affiliate marketing files, ensure:
 **Why this matters:** Admin can change affiliate discount and commission percentages from dashboard. All pages must reflect these changes automatically without code deployment.
 
 **Example - Good (Frontend):**
+
 ```typescript
 // components/PricingCard.tsx
 import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
@@ -1386,15 +1467,19 @@ export function PricingCard() {
 ```
 
 **Example - Good (Backend - Code Generation):**
+
 ```typescript
 // app/api/admin/affiliates/[id]/distribute-codes/route.ts
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   // 1. Fetch current config from SystemConfig table
   const discountConfig = await prisma.systemConfig.findUnique({
-    where: { key: 'affiliate_discount_percent' }
+    where: { key: 'affiliate_discount_percent' },
   });
   const commissionConfig = await prisma.systemConfig.findUnique({
-    where: { key: 'affiliate_commission_percent' }
+    where: { key: 'affiliate_commission_percent' },
   });
 
   const discountPercent = parseFloat(discountConfig?.value || '20.0');
@@ -1402,18 +1487,20 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   // 2. Generate codes with current config values
   const codes = await Promise.all(
-    Array(15).fill(null).map(() =>
-      prisma.affiliateCode.create({
-        data: {
-          code: generateSecureCode(),
-          affiliateId: params.id,
-          discountPercent,      // ✅ From SystemConfig
-          commissionPercent,    // ✅ From SystemConfig
-          expiresAt: endOfMonth(),
-          status: 'ACTIVE'
-        }
-      })
-    )
+    Array(15)
+      .fill(null)
+      .map(() =>
+        prisma.affiliateCode.create({
+          data: {
+            code: generateSecureCode(),
+            affiliateId: params.id,
+            discountPercent, // ✅ From SystemConfig
+            commissionPercent, // ✅ From SystemConfig
+            expiresAt: endOfMonth(),
+            status: 'ACTIVE',
+          },
+        })
+      )
   );
 
   return NextResponse.json({ codesDistributed: codes.length });
@@ -1421,6 +1508,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 ```
 
 **Example - Bad:**
+
 ```typescript
 // ❌ Hardcoded percentages
 const discountPercent = 20.0;  // Will break if admin changes settings
@@ -1433,6 +1521,7 @@ export function PricingCard() {
 ```
 
 **Frontend Hook Pattern:**
+
 ```typescript
 // lib/hooks/useAffiliateConfig.ts
 import useSWR from 'swr';
@@ -1449,8 +1538,8 @@ export function useAffiliateConfig() {
   const { data, error, isLoading } = useSWR<AffiliateConfig>(
     '/api/config/affiliate',
     {
-      refreshInterval: 300000,  // 5 minutes
-      dedupingInterval: 60000,  // 1 minute
+      refreshInterval: 300000, // 5 minutes
+      dedupingInterval: 60000, // 1 minute
       revalidateOnFocus: true,
     }
   );
@@ -1470,6 +1559,7 @@ export function useAffiliateConfig() {
 ```
 
 **API Endpoint Pattern:**
+
 ```typescript
 // app/api/config/affiliate/route.ts
 import { NextRequest, NextResponse } from 'next/server';
@@ -1487,22 +1577,24 @@ export async function GET(req: NextRequest) {
           in: [
             'affiliate_discount_percent',
             'affiliate_commission_percent',
-            'affiliate_codes_per_month'
-          ]
-        }
-      }
+            'affiliate_codes_per_month',
+          ],
+        },
+      },
     });
 
     // Parse and return
-    const configMap = Object.fromEntries(
-      configs.map(c => [c.key, c.value])
-    );
+    const configMap = Object.fromEntries(configs.map((c) => [c.key, c.value]));
 
     return NextResponse.json({
-      discountPercent: parseFloat(configMap.affiliate_discount_percent || '20.0'),
-      commissionPercent: parseFloat(configMap.affiliate_commission_percent || '20.0'),
+      discountPercent: parseFloat(
+        configMap.affiliate_discount_percent || '20.0'
+      ),
+      commissionPercent: parseFloat(
+        configMap.affiliate_commission_percent || '20.0'
+      ),
       codesPerMonth: parseInt(configMap.affiliate_codes_per_month || '15'),
-      regularPrice: 29.00,
+      regularPrice: 29.0,
       lastUpdated: configs[0]?.updatedAt || new Date(),
     });
   } catch (error) {
@@ -1516,6 +1608,7 @@ export async function GET(req: NextRequest) {
 ```
 
 **Critical Rules:**
+
 1. ✅ ALWAYS use `useAffiliateConfig()` in frontend components
 2. ✅ ALWAYS fetch from SystemConfig table in backend code generation
 3. ✅ NEVER hardcode percentages (20%, 20%, 15 codes, etc.)
@@ -1523,6 +1616,7 @@ export async function GET(req: NextRequest) {
 5. ✅ Provide fallback values if SystemConfig query fails
 
 **Pages that MUST use useAffiliateConfig():**
+
 - Marketing homepage (pricing section)
 - Pricing page
 - Checkout page
@@ -1532,6 +1626,7 @@ export async function GET(req: NextRequest) {
 - All email templates (pricing references)
 
 **Update Propagation:**
+
 - Admin changes settings → SystemConfigHistory entry created
 - Frontend pages refresh within 1-5 minutes (SWR revalidation)
 - Existing codes keep original percentages (no retroactive changes)
@@ -1544,6 +1639,7 @@ export async function GET(req: NextRequest) {
 ### 8.1 Payment Provider Validation
 
 ✅ **Auto-Approve if:**
+
 - MUST use single `Subscription` model with `paymentProvider` field ("STRIPE" or "DLOCAL")
 - MUST make Stripe fields nullable for dLocal subscriptions
 - MUST make dLocal fields nullable for Stripe subscriptions
@@ -1579,6 +1675,7 @@ model DLocalSubscription { ... }
 ### 8.2 Currency Conversion
 
 ✅ **Auto-Approve if:**
+
 - MUST convert USD → local currency ONLY for dLocal payments
 - MUST fetch real-time exchange rates (NEVER use hardcoded rates)
 - MUST store exchange rate used in Payment record for audit trail
@@ -1587,18 +1684,18 @@ model DLocalSubscription { ... }
 
 ```typescript
 // ✅ Auto-approve: Real-time currency conversion
-const { amount, rate } = await convertUsdToLocal(29.00, 'INR');
+const { amount, rate } = await convertUsdToLocal(29.0, 'INR');
 await prisma.payment.create({
   data: {
-    amount: 2407.00,      // Local currency
+    amount: 2407.0, // Local currency
     currency: 'INR',
-    amountUsd: 29.00,     // USD equivalent
-    exchangeRate: 83.00   // Rate used
-  }
+    amountUsd: 29.0, // USD equivalent
+    exchangeRate: 83.0, // Rate used
+  },
 });
 
 // ❌ Reject: Hardcoded exchange rates
-const amount = 29.00 * 83;  // Don't hardcode rate
+const amount = 29.0 * 83; // Don't hardcode rate
 ```
 
 ---
@@ -1606,6 +1703,7 @@ const amount = 29.00 * 83;  // Don't hardcode rate
 ### 8.3 3-Day Plan Anti-Abuse
 
 ✅ **Auto-Approve if:**
+
 - MUST check `hasUsedThreeDayPlan === false` before allowing purchase
 - MUST create `FraudAlert` if reuse attempt detected
 - MUST block 3-day purchase if active subscription exists
@@ -1622,22 +1720,25 @@ if (planType === 'THREE_DAY') {
         alertType: '3DAY_PLAN_REUSE',
         severity: 'MEDIUM',
         ipAddress: req.headers.get('x-forwarded-for'),
-        deviceFingerprint: req.headers.get('x-device-fingerprint')
-      }
+        deviceFingerprint: req.headers.get('x-device-fingerprint'),
+      },
     });
-    return NextResponse.json({ error: '3-day plan already used' }, { status: 403 });
+    return NextResponse.json(
+      { error: '3-day plan already used' },
+      { status: 403 }
+    );
   }
 
   // After payment success
   await prisma.user.update({
     where: { id: user.id },
-    data: { hasUsedThreeDayPlan: true, threeDayPlanUsedAt: new Date() }
+    data: { hasUsedThreeDayPlan: true, threeDayPlanUsedAt: new Date() },
   });
 }
 
 // ❌ Reject: Missing fraud alert or flag update
 if (user.hasUsedThreeDayPlan) {
-  return { error: '...' };  // Missing FraudAlert creation
+  return { error: '...' }; // Missing FraudAlert creation
 }
 ```
 
@@ -1646,6 +1747,7 @@ if (user.hasUsedThreeDayPlan) {
 ### 8.4 Early Renewal Logic (dLocal Monthly Only)
 
 ✅ **Auto-Approve if:**
+
 - MUST allow early renewal ONLY for dLocal monthly subscriptions
 - MUST block renewal for dLocal 3-day plans
 - MUST block renewal for Stripe subscriptions (auto-renews)
@@ -1655,24 +1757,30 @@ if (user.hasUsedThreeDayPlan) {
 ```typescript
 // ✅ Auto-approve: Early renewal with day stacking
 if (subscription.paymentProvider !== 'DLOCAL') {
-  return NextResponse.json({ error: 'Stripe subscriptions auto-renew' }, { status: 400 });
+  return NextResponse.json(
+    { error: 'Stripe subscriptions auto-renew' },
+    { status: 400 }
+  );
 }
 
 if (subscription.planType === 'THREE_DAY') {
-  return NextResponse.json({ error: 'Cannot renew 3-day plan' }, { status: 400 });
+  return NextResponse.json(
+    { error: 'Cannot renew 3-day plan' },
+    { status: 400 }
+  );
 }
 
 const newExpiresAt = new Date(subscription.expiresAt);
-newExpiresAt.setDate(newExpiresAt.getDate() + 30);  // Stack days
+newExpiresAt.setDate(newExpiresAt.getDate() + 30); // Stack days
 
 return NextResponse.json({
   message: `${remainingDays} remaining + 30 new = ${remainingDays + 30} total`,
-  expiresAt: newExpiresAt
+  expiresAt: newExpiresAt,
 });
 
 // ❌ Reject: Allows Stripe renewal or doesn't stack days
 if (subscription.planType === 'MONTHLY') {
-  const newExpiresAt = addDays(new Date(), 30);  // Wrong: doesn't stack
+  const newExpiresAt = addDays(new Date(), 30); // Wrong: doesn't stack
 }
 ```
 
@@ -1681,6 +1789,7 @@ if (subscription.planType === 'MONTHLY') {
 ### 8.5 Subscription Expiry Handling
 
 ✅ **Auto-Approve if:**
+
 - MUST check expiry ONLY for dLocal subscriptions (NOT Stripe)
 - MUST run via cron job daily at midnight UTC
 - MUST send reminder 3 days before expiry
@@ -1725,6 +1834,7 @@ const expiringSubscriptions = await prisma.subscription.findMany({
 ### 8.6 Fraud Detection Integration
 
 ✅ **Auto-Approve if:**
+
 - MUST call fraud detection on ALL payment operations
 - MUST create `FraudAlert` for suspicious patterns
 - MUST include severity: "LOW", "MEDIUM", or "HIGH"
@@ -1736,7 +1846,7 @@ const expiringSubscriptions = await prisma.subscription.findMany({
 const fraudAlert = await detectFraud(userId, {
   ipAddress: req.headers.get('x-forwarded-for'),
   deviceFingerprint: req.headers.get('x-device-fingerprint'),
-  paymentAmount: amount
+  paymentAmount: amount,
 });
 
 if (fraudAlert) {
@@ -1744,12 +1854,12 @@ if (fraudAlert) {
     data: {
       userId,
       alertType: fraudAlert.type,
-      severity: fraudAlert.severity,  // LOW, MEDIUM, HIGH
+      severity: fraudAlert.severity, // LOW, MEDIUM, HIGH
       description: fraudAlert.description,
       ipAddress: fraudAlert.ipAddress,
       deviceFingerprint: fraudAlert.deviceFingerprint,
-      additionalData: fraudAlert.context
-    }
+      additionalData: fraudAlert.context,
+    },
   });
 
   // Send to admin for review
@@ -1758,7 +1868,7 @@ if (fraudAlert) {
 
 // ❌ Reject: Auto-blocks users or missing fraud alerts
 if (detectedFraud) {
-  await prisma.user.update({ data: { isActive: false } });  // Don't auto-block
+  await prisma.user.update({ data: { isActive: false } }); // Don't auto-block
 }
 ```
 
@@ -1767,6 +1877,7 @@ if (detectedFraud) {
 ### 8.7 Payment Provider Selection
 
 ✅ **Auto-Approve if:**
+
 - MUST show dLocal option ONLY for supported countries: IN, NG, PK, VN, ID, TH, ZA, TR
 - MUST show prices in local currency for dLocal countries
 - MUST use correct currency symbols (₹, ₦, ₨, ₫, Rp, ฿, R, ₺)
@@ -1774,13 +1885,22 @@ if (detectedFraud) {
 
 ```typescript
 // ✅ Auto-approve: Country-based provider selection
-export const DLOCAL_COUNTRIES = ['IN', 'NG', 'PK', 'VN', 'ID', 'TH', 'ZA', 'TR'];
+export const DLOCAL_COUNTRIES = [
+  'IN',
+  'NG',
+  'PK',
+  'VN',
+  'ID',
+  'TH',
+  'ZA',
+  'TR',
+];
 
 export function getAvailableProviders(countryCode: string): PaymentProvider[] {
   if (DLOCAL_COUNTRIES.includes(countryCode)) {
-    return ['STRIPE', 'DLOCAL'];  // Both options
+    return ['STRIPE', 'DLOCAL']; // Both options
   }
-  return ['STRIPE'];  // International only
+  return ['STRIPE']; // International only
 }
 
 // Display localized pricing
@@ -1788,7 +1908,7 @@ const { amount, currency, display } = getLocalizedPrice('MONTHLY', country);
 // India: ₹2,407, Nigeria: ₦12,470, etc.
 
 // ❌ Reject: Shows dLocal for all countries
-return ['STRIPE', 'DLOCAL'];  // Missing country check
+return ['STRIPE', 'DLOCAL']; // Missing country check
 ```
 
 ---
@@ -1796,6 +1916,7 @@ return ['STRIPE', 'DLOCAL'];  // Missing country check
 ### 8.8 Stripe Trial Abuse Detection
 
 ✅ **Auto-Approve if:**
+
 - MUST check for fraud patterns BEFORE creating user account
 - MUST capture `signupIP` and `deviceFingerprint` at registration
 - MUST implement all 4 fraud detection patterns (IP, device, email, velocity)
@@ -1807,21 +1928,22 @@ return ['STRIPE', 'DLOCAL'];  // Missing country check
 
 ```typescript
 // ✅ Auto-approve: Registration with multi-signal fraud detection
-import { detectTrialAbuse } from '@/lib/fraud-detection'
+import { detectTrialAbuse } from '@/lib/fraud-detection';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const { email, password, name } = await req.json()
+  const { email, password, name } = await req.json();
 
   // Extract fraud signals
-  const signupIP = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.ip || null
-  const deviceFingerprint = req.headers.get('x-device-fingerprint') || null
+  const signupIP =
+    req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.ip || null;
+  const deviceFingerprint = req.headers.get('x-device-fingerprint') || null;
 
   // ✅ Check fraud BEFORE creating account
   const fraudCheck = await detectTrialAbuse({
     email,
     signupIP,
-    deviceFingerprint
-  })
+    deviceFingerprint,
+  });
 
   if (fraudCheck) {
     // Create FraudAlert for admin review
@@ -1833,13 +1955,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         description: fraudCheck.description,
         ipAddress: signupIP,
         deviceFingerprint,
-        additionalData: { email, blockedAtRegistration: fraudCheck.severity === 'HIGH' }
-      }
-    })
+        additionalData: {
+          email,
+          blockedAtRegistration: fraudCheck.severity === 'HIGH',
+        },
+      },
+    });
 
     // Block HIGH severity
     if (fraudCheck.severity === 'HIGH') {
-      return NextResponse.json({ error: 'Registration blocked' }, { status: 403 })
+      return NextResponse.json(
+        { error: 'Registration blocked' },
+        { status: 403 }
+      );
     }
   }
 
@@ -1853,22 +1981,25 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       hasUsedStripeTrial: false,
       signupIP,
       lastLoginIP: signupIP,
-      deviceFingerprint
-    }
-  })
+      deviceFingerprint,
+    },
+  });
 
-  return NextResponse.json(user, { status: 201 })
+  return NextResponse.json(user, { status: 201 });
 }
 ```
 
 **Fraud Detection Implementation:**
+
 ```typescript
 // ✅ Auto-approve: lib/fraud-detection.ts with all 4 patterns
-export async function detectTrialAbuse(
-  context: { email: string; signupIP: string | null; deviceFingerprint: string | null }
-): Promise<FraudCheckResult | null> {
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+export async function detectTrialAbuse(context: {
+  email: string;
+  signupIP: string | null;
+  deviceFingerprint: string | null;
+}): Promise<FraudCheckResult | null> {
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
   // Pattern 1: IP-based abuse (≥3 trials from same IP in 30 days)
   if (context.signupIP) {
@@ -1876,16 +2007,16 @@ export async function detectTrialAbuse(
       where: {
         signupIP: context.signupIP,
         hasUsedStripeTrial: true,
-        stripeTrialStartedAt: { gte: thirtyDaysAgo }
-      }
-    })
+        stripeTrialStartedAt: { gte: thirtyDaysAgo },
+      },
+    });
 
     if (recentTrialsFromIP >= 3) {
       return {
         type: 'STRIPE_TRIAL_IP_ABUSE',
         severity: 'HIGH',
-        description: `IP ${context.signupIP} used for ${recentTrialsFromIP} trials in 30 days`
-      }
+        description: `IP ${context.signupIP} used for ${recentTrialsFromIP} trials in 30 days`,
+      };
     }
   }
 
@@ -1895,29 +2026,33 @@ export async function detectTrialAbuse(
       where: {
         deviceFingerprint: context.deviceFingerprint,
         hasUsedStripeTrial: true,
-        stripeTrialStartedAt: { gte: thirtyDaysAgo }
-      }
-    })
+        stripeTrialStartedAt: { gte: thirtyDaysAgo },
+      },
+    });
 
     if (recentTrialsFromDevice >= 2) {
       return {
         type: 'STRIPE_TRIAL_DEVICE_ABUSE',
         severity: 'HIGH',
-        description: `Device used for ${recentTrialsFromDevice} trials in 30 days`
-      }
+        description: `Device used for ${recentTrialsFromDevice} trials in 30 days`,
+      };
     }
   }
 
   // Pattern 3: Disposable email domain (MEDIUM severity)
-  const emailDomain = context.email.split('@')[1].toLowerCase()
-  const disposableDomains = ['mailinator.com', '10minutemail.com', 'guerrillamail.com']
+  const emailDomain = context.email.split('@')[1].toLowerCase();
+  const disposableDomains = [
+    'mailinator.com',
+    '10minutemail.com',
+    'guerrillamail.com',
+  ];
 
   if (disposableDomains.includes(emailDomain)) {
     return {
       type: 'DISPOSABLE_EMAIL_DETECTED',
       severity: 'MEDIUM',
-      description: `Disposable email domain: ${emailDomain}`
-    }
+      description: `Disposable email domain: ${emailDomain}`,
+    };
   }
 
   // Pattern 4: Rapid signup velocity (≥5 accounts from same IP in 1 hour)
@@ -1925,39 +2060,43 @@ export async function detectTrialAbuse(
     const rapidSignups = await prisma.user.count({
       where: {
         signupIP: context.signupIP,
-        createdAt: { gte: oneHourAgo }
-      }
-    })
+        createdAt: { gte: oneHourAgo },
+      },
+    });
 
     if (rapidSignups >= 5) {
       return {
         type: 'RAPID_SIGNUP_VELOCITY',
         severity: 'HIGH',
-        description: `${rapidSignups} accounts from ${context.signupIP} in 1 hour (bot attack)`
-      }
+        description: `${rapidSignups} accounts from ${context.signupIP} in 1 hour (bot attack)`,
+      };
     }
   }
 
-  return null  // No fraud detected
+  return null; // No fraud detected
 }
 ```
 
 **Trial Start Endpoint:**
+
 ```typescript
 // ✅ Auto-approve: Trial start WITHOUT card requirement
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const session = await getServerSession()
+  const session = await getServerSession();
 
   // Check if user already used trial
   if (session.user.hasUsedStripeTrial) {
-    return NextResponse.json({
-      error: 'You have already used your free trial',
-      errorCode: 'TRIAL_ALREADY_USED'
-    }, { status: 403 })
+    return NextResponse.json(
+      {
+        error: 'You have already used your free trial',
+        errorCode: 'TRIAL_ALREADY_USED',
+      },
+      { status: 403 }
+    );
   }
 
-  const trialEndDate = new Date()
-  trialEndDate.setDate(trialEndDate.getDate() + 7)
+  const trialEndDate = new Date();
+  trialEndDate.setDate(trialEndDate.getDate() + 7);
 
   // Grant PRO for 7 days WITHOUT payment method
   await prisma.$transaction([
@@ -1966,8 +2105,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       data: {
         tier: 'PRO',
         hasUsedStripeTrial: true,
-        stripeTrialStartedAt: new Date()
-      }
+        stripeTrialStartedAt: new Date(),
+      },
     }),
     prisma.subscription.create({
       data: {
@@ -1976,20 +2115,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         planType: 'MONTHLY',
         status: 'trialing',
         expiresAt: trialEndDate,
-        amountUsd: 0
-      }
-    })
-  ])
+        amountUsd: 0,
+      },
+    }),
+  ]);
 
   return NextResponse.json({
     message: 'Trial started',
     trialEndsAt: trialEndDate,
-    tier: 'PRO'
-  })
+    tier: 'PRO',
+  });
 }
 ```
 
 **Client-Side Device Fingerprinting:**
+
 ```typescript
 // ✅ Auto-approve: Browser fingerprinting for fraud detection
 // lib/fingerprint.ts (Client-side)
@@ -2002,30 +2142,34 @@ export async function generateDeviceFingerprint(): Promise<string> {
     screen.colorDepth,
     new Date().getTimezoneOffset(),
     !!window.sessionStorage,
-    !!window.localStorage
-  ]
+    !!window.localStorage,
+  ];
 
-  const fingerprint = components.join('|')
-  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(fingerprint))
+  const fingerprint = components.join('|');
+  const hash = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(fingerprint)
+  );
 
   return Array.from(new Uint8Array(hash))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('')
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 // Usage in registration form
-const fingerprint = await generateDeviceFingerprint()
+const fingerprint = await generateDeviceFingerprint();
 
 fetch('/api/auth/register', {
   headers: {
     'Content-Type': 'application/json',
-    'X-Device-Fingerprint': fingerprint  // Send to server
+    'X-Device-Fingerprint': fingerprint, // Send to server
   },
-  body: JSON.stringify({ email, password, name })
-})
+  body: JSON.stringify({ email, password, name }),
+});
 ```
 
 **Trial Expiry Cron Job:**
+
 ```typescript
 // ✅ Auto-approve: Trial expiry check (every 6 hours)
 // app/api/cron/stripe-trial-expiry/route.ts
@@ -2093,6 +2237,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 ```
 
 🚨 **ESCALATE if:**
+
 - Fraud detection skipped at registration
 - Single-signal detection used (e.g., email-only checks)
 - Credit card required for trial start
@@ -2103,33 +2248,37 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 - HIGH severity attempts not blocked immediately
 
 ❌ **REJECT if:**
+
 ```typescript
 // ❌ Reject: No fraud detection
-const user = await prisma.user.create({ data: { email, password } })
+const user = await prisma.user.create({ data: { email, password } });
 
 // ❌ Reject: Requires card for trial
 await stripe.checkout.sessions.create({
   mode: 'subscription',
-  payment_method_types: ['card']  // Should NOT require card for trial
-})
+  payment_method_types: ['card'], // Should NOT require card for trial
+});
 
 // ❌ Reject: Single-signal detection (insufficient)
-const existingEmail = await prisma.user.findUnique({ where: { email } })
-if (existingEmail?.hasUsedStripeTrial) { /* ... */ }  // Only checks email
+const existingEmail = await prisma.user.findUnique({ where: { email } });
+if (existingEmail?.hasUsedStripeTrial) {
+  /* ... */
+} // Only checks email
 
 // ❌ Reject: Missing hasUsedStripeTrial check
 const user = await prisma.user.update({
-  data: { tier: 'PRO' }  // No check if trial already used
-})
+  data: { tier: 'PRO' }, // No check if trial already used
+});
 
 // ❌ Reject: No FraudAlert creation
 if (fraudCheck?.severity === 'HIGH') {
-  return NextResponse.json({ error: 'Blocked' }, { status: 403 })
+  return NextResponse.json({ error: 'Blocked' }, { status: 403 });
   // Missing: FraudAlert creation for admin review
 }
 ```
 
 **Expected Metrics:**
+
 - **Conversion Rate:** 40-60% (vs 5-10% with card requirement)
 - **Fraud Detection:** 4 independent signals (IP, device, email, velocity)
 - **False Positive Rate:** <5% (admin review workflow)
@@ -2140,6 +2289,7 @@ if (fraudCheck?.severity === 'HIGH') {
 ### 8.9 Admin Fraud Management Actions
 
 ✅ **Auto-Approve if:**
+
 - MUST verify admin role before ANY enforcement action (`session.user.role === 'ADMIN'`)
 - MUST update FraudAlert.resolution field for ALL actions
 - MUST log admin identity (reviewedBy + reviewedAt)
@@ -2165,7 +2315,7 @@ export async function POST(
 
   const alert = await prisma.fraudAlert.findUnique({
     where: { id: params.id },
-    include: { user: true }
+    include: { user: true },
   });
 
   switch (action) {
@@ -2174,21 +2324,24 @@ export async function POST(
       await prisma.$transaction([
         prisma.user.update({
           where: { id: alert.userId },
-          data: { isActive: false, tier: 'FREE' }
+          data: { isActive: false, tier: 'FREE' },
         }),
         prisma.subscription.updateMany({
           where: { userId: alert.userId, status: 'active' },
-          data: { status: 'canceled' }
+          data: { status: 'canceled' },
         }),
         prisma.fraudAlert.update({
           where: { id: params.id },
           data: {
-            resolution: blockDuration === 'PERMANENT' ? 'BLOCKED_PERMANENT' : 'BLOCKED_TEMPORARY',
+            resolution:
+              blockDuration === 'PERMANENT'
+                ? 'BLOCKED_PERMANENT'
+                : 'BLOCKED_TEMPORARY',
             reviewedBy: session.user.id,
             reviewedAt: new Date(),
-            notes: `${blockDuration} block. Reason: ${notes}`
-          }
-        })
+            notes: `${blockDuration} block. Reason: ${notes}`,
+          },
+        }),
       ]);
 
       // ✅ Send email notification
@@ -2196,12 +2349,12 @@ export async function POST(
         subject: '🚫 Your account has been suspended',
         html: `<h2>Account Suspended</h2>
                <p>Reason: ${notes}</p>
-               <p>Duration: ${blockDuration}</p>`
+               <p>Duration: ${blockDuration}</p>`,
       });
 
       return NextResponse.json({
         success: true,
-        message: `Account blocked (${blockDuration})`
+        message: `Account blocked (${blockDuration})`,
       });
 
     case 'SEND_WARNING':
@@ -2212,13 +2365,13 @@ export async function POST(
           resolution: 'WARNING_SENT',
           reviewedBy: session.user.id,
           reviewedAt: new Date(),
-          notes
-        }
+          notes,
+        },
       });
 
       await sendEmail(alert.user.email, 'Security Alert', {
         subject: '⚠️ Suspicious activity detected',
-        html: `<p>${alert.description}</p><p>${notes}</p>`
+        html: `<p>${alert.description}</p><p>${notes}</p>`,
       });
 
       return NextResponse.json({ success: true });
@@ -2230,8 +2383,8 @@ export async function POST(
           resolution: 'FALSE_POSITIVE',
           reviewedBy: session.user.id,
           reviewedAt: new Date(),
-          notes
-        }
+          notes,
+        },
       });
 
       return NextResponse.json({ success: true });
@@ -2240,7 +2393,7 @@ export async function POST(
       await prisma.$transaction([
         prisma.user.update({
           where: { id: alert.userId },
-          data: { isActive: true }
+          data: { isActive: true },
         }),
         prisma.fraudAlert.update({
           where: { id: params.id },
@@ -2248,14 +2401,14 @@ export async function POST(
             resolution: 'UNBLOCKED',
             reviewedBy: session.user.id,
             reviewedAt: new Date(),
-            notes
-          }
-        })
+            notes,
+          },
+        }),
       ]);
 
       await sendEmail(alert.user.email, 'Account Restored', {
         subject: '✅ Your account has been restored',
-        html: `<p>Your account has been restored. ${notes}</p>`
+        html: `<p>Your account has been restored. ${notes}</p>`,
       });
 
       return NextResponse.json({ success: true });
@@ -2264,6 +2417,7 @@ export async function POST(
 ```
 
 **Admin Dashboard UI:**
+
 ```typescript
 // ✅ Auto-approve: Filters, action buttons, confirmation dialogs, notes required
 export default function FraudAlertsDashboard() {
@@ -2311,6 +2465,7 @@ export default function FraudAlertsDashboard() {
 ```
 
 🚨 **ESCALATE if:**
+
 - Admin role check missing or incorrect
 - Email notification skipped for warnings/blocks/unblocks
 - Admin notes not required for actions
@@ -2321,6 +2476,7 @@ export default function FraudAlertsDashboard() {
 - reviewedBy or reviewedAt not logged
 
 ❌ **REJECT if:**
+
 ```typescript
 // ❌ Reject: Missing admin role check
 export async function POST(req: NextRequest) {
@@ -2360,6 +2516,7 @@ const handleAction = async (alertId, action) => {
 ```
 
 **Expected Admin Workflow:**
+
 1. Admin sees fraud alert notification (email or dashboard badge)
 2. Admin opens fraud alert dashboard
 3. Admin filters by severity (HIGH priority first)
@@ -2376,6 +2533,7 @@ const handleAction = async (alertId, action) => {
 **Critical Rules for Payment Integration:**
 
 **dLocal Integration:**
+
 1. ✅ Single Subscription model (both providers)
 2. ✅ Real-time currency conversion (no hardcoded rates)
 3. ✅ 3-day plan one-time use (with fraud detection)
@@ -2385,23 +2543,9 @@ const handleAction = async (alertId, action) => {
 7. ✅ Country-based provider selection (8 dLocal countries)
 8. ✅ Store both local currency and USD for reporting
 
-**Stripe Trial Anti-Abuse:**
-9. ✅ NO card required for trial start (maximizes conversion ~40-60%)
-10. ✅ Multi-signal fraud detection (IP, device, email, velocity)
-11. ✅ Check fraud BEFORE creating user account
-12. ✅ Block HIGH severity, flag MEDIUM for admin review
-13. ✅ Trial expiry check every 6 hours (via cron)
-14. ✅ One trial per user (hasUsedStripeTrial flag)
-15. ✅ Capture signupIP + deviceFingerprint at registration
-16. ✅ Create FraudAlert for all suspicious activity
+**Stripe Trial Anti-Abuse:** 9. ✅ NO card required for trial start (maximizes conversion ~40-60%) 10. ✅ Multi-signal fraud detection (IP, device, email, velocity) 11. ✅ Check fraud BEFORE creating user account 12. ✅ Block HIGH severity, flag MEDIUM for admin review 13. ✅ Trial expiry check every 6 hours (via cron) 14. ✅ One trial per user (hasUsedStripeTrial flag) 15. ✅ Capture signupIP + deviceFingerprint at registration 16. ✅ Create FraudAlert for all suspicious activity
 
-**Admin Fraud Management:**
-17. ✅ Verify admin role before enforcement actions
-18. ✅ Block action = downgrade to FREE + cancel subscriptions + send email
-19. ✅ Require admin notes for all actions (audit trail)
-20. ✅ Send email notifications for warnings/blocks/unblocks
-21. ✅ Confirmation dialog required for BLOCK_ACCOUNT
-22. ✅ Log admin identity (reviewedBy + reviewedAt)
+**Admin Fraud Management:** 17. ✅ Verify admin role before enforcement actions 18. ✅ Block action = downgrade to FREE + cancel subscriptions + send email 19. ✅ Require admin notes for all actions (audit trail) 20. ✅ Send email notifications for warnings/blocks/unblocks 21. ✅ Confirmation dialog required for BLOCK_ACCOUNT 22. ✅ Log admin identity (reviewedBy + reviewedAt)
 
 ---
 

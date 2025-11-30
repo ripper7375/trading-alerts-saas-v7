@@ -15,15 +15,18 @@ I have successfully completed the complete Google OAuth integration documentatio
 ## 🎯 What Was Done
 
 ### ✅ Task 1: Codebase Analysis & Decision Making
+
 **File Created:** `docs/decisions/google-oauth-decisions.md` (1,487 lines)
 
 **Key Findings:**
+
 - **Greenfield Project**: No existing auth system (clean slate)
 - **NextAuth v4.24.5**: Already installed in package.json
 - **Serverless Deployment**: Vercel/Railway architecture
 - **Policy-Driven**: Extensive policy framework in place
 
 **All 12 Decisions Made:**
+
 1. ✅ **NextAuth Version**: v4 (already installed, stable)
 2. ✅ **Session Strategy**: JWT (serverless-friendly, no DB overhead)
 3. ✅ **Account Linking**: Verified-only (secure, prevents takeover)
@@ -41,20 +44,20 @@ I have successfully completed the complete Google OAuth integration documentatio
 
 ## 📊 Decision Summary Table
 
-| Decision | Choice | Security Impact | Migration | Rationale |
-|----------|--------|-----------------|-----------|-----------|
-| NextAuth Version | **v4** | ✅ Production-ready | No | Already installed, stable, mature |
-| Session Strategy | **JWT** | ✅ Secure cookies | No | Serverless-friendly, faster |
-| Account Linking | **Verified-only** | ✅✅ HIGH SECURITY | No | Prevents account takeover |
-| Password Nullable | **Yes** | ✅ No impact | No | Clean OAuth-only design |
-| Email Verification | **Auto OAuth** | ✅ Google verified | No | Trust provider, better UX |
-| Profile Picture | **Fallback** | ✅ No impact | No | Google as default |
-| Production Setup | **Single domain** | ✅ Sufficient | No | Simpler management |
-| Error Handling | **Specific** | ✅ Balanced | No | Helpful, not exposing |
-| Testing | **Localhost** | ✅ Standard | No | Sufficient for team |
-| DB Migration | **Not needed** | ✅ No impact | No | Greenfield project |
-| Callback URLs | **One app** | ✅ URI whitelist | No | Simpler, secure enough |
-| Tier UX | **Standard** | ✅ No impact | No | Consistent with email |
+| Decision           | Choice            | Security Impact     | Migration | Rationale                         |
+| ------------------ | ----------------- | ------------------- | --------- | --------------------------------- |
+| NextAuth Version   | **v4**            | ✅ Production-ready | No        | Already installed, stable, mature |
+| Session Strategy   | **JWT**           | ✅ Secure cookies   | No        | Serverless-friendly, faster       |
+| Account Linking    | **Verified-only** | ✅✅ HIGH SECURITY  | No        | Prevents account takeover         |
+| Password Nullable  | **Yes**           | ✅ No impact        | No        | Clean OAuth-only design           |
+| Email Verification | **Auto OAuth**    | ✅ Google verified  | No        | Trust provider, better UX         |
+| Profile Picture    | **Fallback**      | ✅ No impact        | No        | Google as default                 |
+| Production Setup   | **Single domain** | ✅ Sufficient       | No        | Simpler management                |
+| Error Handling     | **Specific**      | ✅ Balanced         | No        | Helpful, not exposing             |
+| Testing            | **Localhost**     | ✅ Standard         | No        | Sufficient for team               |
+| DB Migration       | **Not needed**    | ✅ No impact        | No        | Greenfield project                |
+| Callback URLs      | **One app**       | ✅ URI whitelist    | No        | Simpler, secure enough            |
+| Tier UX            | **Standard**      | ✅ No impact        | No        | Consistent with email             |
 
 **Overall Security Rating:** ✅✅ HIGH SECURITY (verified-only linking is critical)
 
@@ -74,14 +77,15 @@ I have successfully completed the complete Google OAuth integration documentatio
    - Decision table, file manifest, next steps
 
 3-10. **Additional documentation files** (to be created):
-   - `docs/implementation-guides/google-oauth-implementation-guide-FINAL.md`
-   - `docs/policies/08-google-oauth-implementation-rules.md`
-   - `docs/testing/oauth-testing-checklist.md`
-   - `docs/setup/google-oauth-setup.md` (verify/update from original guide)
-   - Updated: `docs/trading_alerts_openapi.yaml`
-   - Created: `docs/ARCHITECTURE.md` (new file)
-   - Updated: `docs/v5-structure-division.md`
-   - Updated: `.aider.conf.yml`
+
+- `docs/implementation-guides/google-oauth-implementation-guide-FINAL.md`
+- `docs/policies/08-google-oauth-implementation-rules.md`
+- `docs/testing/oauth-testing-checklist.md`
+- `docs/setup/google-oauth-setup.md` (verify/update from original guide)
+- Updated: `docs/trading_alerts_openapi.yaml`
+- Created: `docs/ARCHITECTURE.md` (new file)
+- Updated: `docs/v5-structure-division.md`
+- Updated: `.aider.conf.yml`
 
 ---
 
@@ -93,6 +97,7 @@ I have successfully completed the complete Google OAuth integration documentatio
 This is the **#1 security decision** that prevents account takeover attacks.
 
 **Attack Scenario Prevented:**
+
 ```
 ❌ WITHOUT verified-only linking:
 1. Attacker registers email: victim@gmail.com (password: hacked123)
@@ -111,6 +116,7 @@ This is the **#1 security decision** that prevents account takeover attacks.
 ```
 
 **Implementation:**
+
 ```typescript
 // signIn callback
 if (existingUser && !existingUser.emailVerified) {
@@ -129,6 +135,7 @@ This single decision prevents **the most common OAuth account takeover vulnerabi
 Serverless functions have cold starts. Database queries compound latency.
 
 **Performance Comparison:**
+
 ```
 Database Sessions:
   1. User requests /dashboard
@@ -147,11 +154,13 @@ JWT Sessions:
 ```
 
 **Cost Savings:**
+
 - No session table = simpler schema
 - No session queries = fewer DB connections
 - JWT validation = zero database cost
 
 **Tradeoff:**
+
 - Cannot instantly revoke sessions (must wait for expiry)
 - Mitigated: 30-day expiration, users can logout
 
@@ -160,7 +169,9 @@ JWT Sessions:
 ## 🚀 Implementation Roadmap
 
 ### Phase 1: Human Review (NOW)
+
 **Action Items for Human:**
+
 1. ✅ Review `docs/decisions/google-oauth-decisions.md`
 2. ✅ Approve all 12 decisions (or request changes)
 3. ✅ Set up Google Cloud Console:
@@ -180,7 +191,9 @@ JWT Sessions:
 ---
 
 ### Phase 2: Documentation Completion (Claude Code)
+
 **Remaining Tasks:**
+
 - [ ] Create final implementation guide with decisions applied
 - [ ] Update OpenAPI contract with OAuth endpoints
 - [ ] Create ARCHITECTURE.md with OAuth section
@@ -195,9 +208,11 @@ JWT Sessions:
 ---
 
 ### Phase 3: Implementation (Aider)
+
 **Files to Create/Modify:**
 
 **New Files (6):**
+
 1. `types/next-auth.d.ts` - TypeScript type extensions
 2. `app/api/auth/[...nextauth]/route.ts` - NextAuth v4 route handler
 3. `app/api/auth/register/route.ts` - Email registration endpoint
@@ -205,12 +220,7 @@ JWT Sessions:
 5. `lib/auth/oauth-callbacks.ts` - OAuth callback handlers
 6. `prisma/schema.prisma` - Initial schema with Account model
 
-**Updated Files (5):**
-7. `app/(auth)/login/page.tsx` - Add Google OAuth button
-8. `app/(auth)/register/page.tsx` - Add Google OAuth button
-9. `.env.example` - Add GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-10. `package.json` - Verify next-auth@^4.24.5
-11. `middleware.ts` - OAuth route protection
+**Updated Files (5):** 7. `app/(auth)/login/page.tsx` - Add Google OAuth button 8. `app/(auth)/register/page.tsx` - Add Google OAuth button 9. `.env.example` - Add GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET 10. `package.json` - Verify next-auth@^4.24.5 11. `middleware.ts` - OAuth route protection
 
 **Total:** 11 implementation files
 
@@ -219,9 +229,11 @@ JWT Sessions:
 ---
 
 ### Phase 4: Testing (Human)
+
 **Testing Checklist:** `docs/testing/oauth-testing-checklist.md` (126 tests)
 
 **Critical Tests:**
+
 1. ✅ New Google OAuth user signup (creates FREE tier)
 2. ✅ Google OAuth login (existing user)
 3. ✅ Account linking (email user + Google)
@@ -236,7 +248,9 @@ JWT Sessions:
 ---
 
 ### Phase 5: Production Deployment
+
 **Steps:**
+
 1. ✅ Update Google OAuth redirect URIs with production domain
 2. ✅ Set Vercel environment variables (production credentials)
 3. ✅ Deploy to production
@@ -282,6 +296,7 @@ model Account {
 ```
 
 **Migration Command:**
+
 ```bash
 npx prisma migrate dev --name initial_schema_with_oauth
 ```
@@ -312,14 +327,14 @@ export const authOptions: NextAuthOptions = {
     }),
     CredentialsProvider({
       // Email/password auth
-    })
+    }),
   ],
 
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === 'google') {
         const existingUser = await prisma.user.findUnique({
-          where: { email: user.email! }
+          where: { email: user.email! },
         });
 
         if (existingUser && !existingUser.emailVerified) {
@@ -331,7 +346,7 @@ export const authOptions: NextAuthOptions = {
         if (!existingUser || !existingUser.emailVerified) {
           await prisma.user.update({
             where: { email: user.email! },
-            data: { emailVerified: new Date() }
+            data: { emailVerified: new Date() },
           });
         }
       }
@@ -356,8 +371,8 @@ export const authOptions: NextAuthOptions = {
       session.user.tier = token.tier as string;
       session.user.role = token.role as string;
       return session;
-    }
-  }
+    },
+  },
 };
 
 const handler = NextAuth(authOptions);
@@ -369,6 +384,7 @@ export { handler as GET, handler as POST };
 ### Environment Variables
 
 **Development:**
+
 ```bash
 # Google OAuth
 GOOGLE_CLIENT_ID=123456-abc.apps.googleusercontent.com
@@ -383,6 +399,7 @@ DATABASE_URL=postgresql://user:password@localhost:5432/trading_alerts
 ```
 
 **Production (Vercel):**
+
 ```bash
 # Same Google OAuth credentials (Decision 11)
 GOOGLE_CLIENT_ID=123456-abc.apps.googleusercontent.com
@@ -409,6 +426,7 @@ DATABASE_URL=postgresql://...
    - Type: Web application
 
 2. **Add Redirect URIs:**
+
    ```
    http://localhost:3000/api/auth/callback/google
    http://127.0.0.1:3000/api/auth/callback/google
@@ -428,6 +446,7 @@ DATABASE_URL=postgresql://...
 ## ✅ Success Criteria
 
 ### Documentation Phase ✅
+
 - [x] All 12 decisions made and documented
 - [x] Decision document created (1,487 lines)
 - [x] Security analysis complete (verified-only linking)
@@ -438,6 +457,7 @@ DATABASE_URL=postgresql://...
 - [x] Summary created for Human review
 
 ### Ready for Implementation
+
 - [ ] Human approves all 12 decisions
 - [ ] Google OAuth credentials obtained
 - [ ] Environment variables set
@@ -446,6 +466,7 @@ DATABASE_URL=postgresql://...
 - [ ] Testing checklist finalized
 
 ### Implementation Success
+
 - [ ] Aider builds all 11 files
 - [ ] TypeScript compiles without errors
 - [ ] Prisma migration successful
@@ -457,6 +478,7 @@ DATABASE_URL=postgresql://...
 - [ ] Tier system independent of auth
 
 ### Production Ready
+
 - [ ] All 126 tests pass
 - [ ] Manual testing complete
 - [ ] Production deployment successful
@@ -469,28 +491,33 @@ DATABASE_URL=postgresql://...
 ## 🎯 Next Actions
 
 ### Immediate (Human - 30 minutes)
+
 1. **Review decision document:** `docs/decisions/google-oauth-decisions.md`
 2. **Approve or request changes** to the 12 decisions
 3. **Set up Google Cloud Console** (5 minutes)
 4. **Add environment variables** to `.env.local`
 
 ### After Approval (Claude Code - 1-2 hours)
+
 5. **Complete remaining documentation** (Tasks 3-10)
 6. **Create Aider policy** (Policy 08)
 7. **Update OpenAPI contract**
 8. **Create testing checklist**
 
 ### Implementation (Aider - 6-8 hours)
+
 9. **Build OAuth system** following all decisions
 10. **Create 11 implementation files**
 11. **Run Prisma migration**
 
 ### Testing (Human - 2-3 hours)
+
 12. **Manual testing** (126-point checklist)
 13. **Regression testing** (email/password still works)
 14. **Security testing** (verified-only linking)
 
 ### Deployment (Human - 1 hour)
+
 15. **Deploy to production**
 16. **Update Google OAuth URIs**
 17. **Monitor for errors**
@@ -499,14 +526,14 @@ DATABASE_URL=postgresql://...
 
 ## 📊 Estimated Timeline
 
-| Phase | Owner | Time | Status |
-|-------|-------|------|--------|
-| **Phase 1: Analysis & Decisions** | Claude Code | 2 hours | ✅ COMPLETE |
-| **Phase 2: Human Review** | Human | 30 min | ⏳ PENDING |
-| **Phase 3: Documentation** | Claude Code | 1-2 hours | 🔜 NEXT |
-| **Phase 4: Implementation** | Aider | 6-8 hours | ⏸️ WAITING |
-| **Phase 5: Testing** | Human | 2-3 hours | ⏸️ WAITING |
-| **Phase 6: Deployment** | Human | 1 hour | ⏸️ WAITING |
+| Phase                             | Owner       | Time      | Status      |
+| --------------------------------- | ----------- | --------- | ----------- |
+| **Phase 1: Analysis & Decisions** | Claude Code | 2 hours   | ✅ COMPLETE |
+| **Phase 2: Human Review**         | Human       | 30 min    | ⏳ PENDING  |
+| **Phase 3: Documentation**        | Claude Code | 1-2 hours | 🔜 NEXT     |
+| **Phase 4: Implementation**       | Aider       | 6-8 hours | ⏸️ WAITING  |
+| **Phase 5: Testing**              | Human       | 2-3 hours | ⏸️ WAITING  |
+| **Phase 6: Deployment**           | Human       | 1 hour    | ⏸️ WAITING  |
 
 **Total Estimated Time:** 12-16 hours (mostly autonomous)
 
@@ -515,6 +542,7 @@ DATABASE_URL=postgresql://...
 ## 🔒 Security Highlights
 
 ### ✅ High Security Measures
+
 1. **Verified-Only Account Linking** - Prevents account takeover
 2. **JWT with Secure Cookies** - httpOnly, secure flags
 3. **Separate NEXTAUTH_SECRET** - Different dev/prod
@@ -522,6 +550,7 @@ DATABASE_URL=postgresql://...
 5. **Specific Error Messages** - Helpful but not exposing
 
 ### ✅ Security Checklist
+
 - [x] No `allowDangerousEmailAccountLinking`
 - [x] Email verification enforced for email/password users
 - [x] OAuth users auto-verified (Google confirmed)
@@ -536,9 +565,11 @@ DATABASE_URL=postgresql://...
 ## 📚 Documentation Files
 
 ### Main Decision Document
+
 **File:** `docs/decisions/google-oauth-decisions.md` (1,487 lines)
 **Status:** ✅ COMMITTED
 **Contains:**
+
 - All 12 decisions with full reasoning
 - Code examples for each decision
 - Security analysis
@@ -548,9 +579,11 @@ DATABASE_URL=postgresql://...
 - Migration strategy
 
 ### This Summary Document
+
 **File:** `docs/google-oauth-integration-summary.md` (This file)
 **Status:** ✅ CREATED
 **Contains:**
+
 - Executive summary
 - Decision table
 - Critical decisions explained
@@ -559,6 +592,7 @@ DATABASE_URL=postgresql://...
 - Next actions
 
 ### Remaining Documentation (To Be Created)
+
 - [ ] Implementation guide (FINAL with decisions)
 - [ ] Aider policy (Policy 08)
 - [ ] Testing checklist (126 tests)
@@ -571,6 +605,7 @@ DATABASE_URL=postgresql://...
 ## 💡 Key Insights
 
 ### Why This Integration Will Succeed
+
 1. **Greenfield Advantage**: No legacy code, clean implementation
 2. **Clear Decisions**: All 12 ambiguities resolved upfront
 3. **Security First**: Verified-only linking prevents takeover
@@ -579,12 +614,13 @@ DATABASE_URL=postgresql://...
 6. **Autonomous Building**: Aider will implement following policies
 
 ### Potential Challenges & Mitigations
-| Challenge | Mitigation |
-|-----------|------------|
-| OAuth setup complexity | Step-by-step guide provided |
+
+| Challenge                | Mitigation                      |
+| ------------------------ | ------------------------------- |
+| OAuth setup complexity   | Step-by-step guide provided     |
 | Account linking security | Verified-only strategy (secure) |
-| Session management | JWT with clear callbacks |
-| Testing OAuth locally | Google supports localhost |
+| Session management       | JWT with clear callbacks        |
+| Testing OAuth locally    | Google supports localhost       |
 | Production redirect URIs | Clear documentation of all URIs |
 
 ---
@@ -594,11 +630,13 @@ DATABASE_URL=postgresql://...
 ### The Critical Security Decision: Verified-Only Linking
 
 **Most OAuth implementations get this wrong.** They use:
+
 ```typescript
-allowDangerousEmailAccountLinking: true  // ❌ INSECURE
+allowDangerousEmailAccountLinking: true; // ❌ INSECURE
 ```
 
 **We're doing it right:**
+
 ```typescript
 // ✅ SECURE: Only link if email is verified
 if (existingUser && !existingUser.emailVerified) {
@@ -607,6 +645,7 @@ if (existingUser && !existingUser.emailVerified) {
 ```
 
 **This prevents the #1 OAuth attack:**
+
 - Attacker cannot claim someone else's email via unverified account
 - OAuth users are trusted (Google verified their email)
 - Email/password users must verify before linking
@@ -619,6 +658,7 @@ if (existingUser && !existingUser.emailVerified) {
 **Status:** ✅ Analysis & Decision Phase COMPLETE
 
 **Deliverables:**
+
 1. ✅ Comprehensive decision document (1,487 lines)
 2. ✅ All 12 critical decisions made
 3. ✅ Security analysis complete

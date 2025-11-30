@@ -5,6 +5,7 @@
 This guide explains **how to build your Trading Alerts SaaS** using the **V7 workflow** with **Aider and MiniMax M2 API**. It's written for beginners who are new to SaaS development and AI-assisted coding.
 
 **What is V7?** Version 7 of our development approach uses:
+
 - **Policy-driven development** - AI follows written rules
 - **Aider** - AI coding assistant that edits files
 - **MiniMax M2 API** - Cost-effective AI model from Anthropic compatibility API
@@ -31,23 +32,25 @@ This guide explains **how to build your Trading Alerts SaaS** using the **V7 wor
 
 **Total Time:** 11 weeks (~67 hours)
 
-| Phase | Duration | What You Do | What Aider Does |
-|-------|----------|-------------|-----------------|
-| **Week 1** | 14 hours | Create policies, OpenAPI specs, documentation | Nothing (you're setting it up) |
-| **Week 2** | 5 hours | Setup Next.js project, Prisma, ENV files | Nothing (manual setup) |
-| **Weeks 3-10** | 38 hours | Monitor, handle escalations, test | Build all 170+ files autonomously |
-| **Week 11** | 6 hours | Deploy to Vercel and Railway | Nothing (you deploy manually) |
-| **Week 12+** | Ongoing | Add features, fix bugs, maintain | Help with new features |
+| Phase          | Duration | What You Do                                   | What Aider Does                   |
+| -------------- | -------- | --------------------------------------------- | --------------------------------- |
+| **Week 1**     | 14 hours | Create policies, OpenAPI specs, documentation | Nothing (you're setting it up)    |
+| **Week 2**     | 5 hours  | Setup Next.js project, Prisma, ENV files      | Nothing (manual setup)            |
+| **Weeks 3-10** | 38 hours | Monitor, handle escalations, test             | Build all 170+ files autonomously |
+| **Week 11**    | 6 hours  | Deploy to Vercel and Railway                  | Nothing (you deploy manually)     |
+| **Week 12+**   | Ongoing  | Add features, fix bugs, maintain              | Help with new features            |
 
 ### Your Role in V7
 
 **You are the architect, not the builder.** Think of it like building a house:
+
 - **Phase 1 (Week 1):** You create the blueprints (policies, specs)
 - **Phase 2 (Week 2):** You lay the foundation (project setup)
 - **Phase 3 (Weeks 3-10):** Aider builds the house (writes code)
 - **Phase 4 (Week 11):** You open for business (deploy)
 
 **Your responsibilities:**
+
 1. ✅ Create clear policies that guide Aider
 2. ✅ Monitor Aider's progress
 3. ✅ Handle escalations (when Aider asks for help)
@@ -55,6 +58,7 @@ This guide explains **how to build your Trading Alerts SaaS** using the **V7 wor
 5. ✅ Make final deployment decisions
 
 **Aider's responsibilities:**
+
 1. ✅ Read your policies and understand requirements
 2. ✅ Write code that follows your standards
 3. ✅ Auto-fix minor issues
@@ -68,6 +72,7 @@ This guide explains **how to build your Trading Alerts SaaS** using the **V7 wor
 ### What Are Policies?
 
 **For Beginners:** Policies are like a "rulebook" for AI. They tell Aider:
+
 - When to approve code and commit it
 - When to fix issues automatically
 - When to stop and ask you for help
@@ -78,15 +83,15 @@ This guide explains **how to build your Trading Alerts SaaS** using the **V7 wor
 
 You created these in Phase 1 (Milestone 1.1):
 
-| Policy | Purpose | Aider Uses It To... |
-|--------|---------|---------------------|
+| Policy                        | Purpose                     | Aider Uses It To...               |
+| ----------------------------- | --------------------------- | --------------------------------- |
 | **00-tier-specifications.md** | Define FREE/PRO tier limits | Enforce tier restrictions in code |
-| **01-approval-policies.md** | Define approval conditions | Decide when to commit |
-| **02-quality-standards.md** | Define code quality | Write clean, maintainable code |
-| **03-architecture-rules.md** | Define system structure | Put files in correct locations |
-| **04-escalation-triggers.md** | Define escalation rules | Know when to ask you |
-| **05-coding-patterns.md** | Provide code templates | Copy proven patterns |
-| **06-aider-instructions.md** | Define workflow | Operate efficiently |
+| **01-approval-policies.md**   | Define approval conditions  | Decide when to commit             |
+| **02-quality-standards.md**   | Define code quality         | Write clean, maintainable code    |
+| **03-architecture-rules.md**  | Define system structure     | Put files in correct locations    |
+| **04-escalation-triggers.md** | Define escalation rules     | Know when to ask you              |
+| **05-coding-patterns.md**     | Provide code templates      | Copy proven patterns              |
+| **06-aider-instructions.md**  | Define workflow             | Operate efficiently               |
 
 ### How Policies Guide Aider
 
@@ -112,6 +117,7 @@ Policies aren't static! As you encounter new scenarios:
 4. **Aider learns** (next time it won't ask)
 
 This means:
+
 - **Early on:** More escalations (Aider is learning)
 - **Later on:** Fewer escalations (policies cover more cases)
 
@@ -122,12 +128,14 @@ This means:
 ### What is Aider?
 
 **Aider** is a command-line AI coding assistant that:
+
 - Reads your files and understands context
 - Edits files directly (no copy/paste!)
 - Uses git to track changes
 - Commits code automatically when ready
 
 **What is MiniMax M2?**
+
 - Cost-effective AI model compatible with Anthropic's API
 - Good balance of quality and cost
 - Works through OpenAI-compatible API
@@ -137,6 +145,7 @@ This means:
 #### Prerequisites Check
 
 Before starting Aider, ensure:
+
 1. ✅ Python 3.11 is installed
 2. ✅ Aider is installed (`pip install aider-chat`)
 3. ✅ MiniMax M2 API key is in environment variables
@@ -150,6 +159,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 **On startup, you should see:**
+
 ```
 Aider v0.x.x
 Model: anthropic/MiniMax-M2
@@ -178,6 +188,7 @@ Ready! Type /help for commands.
 Aider responds to natural language. Be clear and specific:
 
 **Good commands:**
+
 ```
 Build Part 5: Authentication from v5_part_e.md
 Create the POST /api/alerts endpoint following the OpenAPI spec
@@ -186,6 +197,7 @@ Fix the TypeScript errors in app/api/alerts/route.ts
 ```
 
 **Poor commands:**
+
 ```
 Make the auth work
 Do the thing
@@ -195,6 +207,7 @@ Fix it
 #### Starting a Build Part
 
 **Template:**
+
 ```
 Build Part [NUMBER]: [PART NAME] from v5_part_[LETTER].md
 
@@ -210,6 +223,7 @@ Notify me every 3 files completed.
 ```
 
 **Example:**
+
 ```
 Build Part 11: Alerts from v5_part_k.md
 
@@ -229,6 +243,7 @@ Notify me every 3 files completed.
 #### What to Watch For
 
 Aider will output:
+
 ```
 📖 Reading v5_part_k.md...
 📂 Creating app/api/alerts/route.ts...
@@ -247,6 +262,7 @@ Aider will output:
 #### Progress Notifications
 
 Every 3 files, Aider will report:
+
 ```
 📊 PROGRESS UPDATE
 Part 11: Alerts
@@ -263,13 +279,16 @@ Next: components/alerts/alert-list.tsx
 MiniMax M2 is cost-effective, but track usage:
 
 **Estimated costs:**
+
 - Per file: ~$0.02 - $0.05
 - Per part (10-15 files): ~$0.30 - $0.75
 - Full project (170 files): ~$5 - $10
 
 **Track in PROGRESS.md:**
+
 ```markdown
 ## MiniMax M2 Cost Tracking
+
 - Part 5 (Auth): $0.45
 - Part 11 (Alerts): $0.62
 - Part 12 (Dashboard): $0.58
@@ -278,15 +297,15 @@ MiniMax M2 is cost-effective, but track usage:
 
 ### Aider Commands
 
-| Command | What It Does |
-|---------|--------------|
-| `/help` | Show all commands |
-| `/add <file>` | Add file to context |
+| Command        | What It Does             |
+| -------------- | ------------------------ |
+| `/help`        | Show all commands        |
+| `/add <file>`  | Add file to context      |
 | `/drop <file>` | Remove file from context |
-| `/ls` | List files in context |
-| `/commit` | Manually trigger commit |
-| `/undo` | Undo last change |
-| `/exit` | Exit Aider |
+| `/ls`          | List files in context    |
+| `/commit`      | Manually trigger commit  |
+| `/undo`        | Undo last change         |
+| `/exit`        | Exit Aider               |
 
 ---
 
@@ -295,6 +314,7 @@ MiniMax M2 is cost-effective, but track usage:
 ### What is an Escalation?
 
 An **escalation** is when Aider stops and asks you for help. This happens when:
+
 - Unclear requirements
 - Multiple valid approaches
 - Policy conflicts
@@ -305,6 +325,7 @@ An **escalation** is when Aider stops and asks you for help. This happens when:
 ### Escalation Format
 
 Aider will output:
+
 ```
 ⚠️ ESCALATION REQUIRED ⚠️
 
@@ -335,6 +356,7 @@ Awaiting human decision...
 **Step 1: Understand the Problem**
 
 Read the escalation carefully:
+
 - What is Aider trying to do?
 - Why is it uncertain?
 - What are the options?
@@ -384,20 +406,20 @@ Example:
 \`\`\`typescript
 // lib/constants/alert-conditions.ts
 export type AlertCondition =
-  | 'RSI_OVERSOLD'
-  | 'RSI_OVERBOUGHT'
-  | 'MACD_CROSSOVER'
-  | 'BB_BREAKOUT'
+| 'RSI_OVERSOLD'
+| 'RSI_OVERBOUGHT'
+| 'MACD_CROSSOVER'
+| 'BB_BREAKOUT'
 
 export const ALERT_CONDITIONS: AlertCondition[] = [
-  'RSI_OVERSOLD',
-  'RSI_OVERBOUGHT',
-  'MACD_CROSSOVER',
-  'BB_BREAKOUT',
+'RSI_OVERSOLD',
+'RSI_OVERBOUGHT',
+'MACD_CROSSOVER',
+'BB_BREAKOUT',
 ]
 
 export const isValidCondition = (condition: string): condition is AlertCondition => {
-  return ALERT_CONDITIONS.includes(condition as AlertCondition)
+return ALERT_CONDITIONS.includes(condition as AlertCondition)
 }
 \`\`\`
 ```
@@ -416,6 +438,7 @@ Track escalations in `PROGRESS.md`:
 ## Escalations Log
 
 ### Escalation #1
+
 - Date: 2024-01-15
 - Part: Part 11 (Alerts)
 - Issue: Alert condition validation approach
@@ -427,6 +450,7 @@ Track escalations in `PROGRESS.md`:
 ### Reducing Escalations Over Time
 
 As your policies improve:
+
 - **Week 3-4:** 5-10 escalations per part
 - **Week 5-7:** 2-5 escalations per part
 - **Week 8-10:** 0-2 escalations per part
@@ -504,6 +528,7 @@ Build Part [N]: [Name] from v5_part_[X].md
 ```
 
 **Now you test:**
+
 1. Open Postman
 2. Test POST /api/alerts
 3. Test GET /api/alerts
@@ -514,16 +539,16 @@ Build Part [N]: [Name] from v5_part_[X].md
 
 Build in this recommended order:
 
-| Order | Part | Why |
-|-------|------|-----|
-| 1 | Part 1-4: Foundation | Core structure needed first |
-| 2 | Part 5: Auth | Needed for all protected routes |
-| 3 | Part 7: API Routes | Backend before frontend |
-| 4 | Part 11: Alerts | Core feature |
-| 5 | Part 12: E-commerce | Tier upgrades |
-| 6 | Part 8-10: UI Components | Frontend after backend |
-| 7 | Part 6: Flask MT5 | External service |
-| 8 | Part 13-16: Polish | Final touches |
+| Order | Part                     | Why                             |
+| ----- | ------------------------ | ------------------------------- |
+| 1     | Part 1-4: Foundation     | Core structure needed first     |
+| 2     | Part 5: Auth             | Needed for all protected routes |
+| 3     | Part 7: API Routes       | Backend before frontend         |
+| 4     | Part 11: Alerts          | Core feature                    |
+| 5     | Part 12: E-commerce      | Tier upgrades                   |
+| 6     | Part 8-10: UI Components | Frontend after backend          |
+| 7     | Part 6: Flask MT5        | External service                |
+| 8     | Part 13-16: Polish       | Final touches                   |
 
 ---
 
@@ -536,6 +561,7 @@ Build in this recommended order:
 **Purpose:** Verify API endpoints work correctly
 
 **How:**
+
 1. Import Postman collection from OpenAPI spec
 2. Test each new endpoint
 3. Verify tier restrictions
@@ -551,6 +577,7 @@ See `postman/TESTING-GUIDE.md` for detailed scenarios.
 **Purpose:** Verify UI works and looks good
 
 **How:**
+
 1. Start dev server: `npm run dev`
 2. Open `http://localhost:3000`
 3. Click through all pages
@@ -565,6 +592,7 @@ See `postman/TESTING-GUIDE.md` for detailed scenarios.
 **Purpose:** Verify parts work together
 
 **How:**
+
 1. Test complete user flows (signup → login → create alert → dashboard)
 2. Test tier upgrades (FREE → PRO → verify new access)
 3. Test real-time features (alerts triggering, notifications)
@@ -580,24 +608,29 @@ For each part:
 ## Part [N] Testing
 
 ### API Endpoints
+
 - [ ] Endpoint 1: [name] - Status [✅/❌]
 - [ ] Endpoint 2: [name] - Status [✅/❌]
 - [ ] Endpoint 3: [name] - Status [✅/❌]
 
 ### UI Components
+
 - [ ] Component 1: [name] - Status [✅/❌]
 - [ ] Component 2: [name] - Status [✅/❌]
 
 ### Tier Restrictions
+
 - [ ] FREE tier limits enforced
 - [ ] PRO tier access granted
 
 ### Error Handling
+
 - [ ] Missing auth token → 401
 - [ ] Invalid input → 400 with message
 - [ ] Tier violation → 403 with message
 
 ### Issues Found
+
 1. [Issue description] - Fixed: [yes/no]
 2. [Issue description] - Fixed: [yes/no]
 
@@ -615,6 +648,7 @@ For each part:
 **Symptoms:** Command not found, import errors
 
 **Solutions:**
+
 1. Verify Python 3.11: `py -3.11 --version`
 2. Reinstall Aider: `py -3.11 -m pip install --upgrade aider-chat`
 3. Check PATH environment variable
@@ -627,6 +661,7 @@ For each part:
 **Symptoms:** Files not listed on startup
 
 **Solutions:**
+
 1. Check `.aider.conf.yml` exists in project root
 2. Verify file paths in config are correct
 3. Ensure policy files exist in `docs/policies/`
@@ -639,6 +674,7 @@ For each part:
 **Symptoms:** "API key invalid", "Model not found"
 
 **Solutions:**
+
 1. Check API key is set: `echo %MINIMAX_API_KEY%` (Windows) or `echo $MINIMAX_API_KEY` (Linux/Mac)
 2. Verify API key format (should start with `sk-...`)
 3. Test API key with curl:
@@ -657,6 +693,7 @@ See `MINIMAX-TROUBLESHOOTING.md` for detailed MiniMax M2 debugging.
 **Symptoms:** Aider escalates frequently, slows progress
 
 **Solutions:**
+
 1. **Review policies** - Are they clear and comprehensive?
 2. **Add examples** - Update `05-coding-patterns.md` with more examples
 3. **Document decisions** - Add escalation resolutions to policies
@@ -670,6 +707,7 @@ See `MINIMAX-TROUBLESHOOTING.md` for detailed MiniMax M2 debugging.
 **Symptoms:** TypeScript errors, missing validations, security issues
 
 **Solutions:**
+
 1. **Update quality standards** - Make `02-quality-standards.md` more specific
 2. **Stricter approval conditions** - Update `01-approval-policies.md`
 3. **Better patterns** - Improve examples in `05-coding-patterns.md`
@@ -683,6 +721,7 @@ See `MINIMAX-TROUBLESHOOTING.md` for detailed MiniMax M2 debugging.
 **Symptoms:** FREE users can access PRO features
 
 **Solutions:**
+
 1. **Check policy** - Review `00-tier-specifications.md`
 2. **Test validation** - Test tier validation functions
 3. **Review code** - Check `lib/tier/validation.ts`
@@ -696,6 +735,7 @@ See `MINIMAX-TROUBLESHOOTING.md` for detailed MiniMax M2 debugging.
 **Symptoms:** Each file takes 5-10 minutes
 
 **Solutions:**
+
 1. **Reduce context** - Remove unnecessary files from Aider context
 2. **Simplify patterns** - Make patterns in `05-coding-patterns.md` more concise
 3. **Batch operations** - Build multiple related files together
@@ -709,6 +749,7 @@ See `MINIMAX-TROUBLESHOOTING.md` for detailed MiniMax M2 debugging.
 #### Ask Claude Chat (This Chat!)
 
 For any confusion:
+
 ```
 I'm working on Part 11 and Aider escalated because [issue].
 The policy says [X] but the requirement says [Y].
@@ -737,6 +778,7 @@ What should I do?
 ### Tip 1: Trust the Process
 
 **Don't micromanage Aider.** Let it work autonomously. Your job is to:
+
 - Set direction (policies, requirements)
 - Handle escalations (decisions)
 - Test output (quality assurance)
@@ -746,6 +788,7 @@ What should I do?
 **Policies will never be perfect on day 1.** That's okay! Each escalation is a chance to improve them.
 
 Think of policies as a garden:
+
 - **Week 1:** Plant seeds (create initial policies)
 - **Weeks 3-10:** Water and prune (update based on escalations)
 - **Future:** Harvest (use refined policies for new features)
@@ -760,12 +803,14 @@ Bugs found late = painful to untangle
 ### Tip 4: Document Everything
 
 **Keep PROGRESS.md updated.** Document:
+
 - Time spent on each part
 - Escalations and resolutions
 - Issues found and fixed
 - Learnings and insights
 
 This helps you:
+
 - Track progress visually
 - Learn from patterns
 - Improve future projects
@@ -775,6 +820,7 @@ This helps you:
 **You're managing, not coding.** But management requires focus too.
 
 When handling escalations:
+
 - Take your time
 - Research options
 - Ask Claude Chat for advice
@@ -787,6 +833,7 @@ A good decision now = less rework later.
 **Each completed part is a victory!** 170 files is overwhelming, but 10-15 files at a time is manageable.
 
 Track milestones:
+
 - ✅ First endpoint works
 - ✅ First UI component renders
 - ✅ First tier restriction enforced
@@ -797,6 +844,7 @@ Track milestones:
 ### Tip 7: Use MiniMax M2 Cost-Effectively
 
 **Track costs as you go:**
+
 - Set a budget (e.g., $20 for the whole project)
 - Monitor spending in PROGRESS.md
 - If costs are high, simplify policies or reduce context
@@ -808,12 +856,14 @@ MiniMax M2 should be very affordable (~$5-10 for full project).
 **You're not just building a SaaS, you're learning SaaS development.**
 
 Take time to:
+
 - Read the code Aider writes
 - Understand the patterns
 - Ask questions (to Claude Chat)
 - Experiment with changes
 
 By the end, you'll understand:
+
 - Next.js architecture
 - API design
 - Database modeling
@@ -881,6 +931,7 @@ git push
 ## 10. Summary
 
 **What makes V7 powerful:**
+
 - ✅ **Policies guide Aider** - No guessing, clear rules
 - ✅ **Autonomous building** - Aider works while you monitor
 - ✅ **Escalations for decisions** - You decide, Aider executes
@@ -889,6 +940,7 @@ git push
 - ✅ **Quality assurance** - Testing catches issues early
 
 **Your journey:**
+
 - **Week 1:** Create policies (hardest part!)
 - **Week 2:** Setup foundation (manual work)
 - **Weeks 3-10:** Guide Aider (monitor & decide)
@@ -896,6 +948,7 @@ git push
 - **Future:** Maintain & add features (ongoing)
 
 **Expected outcomes:**
+
 - 🎯 170+ files of quality code
 - 🎯 50+ API endpoints working
 - 🎯 Full-featured SaaS application
@@ -908,6 +961,7 @@ git push
 ## Need Help?
 
 **If you're stuck:**
+
 1. Read this guide again (answers are probably here!)
 2. Check other documentation (ARCHITECTURE.md, DOCKER.md, etc.)
 3. Ask Claude Chat for clarification
@@ -922,8 +976,8 @@ git push
 
 ---
 
-*Last Updated: 2024-01-15*
-*V7 Implementation Guide for Trading Alerts SaaS with MiniMax M2*
+_Last Updated: 2024-01-15_
+_V7 Implementation Guide for Trading Alerts SaaS with MiniMax M2_
 
 ---
 
@@ -1040,12 +1094,14 @@ npm run validate
 ```
 
 This executes:
+
 1. ✅ TypeScript type checking
 2. ✅ ESLint code quality
 3. ✅ Prettier formatting
 4. ✅ Custom policy validation
 
 **Results Example:**
+
 ```
 🔍 Checking TypeScript types...
 ✅ 0 errors
@@ -1068,11 +1124,13 @@ Total Issues: 0
 Based on validation results:
 
 **Option A: APPROVE (85-92% of files)**
+
 - All validation passed
 - Aider commits automatically
 - Moves to next file
 
 **Option B: AUTO-FIX (6-12% of files)**
+
 - Minor issues found (formatting, imports)
 - Aider runs: `npm run fix`
 - Re-validates
@@ -1080,6 +1138,7 @@ Based on validation results:
 - If not fixed after 3 attempts → escalates
 
 **Option C: ESCALATE (2-5% of files)**
+
 - Critical issues found
 - Or >2 High issues
 - Or architectural decision needed
@@ -1112,6 +1171,7 @@ What should I do?
 ```
 
 You respond:
+
 ```
 > "Add getServerSession check with 401 response if not authenticated"
 ```
@@ -1161,12 +1221,14 @@ Aider updates `PROGRESS.md` after each file:
 
 ```markdown
 ### Part 1: Foundation - ✅ Complete
+
 - Files: 12/12 (100%)
 - Completed: 2025-11-24
 - Escalations: 0
 - Time: 2 hours
 
 ### Part 2: Database - ⏳ In Progress
+
 - Files: 2/4 (50%)
 - In Progress: prisma/schema.prisma
 ```
@@ -1225,6 +1287,7 @@ npm run validate:lint
 #### Issue: Policy Validator Finds Issues
 
 Review the policy validator output and:
+
 1. Check if the issue is valid
 2. Fix manually or ask Aider to fix
 3. Re-run validation

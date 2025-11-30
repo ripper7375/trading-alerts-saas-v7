@@ -1,4 +1,5 @@
 # 🎯 NEWBIE STEP-BY-STEP GUIDE
+
 ## Trading Alerts SaaS V7 Development Journey
 
 **Created:** 2025-11-25
@@ -11,11 +12,13 @@
 ## 📖 HOW TO USE THIS GUIDE
 
 ### Your Tools:
+
 - **Claude Chat** - Your advisor (share this guide with them)
 - **Claude Code (Web)** - Your assistant (follows your instructions)
 - **Aider** - Autonomous code builder (builds code automatically)
 
 ### This Guide Covers:
+
 1. ✅ **Before Phase 3** - Preparation checklist
 2. ✅ **During Phase 3** - Building 19 build sessions (274 files: 170 core + 67 affiliate + 37 dLocal)
 3. ✅ **Before Phase 3.5** - Testing preparation
@@ -78,6 +81,7 @@ npm run validate
 ```
 
 **Expected output:**
+
 ```
 🔍 Checking TypeScript types...
 ⚠️ Some errors (this is OK - no code built yet)
@@ -126,6 +130,7 @@ start-aider-anthropic.bat
 ```
 
 **Wait for:**
+
 ```
 Aider v0.86.1
 Model: openai/MiniMax-M2
@@ -145,6 +150,7 @@ Model: openai/MiniMax-M2
 ```
 
 **Expected:**
+
 ```
 Added docs\build-orders\part-01-foundation.md to the chat (read-only)
 Added docs\implementation-guides\v5_part_a.md to the chat (read-only)
@@ -172,6 +178,7 @@ Start with File 1/[N]: [first-file-path]
 ```
 
 **Example for Part 1:**
+
 ```
 Build Part 1: Foundation & Root Configuration
 
@@ -192,6 +199,7 @@ Start with File 1/12: .vscode/settings.json
 #### Step 4: Let Aider Work Autonomously
 
 **Aider will now:**
+
 - ✅ Generate code for each file
 - ✅ Run validation automatically
 - ✅ Auto-commit approved files
@@ -199,11 +207,13 @@ Start with File 1/12: .vscode/settings.json
 - ✅ Stop only for: (1) Escalations or (2) Part completion
 
 **What you do:**
+
 - ☕ Take a break (seriously!)
 - 👀 Check progress reports (optional)
 - 📧 Wait for escalations (if any)
 
 **Aider will display progress like:**
+
 ```
 Progress Report:
 ✅ File 1/12: .vscode/settings.json - Completed
@@ -220,6 +230,7 @@ Next: File 4/12: tailwind.config.ts
 **Aider stops and asks for help (~2% of files)**
 
 **Example escalation:**
+
 ```
 ⚠️ ESCALATION REQUIRED
 
@@ -233,16 +244,19 @@ Awaiting human decision...
 **How to respond:**
 
 **Option 1 - Approve:**
+
 ```
 Approved. Proceed with this implementation.
 ```
 
 **Option 2 - Give specific guidance:**
+
 ```
 Make this change: [your instruction]. Then proceed.
 ```
 
 **Option 3 - Stop to review:**
+
 ```
 Stop. Let me review the requirements. [provide more context]
 ```
@@ -254,6 +268,7 @@ Stop. Let me review the requirements. [provide more context]
 #### Step 6: Wait for Part Completion
 
 **Aider finishes and displays:**
+
 ```
 🎉 Part [X] Complete!
 
@@ -301,6 +316,7 @@ See **"Verification Checkpoints"** section below for specific tests per part.
 **You must manually verify at these strategic points:**
 
 #### 🔴 CRITICAL #1: After Part 1 (Foundation)
+
 **Duration:** 5-10 minutes
 **Required:** ✅ MANDATORY
 
@@ -330,6 +346,7 @@ pnpm dev
 ---
 
 #### 🔴 CRITICAL #2: After Part 2 (Database)
+
 **Duration:** 5 minutes
 **Required:** ✅ MANDATORY
 
@@ -353,6 +370,7 @@ npx prisma studio
 ---
 
 #### 🟢 OPTIONAL: Parts 3-4 (Types & Tier System)
+
 **Duration:** 1 minute
 **Required:** ⏭️ Can Skip
 
@@ -367,6 +385,7 @@ npx tsc --noEmit
 ---
 
 #### 🟡 RECOMMENDED #3: After Part 5 (Authentication)
+
 **Duration:** 5 minutes
 **Required:** ⚠️ Strongly Advised
 
@@ -395,6 +414,7 @@ npx prisma studio
 ---
 
 #### 🟢 OPTIONAL: Parts 6-9
+
 **Duration:** 2 minutes
 **Required:** ⏭️ Can Skip
 
@@ -407,6 +427,7 @@ pnpm build        # Build OK?
 ---
 
 #### 🟡 RECOMMENDED #4: After Part 10 (Watchlist)
+
 **Duration:** 3 minutes
 **Required:** ⚠️ Strongly Advised
 
@@ -427,6 +448,7 @@ pnpm dev
 ---
 
 #### 🟢 OPTIONAL: Parts 11-14
+
 **Duration:** 2 minutes
 **Required:** ⏭️ Can Skip
 
@@ -439,6 +461,7 @@ pnpm build
 ---
 
 #### 🟡 RECOMMENDED #5: After Part 15 (Notifications)
+
 **Duration:** 3 minutes
 **Required:** ⚠️ Strongly Advised
 
@@ -456,6 +479,7 @@ pnpm dev
 ---
 
 #### 🟢 OPTIONAL: Part 16 (Utilities)
+
 **Duration:** 1 minute
 **Required:** ⏭️ Can Skip
 
@@ -466,6 +490,7 @@ npx tsc --noEmit
 ---
 
 #### 🟡 RECOMMENDED #6: Part 17A Pre-Check
+
 **Duration:** 2 minutes
 **Required:** ⚠️ BEFORE starting Part 17A (Affiliate Portal)
 
@@ -485,6 +510,7 @@ git status        # Should be clean
 ---
 
 #### 🟡 RECOMMENDED #7: After Part 17A Complete
+
 **Duration:** 3 minutes
 **Required:** ⚠️ Strongly Advised (After Part 17A - Affiliate Portal)
 
@@ -507,6 +533,7 @@ npx prisma studio
 ---
 
 #### 🔴 CRITICAL #8: After Part 17B Complete
+
 **Duration:** 5 minutes
 **Required:** ✅ MANDATORY (After Part 17B - Admin Portal & Automation)
 
@@ -531,6 +558,7 @@ pnpm dev
 ---
 
 #### 🟡 RECOMMENDED #9: Part 18 Pre-Check
+
 **Duration:** 2 minutes
 **Required:** ⚠️ BEFORE starting Part 18 (dLocal Payment Integration)
 
@@ -547,6 +575,7 @@ git status
 ---
 
 #### 🔴 CRITICAL #10: Final System Verification
+
 **Duration:** 10-15 minutes
 **Required:** ✅ MANDATORY (After Part 18 complete - ALL 19 build sessions done!)
 
@@ -579,6 +608,7 @@ pnpm dev
 ```
 
 **Manual Testing Checklist:**
+
 - ✅ Login works
 - ✅ Dashboard loads
 - ✅ Can add/remove watchlist symbols
@@ -596,27 +626,27 @@ pnpm dev
 
 ### 📋 QUICK REFERENCE: BUILD SESSION MAPPING
 
-| Part | Files | Build Order File | Implementation Guide | Verification |
-|------|-------|------------------|---------------------|--------------|
-| 1 | 12 | part-01-foundation.md | v5_part_a.md | 🔴 Critical |
-| 2 | 4 | part-02-database.md | v5_part_b.md | 🔴 Critical |
-| 3 | 6 | part-03-types.md | v5_part_c.md | 🟢 Optional |
-| 4 | 4 | part-04-tier-system.md | v5_part_d.md | 🟢 Optional |
-| 5 | 19 | part-05-authentication.md | v5_part_e.md | 🟡 Recommended |
-| 6 | 15 | part-06-flask-mt5.md | v5_part_f.md | 🟢 Optional |
-| 7 | varies | part-07-indicators-api.md | v5_part_g.md | 🟢 Optional |
-| 8 | varies | part-08-dashboard.md | v5_part_h.md | 🟢 Optional |
-| 9 | varies | part-09-charts.md | v5_part_i.md | 🟢 Optional |
-| 10 | varies | part-10-watchlist.md | v5_part_j.md | 🟡 Recommended |
-| 11 | varies | part-11-alerts.md | v5_part_k.md | 🟢 Optional |
-| 12 | varies | part-12-ecommerce.md | v5_part_l.md | 🟢 Optional |
-| 13 | varies | part-13-settings.md | v5_part_m.md | 🟢 Optional |
-| 14 | varies | part-14-admin.md | v5_part_n.md | 🟢 Optional |
-| 15 | varies | part-15-notifications.md | v5_part_o.md | 🟡 Recommended |
-| 16 | varies | part-16-utilities.md | v5_part_p.md | 🟢 Optional |
-| **17A** | **32** | **part-17a-affiliate-portal.md** | **v5_part_q.md** | **🟡 Recommended** |
-| **17B** | **35** | **part-17b-admin-automation.md** | **v5_part_q.md** | **🔴 Critical** |
-| **18** | **37** | **part-18-dlocal.md** | **v5_part_r.md** | **🔴 Critical** |
+| Part    | Files  | Build Order File                 | Implementation Guide | Verification       |
+| ------- | ------ | -------------------------------- | -------------------- | ------------------ |
+| 1       | 12     | part-01-foundation.md            | v5_part_a.md         | 🔴 Critical        |
+| 2       | 4      | part-02-database.md              | v5_part_b.md         | 🔴 Critical        |
+| 3       | 6      | part-03-types.md                 | v5_part_c.md         | 🟢 Optional        |
+| 4       | 4      | part-04-tier-system.md           | v5_part_d.md         | 🟢 Optional        |
+| 5       | 19     | part-05-authentication.md        | v5_part_e.md         | 🟡 Recommended     |
+| 6       | 15     | part-06-flask-mt5.md             | v5_part_f.md         | 🟢 Optional        |
+| 7       | varies | part-07-indicators-api.md        | v5_part_g.md         | 🟢 Optional        |
+| 8       | varies | part-08-dashboard.md             | v5_part_h.md         | 🟢 Optional        |
+| 9       | varies | part-09-charts.md                | v5_part_i.md         | 🟢 Optional        |
+| 10      | varies | part-10-watchlist.md             | v5_part_j.md         | 🟡 Recommended     |
+| 11      | varies | part-11-alerts.md                | v5_part_k.md         | 🟢 Optional        |
+| 12      | varies | part-12-ecommerce.md             | v5_part_l.md         | 🟢 Optional        |
+| 13      | varies | part-13-settings.md              | v5_part_m.md         | 🟢 Optional        |
+| 14      | varies | part-14-admin.md                 | v5_part_n.md         | 🟢 Optional        |
+| 15      | varies | part-15-notifications.md         | v5_part_o.md         | 🟡 Recommended     |
+| 16      | varies | part-16-utilities.md             | v5_part_p.md         | 🟢 Optional        |
+| **17A** | **32** | **part-17a-affiliate-portal.md** | **v5_part_q.md**     | **🟡 Recommended** |
+| **17B** | **35** | **part-17b-admin-automation.md** | **v5_part_q.md**     | **🔴 Critical**    |
+| **18**  | **37** | **part-18-dlocal.md**            | **v5_part_r.md**     | **🔴 Critical**    |
 
 **Note:** Part 17 split into 17A (Affiliate Portal - 32 files) and 17B (Admin & Automation - 35 files) for token safety. Both use v5_part_q.md. Part 18 corrected to 37 files (not 45).
 
@@ -708,6 +738,7 @@ npm run test:coverage
 **Review these key files:**
 
 #### 1. Test Configuration
+
 ```bash
 # Open and review:
 cat jest.config.js
@@ -715,6 +746,7 @@ cat jest.setup.js
 ```
 
 #### 2. Test Files Created
+
 ```bash
 # Check what tests exist:
 ls __tests__/lib/
@@ -727,6 +759,7 @@ ls __tests__/integration/
 ```
 
 #### 3. GitHub Actions Workflow
+
 ```bash
 # Review the CI/CD pipeline:
 cat .github/workflows/tests.yml
@@ -773,6 +806,7 @@ ls postman/environments/
 ```
 
 **To use Postman:**
+
 1. Install Postman desktop app
 2. Import collections from `postman/collections/`
 3. Import environments from `postman/environments/`
@@ -802,6 +836,7 @@ gh run view
 ```
 
 **Expected output:**
+
 ```
 ✓ Unit & Component Tests      success
 ✓ Integration Tests            success
@@ -835,6 +870,7 @@ gh run view
 6. Click: "Create" or "Save changes"
 
 **Verification:**
+
 ```bash
 # Try to push broken code to main (should be blocked by PR requirement)
 # Tests will run automatically on PRs
@@ -947,6 +983,7 @@ npm run build
 **You'll need these for Phase 4. Start gathering now:**
 
 #### Vercel Credentials:
+
 - [ ] Vercel account created
 - [ ] Vercel CLI installed: `npm i -g vercel`
 - [ ] Vercel project created (or will create in Phase 4)
@@ -955,12 +992,14 @@ npm run build
 - [ ] VERCEL_PROJECT_ID (get from `vercel link`)
 
 #### Railway Credentials:
+
 - [ ] Railway account created
 - [ ] Railway project created (or will create in Phase 4)
 - [ ] RAILWAY_TOKEN (get from railway.app → Account Settings → Tokens)
 - [ ] RAILWAY_SERVICE_ID (get after creating service)
 
 #### Production URLs:
+
 - [ ] Decide your production domain (or use Vercel auto-generated)
 - [ ] PRODUCTION_URL (will get after first deployment)
 - [ ] FLASK_URL (will get after Railway deployment)
@@ -985,6 +1024,7 @@ npm run build
 #### Option A: Use Claude Code to Create deploy.yml
 
 **Prompt for Claude Code:**
+
 ```
 Create .github/workflows/deploy.yml file following the specification in
 docs/v7/v7_phase_4_deployment.md, Milestone 4.1.
@@ -1034,15 +1074,15 @@ cat .github/workflows/deploy.yml
 
 **Add these secrets:**
 
-| Secret Name | How to Get It | Example Value |
-|-------------|---------------|---------------|
-| `VERCEL_TOKEN` | Vercel → Settings → Tokens → Create | `vercel_abc123...` |
-| `VERCEL_ORG_ID` | Run `vercel link`, check `.vercel/project.json` | `team_abc123...` |
-| `VERCEL_PROJECT_ID` | Run `vercel link`, check `.vercel/project.json` | `prj_abc123...` |
-| `RAILWAY_TOKEN` | Railway → Account Settings → Tokens | `railway_abc123...` |
-| `RAILWAY_SERVICE_ID` | After creating Railway service | `svc-abc123...` |
-| `PRODUCTION_URL` | Your Vercel deployment URL | `https://your-app.vercel.app` |
-| `FLASK_URL` | Your Railway deployment URL | `https://flask.railway.app` |
+| Secret Name          | How to Get It                                   | Example Value                 |
+| -------------------- | ----------------------------------------------- | ----------------------------- |
+| `VERCEL_TOKEN`       | Vercel → Settings → Tokens → Create             | `vercel_abc123...`            |
+| `VERCEL_ORG_ID`      | Run `vercel link`, check `.vercel/project.json` | `team_abc123...`              |
+| `VERCEL_PROJECT_ID`  | Run `vercel link`, check `.vercel/project.json` | `prj_abc123...`               |
+| `RAILWAY_TOKEN`      | Railway → Account Settings → Tokens             | `railway_abc123...`           |
+| `RAILWAY_SERVICE_ID` | After creating Railway service                  | `svc-abc123...`               |
+| `PRODUCTION_URL`     | Your Vercel deployment URL                      | `https://your-app.vercel.app` |
+| `FLASK_URL`          | Your Railway deployment URL                     | `https://flask.railway.app`   |
 
 #### How to Get Vercel Credentials:
 
@@ -1102,6 +1142,7 @@ gh run view --job=deploy-frontend
 ```
 
 **Expected output:**
+
 ```
 ✓ Run Phase 3.5 Test Suite
 ✓ Deploy Frontend to Vercel
@@ -1133,16 +1174,16 @@ vercel
 
 **Add these variables:**
 
-| Variable | Value | Where to Get It |
-|----------|-------|-----------------|
-| `DATABASE_URL` | PostgreSQL connection string | Railway Postgres |
-| `NEXTAUTH_SECRET` | Random secret | `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | Production URL | `https://your-app.vercel.app` |
-| `GOOGLE_CLIENT_ID` | OAuth client ID | Google Cloud Console |
-| `GOOGLE_CLIENT_SECRET` | OAuth client secret | Google Cloud Console |
-| `STRIPE_SECRET_KEY` | Stripe secret | Stripe Dashboard |
-| `STRIPE_WEBHOOK_SECRET` | Webhook secret | Stripe Dashboard |
-| `FLASK_MT5_URL` | Flask backend URL | Railway deployment |
+| Variable                | Value                        | Where to Get It               |
+| ----------------------- | ---------------------------- | ----------------------------- |
+| `DATABASE_URL`          | PostgreSQL connection string | Railway Postgres              |
+| `NEXTAUTH_SECRET`       | Random secret                | `openssl rand -base64 32`     |
+| `NEXTAUTH_URL`          | Production URL               | `https://your-app.vercel.app` |
+| `GOOGLE_CLIENT_ID`      | OAuth client ID              | Google Cloud Console          |
+| `GOOGLE_CLIENT_SECRET`  | OAuth client secret          | Google Cloud Console          |
+| `STRIPE_SECRET_KEY`     | Stripe secret                | Stripe Dashboard              |
+| `STRIPE_WEBHOOK_SECRET` | Webhook secret               | Stripe Dashboard              |
+| `FLASK_MT5_URL`         | Flask backend URL            | Railway deployment            |
 
 **Environment:** Select "Production, Preview, and Development"
 
@@ -1193,13 +1234,13 @@ vercel
 
 **Environment Variables:**
 
-| Variable | Value |
-|----------|-------|
+| Variable       | Value                             |
+| -------------- | --------------------------------- |
 | `DATABASE_URL` | (Reference from Postgres service) |
-| `CORS_ORIGINS` | `https://your-app.vercel.app` |
-| `MT5_SERVER` | Your MT5 server address |
-| `MT5_LOGIN` | Your MT5 login |
-| `MT5_PASSWORD` | Your MT5 password |
+| `CORS_ORIGINS` | `https://your-app.vercel.app`     |
+| `MT5_SERVER`   | Your MT5 server address           |
+| `MT5_LOGIN`    | Your MT5 login                    |
+| `MT5_PASSWORD` | Your MT5 password                 |
 
 ---
 
@@ -1212,6 +1253,7 @@ vercel
 ```
 
 **Get Flask URL:**
+
 - Copy from: Railway → Flask Service → Settings → Domains
 - Add to GitHub Secrets as `FLASK_URL`
 - Add to Vercel environment as `FLASK_MT5_URL`
@@ -1270,12 +1312,14 @@ npx @sentry/wizard@latest -i nextjs
 ```
 
 **Follow wizard to:**
+
 - Create Sentry project
 - Get DSN
 - Configure `sentry.client.config.ts`
 - Configure `sentry.server.config.ts`
 
 **Add to Vercel environment:**
+
 - `SENTRY_DSN` = Your Sentry DSN
 - `SENTRY_AUTH_TOKEN` = Your auth token
 
@@ -1301,6 +1345,7 @@ gh run watch
 ```
 
 **Expected:**
+
 - ✅ Tests run automatically
 - ✅ Deployment happens only if tests pass
 - ✅ Both frontend and backend deploy
@@ -1313,6 +1358,7 @@ gh run watch
 **Open in browser:** `https://your-app.vercel.app`
 
 **Verify:**
+
 - ✅ Site loads correctly
 - ✅ No console errors
 - ✅ Can login with Google OAuth
@@ -1336,6 +1382,7 @@ curl https://your-flask.railway.app/health
 #### Test 4: Database Connection
 
 **In production site:**
+
 - ✅ Create a test watchlist entry
 - ✅ Refresh page - entry persists
 - ✅ Delete entry - disappears
@@ -1346,6 +1393,7 @@ curl https://your-flask.railway.app/health
 #### Test 5: Stripe Integration
 
 **Test payment flow:**
+
 - ✅ Click "Upgrade to PRO"
 - ✅ Stripe checkout loads
 - ✅ Complete test payment (use test card: `4242 4242 4242 4242`)
@@ -1503,10 +1551,12 @@ vercel logs
 ### Issue: Aider Won't Load Files
 
 **Symptoms:**
+
 - `/read-only` command fails
 - "File not found" errors
 
 **Solutions:**
+
 ```bash
 # 1. Verify you're in project root
 pwd
@@ -1524,9 +1574,11 @@ ls docs/build-orders/part-01-foundation.md
 ### Issue: TypeScript Errors
 
 **Symptoms:**
+
 - `npx tsc --noEmit` shows errors
 
 **Solutions:**
+
 ```bash
 # 1. Regenerate Prisma client
 npx prisma generate
@@ -1544,9 +1596,11 @@ npx prisma generate
 ### Issue: Build Fails
 
 **Symptoms:**
+
 - `pnpm build` exits with error
 
 **Solutions:**
+
 ```bash
 # 1. Clear cache
 rm -rf .next
@@ -1566,9 +1620,11 @@ pnpm build 2>&1 | tail -20
 ### Issue: Tests Fail
 
 **Symptoms:**
+
 - `npm test` shows failures
 
 **Solutions:**
+
 ```bash
 # 1. View detailed error
 npm test -- --verbose
@@ -1588,9 +1644,11 @@ cat jest.setup.js
 ### Issue: Deployment Fails
 
 **Symptoms:**
+
 - GitHub Actions deployment job fails
 
 **Solutions:**
+
 ```bash
 # 1. View error logs
 gh run view --log-failed

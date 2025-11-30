@@ -20,17 +20,20 @@ Successfully corrected the affiliate marketing system across **all documentation
 ### Issue 1: Permanent vs One-Time Discount Model
 
 **PROBLEM:**
+
 - Documentation incorrectly stated PRO users couldn't use discount codes at renewal
 - System described codes as "permanent" or "lifetime" discounts
 - This blocked the competitive monthly affiliate model
 
 **SOLUTION:**
+
 - ✅ Updated `AFFILIATE-MARKETING-DESIGN.md` to allow PRO users at renewal
 - ✅ Added competitive model documentation showing monthly affiliate switching
 - ✅ Removed all "permanent/lifetime/forever" language from UI prompts
 - ✅ Updated validation logic to focus on CODE status (not user tier)
 
 **FILES AFFECTED:**
+
 - `docs/AFFILIATE-MARKETING-DESIGN.md` (Sections 2.8, 6.2, 9.3)
 - `ui-frontend-user-journey/prompts-to-v0dev/prompt-1-UPDATED.md`
 - `ui-frontend-user-journey/prompts-to-v0dev/prompt-2-UPDATED.md`
@@ -44,27 +47,30 @@ Successfully corrected the affiliate marketing system across **all documentation
 ### Issue 2: Wrong Discount and Commission Percentages
 
 **PROBLEM:**
+
 - Many files showed 10% customer discount (should be 20%)
 - Many files showed 30% affiliate commission (should be 20%)
 - Price calculations were incorrect throughout documentation
 
 **SOLUTION:**
+
 - ✅ Updated all discount percentages: 10% → 20%
 - ✅ Updated all commission percentages: 30% → 20%
 - ✅ Recalculated all example prices and commissions
 
 **PRICING CHANGES:**
 
-| Item | Old (10%/30%) | New (20%/20%) |
-|------|---------------|---------------|
-| **Regular Price** | $29.00 | $29.00 |
-| **Customer Discount** | $2.90 (10%) | $5.80 (20%) |
-| **Customer Pays** | $26.10 | $23.20 |
-| **Affiliate Commission %** | 30% | 20% |
-| **Affiliate Earns** | $7.83 | $4.64 |
-| **Platform Revenue** | $21.17 | $18.56 |
+| Item                       | Old (10%/30%) | New (20%/20%) |
+| -------------------------- | ------------- | ------------- |
+| **Regular Price**          | $29.00        | $29.00        |
+| **Customer Discount**      | $2.90 (10%)   | $5.80 (20%)   |
+| **Customer Pays**          | $26.10        | $23.20        |
+| **Affiliate Commission %** | 30%           | 20%           |
+| **Affiliate Earns**        | $7.83         | $4.64         |
+| **Platform Revenue**       | $21.17        | $18.56        |
 
 **FILES AFFECTED:**
+
 - `docs/AFFILIATE-ADMIN-JOURNEY.md` (8 instances)
 - `docs/AFFILIATE-MARKETING-DESIGN.md` (3 instances)
 - `docs/policies/01-approval-policies.md`
@@ -81,20 +87,24 @@ Successfully corrected the affiliate marketing system across **all documentation
 ### ✅ UPDATED FILES (12 total)
 
 #### Core Affiliate Documentation
+
 1. ✅ **docs/AFFILIATE-MARKETING-DESIGN.md** - Business logic + percentages
 2. ✅ **docs/AFFILIATE-ADMIN-JOURNEY.md** - All percentages and calculations
 
 #### Policy Files (Aider uses these)
+
 3. ✅ **docs/policies/01-approval-policies.md** - Commission calculations
 4. ✅ **docs/policies/03-architecture-rules.md** - Code distribution defaults
 5. ✅ **docs/policies/04-escalation-triggers.md** - Commission ranges
 6. ✅ **docs/policies/05-coding-patterns.md** - Example code
 
 #### Schema & Journey Files
+
 7. ✅ **docs/diagrams/diagram-06-db-schema.mermaid** - Default percentages
 8. ✅ **ui-frontend-user-journey/saas-user-journey-updated.md** - Checkout flow
 
 #### UI Prompt Files (v0.dev)
+
 9. ✅ **prompt-1-next-js-marketing-homepage-UPDATED.md**
 10. ✅ **prompt-2-pricing-page-component-UPDATED.md**
 11. ✅ **prompt-3-registration-form-component-UPDATED.md**
@@ -163,6 +173,7 @@ Commission table:
 **Updated in:** `docs/AFFILIATE-MARKETING-DESIGN.md`
 
 **BEFORE:**
+
 ```typescript
 if (currentUser.tier !== 'FREE') {
   throw new Error('Discount codes are only for FREE tier users');
@@ -170,6 +181,7 @@ if (currentUser.tier !== 'FREE') {
 ```
 
 **AFTER:**
+
 ```typescript
 // Both FREE and PRO users can use codes
 // Validation focuses on CODE status, not user tier
@@ -195,15 +207,15 @@ if (code.expiresAt < new Date()) {
 ```typescript
 // BEFORE:
 it('should calculate 20% discount, 30% commission correctly', () => {
-  const result = calculateCommission(29.00, 20, 30);
-  expect(result.discountedPrice).toBe(23.20);
+  const result = calculateCommission(29.0, 20, 30);
+  expect(result.discountedPrice).toBe(23.2);
   expect(result.commissionAmount).toBe(6.96);
 });
 
 // AFTER:
 it('should calculate 20% discount, 20% commission correctly', () => {
-  const result = calculateCommission(29.00, 20, 20);
-  expect(result.discountedPrice).toBe(23.20);
+  const result = calculateCommission(29.0, 20, 20);
+  expect(result.discountedPrice).toBe(23.2);
   expect(result.commissionAmount).toBe(4.64);
 });
 ```
@@ -228,11 +240,11 @@ Month 3: User A uses Affiliate D's code → D earns $4.64 (B&C get $0)
 
 ### New Economics
 
-| Stakeholder | Impact |
-|-------------|--------|
-| **Customers** | Better deal: Save $5.80/month (was $2.90) |
-| **Affiliates** | Lower per-sale: Earn $4.64 (was $7.83) but higher conversion |
-| **Platform** | Lower revenue per discounted sale: $18.56 (was $21.17) but higher volume expected |
+| Stakeholder    | Impact                                                                            |
+| -------------- | --------------------------------------------------------------------------------- |
+| **Customers**  | Better deal: Save $5.80/month (was $2.90)                                         |
+| **Affiliates** | Lower per-sale: Earn $4.64 (was $7.83) but higher conversion                      |
+| **Platform**   | Lower revenue per discounted sale: $18.56 (was $21.17) but higher volume expected |
 
 **Trade-off:** Platform sacrifices $2.61 per discounted sale to offer customers a better deal, likely increasing conversion rates and total volume.
 
@@ -272,16 +284,19 @@ All changes committed to branch: `claude/integrate-affiliate-marketing-015Xiwr1R
 ## ✅ VERIFICATION CHECKLIST
 
 ### Discount Percentage
+
 - [x] All files show 20% discount (not 10%)
 - [x] Customer saves $5.80/month
 - [x] Customer pays $23.20/month
 
 ### Commission Percentage
+
 - [x] All files show 20% commission (not 30%)
 - [x] Affiliate earns $4.64 per sale
 - [x] Platform earns $18.56 per discounted sale
 
 ### Business Logic
+
 - [x] PRO users CAN apply codes at renewal
 - [x] Codes are one-time use (not permanent)
 - [x] Codes expire end of month
@@ -289,6 +304,7 @@ All changes committed to branch: `claude/integrate-affiliate-marketing-015Xiwr1R
 - [x] Users can switch affiliates monthly
 
 ### Code Validation
+
 - [x] Validates CODE status (not user tier)
 - [x] Checks: ACTIVE, UNUSED, UNEXPIRED
 - [x] No restriction on PRO vs FREE users
@@ -329,6 +345,7 @@ Next Month:
 ## 📚 DOCUMENTATION HIERARCHY
 
 ### Primary Source of Truth
+
 1. **docs/AFFILIATE-MARKETING-DESIGN.md** - Complete specification
    - Database schema ✅ Correct
    - Business logic ✅ Updated
@@ -336,11 +353,13 @@ Next Month:
    - User flows ✅ Updated
 
 ### Implementation Guides
+
 2. **docs/AFFILIATE-ADMIN-JOURNEY.md** - Affiliate & admin workflows ✅ Updated
 3. **docs/policies/** - Aider instructions ✅ Updated
 4. **ui-frontend-user-journey/** - UI specifications ✅ Updated
 
 ### Supporting Documents
+
 5. **ARCHITECTURE.md** - System overview ✅ Already correct
 6. **docs/diagrams/** - Visual schemas ✅ Updated
 7. **docs/DISCOUNT-CODE-CORRECTION-SUMMARY.md** - Change documentation ✅ Created
@@ -350,6 +369,7 @@ Next Month:
 ## 🎯 WHAT'S NEXT
 
 ### ✅ COMPLETE (This Session)
+
 - [x] All documentation updated
 - [x] All percentages corrected
 - [x] All pricing calculations fixed
@@ -357,6 +377,7 @@ Next Month:
 - [x] Committed and pushed to GitHub
 
 ### 🔄 TODO (Next Session/Phase)
+
 - [ ] Update frontend UI code in `seed-code/v0-components/` to match corrected prompts
 - [ ] Verify any mermaid diagrams don't have hardcoded percentages
 - [ ] Update tests if they exist with old percentages

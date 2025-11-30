@@ -1,8 +1,10 @@
 ## PHASE 2: CI/CD & DATABASE FOUNDATION
+
 ### Timeline: Week 2 (5 hours)
+
 ### Goal: Setup automation and deploy database EARLY
 
-💡 BEGINNER TIP: We deploy the database in Week 2 (not Week 10!) to avoid 
+💡 BEGINNER TIP: We deploy the database in Week 2 (not Week 10!) to avoid
 "migration hell" - database problems at the end when everything depends on it.
 
 ---
@@ -63,21 +65,25 @@ The CI/CD workflows have been **professionally rebuilt** for autonomous developm
 #### 📊 Design Principles
 
 **Progressive Activation:**
+
 - Workflows check for prerequisites before running
 - Jobs activate incrementally as features are built
 - No false negatives from missing Phase 3 features
 
 **Non-Blocking:**
+
 - Security scans are informative, not blocking (Phase 1-3)
 - Linting issues warn but don't fail
 - Only critical errors block (syntax, build failures)
 
 **Informative Feedback:**
+
 - Every skip explains WHY it skipped
 - Every skip explains WHEN it will activate
 - Summary jobs provide context and guidance
 
 **Autonomous Development Ready:**
+
 - Designed for Aider + Claude Code workflow
 - CI provides guidance, not gatekeeping
 - Aider can commit confidently without blocking
@@ -87,6 +93,7 @@ The CI/CD workflows have been **professionally rebuilt** for autonomous developm
 #### 🎯 Current Status (Phase 1-2)
 
 **Expected Behavior:**
+
 ```
 ✅ OpenAPI Validation        ACTIVE & PASSING
 ✅ Dependencies Security      ACTIVE & PASSING
@@ -102,11 +109,13 @@ The CI/CD workflows have been **professionally rebuilt** for autonomous developm
 #### 📖 Documentation
 
 **Complete workflow guide:**
+
 ```
 cat .github/workflows/README.md
 ```
 
 This comprehensive guide explains:
+
 - Each workflow's purpose and design
 - When workflows activate
 - Phase-by-phase activation timeline
@@ -122,11 +131,13 @@ This comprehensive guide explains:
 Go to: GitHub.com → Your repo → "Actions" tab
 
 Expected results:
+
 - ✅ All workflows passing or skipping gracefully
 - ✅ No red X failures
 - ✅ Informative skip messages explaining Phase 1-2 status
 
 Verify workflows:
+
 ```bash
 # List all workflow files
 ls -la .github/workflows/
@@ -140,6 +151,7 @@ cat .github/workflows/README.md
 **Key Concept:** Workflows progressively activate as you build in Phase 3
 
 **Example: Next.js CI Progressive Activation**
+
 ```
 Phase 1-2 (Now):
 - check-project-status: ✅ Runs (detects Phase 1-2)
@@ -169,28 +181,30 @@ Phase 3 (After adding test files):
 **Why:** Never commit secrets to code!
 
 ☐ STEP 1: Navigate to Secrets (5 minutes)
-   Go to: GitHub.com → Your repo → Settings → Secrets and variables → Actions
+Go to: GitHub.com → Your repo → Settings → Secrets and variables → Actions
 
 ☐ STEP 2: Generate NextAuth Secret (5 minutes)
-   Run locally:
-   ```
-   openssl rand -base64 32
-   ```
-   Copy output (save it!) 📝
+Run locally:
+
+```
+openssl rand -base64 32
+```
+
+Copy output (save it!) 📝
 
 ☐ STEP 3: Add Secrets (15 minutes)
-   Click "New repository secret" for each:
-   
-   | Name | Value | Notes |
-   |------|-------|-------|
-   | NEXTAUTH_SECRET | [from Step 2] | Auth encryption key |
-   | DATABASE_URL | postgresql://temp:temp@localhost/temp | Temporary (will update) |
-   | MT5_API_KEY | temp-key-123 | Temporary (will update) |
-   | ANTHROPIC_API_KEY | [your MiniMax key] | For Aider in CI |
-   | ANTHROPIC_API_BASE | https://api.minimaxi.com/v1 | MiniMax endpoint |
+Click "New repository secret" for each:
+
+| Name               | Value                                 | Notes                   |
+| ------------------ | ------------------------------------- | ----------------------- |
+| NEXTAUTH_SECRET    | [from Step 2]                         | Auth encryption key     |
+| DATABASE_URL       | postgresql://temp:temp@localhost/temp | Temporary (will update) |
+| MT5_API_KEY        | temp-key-123                          | Temporary (will update) |
+| ANTHROPIC_API_KEY  | [your MiniMax key]                    | For Aider in CI         |
+| ANTHROPIC_API_BASE | https://api.minimaxi.com/v1           | MiniMax endpoint        |
 
 ☐ STEP 4: Verify Secrets (5 minutes)
-   Check: All 5 secrets show in list (values hidden) ✓
+Check: All 5 secrets show in list (values hidden) ✓
 
 ✅ CHECKPOINT: Secrets configured
 
@@ -206,95 +220,106 @@ Phase 3 (After adding test files):
 💡 CRITICAL: This is why V7 is better - database deployed early!
 
 ☐ STEP 1: Create Railway Account (10 minutes)
-   1. Go to railway.app
-   2. Click "Login" → "Login with GitHub"
-   3. Authorize Railway
-   4. Verify email
+
+1.  Go to railway.app
+2.  Click "Login" → "Login with GitHub"
+3.  Authorize Railway
+4.  Verify email
 
 ☐ STEP 2: Create Project (10 minutes)
-   1. Click "New Project"
-   2. Select "Provision PostgreSQL"
-   3. Project name: "trading-alerts-saas-v7"
-   4. Region: Choose closest to you
-   5. Click "Deploy"
-   
-   Wait: PostgreSQL provisions (2-3 minutes)
+
+1.  Click "New Project"
+2.  Select "Provision PostgreSQL"
+3.  Project name: "trading-alerts-saas-v7"
+4.  Region: Choose closest to you
+5.  Click "Deploy"
+
+Wait: PostgreSQL provisions (2-3 minutes)
 
 ☐ STEP 3: Get Database URL (10 minutes)
-   1. Click PostgreSQL service
-   2. Click "Connect" tab
-   3. Find "DATABASE_URL"
-   4. Copy entire URL (starts with postgresql://)
-   5. Save it! 📝
+
+1.  Click PostgreSQL service
+2.  Click "Connect" tab
+3.  Find "DATABASE_URL"
+4.  Copy entire URL (starts with postgresql://)
+5.  Save it! 📝
 
 ☐ STEP 4: Test Connection Locally (15 minutes)
-   
-   Install pg library temporarily:
-   ```
-   npm install pg
-   ```
-   
-   Create test file: `test-db-connection.js`
-   ```javascript
-   const { Client } = require('pg');
-   
-   const connectionString = 'YOUR_RAILWAY_DATABASE_URL_HERE';
-   
-   const client = new Client({ connectionString });
-   
-   client.connect()
-     .then(() => {
-       console.log('✅ Connected to Railway PostgreSQL!');
-       return client.end();
-     })
-     .catch(err => {
-       console.error('❌ Connection failed:', err.message);
-     });
-   ```
-   
-   Replace YOUR_RAILWAY_DATABASE_URL_HERE with your actual URL
-   
-   Run:
-   ```
-   node test-db-connection.js
-   ```
-   
-   Expected: "✅ Connected to Railway PostgreSQL!"
-   
-   If connected ✓ → Success! Delete test file:
-   ```
-   rm test-db-connection.js
-   ```
+
+Install pg library temporarily:
+
+```
+npm install pg
+```
+
+Create test file: `test-db-connection.js`
+
+```javascript
+const { Client } = require('pg');
+
+const connectionString = 'YOUR_RAILWAY_DATABASE_URL_HERE';
+
+const client = new Client({ connectionString });
+
+client
+  .connect()
+  .then(() => {
+    console.log('✅ Connected to Railway PostgreSQL!');
+    return client.end();
+  })
+  .catch((err) => {
+    console.error('❌ Connection failed:', err.message);
+  });
+```
+
+Replace YOUR_RAILWAY_DATABASE_URL_HERE with your actual URL
+
+Run:
+
+```
+node test-db-connection.js
+```
+
+Expected: "✅ Connected to Railway PostgreSQL!"
+
+If connected ✓ → Success! Delete test file:
+
+```
+rm test-db-connection.js
+```
 
 ☐ STEP 5: Update GitHub Secret (5 minutes)
-   GitHub → Settings → Secrets → DATABASE_URL → Edit
-   
-   Replace with your Railway URL
+GitHub → Settings → Secrets → DATABASE_URL → Edit
+
+Replace with your Railway URL
 
 ☐ STEP 6: Save Connection Info (5 minutes)
-   Create: `docs/RAILWAY-INFO.md` (for your reference, DON'T commit!)
-   
-   ```markdown
-   # Railway Connection Info
-   
-   ## PostgreSQL
-   - Project: trading-alerts-saas-v7
-   - Region: [your region]
-   - DATABASE_URL: [your url - KEEP PRIVATE!]
-   
-   ## Dashboard
-   - URL: railway.app/project/[your-project-id]
-   
-   ## Notes
-   - Deployed: [date]
-   - Plan: Free tier (5GB storage, $5 credit)
-   ```
-   
-   ⚠️ DON'T commit this file! It's just for your reference.
+Create: `docs/RAILWAY-INFO.md` (for your reference, DON'T commit!)
+
+```markdown
+# Railway Connection Info
+
+## PostgreSQL
+
+- Project: trading-alerts-saas-v7
+- Region: [your region]
+- DATABASE_URL: [your url - KEEP PRIVATE!]
+
+## Dashboard
+
+- URL: railway.app/project/[your-project-id]
+
+## Notes
+
+- Deployed: [date]
+- Plan: Free tier (5GB storage, $5 credit)
+```
+
+⚠️ DON'T commit this file! It's just for your reference.
 
 ✅ CHECKPOINT: Railway PostgreSQL deployed and tested!
 
-💡 BEGINNER VICTORY: Your database is live in Week 2! When you build your app 
+💡 BEGINNER VICTORY: Your database is live in Week 2! When you build your app
 in Phase 3, you'll test on this production-like database immediately. No surprises later!
 
 ---
@@ -304,7 +329,7 @@ in Phase 3, you'll test on this production-like database immediately. No surpris
 **What:** Learn how database migrations work
 **Why:** You'll do this in Phase 3, understand it now
 
-💡 BEGINNER TIP: Prisma = tool that talks to PostgreSQL for you. You write 
+💡 BEGINNER TIP: Prisma = tool that talks to PostgreSQL for you. You write
 schema, Prisma creates tables.
 
 ☐ STEP 1: Read About Prisma (15 minutes)
@@ -357,7 +382,7 @@ Both databases now have same structure!
 
 ✅ CHECKPOINT: Understand Prisma workflow
 
-💡 BEGINNER NOTE: You'll execute this in Phase 3 with Aider. For now, just 
+💡 BEGINNER NOTE: You'll execute this in Phase 3 with Aider. For now, just
 understand the concept!
 
 ---
@@ -368,20 +393,23 @@ understand the concept!
 **Why:** Package Flask for deployment
 
 💡 BEGINNER TIP: Docker is OPTIONAL for local development!
-   - Local dev: Run Flask with `python run.py`
-   - Production: Docker required for Railway deployment
-   
-   You can develop the Flask service without Docker, then
-   containerize it when ready to deploy.
+
+- Local dev: Run Flask with `python run.py`
+- Production: Docker required for Railway deployment
+
+You can develop the Flask service without Docker, then
+containerize it when ready to deploy.
 
 ☐ STEP 1: Start Aider (2 minutes)
-   ```
-   py -3.11 -m aider --model anthropic/MiniMax-M2
-   ```
+
+```
+py -3.11 -m aider --model anthropic/MiniMax-M2
+```
 
 ☐ STEP 2: Create Dockerfile for Flask (25 minutes)
 
 You:
+
 ```
 Create Dockerfile for Flask MT5 service
 
@@ -404,6 +432,7 @@ Aider generates → Review → Approve → Creates
 ☐ STEP 3: Create docker-compose.yml (25 minutes)
 
 You:
+
 ```
 Create docker-compose.yml for local development
 
@@ -420,20 +449,19 @@ Show me complete docker-compose.yml for approval.
 
 ☐ STEP 4: Test Docker Build (10 minutes)
 
-   Exit Aider: `/exit`
-   
-   OPTIONAL - Try building (will fail - no requirements.txt yet, that's OK!):
-cd mt5-service docker build -t mt5-service.
+Exit Aider: `/exit`
 
+OPTIONAL - Try building (will fail - no requirements.txt yet, that's OK!):
+cd mt5-service docker build -t mt5-service.
 
 Expected: Error about missing files - normal!
 
-💡 BEGINNER NOTE: 
-   You DON'T need Docker working now for local development.
-   
-   Local development: Just run `python run.py`
-   
-   Docker is required LATER for Railway deployment in Phase 4.
+💡 BEGINNER NOTE:
+You DON'T need Docker working now for local development.
+
+Local development: Just run `python run.py`
+
+Docker is required LATER for Railway deployment in Phase 4.
 
 ✅ CHECKPOINT: Docker files ready for Phase 4 deployment
 
@@ -447,13 +475,15 @@ Expected: Error about missing files - normal!
 **Why:** Test as you build!
 
 ☐ STEP 1: Start Aider (2 minutes)
-   ```
-   py -3.11 -m aider --model anthropic/MiniMax-M2
-   ```
+
+```
+py -3.11 -m aider --model anthropic/MiniMax-M2
+```
 
 ☐ STEP 2: Setup Jest (25 minutes)
 
 You:
+
 ```
 Set up Jest testing framework for Next.js 15
 
@@ -489,17 +519,18 @@ git push
 ### What You Accomplished:
 
 ☐ **GitHub Actions CI/CD configured (5 workflows!)** ⚡
-  - ✅ **openapi-validation.yml** - Validates all OpenAPI specs
-  - ✅ **dependencies-security.yml** - Weekly security scans (pip-audit)
-  - ✅ **ci-flask.yml** - Flask CI with progressive features
-  - ✅ **ci-nextjs-progressive.yml** - Next.js CI with phase detection
-  - ✅ **api-tests.yml** - Newman/Postman API integration tests
-☐ **Progressive CI/CD system** - Activates incrementally in Phase 3
-☐ GitHub secrets configured (5 secrets including MiniMax)
-☐ Railway PostgreSQL deployed and tested ⭐
-☐ Prisma workflow understood
-☐ Docker configuration created
-☐ Jest testing framework ready
+
+- ✅ **openapi-validation.yml** - Validates all OpenAPI specs
+- ✅ **dependencies-security.yml** - Weekly security scans (pip-audit)
+- ✅ **ci-flask.yml** - Flask CI with progressive features
+- ✅ **ci-nextjs-progressive.yml** - Next.js CI with phase detection
+- ✅ **api-tests.yml** - Newman/Postman API integration tests
+  ☐ **Progressive CI/CD system** - Activates incrementally in Phase 3
+  ☐ GitHub secrets configured (5 secrets including MiniMax)
+  ☐ Railway PostgreSQL deployed and tested ⭐
+  ☐ Prisma workflow understood
+  ☐ Docker configuration created
+  ☐ Jest testing framework ready
 
 ### What You Learned:
 
@@ -528,35 +559,39 @@ no false negatives, 100% success rate from day one!
 ### Readiness Check:
 
 ☐ All 5 GitHub Actions workflows active ⚡
-  - openapi-validation.yml (validates specs)
-  - dependencies-security.yml (security scans)
-  - ci-flask.yml (Flask validation)
-  - ci-nextjs-progressive.yml (Next.js progressive CI)
-  - api-tests.yml (API integration tests)
-☐ **CI/CD Success Rate: 100%** (all pass or skip gracefully)
-☐ All 5 GitHub secrets configured (including MiniMax)
-☐ Railway PostgreSQL live and accessible
-☐ Understand Prisma workflow
-☐ Docker files created
-☐ Jest configured
+
+- openapi-validation.yml (validates specs)
+- dependencies-security.yml (security scans)
+- ci-flask.yml (Flask validation)
+- ci-nextjs-progressive.yml (Next.js progressive CI)
+- api-tests.yml (API integration tests)
+  ☐ **CI/CD Success Rate: 100%** (all pass or skip gracefully)
+  ☐ All 5 GitHub secrets configured (including MiniMax)
+  ☐ Railway PostgreSQL live and accessible
+  ☐ Understand Prisma workflow
+  ☐ Docker files created
+  ☐ Jest configured
 
 If all checked ✅ → **READY FOR PHASE 3!** 🚀
 
 ### 🎯 CI/CD System Benefits:
 
 **Progressive Activation:**
+
 - ✅ Phase 1-2: Workflows skip gracefully (no false negatives)
 - ✅ Phase 3: Jobs activate automatically as features are built
 - ✅ No manual workflow changes needed
 - ✅ CI provides guidance, not gatekeeping
 
 **Autonomous Development Ready:**
+
 - ✅ Designed for Aider + Claude Code workflow
 - ✅ Non-blocking during development
 - ✅ Informative skip messages
 - ✅ 100% success rate from day one
 
 **Security & Quality:**
+
 - ✅ Weekly dependency scans (pip-audit + npm audit)
 - ✅ OpenAPI spec validation on every change
 - ✅ Linting and type checking (when activated)

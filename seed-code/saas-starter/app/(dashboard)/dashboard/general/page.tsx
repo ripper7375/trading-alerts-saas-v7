@@ -28,7 +28,7 @@ type AccountFormProps = {
 function AccountForm({
   state,
   nameValue = '',
-  emailValue = ''
+  emailValue = '',
 }: AccountFormProps) {
   return (
     <>

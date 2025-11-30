@@ -95,7 +95,7 @@
 ```
 1. USER STARTS AIDER
    > aider
-   
+
 2. AIDER LOADS CONTEXT
    [Automatically loads from .aider.conf.yml:]
    - 9 policy files
@@ -116,23 +116,23 @@
    - v5_part_k.md (business requirements)
    - trading_alerts_openapi.yaml (API contract)
    - 05-coding-patterns.md (code patterns)
-   
+
    [Aider generates:]
    - app/api/alerts/route.ts
 
 6. USER/AIDER RUNS VALIDATION
    > npm run validate
-   
+
    [Validation runs:]
    🔍 Checking TypeScript types...
    ✅ 0 errors
-   
+
    🔍 Checking code quality...
    ✅ 0 errors, 0 warnings
-   
+
    🔍 Checking code formatting...
    ✅ All files formatted correctly
-   
+
    🔍 Checking policy compliance...
    📊 VALIDATION REPORT
    Files Checked: 1
@@ -145,13 +145,13 @@
    - 0 High issues ✓
    - 0 Medium issues ✓
    - 0 Low issues ✓
-   
+
    [Decision: APPROVE]
 
 8. AIDER COMMITS
    > git add app/api/alerts/route.ts
    > git commit -m "feat(alerts): add GET/POST /api/alerts endpoints
-   
+
    - Validation: 0 Critical, 0 High, 0 Medium, 0 Low issues
    - All approval conditions met: yes
    - Pattern used: API Route Pattern (Pattern 1)
@@ -160,7 +160,7 @@
 9. AIDER MOVES TO NEXT FILE
    [Aider reads next file from build order:]
    - app/api/alerts/[id]/route.ts
-   
+
    [Process repeats from step 5]
 
 10. REPEAT FOR ALL 170+ FILES
@@ -316,20 +316,20 @@ Auto-fix?   Not auto-fix     │            │
 
 ## 📊 Responsibility Matrix
 
-| Task | Before | After | Tool/Method |
-|------|--------|-------|-------------|
-| Load policies | ❌ Claude Code | ✅ Aider | `.aider.conf.yml` |
-| Generate code | ✅ Aider | ✅ Aider | Aider AI |
-| Type checking | ❌ Claude Code | ✅ TypeScript | `tsc --noEmit` |
-| Code quality | ❌ Claude Code | ✅ ESLint | `next lint` |
-| Formatting | ❌ Claude Code | ✅ Prettier | `prettier --check` |
+| Task              | Before         | After            | Tool/Method        |
+| ----------------- | -------------- | ---------------- | ------------------ |
+| Load policies     | ❌ Claude Code | ✅ Aider         | `.aider.conf.yml`  |
+| Generate code     | ✅ Aider       | ✅ Aider         | Aider AI           |
+| Type checking     | ❌ Claude Code | ✅ TypeScript    | `tsc --noEmit`     |
+| Code quality      | ❌ Claude Code | ✅ ESLint        | `next lint`        |
+| Formatting        | ❌ Claude Code | ✅ Prettier      | `prettier --check` |
 | Policy validation | ❌ Claude Code | ✅ Custom Script | `validate-file.js` |
-| Categorize issues | ❌ Claude Code | ✅ Custom Script | Severity levels |
-| Make decision | ❌ Claude Code | ✅ Aider | Decision logic |
-| Auto-fix | ❌ Claude Code | ✅ Aider + Tools | `npm run fix` |
-| Escalate | ❌ Claude Code | ✅ Aider | Escalation format |
-| Commit | ❌ Claude Code | ✅ Aider | Git commands |
-| Track progress | ❌ Claude Code | ✅ Aider | `PROGRESS.md` |
+| Categorize issues | ❌ Claude Code | ✅ Custom Script | Severity levels    |
+| Make decision     | ❌ Claude Code | ✅ Aider         | Decision logic     |
+| Auto-fix          | ❌ Claude Code | ✅ Aider + Tools | `npm run fix`      |
+| Escalate          | ❌ Claude Code | ✅ Aider         | Escalation format  |
+| Commit            | ❌ Claude Code | ✅ Aider         | Git commands       |
+| Track progress    | ❌ Claude Code | ✅ Aider         | `PROGRESS.md`      |
 
 ---
 
@@ -340,6 +340,7 @@ Auto-fix?   Not auto-fix     │            │
 **Purpose:** Type safety validation
 
 **Configuration:** `tsconfig.json`
+
 ```json
 {
   "compilerOptions": {
@@ -354,6 +355,7 @@ Auto-fix?   Not auto-fix     │            │
 **Command:** `npm run validate:types`
 
 **Checks:**
+
 - ✅ No `any` types
 - ✅ All parameters typed
 - ✅ All return types specified
@@ -367,6 +369,7 @@ Auto-fix?   Not auto-fix     │            │
 **Purpose:** Code quality validation
 
 **Configuration:** `.eslintrc.json`
+
 ```json
 {
   "extends": ["next/core-web-vitals", "next/typescript"],
@@ -381,6 +384,7 @@ Auto-fix?   Not auto-fix     │            │
 **Command:** `npm run validate:lint`
 
 **Checks:**
+
 - ✅ Code quality rules
 - ✅ React hooks usage
 - ✅ Import organization
@@ -394,6 +398,7 @@ Auto-fix?   Not auto-fix     │            │
 **Purpose:** Code formatting validation
 
 **Configuration:** `.prettierrc`
+
 ```json
 {
   "semi": true,
@@ -407,6 +412,7 @@ Auto-fix?   Not auto-fix     │            │
 **Command:** `npm run validate:format`
 
 **Checks:**
+
 - ✅ Consistent formatting
 - ✅ Proper indentation
 - ✅ Quote style (single quotes)
@@ -422,6 +428,7 @@ Auto-fix?   Not auto-fix     │            │
 **Implementation:** `scripts/validate-file.js`
 
 **Checks:**
+
 - ✅ Authentication checks (protected routes)
 - ✅ Tier validation (symbol/timeframe endpoints)
 - ✅ Error handling (try-catch blocks)
@@ -438,13 +445,13 @@ Auto-fix?   Not auto-fix     │            │
 
 ### Target Metrics for Phase 3
 
-| Metric | Target | Measurement Method |
-|--------|--------|-------------------|
-| Auto-Approve Rate | 85-92% | Files approved on first try |
-| Auto-Fix Rate | 6-12% | Files requiring auto-fix |
-| Escalation Rate | 2-5% | Files requiring human input |
-| Validation Time | <10 sec/file | Time to run validation |
-| False Positive Rate | <5% | Policy validator accuracy |
+| Metric              | Target       | Measurement Method          |
+| ------------------- | ------------ | --------------------------- |
+| Auto-Approve Rate   | 85-92%       | Files approved on first try |
+| Auto-Fix Rate       | 6-12%        | Files requiring auto-fix    |
+| Escalation Rate     | 2-5%         | Files requiring human input |
+| Validation Time     | <10 sec/file | Time to run validation      |
+| False Positive Rate | <5%          | Policy validator accuracy   |
 
 ---
 

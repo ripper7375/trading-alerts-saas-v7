@@ -38,9 +38,9 @@ Step 6: NOW escalate with full research documented ⚠️
 1. **Check Git commit dates:** `git log --oneline -- path/to/document.md`
 2. **Precedence** (highest first):
    - Most recent commit date = Source of truth
-   - Policy documents (docs/policies/*)
-   - Implementation guides (docs/implementation-guides/*)
-   - Technical docs (docs/*)
+   - Policy documents (docs/policies/\*)
+   - Implementation guides (docs/implementation-guides/\*)
+   - Technical docs (docs/\*)
    - Seed code (reference only)
 
 3. **Common conflicts:**
@@ -55,40 +55,40 @@ Step 6: NOW escalate with full research documented ⚠️
 
 ### Step 3: Seed Code Reference
 
-| Issue Type | Check These Files |
-|-----------|------------------|
-| **Authentication** | `seed-code/saas-starter/app/(login)/*`<br>`seed-code/next-shadcn-dashboard-starter/src/app/auth/sign-in/[[...sign-in]]/page.tsx` |
-| **Dashboard Layout** | `seed-code/saas-starter/app/(dashboard)/layout.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/app/dashboard/layout.tsx` |
-| **API Routes** | `seed-code/saas-starter/app/api/user/route.ts`<br>`seed-code/saas-starter/app/api/team/route.ts`<br>`seed-code/saas-starter/app/api/stripe/*` |
-| **Billing** | `seed-code/saas-starter/app/(dashboard)/pricing/page.tsx`<br>`docs/SUBSCRIPTION-MODEL-CLARIFICATION.md` |
-| **Forms** | `seed-code/next-shadcn-dashboard-starter/src/components/forms/*` |
-| **UI Components** | `seed-code/v0-components/*` |
-| **Flask/MT5** | `seed-code/market_ai_engine.py`<br>`docs/flask-multi-mt5-implementation.md` |
-| **Affiliate** | `docs/AFFILIATE-MARKETING-DESIGN.md`<br>`docs/implementation-guides/v5_part_r.md` |
+| Issue Type           | Check These Files                                                                                                                             |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Authentication**   | `seed-code/saas-starter/app/(login)/*`<br>`seed-code/next-shadcn-dashboard-starter/src/app/auth/sign-in/[[...sign-in]]/page.tsx`              |
+| **Dashboard Layout** | `seed-code/saas-starter/app/(dashboard)/layout.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/app/dashboard/layout.tsx`                 |
+| **API Routes**       | `seed-code/saas-starter/app/api/user/route.ts`<br>`seed-code/saas-starter/app/api/team/route.ts`<br>`seed-code/saas-starter/app/api/stripe/*` |
+| **Billing**          | `seed-code/saas-starter/app/(dashboard)/pricing/page.tsx`<br>`docs/SUBSCRIPTION-MODEL-CLARIFICATION.md`                                       |
+| **Forms**            | `seed-code/next-shadcn-dashboard-starter/src/components/forms/*`                                                                              |
+| **UI Components**    | `seed-code/v0-components/*`                                                                                                                   |
+| **Flask/MT5**        | `seed-code/market_ai_engine.py`<br>`docs/flask-multi-mt5-implementation.md`                                                                   |
+| **Affiliate**        | `docs/AFFILIATE-MARKETING-DESIGN.md`<br>`docs/implementation-guides/v5_part_r.md`                                                             |
 
 ### Step 4: Implementation Guide Reference
 
-| Part | Guide |
-|------|-------|
+| Part   | Guide                                           |
+| ------ | ----------------------------------------------- |
 | A-J, R | `docs/implementation-guides/v5_part_[a-j,r].md` |
 
 ### Step 5: Technical Documentation
 
-| Feature | Docs |
-|---------|------|
-| **UI Components** | `docs/ui-components-map.md` |
-| **Affiliate** | `docs/AFFILIATE-MARKETING-DESIGN.md`<br>`docs/AFFILIATE-SYSTEM-SETTINGS-DESIGN.md` |
-| **System Config** | `docs/SYSTEMCONFIG-USAGE-GUIDE.md` |
-| **Subscriptions** | `docs/SUBSCRIPTION-MODEL-CLARIFICATION.md` |
-| **Admin Dashboard** | `docs/admin-mt5-dashboard-implementation.md` |
-| **Multi-MT5** | `docs/flask-multi-mt5-implementation.md` |
-| **OAuth** | `docs/google-oauth-integration-summary.md`<br>`docs/OAUTH_IMPLEMENTATION_READY.md` |
+| Feature             | Docs                                                                               |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| **UI Components**   | `docs/ui-components-map.md`                                                        |
+| **Affiliate**       | `docs/AFFILIATE-MARKETING-DESIGN.md`<br>`docs/AFFILIATE-SYSTEM-SETTINGS-DESIGN.md` |
+| **System Config**   | `docs/SYSTEMCONFIG-USAGE-GUIDE.md`                                                 |
+| **Subscriptions**   | `docs/SUBSCRIPTION-MODEL-CLARIFICATION.md`                                         |
+| **Admin Dashboard** | `docs/admin-mt5-dashboard-implementation.md`                                       |
+| **Multi-MT5**       | `docs/flask-multi-mt5-implementation.md`                                           |
+| **OAuth**           | `docs/google-oauth-integration-summary.md`<br>`docs/OAUTH_IMPLEMENTATION_READY.md` |
 
 ### Required Escalation Documentation
 
 ```markdown
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  ESCALATION: [CATEGORY] ⚠️
+⚠️ ESCALATION: [CATEGORY] ⚠️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Pre-Escalation Research:
@@ -127,6 +127,7 @@ Specific Gap: [What information is missing]
 ### When to Escalate
 
 **Immediate escalation:**
+
 - SQL injection, XSS, auth bypass, exposed secrets
 - Missing authentication on protected routes
 - Tier validation bypass
@@ -527,7 +528,7 @@ Migration: Gradual frontend update, then deprecate old mode
 
 ### When to Escalate
 
-- >3 High severity issues after auto-fix
+- > 3 High severity issues after auto-fix
 - Any Critical issues
 - 3 fix attempts exhausted for same issue
 - Unclear how to fix
@@ -721,6 +722,7 @@ Recommendation: Option 2
 ### 11.1 Commission Fraud Detection
 
 **Escalate when:**
+
 - Manual commission creation (bypassing Stripe webhook)
 - Commission calculation doesn't match formula
 - Duplicate commissions for same subscription
@@ -772,6 +774,7 @@ For manual adjustments:
 ### 11.2 Code Distribution Timing
 
 **Escalate when:**
+
 - Unclear when codes distributed (registration? verification?)
 - Code expiry policy unclear
 - Expired unused code handling unclear
@@ -780,6 +783,7 @@ For manual adjustments:
 ### 11.3 Payment Processing Security
 
 **Escalate when:**
+
 - Bulk payment functionality implementation
 - Large commission payments
 - Manual intervention needed
@@ -836,12 +840,14 @@ Implementation:
 ### 11.4 Report Performance
 
 **Escalate when:**
+
 - Report queries >5 seconds
 - Large commission sets causing pagination issues
 - Complex accounting calculations timeout
 - Report aggregations cause DB load
 
 **Options:**
+
 1. Materialized monthly balance table
 2. Cached calculations with TTL
 3. Database view with aggregates
@@ -850,6 +856,7 @@ Implementation:
 ### 11.5 Email Notification Strategy
 
 **Escalate when:**
+
 - Unclear frequency (immediate? daily? weekly?)
 - Unclear which events trigger emails
 - Rate limits (Resend, SendGrid)
@@ -858,6 +865,7 @@ Implementation:
 ### 11.6 Affiliate Verification
 
 **Escalate when:**
+
 - Unclear what verification means
 - Unclear who can verify
 - Unclear verification criteria
@@ -867,19 +875,19 @@ Implementation:
 
 ## ESCALATION QUICK REFERENCE
 
-| Category | Trigger | Severity | Can Wait? |
-|----------|---------|----------|-----------|
-| 1. Security | SQL injection, auth bypass, secrets | Critical | ❌ No |
-| 2. API Contract | Mismatch after 3 fixes | High | ✅ Yes |
-| 3. Policy Gaps | Contradiction, uncovered scenario | Medium | ✅ Yes |
-| 4. Architecture | Multiple approaches, long-term impact | Medium | ✅ Yes |
-| 5. Dependencies | New package needed | Low | ✅ Yes |
-| 6. Migrations | Schema changes | High | ❌ No |
-| 7. Breaking Changes | API breaks frontend | High | ❌ No |
-| 8. Validation | >3 High issues or Critical | High | ✅ Yes |
-| 9. Unclear Reqs | Ambiguous specs, missing info | Medium | ✅ Yes |
-| 10. Test Failures | TypeScript errors, failed tests | High | ❌ No |
-| 11. Affiliate | Fraud, payments, performance | Varies | Varies |
+| Category            | Trigger                               | Severity | Can Wait? |
+| ------------------- | ------------------------------------- | -------- | --------- |
+| 1. Security         | SQL injection, auth bypass, secrets   | Critical | ❌ No     |
+| 2. API Contract     | Mismatch after 3 fixes                | High     | ✅ Yes    |
+| 3. Policy Gaps      | Contradiction, uncovered scenario     | Medium   | ✅ Yes    |
+| 4. Architecture     | Multiple approaches, long-term impact | Medium   | ✅ Yes    |
+| 5. Dependencies     | New package needed                    | Low      | ✅ Yes    |
+| 6. Migrations       | Schema changes                        | High     | ❌ No     |
+| 7. Breaking Changes | API breaks frontend                   | High     | ❌ No     |
+| 8. Validation       | >3 High issues or Critical            | High     | ✅ Yes    |
+| 9. Unclear Reqs     | Ambiguous specs, missing info         | Medium   | ✅ Yes    |
+| 10. Test Failures   | TypeScript errors, failed tests       | High     | ❌ No     |
+| 11. Affiliate       | Fraud, payments, performance          | Varies   | Varies    |
 
 ---
 
@@ -897,12 +905,14 @@ Implementation:
 ```
 
 **Never:**
+
 - ❌ Continue while waiting
 - ❌ Assume decision
 - ❌ Skip to save time
 - ❌ Escalate trivial issues
 
 **Always:**
+
 - ✅ Complete context
 - ✅ Thorough options analysis
 - ✅ Make recommendation
@@ -922,6 +932,7 @@ After escalation resolution:
 5. **Commit:** Clear message explaining learning
 
 **Example:**
+
 ```bash
 git add docs/policies/01-approval-policies.md
 git commit -m "Add policy: Check auth before userId usage

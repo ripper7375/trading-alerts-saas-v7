@@ -11,6 +11,7 @@ This file is kept for historical reference but contains **redundant information*
 **➡️ See: `MINIMAX-TROUBLESHOOTING.md` (recommended)**
 
 Key improvements in the new guide:
+
 - ✅ Uses Anthropic-compatible endpoint (the only working configuration)
 - ✅ Includes test scripts for API connectivity verification
 - ✅ Troubleshooting for connection errors and free trial expiration
@@ -29,17 +30,17 @@ Key improvements in the new guide:
 
 ### ✅ Configuration Files
 
-| File | Status | Purpose |
-|------|--------|---------|
-| `.aider.conf.yml` | ✅ MiniMax M2 | Main Aider configuration (production) |
-| `.aider.minimal.yml` | ✅ Model-agnostic | Debugging/testing config (minimal features) |
-| `AIDER_SETUP_GUIDE.md` | ✅ MiniMax M2 | Complete setup instructions |
-| All policy docs | ✅ MiniMax M2 | Already reference MiniMax M2 workflow |
+| File                   | Status            | Purpose                                     |
+| ---------------------- | ----------------- | ------------------------------------------- |
+| `.aider.conf.yml`      | ✅ MiniMax M2     | Main Aider configuration (production)       |
+| `.aider.minimal.yml`   | ✅ Model-agnostic | Debugging/testing config (minimal features) |
+| `AIDER_SETUP_GUIDE.md` | ✅ MiniMax M2     | Complete setup instructions                 |
+| All policy docs        | ✅ MiniMax M2     | Already reference MiniMax M2 workflow       |
 
 ### ❌ Removed Files
 
-| File | Reason |
-|------|--------|
+| File              | Reason                                |
+| ----------------- | ------------------------------------- |
 | `.aider.test.yml` | Was for Anthropic Claude testing only |
 
 ---
@@ -49,12 +50,14 @@ Key improvements in the new guide:
 ### Correct Configuration (Anthropic-Compatible):
 
 **Environment Variables:**
+
 ```bash
 ANTHROPIC_API_KEY=your_minimax_api_key_here
 ANTHROPIC_BASE_URL=https://api.minimax.io/anthropic
 ```
 
 **Aider Command:**
+
 ```bash
 # Windows
 start-aider-anthropic.bat
@@ -64,6 +67,7 @@ aider --model anthropic/MiniMax-M2
 ```
 
 **Model Settings:**
+
 ```yaml
 # Model Configuration (Anthropic-compatible)
 model: anthropic/MiniMax-M2
@@ -71,7 +75,7 @@ editor-model: anthropic/MiniMax-M2
 weak-model: anthropic/MiniMax-M2
 
 # Auto-Commits
-auto-commits: false  # Set to true for autonomous building
+auto-commits: false # Set to true for autonomous building
 
 # Disabled (not needed/supported)
 lint: false
@@ -190,6 +194,7 @@ Added docs\policies\02-quality-standards.md to the chat (read-only).
 - ✅ **OpenAI-compatible API** (works with Aider)
 
 **Estimated Cost:**
+
 - Building 170 files with GPT-4: ~$50-100
 - Building 170 files with MiniMax M2: ~$10-20
 - **Savings: ~80%**
@@ -215,6 +220,7 @@ Aider should respond with details from `docs/policies/01-approval-policies.md`.
 ```
 
 Aider should:
+
 1. Create the file
 2. Use proper TypeScript types
 3. Add JSDoc comments
@@ -228,6 +234,7 @@ Aider should:
 ### Issue: "Model not found" or Connection Errors
 
 **Solution:**
+
 - Check `ANTHROPIC_API_KEY` is set: `echo %ANTHROPIC_API_KEY%`
 - Check `ANTHROPIC_BASE_URL` is set: `echo %ANTHROPIC_BASE_URL%`
 - Verify API key is valid in MiniMax dashboard
@@ -237,6 +244,7 @@ Aider should:
 ### Issue: "Rate limit error"
 
 **Solution:**
+
 - MiniMax M2 has usage limits
 - Wait a minute and try again
 - Check your credit balance in MiniMax dashboard
@@ -244,6 +252,7 @@ Aider should:
 ### Issue: Aider exits immediately
 
 **Solution:**
+
 - Make sure you're using: `start-aider-anthropic.bat`
 - Or add a file to edit: `py -3.11 -m aider --model anthropic/MiniMax-M2 README.md`
 - This gives Aider something to work on
@@ -251,6 +260,7 @@ Aider should:
 ### Issue: "Service Unavailable" or Connection Errors
 
 **Solution:**
+
 - Use `test-minimax-api.bat` to verify API connectivity
 - Check MiniMax API status at https://platform.minimax.io
 - Verify `ANTHROPIC_BASE_URL` is correct: `https://api.minimax.io/anthropic`
@@ -298,7 +308,7 @@ Once Aider works with MiniMax M2:
 For autonomous building, edit `.aider.conf.yml`:
 
 ```yaml
-auto-commits: true  # Change from false to true
+auto-commits: true # Change from false to true
 ```
 
 ### 3. Monitor Progress

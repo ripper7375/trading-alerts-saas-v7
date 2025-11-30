@@ -5,6 +5,7 @@
 This directory contains **file-by-file build instructions** for each of the 18 parts defined in `v5-structure-division.md`.
 
 These files provide Aider with:
+
 - **Exact file sequence** within each part
 - **Dependency information** (what must exist before building this file)
 - **Pattern references** (which coding pattern to use)
@@ -60,12 +61,14 @@ build-orders/
 ## How Aider Uses These Files
 
 ### Step 1: Determine Current Part
+
 ```
 User says: "Build Part 5"
 Aider reads: docs/build-orders/part-05-authentication.md
 ```
 
 ### Step 2: Follow File Sequence
+
 ```
 Part 5 says:
   File 1: prisma/schema.prisma (update User model)
@@ -75,6 +78,7 @@ Part 5 says:
 ```
 
 ### Step 3: For Each File
+
 ```
 Read:
   - File description (purpose, dependencies)
@@ -99,32 +103,33 @@ Commit:
 
 Each build-order file extracts and organizes information from:
 
-| Build Order File | Primary Sources |
-|------------------|-----------------|
-| part-01-foundation.md | v5-structure-division.md Part 1 + v5_part_a.md sections 7.4, 7.5 |
-| part-02-database.md | v5-structure-division.md Part 2 + v5_part_c.md section 6 |
-| part-03-types.md | v5-structure-division.md Part 3 + OpenAPI specs |
-| part-04-tier-system.md | v5-structure-division.md Part 4 + v5_part_d.md |
-| part-05-authentication.md | v5-structure-division.md Part 5 + v5_part_e.md section 5 |
-| part-06-flask-mt5.md | v5-structure-division.md Part 6 + v5_part_e.md section 8 |
-| part-07-indicators-api.md | v5-structure-division.md Part 7 + v5_part_g.md |
-| part-08-dashboard.md | v5-structure-division.md Part 8 + v5_part_h.md |
-| part-09-charts.md | v5-structure-division.md Part 9 + v5_part_i.md |
-| part-10-watchlist.md | v5-structure-division.md Part 10 + v5_part_j.md |
-| part-11-alerts.md | v5-structure-division.md Part 11 + v5_part_*.md |
-| part-12-ecommerce.md | v5-structure-division.md Part 12 + v5_part_*.md |
-| part-13-settings.md | v5-structure-division.md Part 13 + v5_part_*.md |
-| part-14-admin.md | v5-structure-division.md Part 14 + v5_part_*.md |
-| part-15-notifications.md | v5-structure-division.md Part 15 + v5_part_*.md |
-| part-16-utilities.md | v5-structure-division.md Part 16 + v5_part_*.md |
-| part-17-affiliate.md | v5-structure-division.md Part 17 + 06-aider-instructions.md Section 12 |
-| part-18-dlocal.md | v5-structure-division.md Part 18 + v5_part_r.md + 06-aider-instructions.md Section 13 |
+| Build Order File          | Primary Sources                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------- |
+| part-01-foundation.md     | v5-structure-division.md Part 1 + v5_part_a.md sections 7.4, 7.5                      |
+| part-02-database.md       | v5-structure-division.md Part 2 + v5_part_c.md section 6                              |
+| part-03-types.md          | v5-structure-division.md Part 3 + OpenAPI specs                                       |
+| part-04-tier-system.md    | v5-structure-division.md Part 4 + v5_part_d.md                                        |
+| part-05-authentication.md | v5-structure-division.md Part 5 + v5_part_e.md section 5                              |
+| part-06-flask-mt5.md      | v5-structure-division.md Part 6 + v5_part_e.md section 8                              |
+| part-07-indicators-api.md | v5-structure-division.md Part 7 + v5_part_g.md                                        |
+| part-08-dashboard.md      | v5-structure-division.md Part 8 + v5_part_h.md                                        |
+| part-09-charts.md         | v5-structure-division.md Part 9 + v5_part_i.md                                        |
+| part-10-watchlist.md      | v5-structure-division.md Part 10 + v5_part_j.md                                       |
+| part-11-alerts.md         | v5-structure-division.md Part 11 + v5*part*\*.md                                      |
+| part-12-ecommerce.md      | v5-structure-division.md Part 12 + v5*part*\*.md                                      |
+| part-13-settings.md       | v5-structure-division.md Part 13 + v5*part*\*.md                                      |
+| part-14-admin.md          | v5-structure-division.md Part 14 + v5*part*\*.md                                      |
+| part-15-notifications.md  | v5-structure-division.md Part 15 + v5*part*\*.md                                      |
+| part-16-utilities.md      | v5-structure-division.md Part 16 + v5*part*\*.md                                      |
+| part-17-affiliate.md      | v5-structure-division.md Part 17 + 06-aider-instructions.md Section 12                |
+| part-18-dlocal.md         | v5-structure-division.md Part 18 + v5_part_r.md + 06-aider-instructions.md Section 13 |
 
 ## Alignment Verification
 
 Before starting autonomous building, verify:
 
 1. **Phase → Part alignment**
+
    ```
    v7_phase_3_building.md mentions Parts 1-18
    v5-structure-division.md defines Parts 1-18
@@ -133,6 +138,7 @@ Before starting autonomous building, verify:
    ```
 
 2. **Part → File alignment**
+
    ```
    For each part:
      v5-structure-division.md says: "Part X has N files"
@@ -141,6 +147,7 @@ Before starting autonomous building, verify:
    ```
 
 3. **File → Pattern alignment**
+
    ```
    For each file:
      build-orders/part-XX-*.md says: "Use Pattern Y"
@@ -194,6 +201,7 @@ Use `TEMPLATE.md` as the starting point for any new build-order file.
 ## Maintenance
 
 When you update:
+
 - **v5-structure-division.md** (add/remove files) → Update corresponding build-order file
 - **OpenAPI specs** (change schemas) → Update references in build-order files
 - **Coding patterns** (new patterns) → Update pattern references in build-order files

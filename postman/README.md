@@ -7,6 +7,7 @@ This folder contains instructions and documentation for setting up **Postman col
 ## What is Postman?
 
 **For Beginners:** Postman is like a "web browser for APIs." Instead of visiting websites, you use it to:
+
 - Send requests to your API endpoints
 - See the responses
 - Test if everything works correctly
@@ -27,8 +28,10 @@ Think of it as a testing laboratory for your backend!
 Your project has **2 OpenAPI specification files** that will become 2 Postman collections:
 
 ### 1. Next.js API Collection
+
 **File:** `docs/trading_alerts_openapi.yaml`
 **Endpoints:** ~38 endpoints including:
+
 - Authentication (login, signup, logout)
 - User profile management
 - Alerts CRUD operations
@@ -37,8 +40,10 @@ Your project has **2 OpenAPI specification files** that will become 2 Postman co
 - And more...
 
 ### 2. Flask MT5 Service Collection
+
 **File:** `docs/flask_mt5_openapi.yaml`
 **Endpoints:** ~12 endpoints including:
+
 - Market data retrieval
 - Technical indicators (RSI, MACD, Bollinger Bands)
 - Symbol information
@@ -74,6 +79,7 @@ Your project has **2 OpenAPI specification files** that will become 2 Postman co
 4. **Click "Upload Files"**
 
 5. **Navigate to your project:**
+
    ```
    trading-alerts-saas-v7/docs/trading_alerts_openapi.yaml
    ```
@@ -99,16 +105,17 @@ After importing, you need to set up **environment variables** so Postman knows w
 
 3. **Add these variables:**
 
-| Variable Name | Initial Value | Current Value | Description |
-|--------------|---------------|---------------|-------------|
-| `baseUrl` | `http://localhost:3000` | `http://localhost:3000` | Next.js dev server URL |
-| `authToken` | (leave empty) | (leave empty) | JWT token after login |
-| `userId` | (leave empty) | (leave empty) | Current user ID |
-| `tier` | `FREE` | `FREE` | User tier (FREE or PRO) |
+| Variable Name | Initial Value           | Current Value           | Description             |
+| ------------- | ----------------------- | ----------------------- | ----------------------- |
+| `baseUrl`     | `http://localhost:3000` | `http://localhost:3000` | Next.js dev server URL  |
+| `authToken`   | (leave empty)           | (leave empty)           | JWT token after login   |
+| `userId`      | (leave empty)           | (leave empty)           | Current user ID         |
+| `tier`        | `FREE`                  | `FREE`                  | User tier (FREE or PRO) |
 
 4. **Click "Save"**
 
 **💡 How to use variables:**
+
 - Postman will automatically use `{{baseUrl}}` in all requests
 - After logging in, you'll copy the auth token and paste it into `{{authToken}}`
 - This saves you from updating URLs in every single request!
@@ -124,6 +131,7 @@ Repeat the import process for the Flask API:
 2. **Select "files" tab**
 
 3. **Upload file:**
+
    ```
    trading-alerts-saas-v7/docs/flask_mt5_openapi.yaml
    ```
@@ -143,10 +151,10 @@ Repeat the import process for the Flask API:
 
 3. **Add these variables:**
 
-| Variable Name | Initial Value | Current Value | Description |
-|--------------|---------------|---------------|-------------|
-| `baseUrl` | `http://localhost:5001` | `http://localhost:5001` | Flask service URL |
-| `userTier` | `FREE` | `FREE` | User tier for tier validation |
+| Variable Name | Initial Value           | Current Value           | Description                   |
+| ------------- | ----------------------- | ----------------------- | ----------------------------- |
+| `baseUrl`     | `http://localhost:5001` | `http://localhost:5001` | Flask service URL             |
+| `userTier`    | `FREE`                  | `FREE`                  | User tier for tier validation |
 
 4. **Click "Save"**
 
@@ -186,6 +194,7 @@ Once you've built your application in Phase 3, here's how to test it:
 ### Testing Workflow
 
 1. **Start your development servers:**
+
    ```bash
    # Terminal 1: Start Next.js
    npm run dev
@@ -217,6 +226,7 @@ Once you've built your application in Phase 3, here's how to test it:
 3. **Ensure "raw" and "JSON" are selected**
 
 4. **Paste this request:**
+
    ```json
    {
      "symbol": "BTCUSD",
@@ -316,6 +326,7 @@ For every endpoint, test:
 **Cause:** Your development server isn't running.
 
 **Solution:**
+
 ```bash
 # Start Next.js server
 npm run dev
@@ -329,6 +340,7 @@ cd mt5-service && python app.py
 **Cause:** Missing or expired auth token.
 
 **Solution:**
+
 1. Test the login endpoint first
 2. Copy the token from the response
 3. Update the `authToken` variable in your collection
@@ -338,6 +350,7 @@ cd mt5-service && python app.py
 **Cause:** Wrong base URL or port.
 
 **Solution:**
+
 - Check your `baseUrl` variable
 - Verify servers are running on correct ports:
   - Next.js: `http://localhost:3000`
@@ -348,6 +361,7 @@ cd mt5-service && python app.py
 **Cause:** Tier restriction - FREE user trying to access PRO feature.
 
 **Solution:**
+
 - This is expected behavior!
 - Test with a PRO tier user or update subscription
 
@@ -356,6 +370,7 @@ cd mt5-service && python app.py
 **Cause:** Endpoint doesn't exist or wrong URL.
 
 **Solution:**
+
 - Double-check the endpoint path
 - Ensure you've built that endpoint in your code
 - Check for typos in the URL
@@ -371,6 +386,7 @@ Don't create individual requests! Always import from OpenAPI specs so your colle
 ### Tip 2: Save Responses as Examples
 
 After getting a successful response:
+
 1. Click "Save Response"
 2. Give it a name like "Example: Successful Alert Creation"
 3. Now you have documentation with real examples!
@@ -378,6 +394,7 @@ After getting a successful response:
 ### Tip 3: Use Environments for Different Stages
 
 Create multiple environments:
+
 - **Local** - `http://localhost:3000`
 - **Staging** - `https://staging.your-app.com`
 - **Production** - `https://your-app.com`
@@ -391,6 +408,7 @@ Don't wait until everything is done! Test each endpoint immediately after buildi
 ### Tip 5: Use Postman Console for Debugging
 
 Open Postman Console (View → Show Postman Console) to see:
+
 - Full request details
 - Response headers
 - Network timing
@@ -401,11 +419,13 @@ Open Postman Console (View → Show Postman Console) to see:
 ## 📖 Additional Resources
 
 ### Postman Documentation
+
 - **Getting Started:** https://learning.postman.com/docs/getting-started/introduction/
 - **Testing APIs:** https://learning.postman.com/docs/sending-requests/requests/
 - **Variables:** https://learning.postman.com/docs/sending-requests/variables/
 
 ### Your Project Documentation
+
 - **OpenAPI Specs:** `docs/trading_alerts_openapi.yaml` and `docs/flask_mt5_openapi.yaml`
 - **API Architecture:** `ARCHITECTURE.md`
 - **Quality Standards:** `docs/policies/02-quality-standards.md`
@@ -415,6 +435,7 @@ Open Postman Console (View → Show Postman Console) to see:
 ## 🎯 Next Steps
 
 ### Phase 1 (Now)
+
 - ✅ Read this guide
 - ✅ Install Postman
 - ✅ Import both OpenAPI specs
@@ -422,6 +443,7 @@ Open Postman Console (View → Show Postman Console) to see:
 - ✅ Get familiar with the UI
 
 ### Phase 3 (When Building)
+
 - Test each endpoint as you build it
 - Update variables as needed
 - Save successful responses as examples
@@ -433,6 +455,7 @@ Open Postman Console (View → Show Postman Console) to see:
 ## 📝 Summary
 
 **What you learned:**
+
 - What Postman is and why it's useful
 - How to import OpenAPI specs into Postman
 - How to configure collection variables
@@ -440,10 +463,12 @@ Open Postman Console (View → Show Postman Console) to see:
 - Best practices for API testing
 
 **Time saved:**
+
 - Without Postman: 10+ hours manually testing with curl or code
 - With Postman: 30 minutes to set up, instant testing thereafter
 
 **Value for V7 workflow:**
+
 - Aider builds endpoints → You test in Postman → Catch bugs fast → Ship quality code
 
 ---

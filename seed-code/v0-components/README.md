@@ -75,40 +75,40 @@ seed-code/v0-components/
 
 ### Category 1: Public Pages (3 components)
 
-| # | Component | V0 File | Production Location | Purpose |
-|---|-----------|---------|---------------------|---------|
-| 1 | Homepage | `public-pages/homepage.tsx` | `app/(marketing)/page.tsx` | Landing page with hero, features, testimonials |
-| 2 | Pricing | `public-pages/pricing-page.tsx` | `app/(marketing)/pricing/page.tsx` | FREE vs PRO comparison table |
-| 3 | Registration | `public-pages/registration-page.tsx` | `app/(auth)/register/page.tsx` | Sign-up with tier selection |
+| #   | Component    | V0 File                              | Production Location                | Purpose                                        |
+| --- | ------------ | ------------------------------------ | ---------------------------------- | ---------------------------------------------- |
+| 1   | Homepage     | `public-pages/homepage.tsx`          | `app/(marketing)/page.tsx`         | Landing page with hero, features, testimonials |
+| 2   | Pricing      | `public-pages/pricing-page.tsx`      | `app/(marketing)/pricing/page.tsx` | FREE vs PRO comparison table                   |
+| 3   | Registration | `public-pages/registration-page.tsx` | `app/(auth)/register/page.tsx`     | Sign-up with tier selection                    |
 
 ### Category 2: Authentication (2 components)
 
-| # | Component | V0 File | Production Location | Purpose |
-|---|-----------|---------|---------------------|---------|
-| 4 | Login | `auth/login-page.tsx` | `app/(auth)/login/page.tsx` | Email/password + OAuth login |
-| 5 | Forgot Password | `auth/forgot-password-page.tsx` | `app/(auth)/forgot-password/page.tsx` | Password reset request |
+| #   | Component       | V0 File                         | Production Location                   | Purpose                      |
+| --- | --------------- | ------------------------------- | ------------------------------------- | ---------------------------- |
+| 4   | Login           | `auth/login-page.tsx`           | `app/(auth)/login/page.tsx`           | Email/password + OAuth login |
+| 5   | Forgot Password | `auth/forgot-password-page.tsx` | `app/(auth)/forgot-password/page.tsx` | Password reset request       |
 
 ### Category 3: Dashboard Pages (8 components)
 
-| # | Component | V0 File | Production Location | Purpose |
-|---|-----------|---------|---------------------|---------|
-| 6 | Dashboard Overview | `dashboard/dashboard-overview.tsx` | `app/(dashboard)/dashboard/page.tsx` | Stats, recent alerts, quick actions |
-| 7 | Watchlist | `dashboard/watchlist-page.tsx` | `app/(dashboard)/watchlist/page.tsx` | Symbol+timeframe management |
-| 8 | Alert Modal | `dashboard/alert-creation-modal.tsx` | `components/alerts/alert-modal.tsx` | Create/edit alert dialog |
-| 9 | Alerts List | `dashboard/alerts-list.tsx` | `app/(dashboard)/alerts/page.tsx` | Active alerts with filters |
-| 10 | Billing | `dashboard/billing-page.tsx` | `app/(dashboard)/settings/billing/page.tsx` | Subscription upgrade/cancel |
-| 11 | Settings Layout | `dashboard/settings-layout.tsx` | `app/(dashboard)/settings/layout.tsx` | Settings navigation sidebar |
-| 12 | Profile Settings | `dashboard/profile-settings.tsx` | `app/(dashboard)/settings/profile/page.tsx` | Profile edit form |
+| #   | Component          | V0 File                              | Production Location                         | Purpose                             |
+| --- | ------------------ | ------------------------------------ | ------------------------------------------- | ----------------------------------- |
+| 6   | Dashboard Overview | `dashboard/dashboard-overview.tsx`   | `app/(dashboard)/dashboard/page.tsx`        | Stats, recent alerts, quick actions |
+| 7   | Watchlist          | `dashboard/watchlist-page.tsx`       | `app/(dashboard)/watchlist/page.tsx`        | Symbol+timeframe management         |
+| 8   | Alert Modal        | `dashboard/alert-creation-modal.tsx` | `components/alerts/alert-modal.tsx`         | Create/edit alert dialog            |
+| 9   | Alerts List        | `dashboard/alerts-list.tsx`          | `app/(dashboard)/alerts/page.tsx`           | Active alerts with filters          |
+| 10  | Billing            | `dashboard/billing-page.tsx`         | `app/(dashboard)/settings/billing/page.tsx` | Subscription upgrade/cancel         |
+| 11  | Settings Layout    | `dashboard/settings-layout.tsx`      | `app/(dashboard)/settings/layout.tsx`       | Settings navigation sidebar         |
+| 12  | Profile Settings   | `dashboard/profile-settings.tsx`     | `app/(dashboard)/settings/profile/page.tsx` | Profile edit form                   |
 
 ### Category 4: Reusable Components (4 components)
 
-| # | Component | V0 File | Production Location | Purpose |
-|---|-----------|---------|---------------------|---------|
-| 13 | Chart Controls | `components/chart-controls.tsx` | `components/charts/chart-controls.tsx` | Symbol/timeframe selectors |
-| 14 | Empty States | `components/empty-states.tsx` | `components/ui/empty-state.tsx` | No data placeholders |
-| 15 | Notification Bell | `components/notification-bell.tsx` | `components/layout/notification-bell.tsx` | Notification dropdown |
-| 16 | User Menu | `components/user-menu.tsx` | `components/layout/user-menu.tsx` | User avatar + dropdown |
-| 17 | Footer | `components/footer.tsx` | `components/layout/footer.tsx` | App footer with links |
+| #   | Component         | V0 File                            | Production Location                       | Purpose                    |
+| --- | ----------------- | ---------------------------------- | ----------------------------------------- | -------------------------- |
+| 13  | Chart Controls    | `components/chart-controls.tsx`    | `components/charts/chart-controls.tsx`    | Symbol/timeframe selectors |
+| 14  | Empty States      | `components/empty-states.tsx`      | `components/ui/empty-state.tsx`           | No data placeholders       |
+| 15  | Notification Bell | `components/notification-bell.tsx` | `components/layout/notification-bell.tsx` | Notification dropdown      |
+| 16  | User Menu         | `components/user-menu.tsx`         | `components/layout/user-menu.tsx`         | User avatar + dropdown     |
+| 17  | Footer            | `components/footer.tsx`            | `components/layout/footer.tsx`            | App footer with links      |
 
 ---
 
@@ -117,6 +117,7 @@ seed-code/v0-components/
 ### Pattern 1: Direct Page Adaptation (Public Pages, Auth, Dashboard)
 
 **Example: Homepage**
+
 ```typescript
 // V0 File: seed-code/v0-components/public-pages/homepage.tsx
 // Has: Mock data, static content, hardcoded values
@@ -126,6 +127,7 @@ seed-code/v0-components/
 ```
 
 **Aider Prompt:**
+
 ```
 Build app/(marketing)/page.tsx following seed-code/v0-components/public-pages/homepage.tsx.
 Replace mock pricing with data from lib/config/plans.ts.
@@ -136,6 +138,7 @@ Ensure responsive design matches seed component.
 ### Pattern 2: Component Extraction (Reusable Components)
 
 **Example: Chart Controls**
+
 ```typescript
 // V0 File: seed-code/v0-components/components/chart-controls.tsx
 // Has: Symbol selector, timeframe selector, tier badge
@@ -145,6 +148,7 @@ Ensure responsive design matches seed component.
 ```
 
 **Aider Prompt:**
+
 ```
 Create components/charts/chart-controls.tsx from seed-code/v0-components/components/chart-controls.tsx.
 Add tier validation using lib/tier/validator.ts.
@@ -155,6 +159,7 @@ Connect timeframe selector to chart state.
 ### Pattern 3: Modal/Dialog Components
 
 **Example: Alert Creation Modal**
+
 ```typescript
 // V0 File: seed-code/v0-components/dashboard/alert-creation-modal.tsx
 // Has: Form UI, validation, submit button
@@ -164,6 +169,7 @@ Connect timeframe selector to chart state.
 ```
 
 **Aider Prompt:**
+
 ```
 Build components/alerts/alert-modal.tsx from seed-code/v0-components/dashboard/alert-creation-modal.tsx.
 Use React Hook Form + Zod for validation.
@@ -177,12 +183,14 @@ Show success/error toasts.
 ## 🔄 Complete Workflow
 
 ### Step 1: V0.dev Generation
+
 ```bash
 # You generate each component in v0.dev using the 17 prompts
 # Download and save to seed-code/v0-components/{category}/{component-name}.tsx
 ```
 
 ### Step 2: Organization
+
 ```bash
 # Organize files into categories:
 seed-code/v0-components/
@@ -193,6 +201,7 @@ seed-code/v0-components/
 ```
 
 ### Step 3: Aider Reads & Adapts
+
 ```bash
 # Aider automatically reads seed-code files (configured in .aider.conf.yml)
 # Uses them as visual/structural reference
@@ -205,6 +214,7 @@ seed-code/v0-components/
 ```
 
 ### Step 4: Claude Code Validates
+
 ```bash
 # Claude Code checks production files against:
 #   - Quality standards (docs/policies/02-quality-standards.md)
@@ -213,6 +223,7 @@ seed-code/v0-components/
 ```
 
 ### Step 5: You Test
+
 ```bash
 npm run dev
 # Test actual functionality in browser
@@ -225,25 +236,30 @@ npm run dev
 Based on package.json files in seed components, these dependencies are required:
 
 ### Core Dependencies (Already in package.json ✅)
+
 - `next@^15.0.0`
 - `react@^19.0.0`
 - `react-dom@^19.0.0`
 
 ### UI Components (Already in package.json ✅)
+
 - `@radix-ui/react-*` (14 components)
 - `lucide-react@^0.303.0`
 - `tailwind-merge@^2.2.0`
 - `clsx@^2.1.0`
 
 ### Charts (Already in package.json ✅)
+
 - `lightweight-charts@^4.1.1`
 
 ### Forms (Already in package.json ✅)
+
 - `react-hook-form@^7.49.0`
 - `zod@^3.22.4`
 - `@hookform/resolvers@^3.3.3`
 
 ### Dates (Already in package.json ✅)
+
 - `date-fns@^3.0.6`
 
 **✅ All dependencies are already configured in root package.json!**
@@ -253,6 +269,7 @@ Based on package.json files in seed components, these dependencies are required:
 ## 🔗 Integration Points
 
 ### API Endpoints Required
+
 - `POST /api/alerts` - Create alert (alert-creation-modal.tsx)
 - `GET /api/alerts` - List alerts (alerts-list.tsx)
 - `GET /api/watchlist` - Get watchlist (watchlist-page.tsx)
@@ -263,24 +280,26 @@ Based on package.json files in seed components, these dependencies are required:
 - `POST /api/subscription/cancel` - Cancel subscription (billing-page.tsx)
 
 ### Tier Validation Integration
+
 ```typescript
 // All components must validate tier access:
-import { validateTierAccess } from '@/lib/tier/validator'
+import { validateTierAccess } from '@/lib/tier/validator';
 
-const accessCheck = validateTierAccess(symbol, timeframe, user.tier)
+const accessCheck = validateTierAccess(symbol, timeframe, user.tier);
 if (!accessCheck.allowed) {
   // Show upgrade prompt
 }
 ```
 
 ### NextAuth Session Integration
+
 ```typescript
 // All dashboard pages need session:
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth/auth-options'
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth/auth-options';
 
-const session = await getServerSession(authOptions)
-if (!session) redirect('/login')
+const session = await getServerSession(authOptions);
+if (!session) redirect('/login');
 ```
 
 ---
@@ -288,6 +307,7 @@ if (!session) redirect('/login')
 ## ⚠️ Important Guidelines
 
 ### DO ✅
+
 - Use seed components as **visual reference**
 - Extract layout patterns and component structure
 - Adapt UI design to match Trading Alerts brand
@@ -298,6 +318,7 @@ if (!session) redirect('/login')
 - Test on mobile + desktop
 
 ### DON'T ❌
+
 - Copy seed files directly to production without changes
 - Keep mock data in production files
 - Skip tier validation
@@ -311,25 +332,30 @@ if (!session) redirect('/login')
 ## 📈 Expected Build Order
 
 ### Phase 1: Foundation (Existing)
+
 - ✅ layouts/dashboard-layout.tsx
 - ✅ charts/trading-chart.tsx
 - ✅ alerts/alert-card.tsx
 
 ### Phase 2: Public Pages (Week 1)
+
 1. public-pages/homepage.tsx → app/(marketing)/page.tsx
 2. public-pages/pricing-page.tsx → app/(marketing)/pricing/page.tsx
 3. public-pages/registration-page.tsx → app/(auth)/register/page.tsx
 
 ### Phase 3: Auth Pages (Week 1)
+
 4. auth/login-page.tsx → app/(auth)/login/page.tsx
 5. auth/forgot-password-page.tsx → app/(auth)/forgot-password/page.tsx
 
 ### Phase 4: Core Dashboard (Week 2)
+
 6. dashboard/dashboard-overview.tsx → app/(dashboard)/dashboard/page.tsx
 7. dashboard/watchlist-page.tsx → app/(dashboard)/watchlist/page.tsx
 8. dashboard/alerts-list.tsx → app/(dashboard)/alerts/page.tsx
 
 ### Phase 5: Components (Week 2)
+
 13. components/chart-controls.tsx → components/charts/chart-controls.tsx
 14. components/empty-states.tsx → components/ui/empty-state.tsx
 15. components/notification-bell.tsx → components/layout/notification-bell.tsx
@@ -337,10 +363,11 @@ if (!session) redirect('/login')
 17. components/footer.tsx → components/layout/footer.tsx
 
 ### Phase 6: Settings & Billing (Week 3)
+
 10. dashboard/billing-page.tsx → app/(dashboard)/settings/billing/page.tsx
 11. dashboard/settings-layout.tsx → app/(dashboard)/settings/layout.tsx
 12. dashboard/profile-settings.tsx → app/(dashboard)/settings/profile/page.tsx
-9. dashboard/alert-creation-modal.tsx → components/alerts/alert-modal.tsx
+13. dashboard/alert-creation-modal.tsx → components/alerts/alert-modal.tsx
 
 ---
 

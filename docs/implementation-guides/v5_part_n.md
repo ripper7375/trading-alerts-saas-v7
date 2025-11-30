@@ -27,11 +27,13 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 ### 1. Access Control
 
 **Admin Role:**
+
 - Only users with `role: 'ADMIN'` in database can access admin routes
 - Check role in middleware for all `/admin/*` routes
 - Return 403 Forbidden if not admin
 
 **Security:**
+
 - Log all admin actions
 - Track who accessed what and when
 - Require re-authentication for sensitive operations
@@ -39,6 +41,7 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 ### 2. Dashboard Overview
 
 **Key Metrics (Display at Top):**
+
 - Total users (count)
 - FREE tier users (count + percentage)
 - PRO tier users (count + percentage)
@@ -48,6 +51,7 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 - Churned users this month
 
 **Charts:**
+
 - User growth over time (line chart, last 12 months)
 - Tier distribution (pie chart)
 - Revenue over time (bar chart, last 12 months)
@@ -56,6 +60,7 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 ### 3. User Management
 
 **User List:**
+
 - Table with columns: Name, Email, Tier, Created Date, Last Login, Status
 - Pagination: 50 users per page
 - Search: By name or email
@@ -63,12 +68,14 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 - Sort: By created date, name, tier
 
 **User Actions:**
+
 - View user details (click on row)
 - Change user tier manually (admin override)
 - Suspend/unsuspend user account
 - Send email to user
 
 **User Details Page:**
+
 - Full profile information
 - Subscription history
 - Alert count and list
@@ -80,22 +87,26 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 **Metrics to Display:**
 
 **Tier Distribution:**
+
 - FREE: {count} users ({percentage}%)
 - PRO: {count} users ({percentage}%)
 
 **Revenue Metrics:**
+
 - Current MRR: ${PRO_count} × $29
 - Annual Run Rate (ARR): MRR × 12
 - Average Revenue Per User (ARPU): MRR / Total_users
 - Lifetime Value (LTV) estimate
 
 **Conversion Metrics:**
+
 - FREE → PRO conversion rate
 - Average time to convert (days)
 - Churn rate (PRO → FREE)
 - Net revenue retention
 
 **Engagement Metrics:**
+
 - Average alerts per user (by tier)
 - Average watchlist size (by tier)
 - Daily/weekly/monthly active users
@@ -104,12 +115,14 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 ### 5. API Usage Monitoring
 
 **Track by Tier:**
+
 - API calls per tier (FREE vs PRO)
 - Average response time per tier
 - Error rate per tier
 - Most used endpoints
 
 **Display:**
+
 - Table: Endpoint, Calls (FREE), Calls (PRO), Avg Response Time, Error Rate
 - Chart: API usage over time (split by tier)
 - Alerts: If any endpoint has >5% error rate
@@ -117,12 +130,14 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 ### 6. Error Logs
 
 **Display:**
+
 - Table: Timestamp, Error Type, Message, User ID, Tier, Stack Trace
 - Filter: By error type, tier, date range
 - Export: Download logs as CSV
 - Auto-refresh: Every 30 seconds
 
 **Error Types:**
+
 - API Errors (4xx, 5xx)
 - Database Errors
 - Authentication Errors
@@ -136,6 +151,7 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 ### Admin Layout
 
 **Sidebar:**
+
 - Dashboard (home)
 - Users
 - Analytics
@@ -144,6 +160,7 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 - Back to App (return to main dashboard)
 
 **Top Bar:**
+
 - Admin badge indicator
 - Current admin user info
 - Logout
@@ -151,6 +168,7 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 ### Dashboard Page
 
 **Layout:**
+
 - 4 metric cards at top (Total Users, FREE, PRO, MRR)
 - 2 charts (User Growth, Tier Distribution)
 - Recent activity feed
@@ -159,12 +177,14 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 ### Users Page
 
 **Table Layout:**
+
 - Search bar at top
 - Filter dropdown (ALL/FREE/PRO)
 - Table with sortable columns
 - Pagination controls at bottom
 
 **Row Actions:**
+
 - View button
 - Tier badge (clickable to change)
 - Status indicator (green dot = active, red = suspended)
@@ -174,24 +194,30 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 ## API Endpoints
 
 ### GET /api/admin/users
+
 - Query params: `page`, `search`, `tier`, `sortBy`
 - Return: Paginated user list
 
 ### GET /api/admin/users/[id]
+
 - Return: Full user details
 
 ### PATCH /api/admin/users/[id]
+
 - Update user tier or status
 - Body: `{ tier: 'PRO', status: 'active' }`
 
 ### GET /api/admin/analytics
+
 - Return: All analytics metrics
 
 ### GET /api/admin/api-usage
+
 - Query params: `startDate`, `endDate`
 - Return: API usage stats by tier
 
 ### GET /api/admin/error-logs
+
 - Query params: `page`, `type`, `tier`, `startDate`, `endDate`
 - Return: Paginated error logs
 
@@ -200,31 +226,33 @@ Admin dashboard for system monitoring, user management, analytics, and system he
 ## Security Considerations
 
 **Admin Middleware:**
+
 ```typescript
 // middleware/admin-auth.ts
 export function requireAdmin(req, res, next) {
-  const session = await getServerSession()
+  const session = await getServerSession();
 
   if (!session) {
-    return res.status(401).json({ error: 'Unauthorized' })
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   if (session.user.role !== 'ADMIN') {
-    return res.status(403).json({ error: 'Forbidden: Admin access required' })
+    return res.status(403).json({ error: 'Forbidden: Admin access required' });
   }
 
   // Log admin action
   await logAdminAction({
     adminId: session.user.id,
     action: req.method + ' ' + req.url,
-    timestamp: new Date()
-  })
+    timestamp: new Date(),
+  });
 
-  next()
+  next();
 }
 ```
 
 **Audit Log:**
+
 - Log all admin actions to database
 - Include: admin ID, action, timestamp, IP address
 - Retain logs for 1 year
@@ -234,6 +262,7 @@ export function requireAdmin(req, res, next) {
 ## Testing Requirements
 
 **Manual Tests:**
+
 - [ ] Non-admin user cannot access admin routes
 - [ ] Admin can view all users
 - [ ] Search and filter work correctly

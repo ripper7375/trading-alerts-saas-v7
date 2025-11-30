@@ -13,20 +13,24 @@
 **Scope:** Database layer with Prisma ORM, schema definition, migrations, and seed data
 
 **Implementation Guide References:**
+
 - `docs/implementation-guides/v5_part_b.md` - Database models and Prisma schema
 - `docs/trading_alerts_openapi.yaml` - Model schema definitions for all entities
 - `docs/policies/00-tier-specifications.md` - Tier enum and FREE/PRO specifications
 
 **Key Changes from V4:**
+
 - ✅ 2-tier system (FREE/PRO only, ENTERPRISE removed)
 - ✅ WatchlistItem model (symbol+timeframe combinations)
 - ✅ Updated User model (tier field defaults to FREE)
 - ✅ Google OAuth support (Account model added)
 
 **Dependencies:**
+
 - Requires Part 1 complete (package.json with Prisma dependency)
 
 **Integration Points:**
+
 - Provides database models for Parts 3-18
 - Seed script creates initial admin user
 
@@ -41,19 +45,23 @@
 **Purpose:** Complete Prisma schema with User, Account, Subscription, Alert, Watchlist models
 
 **From v5-structure-division.md:**
+
 > schema.prisma - 2 tiers (FREE/PRO), WatchlistItem model
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/implementation-guides/v5_part_c.md` Section 6.1
 - **Pattern:** Prisma schema with NextAuth models
 - **OpenAPI Reference:** `docs/trading_alerts_openapi.yaml` → All model schemas
 
 **Dependencies:**
+
 - Part 1 complete (Prisma installed)
 
 **Build Steps:**
 
 1. **Read Requirements**
+
    ```
    - v5_part_c.md Section 6.1 (complete schema)
    - 00-tier-specifications.md (FREE/PRO tier rules)
@@ -61,6 +69,7 @@
    ```
 
 2. **Key Models to Include**
+
    ```prisma
    model User {
      id            String    @id @default(cuid())
@@ -121,12 +130,14 @@
 **Purpose:** Prisma client singleton for Next.js
 
 **Implementation Details:**
+
 - **Seed Code Reference:** `seed-code/saas-starter/lib/prisma.ts`
 - **Pattern:** Singleton pattern for database client
 
 **Build Steps:**
 
 1. **Generate Code**
+
    ```typescript
    import { PrismaClient } from '@prisma/client';
 
@@ -137,7 +148,10 @@
    export const prisma =
      globalForPrisma.prisma ??
      new PrismaClient({
-       log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+       log:
+         process.env.NODE_ENV === 'development'
+           ? ['query', 'error', 'warn']
+           : ['error'],
      });
 
    if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
@@ -156,11 +170,13 @@
 **Purpose:** Database seed script for initial admin user and test data
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/v5-structure-division.md` Part 2 (seed instructions)
 
 **Build Steps:**
 
 1. **Generate Code**
+
    ```typescript
    import { PrismaClient } from '@prisma/client';
    import bcrypt from 'bcryptjs';
@@ -171,9 +187,9 @@
      // Create admin user
      const adminEmail = process.env.ADMIN_EMAIL || 'admin@tradingalerts.com';
      const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
-     
+
      const hashedPassword = await bcrypt.hash(adminPassword, 10);
-     
+
      const admin = await prisma.user.upsert({
        where: { email: adminEmail },
        update: {},
@@ -185,7 +201,7 @@
          emailVerified: new Date(),
        },
      });
-     
+
      console.log('✅ Admin user created:', admin.email);
    }
 
@@ -214,13 +230,18 @@
 **Build Steps:**
 
 1. **Generate Code**
+
    ```typescript
    import { PrismaClient, UserTier } from '@prisma/client';
    import bcrypt from 'bcryptjs';
 
-   export async function seedAdmin(prisma: PrismaClient, email: string, password: string) {
+   export async function seedAdmin(
+     prisma: PrismaClient,
+     email: string,
+     password: string
+   ) {
      const hashedPassword = await bcrypt.hash(password, 10);
-     
+
      return prisma.user.upsert({
        where: { email },
        update: {},
@@ -246,16 +267,19 @@
 ## Testing After Part Complete
 
 1. **Generate Prisma Client**
+
    ```bash
    pnpm db:generate
    ```
 
 2. **Push Schema to Database**
+
    ```bash
    pnpm db:push
    ```
 
 3. **Run Seed Script**
+
    ```bash
    pnpm db:seed
    ```
@@ -264,6 +288,7 @@
    ```bash
    pnpm db:studio
    ```
+
    - Check admin user exists
    - Verify all tables created
 

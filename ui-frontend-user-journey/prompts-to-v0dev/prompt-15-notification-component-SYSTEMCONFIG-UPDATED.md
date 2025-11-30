@@ -4,12 +4,14 @@ PROMPT 15: Notification Bell Dropdown Component (WITH SYSTEMCONFIG + DISCOUNT CO
 Create a notification bell dropdown component for Next.js 15 using TypeScript, Tailwind CSS, and shadcn/ui.
 
 **CRITICAL: Use SystemConfig for Dynamic Percentages**
+
 - DO NOT hardcode discount percentages (e.g., "20%")
 - DO NOT hardcode prices (e.g., "$23.20", "$5.80")
 - MUST use `useAffiliateConfig()` hook for all dynamic values
 - All discount code reminder notifications MUST use dynamic percentages
 
 REQUIREMENTS:
+
 1. BELL ICON BUTTON (Top bar, always visible):
 
    **Button Design:**
@@ -21,11 +23,11 @@ REQUIREMENTS:
    **Notification Badge:**
    - Position: Absolute, top-0, right-0
    - Badge: If unread notifications > 0
-     * Shape: Circular (w-5, h-5, rounded-full)
-     * Background: bg-red-500
-     * Text: White, text-xs, font-bold, centered
-     * Count: Show number (max 9, then "9+")
-     * Animation: Subtle pulse animation (animate-pulse) when new notification arrives
+     - Shape: Circular (w-5, h-5, rounded-full)
+     - Background: bg-red-500
+     - Text: White, text-xs, font-bold, centered
+     - Count: Show number (max 9, then "9+")
+     - Animation: Subtle pulse animation (animate-pulse) when new notification arrives
    - No badge: If no unread notifications
 
 2. DROPDOWN PANEL (Opens on click):
@@ -49,7 +51,7 @@ REQUIREMENTS:
    - Heading: "Notifications" (text-xl, font-bold, mb-1)
    - Count badge: "3 unread" (text-sm, opacity-90)
    - Actions (right side):
-     * Mark all as read button: "✓ Mark all read" (text-xs, bg-white/20, hover:bg-white/30, px-3, py-1, rounded-lg, cursor-pointer)
+     - Mark all as read button: "✓ Mark all read" (text-xs, bg-white/20, hover:bg-white/30, px-3, py-1, rounded-lg, cursor-pointer)
 
 4. TABS (Filter notifications):
 
@@ -85,24 +87,24 @@ REQUIREMENTS:
    **Icon (Left side):**
    - Circular container: w-10, h-10, rounded-full, flex items-center, justify-center
    - Types:
-     * Alert triggered: bg-green-100, text-green-600, "✓" or CheckCircle icon
-     * Alert warning: bg-orange-100, text-orange-600, "⚠️" or AlertTriangle icon
-     * System message: bg-blue-100, text-blue-600, "ℹ️" or Info icon
-     * Upgrade prompt: bg-purple-100, text-purple-600, "⭐" or Star icon
-     * Discount code reminder: bg-yellow-100, text-yellow-600, "🎫" or Ticket icon (NEW)
+     - Alert triggered: bg-green-100, text-green-600, "✓" or CheckCircle icon
+     - Alert warning: bg-orange-100, text-orange-600, "⚠️" or AlertTriangle icon
+     - System message: bg-blue-100, text-blue-600, "ℹ️" or Info icon
+     - Upgrade prompt: bg-purple-100, text-purple-600, "⭐" or Star icon
+     - Discount code reminder: bg-yellow-100, text-yellow-600, "🎫" or Ticket icon (NEW)
 
    **Content (Middle):**
    - Title: font-semibold, text-gray-900, text-sm, mb-1
-     * Unread: Add blue dot "•" before title
+     - Unread: Add blue dot "•" before title
    - Message: text-gray-600, text-sm, line-clamp-2 (max 2 lines)
    - Metadata: flex, gap-2, text-xs, text-gray-500, mt-2
-     * Time: "5 minutes ago" (relative time)
-     * Category badge: Optional (bg-gray-100, px-2, py-0.5, rounded, text-xs)
+     - Time: "5 minutes ago" (relative time)
+     - Category badge: Optional (bg-gray-100, px-2, py-0.5, rounded, text-xs)
 
    **Action (Right side):**
    - Unread indicator: Blue dot (w-2, h-2, bg-blue-500, rounded-full)
    - Or: Menu button "⋮" (text-gray-400, hover:text-gray-600)
-     * Dropdown: Mark as read/unread, Delete
+     - Dropdown: Mark as read/unread, Delete
 
 6. NOTIFICATION TYPES & EXAMPLES:
 
@@ -149,9 +151,9 @@ Action: Click to manage subscription
 **Type 6: Discount Code Reminder (Day -10) - NEW**
 Icon: 🎫 (yellow)
 Title: "💰 Save {discountPercent}% on Your Next Payment"
-  → Use dynamic discountPercent from useAffiliateConfig()
+→ Use dynamic discountPercent from useAffiliateConfig()
 Message: "Your PRO subscription renews in 10 days. Find a new affiliate code to save ${29 - calculateDiscountedPrice(29)} on your next payment!"
-  → Calculate savings dynamically using calculateDiscountedPrice()
+→ Calculate savings dynamically using calculateDiscountedPrice()
 Time: "Just now"
 Category: "Billing"
 Action: Click to enter code in billing settings
@@ -161,7 +163,7 @@ CTA Button: "Enter Code Now" (bg-yellow-500, text-white, px-3, py-1, rounded, te
 Icon: 🎫 (yellow)
 Title: "⏰ 7 Days Until Renewal - Apply Your Code"
 Message: "Your next payment is ${29.00} on {renewalDate}. Save {discountPercent}% (${29 - calculateDiscountedPrice(29)}) by entering an affiliate code before renewal!"
-  → Use dynamic discountPercent and calculate savings
+→ Use dynamic discountPercent and calculate savings
 Time: "5 minutes ago"
 Category: "Billing"
 Action: Click to enter code in billing settings
@@ -170,9 +172,9 @@ CTA Button: "Enter Code" (bg-yellow-500, text-white, px-3, py-1, rounded, text-x
 **Type 8: Discount Code Reminder (Day -3) - URGENT - NEW**
 Icon: 🎫 (red/orange gradient)
 Title: "🚨 Final Reminder: 3 Days to Save {discountPercent}%"
-  → Use dynamic discountPercent
+→ Use dynamic discountPercent
 Message: "Your renewal is in 3 days at $29.00. This is your last chance to enter a discount code and save ${29 - calculateDiscountedPrice(29)}. Find codes on social media!"
-  → Calculate savings dynamically
+→ Calculate savings dynamically
 Time: "2 hours ago"
 Category: "Billing"
 Priority: High (highlighted with orange/red border)
@@ -183,7 +185,7 @@ CTA Button: "Enter Code NOW" (bg-red-500, text-white, px-3, py-1, rounded, text-
 Icon: ✅ (green)
 Title: "🎉 Discount Code Applied!"
 Message: "Your code is ready for the next payment on {renewalDate}. You'll save ${29 - calculateDiscountedPrice(29)} ({discountPercent}% off)!"
-  → Use dynamic values
+→ Use dynamic values
 Time: "Just now"
 Category: "Billing"
 Action: Click to view billing details
@@ -192,7 +194,7 @@ Action: Click to view billing details
 Icon: ℹ️ (blue)
 Title: "Payment Processed: $29.00"
 Message: "Your PRO subscription has renewed. Want to save {discountPercent}% next month? Find and enter a new affiliate code before your next renewal!"
-  → Use dynamic discountPercent
+→ Use dynamic discountPercent
 Time: "1 hour ago"
 Category: "Billing"
 Action: Click to enter code for next billing
@@ -200,6 +202,7 @@ Action: Click to enter code for next billing
 7. EMPTY STATE (No notifications):
 
 **Content:**
+
 - Icon: 🔔 (text-6xl, opacity-30, text-center)
 - Message: "No notifications yet" (text-lg, text-gray-500, text-center, mb-2)
 - Submessage: "We'll notify you about alerts and important updates" (text-sm, text-gray-400, text-center)
@@ -208,17 +211,20 @@ Action: Click to enter code for next billing
 8. FOOTER (Bottom of dropdown):
 
 **Layout:**
+
 - Border top: border-t-2 border-gray-200
 - Background: bg-gray-50
 - Padding: p-4
 
 **Content:**
+
 - Link: "View All Notifications" (text-blue-600, hover:underline, text-center, block, font-semibold)
 - Or: "Notification Settings" (text-gray-600, hover:text-blue-600, text-sm, text-center)
 
 9. REAL-TIME UPDATES:
 
 **New Notification Behavior:**
+
 - Toast appears (top-right): "🔔 New notification" (bg-blue-500, text-white, rounded-lg, p-3, shadow-lg)
 - Bell icon badge updates (+1 to count)
 - Bell icon animates (shake or bounce)
@@ -226,6 +232,7 @@ Action: Click to enter code for next billing
 - If dropdown open: New item slides in at top with highlight animation
 
 **Polling/WebSocket:**
+
 - Poll every 30 seconds (or use WebSocket)
 - Fetch new notifications from: GET /api/notifications
 - Update badge and list automatically
@@ -233,130 +240,149 @@ Action: Click to enter code for next billing
 
 10. NOTIFICATION ACTIONS (On click):
 
- **Alert Notification:**
- - Mark as read
- - Navigate to: /dashboard/charts?symbol={symbol}&timeframe={timeframe}
- - Highlight the alert on chart
+**Alert Notification:**
 
- **Upgrade Notification:**
- - Mark as read
- - Navigate to: /pricing or /dashboard/settings/billing
+- Mark as read
+- Navigate to: /dashboard/charts?symbol={symbol}&timeframe={timeframe}
+- Highlight the alert on chart
 
- **System Notification:**
- - Mark as read
- - Navigate to: Relevant page or open modal with more info
+**Upgrade Notification:**
 
- **Discount Code Reminder Notification (NEW):**
- - Mark as read
- - Navigate to: /dashboard/settings/billing (scroll to discount code input box)
- - Highlight the input box with pulse animation
- - Optional: Pre-focus the input field
+- Mark as read
+- Navigate to: /pricing or /dashboard/settings/billing
 
- **Generic:**
- - Mark as read on click
- - Close dropdown
+**System Notification:**
+
+- Mark as read
+- Navigate to: Relevant page or open modal with more info
+
+**Discount Code Reminder Notification (NEW):**
+
+- Mark as read
+- Navigate to: /dashboard/settings/billing (scroll to discount code input box)
+- Highlight the input box with pulse animation
+- Optional: Pre-focus the input field
+
+**Generic:**
+
+- Mark as read on click
+- Close dropdown
 
 11. CONTEXT MENU (Right-click or ⋮ menu):
 
- **Menu Options:**
- - "Mark as read" (if unread)
- - "Mark as unread" (if read)
- - "Delete notification"
- - "Turn off alerts like this"
- - "Snooze for 1 day" (for discount code reminders - NEW)
+**Menu Options:**
 
- **Menu Style:**
- - Popover: bg-white, rounded-lg, shadow-xl, border-2 border-gray-200, p-2
- - Items: hover:bg-gray-100, px-3, py-2, text-sm, cursor-pointer
+- "Mark as read" (if unread)
+- "Mark as unread" (if read)
+- "Delete notification"
+- "Turn off alerts like this"
+- "Snooze for 1 day" (for discount code reminders - NEW)
+
+**Menu Style:**
+
+- Popover: bg-white, rounded-lg, shadow-xl, border-2 border-gray-200, p-2
+- Items: hover:bg-gray-100, px-3, py-2, text-sm, cursor-pointer
 
 12. NOTIFICATION SETTINGS LINK (In dropdown footer):
 
- **Opens Modal or Page:**
- - Heading: "Notification Preferences"
- - Options:
-   * ☑ Browser push notifications
-   * ☑ Email notifications
-   * ☑ Sound effects
-   * ☐ Desktop notifications (requires permission)
- - Types to receive:
-   * ☑ Alert triggers
-   * ☑ Price warnings
-   * ☑ System updates
-   * ☑ Discount code reminders (NEW)
-   * ☐ Marketing messages
+**Opens Modal or Page:**
+
+- Heading: "Notification Preferences"
+- Options:
+  - ☑ Browser push notifications
+  - ☑ Email notifications
+  - ☑ Sound effects
+  - ☐ Desktop notifications (requires permission)
+- Types to receive:
+  - ☑ Alert triggers
+  - ☑ Price warnings
+  - ☑ System updates
+  - ☑ Discount code reminders (NEW)
+  - ☐ Marketing messages
 
 13. VISUAL POLISH:
- - Smooth animations (dropdown slide, badge pulse, item hover)
- - Loading skeleton while fetching notifications
- - Infinite scroll or "Load More" button if many notifications
- - Unread indicator: Blue dot or blue background
- - Urgent notifications (Day -3 reminder): Orange/red border and pulse animation
- - Time formatting: "Just now", "5m ago", "2h ago", "Yesterday", "Jan 15"
- - Truncate long messages with "Read more" link
+
+- Smooth animations (dropdown slide, badge pulse, item hover)
+- Loading skeleton while fetching notifications
+- Infinite scroll or "Load More" button if many notifications
+- Unread indicator: Blue dot or blue background
+- Urgent notifications (Day -3 reminder): Orange/red border and pulse animation
+- Time formatting: "Just now", "5m ago", "2h ago", "Yesterday", "Jan 15"
+- Truncate long messages with "Read more" link
 
 14. RESPONSIVE:
- - Desktop: w-96, right-aligned to bell icon
- - Tablet: w-80, adjust position if near edge
- - Mobile:
-   * Full-width dropdown (w-screen, max-w-md)
-   * Simplified layout
-   * Larger tap targets
-   * Swipe to mark as read/delete (optional)
+
+- Desktop: w-96, right-aligned to bell icon
+- Tablet: w-80, adjust position if near edge
+- Mobile:
+  - Full-width dropdown (w-screen, max-w-md)
+  - Simplified layout
+  - Larger tap targets
+  - Swipe to mark as read/delete (optional)
 
 15. ACCESSIBILITY:
- - Button has aria-label: "Notifications"
- - Badge has aria-label: "3 unread notifications"
- - Dropdown has role="menu"
- - Items have role="menuitem"
- - Keyboard navigation: Arrow keys, Enter to select, Escape to close
- - Screen reader announces new notifications
- - Urgent notifications have aria-live="assertive"
+
+- Button has aria-label: "Notifications"
+- Badge has aria-label: "3 unread notifications"
+- Dropdown has role="menu"
+- Items have role="menuitem"
+- Keyboard navigation: Arrow keys, Enter to select, Escape to close
+- Screen reader announces new notifications
+- Urgent notifications have aria-live="assertive"
 
 16. TECHNICAL:
- - Export as default component
- - TypeScript with proper types
- - MUST import and use useAffiliateConfig() hook for discount-related notifications
- - Props:
-   * notifications: Array of notification objects
-   * unreadCount: number
-   * onMarkAsRead: (id: string) => void
-   * onMarkAllAsRead: () => void
-   * onDelete: (id: string) => void
-   * onNotificationClick: (notification: Notification) => void
- - Use shadcn/ui Popover, Button, Badge, ScrollArea components
- - Use lucide-react icons (Bell, Check, AlertTriangle, Info, Star, Ticket, MoreVertical)
- - State for: dropdown open/closed, active tab, selected notification
- - Mock notifications data (10-15 examples with different types including discount reminders)
- - Real-time polling with useEffect (every 30s)
- - Notification object type:
-   ```typescript
-   interface Notification {
-     id: string
-     type: 'alert' | 'warning' | 'system' | 'upgrade' | 'billing' | 'discount_reminder'
-     title: string
-     message: string
-     timestamp: Date
-     read: boolean
-     priority?: 'normal' | 'high' | 'urgent'  // NEW for Day -3 reminders
-     icon?: React.ReactNode
-     action?: {
-       label: string
-       url: string
-     }
-     cta?: {  // NEW for action buttons
-       label: string
-       onClick: () => void
-       className?: string
-     }
-     metadata?: {
-       symbol?: string
-       timeframe?: string
-       category?: string
-       renewalDate?: string  // NEW for discount reminders
-       daysUntilRenewal?: number  // NEW: 10, 7, or 3
-     }
-   }
-   ```
+
+- Export as default component
+- TypeScript with proper types
+- MUST import and use useAffiliateConfig() hook for discount-related notifications
+- Props:
+  - notifications: Array of notification objects
+  - unreadCount: number
+  - onMarkAsRead: (id: string) => void
+  - onMarkAllAsRead: () => void
+  - onDelete: (id: string) => void
+  - onNotificationClick: (notification: Notification) => void
+- Use shadcn/ui Popover, Button, Badge, ScrollArea components
+- Use lucide-react icons (Bell, Check, AlertTriangle, Info, Star, Ticket, MoreVertical)
+- State for: dropdown open/closed, active tab, selected notification
+- Mock notifications data (10-15 examples with different types including discount reminders)
+- Real-time polling with useEffect (every 30s)
+- Notification object type:
+  ```typescript
+  interface Notification {
+    id: string;
+    type:
+      | 'alert'
+      | 'warning'
+      | 'system'
+      | 'upgrade'
+      | 'billing'
+      | 'discount_reminder';
+    title: string;
+    message: string;
+    timestamp: Date;
+    read: boolean;
+    priority?: 'normal' | 'high' | 'urgent'; // NEW for Day -3 reminders
+    icon?: React.ReactNode;
+    action?: {
+      label: string;
+      url: string;
+    };
+    cta?: {
+      // NEW for action buttons
+      label: string;
+      onClick: () => void;
+      className?: string;
+    };
+    metadata?: {
+      symbol?: string;
+      timeframe?: string;
+      category?: string;
+      renewalDate?: string; // NEW for discount reminders
+      daysUntilRenewal?: number; // NEW: 10, 7, or 3
+    };
+  }
+  ```
 
 TECHNICAL IMPLEMENTATION:
 
@@ -665,6 +691,7 @@ function formatTime(date: Date): string {
 ```
 
 **SYSTEMCONFIG INTEGRATION CHECKLIST:**
+
 - ✅ Imported useAffiliateConfig hook
 - ✅ No hardcoded "20%" or "20.0" anywhere
 - ✅ No hardcoded "$23.20", "$5.80" anywhere

@@ -13,10 +13,12 @@
 **Scope:** Complete authentication system with NextAuth.js, Google OAuth, email/password credentials, and tier-based permissions.
 
 **Implementation Guide References:**
+
 - `docs/implementation-guides/v5_part_e.md` Section 5 - Authentication system implementation details and business logic
 - `docs/policies/08-google-oauth-implementation-rules.md` - Google OAuth integration rules and security policies
 
 **Key Changes from V4:**
+
 - ✅ Google OAuth integration (new provider)
 - ✅ Account model for OAuth provider linking
 - ✅ User.password nullable (OAuth-only users don't need password)
@@ -28,11 +30,13 @@
 - ✅ Admin and affiliate helper functions for access control
 
 **Dependencies:**
+
 - Part 2 complete (Prisma User, Account models)
 - Part 3 complete (User, Tier types)
 - Part 4 complete (Tier validation)
 
 **Integration Points:**
+
 - Provides authentication for ALL protected routes
 - Session management for tier-gated features
 - OAuth integration with Google
@@ -53,6 +57,7 @@ Build these files **in sequence**:
 **Purpose:** Extend NextAuth types to include tier, role, and affiliate status
 
 **Build Steps:**
+
 1. Create TypeScript declaration file
 2. Extend Session interface to include tier, role, and isAffiliate
 3. Extend User interface to include tier, role, and isAffiliate
@@ -67,6 +72,7 @@ Build these files **in sequence**:
 **Purpose:** OAuth and auth error messages
 
 **Build Steps:**
+
 1. Define error types for OAuth failures
 2. Add user-friendly error messages
 3. Include error codes for different scenarios
@@ -83,6 +89,7 @@ Build these files **in sequence**:
 **Reference:** `docs/policies/08-google-oauth-implementation-rules.md`
 
 **Build Steps:**
+
 1. Configure Google OAuth provider
 2. Configure Credentials provider (email/password)
 3. Add JWT session strategy
@@ -100,6 +107,7 @@ Build these files **in sequence**:
 **Purpose:** Session helper functions including affiliate and admin support
 
 **Build Steps:**
+
 1. getServerSession wrapper (getSession)
 2. requireAuth() helper - throws AuthError if no session
 3. getUserSession() helper - returns session or null
@@ -119,6 +127,7 @@ Build these files **in sequence**:
 **Purpose:** Tier-based, affiliate, and admin permission checking
 
 **Build Steps:**
+
 1. hasPermission(user, feature) function - checks tier-based permissions
 2. requirePro() middleware - enforces PRO tier
 3. checkFeatureAccess() helper - validates feature access
@@ -144,6 +153,7 @@ Build these files **in sequence**:
 **Purpose:** NextAuth API route handler
 
 **Build Steps:**
+
 1. Import auth options
 2. Create NextAuth handler
 3. Export GET and POST handlers
@@ -158,6 +168,7 @@ Build these files **in sequence**:
 **OpenAPI:** `POST /api/auth/register`
 
 **Build Steps:**
+
 1. Validate email/password with Zod
 2. Check email doesn't exist
 3. Hash password with bcrypt
@@ -173,6 +184,7 @@ Build these files **in sequence**:
 **Purpose:** Email verification endpoint
 
 **Build Steps:**
+
 1. Validate verification token
 2. Update user.emailVerified
 3. Return success response
@@ -185,6 +197,7 @@ Build these files **in sequence**:
 **Purpose:** Password reset request
 
 **Build Steps:**
+
 1. Validate email exists
 2. Generate reset token
 3. Send reset email
@@ -197,6 +210,7 @@ Build these files **in sequence**:
 **Purpose:** Password reset with token
 
 **Build Steps:**
+
 1. Validate reset token
 2. Hash new password
 3. Update user password
@@ -212,6 +226,7 @@ Build these files **in sequence**:
 **Purpose:** Auth pages layout
 
 **Build Steps:**
+
 1. Create simple centered layout
 2. No authentication check (public pages)
 3. Add logo/branding
@@ -226,6 +241,7 @@ Build these files **in sequence**:
 **Seed Reference:** `seed-code/v0-components/auth/login-page.tsx`
 
 **Build Steps:**
+
 1. Create login form (email/password)
 2. Add "Sign in with Google" button
 3. Handle sign-in with NextAuth
@@ -242,6 +258,7 @@ Build these files **in sequence**:
 **Seed Reference:** `seed-code/v0-components/public-pages/registration-page.tsx`
 
 **Build Steps:**
+
 1. Create registration form
 2. Validate inputs client-side
 3. Call /api/auth/register
@@ -255,6 +272,7 @@ Build these files **in sequence**:
 **Purpose:** Email verification page
 
 **Build Steps:**
+
 1. Get token from URL params
 2. Call /api/auth/verify-email
 3. Show success/failure message
@@ -270,6 +288,7 @@ Build these files **in sequence**:
 **Seed Reference:** `seed-code/v0-components/auth/forgot-password-page.tsx`
 
 **Build Steps:**
+
 1. Create forgot password form
 2. Call /api/auth/forgot-password
 3. Show email sent message
@@ -282,6 +301,7 @@ Build these files **in sequence**:
 **Purpose:** Reset password page
 
 **Build Steps:**
+
 1. Get token from URL params
 2. Create reset password form
 3. Call /api/auth/reset-password
@@ -297,6 +317,7 @@ Build these files **in sequence**:
 **Seed Reference:** `seed-code/v0-components/auth/login-page.tsx`
 
 **Build Steps:**
+
 1. Create admin-themed login form (email/password only)
 2. **Note:** No Google OAuth button (admins use credentials only for security)
 3. Handle sign-in with NextAuth credentials provider
@@ -307,6 +328,7 @@ Build these files **in sequence**:
 8. Commit: `feat(auth): add admin login page`
 
 **Admin Accounts (Pre-configured):**
+
 - Admin 1: Pure admin (`role='ADMIN'`, `isAffiliate=false`, `tier='FREE'`)
 - Admin 2: Admin + Affiliate (`role='ADMIN'`, `isAffiliate=true`, `tier='FREE'`)
 
@@ -321,6 +343,7 @@ Build these files **in sequence**:
 **Purpose:** Registration form component
 
 **Build Steps:**
+
 1. Create form with React Hook Form + Zod
 2. Email, password, name fields
 3. Client-side validation
@@ -334,6 +357,7 @@ Build these files **in sequence**:
 **Purpose:** Login form component
 
 **Build Steps:**
+
 1. Email/password form
 2. "Remember me" checkbox
 3. "Forgot password?" link
@@ -347,6 +371,7 @@ Build these files **in sequence**:
 **Purpose:** Google OAuth button
 
 **Build Steps:**
+
 1. "Sign in with Google" button
 2. Call signIn('google')
 3. Loading state
@@ -358,6 +383,7 @@ Build these files **in sequence**:
 ## Testing After Part Complete
 
 1. **Test Registration Flow**
+
    ```bash
    # Start dev server
    pnpm dev
@@ -369,6 +395,7 @@ Build these files **in sequence**:
    ```
 
 2. **Test Google OAuth**
+
    ```bash
    # Navigate to /login
    # Click "Sign in with Google"
@@ -377,6 +404,7 @@ Build these files **in sequence**:
    ```
 
 3. **Test Login**
+
    ```bash
    # Navigate to /login
    # Login with registered user
@@ -385,6 +413,7 @@ Build these files **in sequence**:
    ```
 
 4. **Test Password Reset**
+
    ```bash
    # Navigate to /forgot-password
    # Enter email
@@ -395,6 +424,7 @@ Build these files **in sequence**:
    ```
 
 5. **Test Admin Login**
+
    ```bash
    # Navigate to /admin/login
    # Login with admin credentials (from seed data)
@@ -481,11 +511,13 @@ main()
 ```
 
 **Run seed:**
+
 ```bash
 npx prisma db seed
 ```
 
 **Environment Variables:**
+
 ```bash
 # Add to .env.local (DO NOT commit real passwords!)
 ADMIN_EMAIL=admin@tradingalerts.com
@@ -495,6 +527,7 @@ ADMIN_AFFILIATE_PASSWORD=AdminAffiliate123!@#
 ```
 
 **Security Notes:**
+
 - Change default passwords in production
 - Store in secure password manager
 - Consider adding IP whitelist for `/admin/login` route
@@ -536,11 +569,13 @@ ADMIN_AFFILIATE_PASSWORD=AdminAffiliate123!@#
 ## Escalation Scenarios
 
 **Scenario 1: Google OAuth not working**
+
 - Check GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
 - Verify redirect URIs in Google Console
 - Check NextAuth callback URL
 
 **Scenario 2: Account linking fails**
+
 - Verify emailVerified is set
 - Check Account model exists
 - Review verified-only linking logic

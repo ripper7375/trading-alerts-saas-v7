@@ -25,13 +25,13 @@
 
 ### Testing Stack
 
-| Layer | Tool | Purpose | Status |
-|-------|------|---------|--------|
-| **Unit Tests** | Jest + TypeScript | Test business logic & utilities | ✅ Complete (61 tests) |
-| **Component Tests** | React Testing Library | Test React components | ⏳ Ready for components |
-| **API Tests** | Newman (Postman) | Test all 42 endpoints | ✅ Complete |
-| **Integration Tests** | Jest | Test complete user flows | ✅ Complete (2 flows) |
-| **CI/CD** | GitHub Actions | Automated testing on every commit | ✅ Complete |
+| Layer                 | Tool                  | Purpose                           | Status                  |
+| --------------------- | --------------------- | --------------------------------- | ----------------------- |
+| **Unit Tests**        | Jest + TypeScript     | Test business logic & utilities   | ✅ Complete (61 tests)  |
+| **Component Tests**   | React Testing Library | Test React components             | ⏳ Ready for components |
+| **API Tests**         | Newman (Postman)      | Test all 42 endpoints             | ✅ Complete             |
+| **Integration Tests** | Jest                  | Test complete user flows          | ✅ Complete (2 flows)   |
+| **CI/CD**             | GitHub Actions        | Automated testing on every commit | ✅ Complete             |
 
 ### Current Coverage
 
@@ -97,12 +97,14 @@ npm run test:api:flask
 ## 🧪 Unit Testing
 
 ### Location
+
 - `__tests__/lib/` - Utility function tests
 - `__tests__/app/api/` - API route handler tests (when created)
 
 ### Example: Testing a Utility Function
 
 **File:** `lib/utils.ts`
+
 ```typescript
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -113,6 +115,7 @@ export function formatCurrency(amount: number): string {
 ```
 
 **Test:** `__tests__/lib/utils.test.ts`
+
 ```typescript
 import { formatCurrency } from '@/lib/utils';
 
@@ -134,6 +137,7 @@ describe('formatCurrency', () => {
 ### Best Practices
 
 ✅ **DO:**
+
 - Test both happy path and edge cases
 - Test error handling
 - Use descriptive test names
@@ -141,6 +145,7 @@ describe('formatCurrency', () => {
 - Mock external dependencies
 
 ❌ **DON'T:**
+
 - Test implementation details
 - Write tests that depend on other tests
 - Hardcode values that should be configurable
@@ -150,6 +155,7 @@ describe('formatCurrency', () => {
 ## 🎨 Component Testing
 
 ### Location
+
 - `__tests__/components/` - React component tests
 
 ### Setup
@@ -157,13 +163,15 @@ describe('formatCurrency', () => {
 Component testing uses React Testing Library with jsdom environment.
 
 **Configuration:** Already set in `jest.config.js`
+
 ```javascript
-testEnvironment: 'jsdom'
+testEnvironment: 'jsdom';
 ```
 
 ### Example: Testing a Button Component
 
 **Component:** `components/ui/button.tsx`
+
 ```typescript
 export function Button({ children, onClick, disabled }: ButtonProps) {
   return (
@@ -175,6 +183,7 @@ export function Button({ children, onClick, disabled }: ButtonProps) {
 ```
 
 **Test:** `__tests__/components/ui/button.test.tsx`
+
 ```typescript
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -199,12 +208,14 @@ describe('Button Component', () => {
 ### Best Practices
 
 ✅ **DO:**
+
 - Query by role, label, or text (not test IDs)
 - Use `userEvent` for interactions
 - Test behavior, not implementation
 - Test accessibility
 
 ❌ **DON'T:**
+
 - Use `data-testid` unless necessary
 - Test internal state
 - Snapshot test everything
@@ -214,6 +225,7 @@ describe('Button Component', () => {
 ## 🌐 API Testing
 
 ### Location
+
 - `postman/collections/` - Postman collection files
 - `postman/environments/` - Environment configurations
 
@@ -253,6 +265,7 @@ npm run test:api:all
 ### API Test Structure
 
 Each endpoint test includes:
+
 - ✅ Status code validation
 - ✅ Response schema validation
 - ✅ Authentication checks
@@ -264,6 +277,7 @@ Each endpoint test includes:
 ## 🔗 Integration Testing
 
 ### Location
+
 - `__tests__/integration/` - End-to-end flow tests
 
 ### Available Flows
@@ -341,6 +355,7 @@ npm test -- --testNamePattern="formatCurrency"
 ### Continuous Integration
 
 Tests run automatically on:
+
 - Every push to `main`, `develop`, or `claude/**` branches
 - Every pull request to `main` or `develop`
 
@@ -395,6 +410,7 @@ The CI/CD pipeline runs 4 parallel jobs:
 ### Failure Notifications
 
 When tests fail:
+
 - ❌ PR cannot be merged (if branch protection enabled)
 - 📧 Email notification sent to commit author
 - 💬 Comment added to PR with failure details
@@ -448,6 +464,7 @@ lib/tier-validation  |  100.00 |    93.33 |  100.00 |  100.00 |
 #### 1. "Cannot find module '@/lib/utils'"
 
 **Solution:** Check `jest.config.js` has correct module mapping:
+
 ```javascript
 moduleNameMapper: {
   '^@/(.*)$': '<rootDir>/$1',
@@ -457,6 +474,7 @@ moduleNameMapper: {
 #### 2. "Tests are timing out"
 
 **Solution:** Increase timeout in `jest.setup.js`:
+
 ```javascript
 jest.setTimeout(30000); // 30 seconds
 ```
@@ -464,6 +482,7 @@ jest.setTimeout(30000); // 30 seconds
 #### 3. "Newman not found"
 
 **Solution:** Install Newman:
+
 ```bash
 npm install --save-dev newman newman-reporter-htmlextra
 ```
@@ -471,6 +490,7 @@ npm install --save-dev newman newman-reporter-htmlextra
 #### 4. "Database connection error in tests"
 
 **Solution:** Tests use mocked environment variables:
+
 ```javascript
 // jest.setup.js
 process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
@@ -479,6 +499,7 @@ process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
 #### 5. "GitHub Actions failing but local tests pass"
 
 **Solution:**
+
 - Ensure `npm ci` is used (not `npm install`)
 - Check environment variables in workflow
 - Review test logs in GitHub Actions
@@ -488,11 +509,13 @@ process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test';
 ## 📚 Additional Resources
 
 ### Documentation
+
 - [Jest Documentation](https://jestjs.io/docs/getting-started)
 - [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)
 - [Newman Documentation](https://learning.postman.com/docs/running-collections/using-newman-cli/command-line-integration-with-newman/)
 
 ### Project Files
+
 - `jest.config.js` - Jest configuration
 - `jest.setup.js` - Test environment setup
 - `.github/workflows/tests.yml` - CI/CD pipeline

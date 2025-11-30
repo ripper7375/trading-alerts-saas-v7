@@ -8,6 +8,7 @@
 ## ✅ **ACTIVELY USED FILES (Keep in Main Docs)**
 
 ### **1. Core Framework (In .aider.conf.yml)**
+
 ```
 ✅ docs/policies/* (9 files) - Constitutions
 ✅ docs/build-orders/* (20 files) - Build sequences
@@ -18,6 +19,7 @@
 ```
 
 ### **2. Feature-Specific Documentation (Referenced)**
+
 ```
 ✅ docs/AFFILIATE-MARKETING-DESIGN.md - Loaded by Aider
 ✅ docs/SUBSCRIPTION-MODEL-CLARIFICATION.md - Loaded by Aider
@@ -29,6 +31,7 @@
 ```
 
 ### **3. OpenAPI Specifications**
+
 ```
 ✅ docs/trading_alerts_openapi.yaml
 ✅ docs/flask_mt5_openapi.yaml
@@ -36,6 +39,7 @@
 ```
 
 ### **4. Phase Documentation**
+
 ```
 ✅ docs/v7/v7_overview.md
 ✅ docs/v7/v7_phase_0_setup.md
@@ -51,6 +55,7 @@
 ## 📦 **ARCHIVABLE FILES (Historical/Completed Work)**
 
 ### **1. Planning Documents (Completed)**
+
 ```
 📦 docs/AIDER-AUTONOMY-IMPROVEMENT-PLAN.md
    Reason: This was the PLAN for autonomy improvement
@@ -59,6 +64,7 @@
 ```
 
 ### **2. Review Documents (One-Time)**
+
 ```
 📦 docs/POLICY_COHERENCE_REVIEW.md
    Reason: One-time review of policy coherence
@@ -67,6 +73,7 @@
 ```
 
 ### **3. Checklist Documents (If Completed)**
+
 ```
 📦 docs/AFFILIATE-MARKETING-INTEGRATION-CHECKLIST.md
    Reason: Checklist for affiliate integration
@@ -82,6 +89,7 @@
 ### **4. Redundant Summaries (Multiple Docs for Same Feature)**
 
 **Affiliate Marketing (6 documents - can consolidate):**
+
 ```
 📦 docs/AFFILIATE-ADMIN-JOURNEY.md
 📦 docs/AFFILIATE-SYSTEM-COMPREHENSIVE-UPDATE-SUMMARY.md
@@ -92,6 +100,7 @@
 ```
 
 **dLocal Payment (3 documents - can consolidate):**
+
 ```
 📦 docs/DISCOUNT-CODE-CORRECTION-SUMMARY.md
    Reason: Specific correction made - historical
@@ -104,6 +113,7 @@
 ```
 
 ### **5. Comprehension Test Documents (If Testing Complete)**
+
 ```
 📦 docs/v7/AIDER-COMPREHENSION-TESTS.md
    Reason: Testing document
@@ -117,6 +127,7 @@
 ```
 
 ### **6. Setup Guides (May Merge)**
+
 ```
 📦 docs/setup/google-oauth-setup.md
    Status: Could be merged into main OAuth docs
@@ -125,6 +136,7 @@
 ```
 
 ### **7. SystemConfig Guides (Consolidate?)**
+
 ```
 📦 docs/V0DEV-SYSTEMCONFIG-INTEGRATION-GUIDE.md
    Keep: docs/SYSTEMCONFIG-USAGE-GUIDE.md (loaded by Aider)
@@ -133,6 +145,7 @@
 ```
 
 ### **8. New Summary Document (Keep or Archive?)**
+
 ```
 ✅ docs/BUILD-ORDER-SYSTEM-SUMMARY.md
    Reason: Documents the new build-order system
@@ -165,6 +178,7 @@ Breakdown of Archivable:
 ## 🗂️ **Recommended Archive Structure**
 
 Create this structure:
+
 ```
 docs/archive/
 ├── README.md (explains what's archived and why)
@@ -196,12 +210,14 @@ docs/archive/
 ## ✅ **Recommended Actions**
 
 ### **Immediate (High Confidence):**
+
 1. ✅ Create `docs/archive/` directory
 2. ✅ Move planning docs:
    - AIDER-AUTONOMY-IMPROVEMENT-PLAN.md → archive/planning/
    - POLICY_COHERENCE_REVIEW.md → archive/planning/
 
 ### **After Verification (Check First):**
+
 3. ⚠️ Check checklists - if all items complete:
    - Move AFFILIATE-MARKETING-INTEGRATION-CHECKLIST.md → archive/checklists/
    - Move DLOCAL-DOCUMENTATION-UPDATE-CHECKLIST.md → archive/checklists/

@@ -13,10 +13,12 @@
 **Scope:** Core tier management system for access control, symbol/timeframe validation, and tier-based feature gating.
 
 **Implementation Guide References:**
+
 - `docs/implementation-guides/v5_part_d.md` - Utilities & Helpers including tier validation logic and helper functions
 - `docs/policies/00-tier-specifications.md` - Complete tier system rules, constants, and feature limits
 
 **Key Changes from V4:**
+
 - ✅ NEW folder: `lib/tier/` (complete tier management system)
 - ✅ Timeframes: M5, H12 added; FREE tier limited to 3 timeframes (H1, H4, D1)
 - ✅ Symbol lists per tier: FREE (5 symbols), PRO (15 symbols)
@@ -25,9 +27,11 @@
 - ✅ 5 new symbols added: AUDJPY, GBPJPY, NZDUSD, USDCAD, USDCHF
 
 **Dependencies:**
+
 - Requires Part 3 complete (Type definitions with Tier, Symbol, Timeframe types)
 
 **Integration Points:**
+
 - Used by ALL parts that check symbol/timeframe access (Charts, Alerts, Watchlists, Indicators)
 - Middleware for tier-based route protection
 - Validator for API request validation
@@ -45,19 +49,23 @@ Build these files **in sequence**:
 **Purpose:** Centralized tier constants for symbols, timeframes, and feature limits
 
 **From v5-structure-division.md:**
+
 > NEW - TIER_SYMBOLS, TIMEFRAMES constants
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/policies/00-tier-specifications.md`
 - **Pattern:** Constants file with readonly arrays and maps
 - **Seed Code Reference:** None (new file)
 
 **Dependencies:**
+
 - Part 3 complete (types/tier.ts for Tier, Symbol, Timeframe types)
 
 **Build Steps:**
 
 1. **Read Requirements**
+
    ```
    - 00-tier-specifications.md (complete tier specs)
    - types/tier.ts (Tier types)
@@ -94,20 +102,24 @@ Build these files **in sequence**:
 **Purpose:** Symbol and timeframe access validation functions
 
 **From v5-structure-division.md:**
+
 > NEW - Symbol access validation
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/policies/00-tier-specifications.md`
 - **Pattern:** Validation functions with detailed error messages
 - **OpenAPI Reference:** N/A (internal utility)
 
 **Dependencies:**
+
 - File 1/4 complete (constants.ts)
 - Part 3 complete (types)
 
 **Build Steps:**
 
 1. **Read Requirements**
+
    ```
    - Validate symbol access for tier
    - Validate timeframe access for tier
@@ -143,13 +155,16 @@ Build these files **in sequence**:
 **Purpose:** Next.js middleware for tier-based route protection
 
 **From v5-structure-division.md:**
+
 > NEW - Tier access control middleware
 
 **Implementation Details:**
+
 - **Pattern:** Next.js middleware with session checking
 - **Reference Guide:** `docs/policies/03-architecture-rules.md`
 
 **Dependencies:**
+
 - File 1/4, File 2/4 complete (constants, validator)
 - Part 3 complete (types)
 
@@ -179,13 +194,16 @@ Build these files **in sequence**:
 **Purpose:** Subscription plan configuration for 2-tier system
 
 **From v5-structure-division.md:**
+
 > Updated for 2 tiers
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/policies/00-tier-specifications.md`
 - **OpenAPI Reference:** `docs/trading_alerts_openapi.yaml` → Plan schemas
 
 **Dependencies:**
+
 - File 1/4 complete (constants.ts for tier limits)
 
 **Build Steps:**
@@ -216,6 +234,7 @@ Build these files **in sequence**:
 Once all 4 files are built:
 
 1. **Test Validation Functions**
+
    ```bash
    # Create test file
    cat > test-tier.ts << 'EOF'
@@ -237,6 +256,7 @@ Once all 4 files are built:
    ```
 
 2. **Verify Constants**
+
    ```bash
    node -e "
    const { TIER_LIMITS } = require('./lib/tier/constants');
@@ -283,11 +303,13 @@ Once all 4 files are built:
 ## Escalation Scenarios
 
 **Scenario 1: Tier limits need adjustment**
+
 - Issue: Product team wants to change tier limits
 - Solution: Update TIER_LIMITS in constants.ts
 - Impact: All validation automatically updates
 
 **Scenario 2: New tier needed**
+
 - Issue: Business wants to add ENTERPRISE tier back
 - Escalate to: Product team for tier specification
 - Files to update: constants.ts, validator.ts, plans.ts, types/tier.ts

@@ -19,6 +19,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ### Category 1: Public Pages (Marketing) - 3 Components
 
 #### 1. Homepage / Landing Page
+
 - **V0 Source:** `seed-code/v0-components/public-pages/homepage.tsx`
 - **Production:** `app/(marketing)/page.tsx`
 - **Route:** `/` (public)
@@ -39,6 +40,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 2. Pricing Page
+
 - **V0 Source:** `seed-code/v0-components/public-pages/pricing-page.tsx`
 - **Production:** `app/(marketing)/pricing/page.tsx`
 - **Route:** `/pricing` (public)
@@ -59,6 +61,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 3. Registration Page
+
 - **V0 Source:** `seed-code/v0-components/public-pages/registration-page.tsx`
 - **Production:** `app/(auth)/register/page.tsx`
 - **Route:** `/register` (public)
@@ -83,6 +86,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ### Category 2: Authentication - 2 Components
 
 #### 4. Login Page
+
 - **V0 Source:** `seed-code/v0-components/auth/login-page.tsx`
 - **Production:** `app/(auth)/login/page.tsx`
 - **Route:** `/login` (public)
@@ -103,6 +107,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 5. Forgot Password Page
+
 - **V0 Source:** `seed-code/v0-components/auth/forgot-password-page.tsx`
 - **Production:** `app/(auth)/forgot-password/page.tsx`
 - **Route:** `/forgot-password` (public)
@@ -124,6 +129,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ### Category 3: Dashboard Pages - 8 Components
 
 #### 6. Dashboard Overview
+
 - **V0 Source:** `seed-code/v0-components/dashboard/dashboard-overview.tsx`
 - **Production:** `app/(dashboard)/dashboard/page.tsx`
 - **Route:** `/dashboard` (authenticated)
@@ -144,6 +150,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 7. Watchlist Page
+
 - **V0 Source:** `seed-code/v0-components/dashboard/watchlist-page.tsx`
 - **Production:** `app/(dashboard)/watchlist/page.tsx`
 - **Route:** `/watchlist` (authenticated)
@@ -165,6 +172,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 8. Alert Creation Modal
+
 - **V0 Source:** `seed-code/v0-components/dashboard/alert-creation-modal.tsx`
 - **Production:** `components/alerts/alert-modal.tsx`
 - **Route:** N/A (modal component)
@@ -187,6 +195,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 9. Alerts List Page
+
 - **V0 Source:** `seed-code/v0-components/dashboard/alerts-list.tsx`
 - **Production:** `app/(dashboard)/alerts/page.tsx`
 - **Route:** `/alerts` (authenticated)
@@ -210,6 +219,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 10. Billing / Subscription Page
+
 - **V0 Source:** `seed-code/v0-components/dashboard/billing-page.tsx`
 - **Production:** `app/(dashboard)/settings/billing/page.tsx`
 - **Route:** `/settings/billing` (authenticated)
@@ -233,6 +243,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 11. Settings Layout
+
 - **V0 Source:** `seed-code/v0-components/dashboard/settings-layout.tsx`
 - **Production:** `app/(dashboard)/settings/layout.tsx`
 - **Route:** `/settings/*` (authenticated)
@@ -252,6 +263,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 12. Profile Settings Page
+
 - **V0 Source:** `seed-code/v0-components/dashboard/profile-settings.tsx`
 - **Production:** `app/(dashboard)/settings/profile/page.tsx`
 - **Route:** `/settings/profile` (authenticated)
@@ -276,6 +288,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ### Category 4: Reusable Components - 4 Components
 
 #### 13. Chart Controls Component
+
 - **V0 Source:** `seed-code/v0-components/components/chart-controls.tsx`
 - **Production:** `components/charts/chart-controls.tsx`
 - **Route:** N/A (component)
@@ -295,6 +308,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 14. Empty States Component
+
 - **V0 Source:** `seed-code/v0-components/components/empty-states.tsx`
 - **Production:** `components/ui/empty-state.tsx`
 - **Route:** N/A (component)
@@ -315,6 +329,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 15. Notification Bell Component
+
 - **V0 Source:** `seed-code/v0-components/components/notification-bell.tsx`
 - **Production:** `components/layout/notification-bell.tsx`
 - **Route:** N/A (component in header)
@@ -335,6 +350,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 16. User Menu Component
+
 - **V0 Source:** `seed-code/v0-components/components/user-menu.tsx`
 - **Production:** `components/layout/user-menu.tsx`
 - **Route:** N/A (component in header)
@@ -358,6 +374,7 @@ Complete mapping guide for all 17 v0.dev generated components to their productio
 ---
 
 #### 17. Footer Component
+
 - **V0 Source:** `seed-code/v0-components/components/footer.tsx`
 - **Production:** `components/layout/footer.tsx`
 - **Route:** N/A (component in layouts)
@@ -428,12 +445,14 @@ components/
 ### For Each Component:
 
 1. **Aider Reads V0 Seed File**
+
    ```
    Load: seed-code/v0-components/{category}/{component-name}.tsx
    Understand: UI structure, components used, layout patterns
    ```
 
 2. **Aider Adapts to Production**
+
    ```
    Create: Production file at mapped location
    Add: Real API calls, tier validation, authentication
@@ -442,6 +461,7 @@ components/
    ```
 
 3. **Claude Code Validates**
+
    ```
    Check: Type safety, error handling, tier validation
    Verify: Follows coding patterns (docs/policies/05-coding-patterns.md)
@@ -483,29 +503,29 @@ When Aider adapts a component, verify:
 
 Based on all 17 components, these API routes must exist:
 
-| Endpoint | Method | Used By | Purpose |
-|----------|--------|---------|---------|
-| `/api/auth/register` | POST | Registration (#3) | Create new user account |
-| `/api/auth/forgot-password` | POST | Forgot Password (#5) | Send password reset email |
-| `/api/dashboard/stats` | GET | Dashboard Overview (#6) | Get user stats |
-| `/api/watchlist` | GET | Watchlist (#7) | List watchlist items |
-| `/api/watchlist` | POST | Watchlist (#7) | Add watchlist item |
-| `/api/watchlist/{id}` | DELETE | Watchlist (#7) | Remove watchlist item |
-| `/api/watchlist/reorder` | PATCH | Watchlist (#7) | Reorder items |
-| `/api/alerts` | GET | Alerts List (#9), Dashboard (#6) | List all alerts |
-| `/api/alerts` | POST | Alert Modal (#8) | Create alert |
-| `/api/alerts/{id}` | PATCH | Alert Modal (#8) | Update alert |
-| `/api/alerts/{id}` | DELETE | Alerts List (#9) | Delete alert |
-| `/api/tier/symbols` | GET | Chart Controls (#13), Alert Modal (#8) | Get allowed symbols |
-| `/api/tier/check/{symbol}` | GET | Chart Controls (#13) | Check symbol access |
-| `/api/subscription` | GET | Billing (#10) | Get subscription status |
-| `/api/checkout` | POST | Pricing (#2), Billing (#10) | Start Stripe checkout |
-| `/api/subscription/cancel` | POST | Billing (#10) | Cancel subscription |
-| `/api/invoices` | GET | Billing (#10) | Get invoice history |
-| `/api/user/profile` | GET | Profile Settings (#12) | Get user profile |
-| `/api/user/profile` | PATCH | Profile Settings (#12) | Update profile |
-| `/api/notifications` | GET | Notification Bell (#15) | List notifications |
-| `/api/notifications/{id}/read` | PATCH | Notification Bell (#15) | Mark as read |
+| Endpoint                       | Method | Used By                                | Purpose                   |
+| ------------------------------ | ------ | -------------------------------------- | ------------------------- |
+| `/api/auth/register`           | POST   | Registration (#3)                      | Create new user account   |
+| `/api/auth/forgot-password`    | POST   | Forgot Password (#5)                   | Send password reset email |
+| `/api/dashboard/stats`         | GET    | Dashboard Overview (#6)                | Get user stats            |
+| `/api/watchlist`               | GET    | Watchlist (#7)                         | List watchlist items      |
+| `/api/watchlist`               | POST   | Watchlist (#7)                         | Add watchlist item        |
+| `/api/watchlist/{id}`          | DELETE | Watchlist (#7)                         | Remove watchlist item     |
+| `/api/watchlist/reorder`       | PATCH  | Watchlist (#7)                         | Reorder items             |
+| `/api/alerts`                  | GET    | Alerts List (#9), Dashboard (#6)       | List all alerts           |
+| `/api/alerts`                  | POST   | Alert Modal (#8)                       | Create alert              |
+| `/api/alerts/{id}`             | PATCH  | Alert Modal (#8)                       | Update alert              |
+| `/api/alerts/{id}`             | DELETE | Alerts List (#9)                       | Delete alert              |
+| `/api/tier/symbols`            | GET    | Chart Controls (#13), Alert Modal (#8) | Get allowed symbols       |
+| `/api/tier/check/{symbol}`     | GET    | Chart Controls (#13)                   | Check symbol access       |
+| `/api/subscription`            | GET    | Billing (#10)                          | Get subscription status   |
+| `/api/checkout`                | POST   | Pricing (#2), Billing (#10)            | Start Stripe checkout     |
+| `/api/subscription/cancel`     | POST   | Billing (#10)                          | Cancel subscription       |
+| `/api/invoices`                | GET    | Billing (#10)                          | Get invoice history       |
+| `/api/user/profile`            | GET    | Profile Settings (#12)                 | Get user profile          |
+| `/api/user/profile`            | PATCH  | Profile Settings (#12)                 | Update profile            |
+| `/api/notifications`           | GET    | Notification Bell (#15)                | List notifications        |
+| `/api/notifications/{id}/read` | PATCH  | Notification Bell (#15)                | Mark as read              |
 
 ---
 
@@ -517,7 +537,7 @@ All required dependencies for v0.dev components are already in `package.json`:
 ✅ **Auth:** next-auth@^4.24.5
 ✅ **Database:** @prisma/client@^5.7.0
 ✅ **Forms:** react-hook-form@^7.49.0, zod@^3.22.4, @hookform/resolvers@^3.3.3
-✅ **UI:** @radix-ui/react-* (14 components), lucide-react@^0.303.0
+✅ **UI:** @radix-ui/react-\* (14 components), lucide-react@^0.303.0
 ✅ **Charts:** lightweight-charts@^4.1.1
 ✅ **Payment:** stripe@^14.10.0, @stripe/stripe-js@^2.4.0
 ✅ **Utils:** date-fns@^3.0.6, clsx@^2.1.0, tailwind-merge@^2.2.0
@@ -530,26 +550,29 @@ All required dependencies for v0.dev components are already in `package.json`:
 ## 🎓 Best Practices for Component Adaptation
 
 ### 1. Server Components First (Next.js 15)
+
 ```typescript
 // Default to server components for pages
 export default async function DashboardPage() {
-  const session = await getServerSession()
+  const session = await getServerSession();
   // ...
 }
 ```
 
 ### 2. Client Components Only When Needed
+
 ```typescript
 // Mark as client only if using hooks, events, or browser APIs
-'use client'
+'use client';
 
 export function AlertModal() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   // ...
 }
 ```
 
 ### 3. Tier Validation Pattern
+
 ```typescript
 import { validateTierAccess } from '@/lib/tier/validator'
 
@@ -560,18 +583,23 @@ if (!accessCheck.allowed) {
 ```
 
 ### 4. Error Handling Pattern
+
 ```typescript
 try {
-  const response = await fetch('/api/alerts', { method: 'POST', body: JSON.stringify(data) })
-  if (!response.ok) throw new Error('Failed to create alert')
-  toast.success('Alert created successfully!')
+  const response = await fetch('/api/alerts', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to create alert');
+  toast.success('Alert created successfully!');
 } catch (error) {
-  console.error('Alert creation failed:', error)
-  toast.error('Failed to create alert. Please try again.')
+  console.error('Alert creation failed:', error);
+  toast.error('Failed to create alert. Please try again.');
 }
 ```
 
 ### 5. Loading States Pattern
+
 ```typescript
 const [isLoading, setIsLoading] = useState(false)
 
@@ -584,25 +612,25 @@ return <ActualContent />
 
 ## 📊 Progress Tracking
 
-| # | Component | V0 Generated | Organized | Production Built | Validated | Status |
-|---|-----------|--------------|-----------|------------------|-----------|--------|
-| 1 | Homepage | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 2 | Pricing | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 3 | Registration | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 4 | Login | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 5 | Forgot Password | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 6 | Dashboard Overview | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 7 | Watchlist | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 8 | Alert Modal | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 9 | Alerts List | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 10 | Billing | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 11 | Settings Layout | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 12 | Profile Settings | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 13 | Chart Controls | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 14 | Empty States | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 15 | Notification Bell | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 16 | User Menu | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
-| 17 | Footer | ⬜ | ⬜ | ⬜ | ⬜ | Pending |
+| #   | Component          | V0 Generated | Organized | Production Built | Validated | Status  |
+| --- | ------------------ | ------------ | --------- | ---------------- | --------- | ------- |
+| 1   | Homepage           | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 2   | Pricing            | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 3   | Registration       | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 4   | Login              | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 5   | Forgot Password    | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 6   | Dashboard Overview | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 7   | Watchlist          | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 8   | Alert Modal        | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 9   | Alerts List        | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 10  | Billing            | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 11  | Settings Layout    | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 12  | Profile Settings   | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 13  | Chart Controls     | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 14  | Empty States       | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 15  | Notification Bell  | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 16  | User Menu          | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
+| 17  | Footer             | ⬜           | ⬜        | ⬜               | ⬜        | Pending |
 
 **Legend:**
 ⬜ Not started
@@ -621,6 +649,7 @@ return <ActualContent />
 **Documentation:** Complete ✅
 
 **Next Steps:**
+
 1. Generate all 17 components in v0.dev
 2. Save to `seed-code/v0-components/{category}/` folders
 3. Run Aider in autonomous mode
