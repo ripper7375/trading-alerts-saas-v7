@@ -1,7 +1,7 @@
 # Schema and Tests Verification for Unified Authentication
 
 **Date:** 2025-11-28
-**Purpose:** Verify unified auth schema and tests are correct before rebuilding lib/auth/*
+**Purpose:** Verify unified auth schema and tests are correct before rebuilding lib/auth/\*
 **Status:** ✅ VERIFIED - Ready for Aider rebuild
 
 ---
@@ -9,7 +9,9 @@
 ## ✅ 1. Prisma Schema Verification
 
 ### User Model (Unified Auth Support)
+
 ✅ **isAffiliate field added:**
+
 ```prisma
 // Line 78-79
 // Affiliate System (Unified Auth)
@@ -17,19 +19,23 @@ isAffiliate   Boolean  @default(false)  // Can be both SaaS user AND affiliate
 ```
 
 ✅ **affiliateProfile relation added:**
+
 ```prisma
 // Line 108
 affiliateProfile  AffiliateProfile?  // Nullable - only if isAffiliate = true
 ```
 
 ✅ **Index added:**
+
 ```prisma
 // Line 117
 @@index([isAffiliate])
 ```
 
 ### Subscription Model (Affiliate Tracking)
+
 ✅ **affiliateCodeId field added:**
+
 ```prisma
 // Line 132-133
 // Affiliate tracking
@@ -37,13 +43,16 @@ affiliateCodeId    String?  // Track which affiliate code was used (nullable)
 ```
 
 ✅ **Index added:**
+
 ```prisma
 // Line 159
 @@index([affiliateCodeId])
 ```
 
 ### Affiliate Models
+
 ✅ **AffiliateProfile model** (lines 292-335)
+
 - userId (unique, 1-to-1 with User)
 - fullName, country
 - Social media URLs (optional)
@@ -53,6 +62,7 @@ affiliateCodeId    String?  // Track which affiliate code was used (nullable)
 - Relations: affiliateCodes[], commissions[]
 
 ✅ **AffiliateCode model** (lines 337-370)
+
 - code (unique)
 - affiliateProfileId
 - discountPercent, commissionPercent
@@ -62,6 +72,7 @@ affiliateCodeId    String?  // Track which affiliate code was used (nullable)
 - usedBy (userId), subscriptionId
 
 ✅ **Commission model** (lines 372-411)
+
 - affiliateProfileId
 - affiliateCodeId
 - userId (SaaS user who upgraded)
@@ -71,16 +82,21 @@ affiliateCodeId    String?  // Track which affiliate code was used (nullable)
 - Payment tracking fields
 
 ### Enums
+
 ✅ **AffiliateStatus** (lines 36-41)
+
 - PENDING_VERIFICATION, ACTIVE, SUSPENDED, INACTIVE
 
 ✅ **CodeStatus** (lines 43-48)
+
 - ACTIVE, USED, EXPIRED, CANCELLED
 
 ✅ **DistributionReason** (lines 50-54)
+
 - INITIAL, MONTHLY, ADMIN_BONUS
 
 ✅ **CommissionStatus** (lines 56-61)
+
 - PENDING, APPROVED, PAID, CANCELLED
 
 ---
@@ -88,7 +104,9 @@ affiliateCodeId    String?  // Track which affiliate code was used (nullable)
 ## ✅ 2. TypeScript Types Verification
 
 ### types/next-auth.d.ts
+
 ✅ **Session.user interface:**
+
 ```typescript
 user: {
   id: string;
@@ -100,6 +118,7 @@ user: {
 ```
 
 ✅ **User interface:**
+
 ```typescript
 interface User extends DefaultUser {
   tier: 'FREE' | 'PRO';
@@ -109,6 +128,7 @@ interface User extends DefaultUser {
 ```
 
 ✅ **JWT interface:**
+
 ```typescript
 interface JWT extends DefaultJWT {
   id: string;
@@ -122,8 +142,10 @@ interface JWT extends DefaultJWT {
 
 ## ✅ 3. Test Files Verification
 
-### __tests__/lib/auth/errors.test.ts (5.7 KB)
+### **tests**/lib/auth/errors.test.ts (5.7 KB)
+
 ✅ Tests all error classes:
+
 - AuthError (message, code, statusCode, name)
 - OAuthError (provider)
 - CredentialsError (default and custom messages)
@@ -131,6 +153,7 @@ interface JWT extends DefaultJWT {
 - TierAccessError
 
 ✅ Tests error message helpers:
+
 - getOAuthErrorMessage (7 OAuth error types)
 - getAuthErrorMessage (8 auth error codes)
 
@@ -140,8 +163,10 @@ interface JWT extends DefaultJWT {
 
 ---
 
-### __tests__/lib/auth/session.test.ts (14 KB)
+### **tests**/lib/auth/session.test.ts (14 KB)
+
 ✅ Tests all session helper functions:
+
 - getSession() - success, null, error
 - requireAuth() - authenticated, unauthenticated
 - getUserSession() - with/without session
@@ -154,6 +179,7 @@ interface JWT extends DefaultJWT {
 - getSessionOrRedirect() - authenticated/unauthenticated
 
 ✅ Tests unified auth functions:
+
 - isAffiliate() - affiliate status checks
 - requireAffiliate() - affiliate validation
 - getAffiliateProfile() - profile retrieval/null scenarios
@@ -165,8 +191,10 @@ interface JWT extends DefaultJWT {
 
 ---
 
-### __tests__/lib/auth/permissions.test.ts (17 KB)
+### **tests**/lib/auth/permissions.test.ts (17 KB)
+
 ✅ Tests permission system:
+
 - hasPermission() for all features:
   - Authentication requirements
   - Admin permissions (admin_dashboard)
@@ -176,11 +204,13 @@ interface JWT extends DefaultJWT {
   - API rate limits (FREE: 60/hr, PRO: 300/hr)
 
 ✅ Tests unified auth permissions:
+
 - affiliate_dashboard (requires isAffiliate=true)
 - affiliate_codes (requires isAffiliate=true)
 - commission_reports (requires isAffiliate=true)
 
 ✅ Tests access controls:
+
 - canAccessSymbol() - FREE (5) vs PRO (15)
 - canAccessTimeframe() - FREE (3) vs PRO (9)
 - canAccessCombination() - symbol + timeframe
@@ -189,6 +219,7 @@ interface JWT extends DefaultJWT {
 - checkTierLimits() - alerts and watchlist limits
 
 ✅ Tests permission middleware:
+
 - checkPermission() - throws AuthError/TierAccessError
 - withPermission() - higher-order function
 
@@ -199,11 +230,14 @@ interface JWT extends DefaultJWT {
 
 ---
 
-### __tests__/lib/auth/auth-options.test.ts (11 KB)
+### **tests**/lib/auth/auth-options.test.ts (11 KB)
+
 ✅ Tests NextAuth configuration:
+
 - authOptions validation (session, pages, providers, callbacks, events)
 
 ✅ Tests credentials provider:
+
 - authorize() function with 12+ scenarios:
   - Missing credentials (email/password)
   - User not found
@@ -214,11 +248,13 @@ interface JWT extends DefaultJWT {
   - Successful authentication (PRO/ADMIN/Affiliate)
 
 ✅ Tests callbacks:
+
 - JWT callback (initial sign-in and updates)
 - Session callback (user population from token)
 - SignIn callback validation
 
 ✅ Tests exports:
+
 - GET and POST handlers
 
 **Test Suites:** 8
@@ -231,6 +267,7 @@ interface JWT extends DefaultJWT {
 ## ✅ 4. Implementation Files Status
 
 ### Current State (To Be Deleted)
+
 ```
 lib/auth/errors.ts          ✅ Has tests (100% coverage expected)
 lib/auth/session.ts         ✅ Has tests (95% coverage expected)
@@ -239,6 +276,7 @@ lib/auth/auth-options.ts    ✅ Has tests (70% coverage expected)
 ```
 
 ### Why Delete and Rebuild?
+
 1. ❌ Current implementation has merge conflicts
 2. ❌ Type errors causing CI/CD failures
 3. ❌ Error loop between fixes and new issues
@@ -247,6 +285,7 @@ lib/auth/auth-options.ts    ✅ Has tests (70% coverage expected)
 6. ✅ Types are correct (isAffiliate support)
 
 ### What Aider Will Rebuild Against
+
 1. ✅ **Schema constraints** (prisma/schema.prisma)
    - User.isAffiliate boolean
    - AffiliateProfile 1-to-1 relation
@@ -256,7 +295,7 @@ lib/auth/auth-options.ts    ✅ Has tests (70% coverage expected)
    - Session/User/JWT with isAffiliate
    - Specific tier/role types
 
-3. ✅ **Test constraints** (__tests__/lib/auth/*.test.ts)
+3. ✅ **Test constraints** (**tests**/lib/auth/\*.test.ts)
    - 210+ test cases defining expected behavior
    - All functions signatures defined
    - All error scenarios covered
@@ -266,6 +305,7 @@ lib/auth/auth-options.ts    ✅ Has tests (70% coverage expected)
 ## ✅ 5. Verification Summary
 
 ### Schema Status
+
 ✅ User model has unified auth fields (isAffiliate, affiliateProfile)
 ✅ Subscription tracks affiliate codes (affiliateCodeId)
 ✅ All affiliate models defined (AffiliateProfile, AffiliateCode, Commission)
@@ -274,12 +314,14 @@ lib/auth/auth-options.ts    ✅ Has tests (70% coverage expected)
 ✅ Schema is complete and correct for unified authentication
 
 ### Types Status
+
 ✅ NextAuth types extended with isAffiliate
 ✅ Tier and role types are specific unions (not generic strings)
 ✅ All custom properties properly typed
 ✅ Types align with Prisma schema
 
 ### Tests Status
+
 ✅ 4 comprehensive test files created (48 KB total)
 ✅ 210+ test cases across 40 test suites
 ✅ All functions have test coverage defined
@@ -287,7 +329,8 @@ lib/auth/auth-options.ts    ✅ Has tests (70% coverage expected)
 ✅ Proper mocking of dependencies (NextAuth, Prisma, bcrypt)
 
 ### Implementation Status
-⚠️ Current lib/auth/*.ts files have conflicts
+
+⚠️ Current lib/auth/\*.ts files have conflicts
 ✅ Ready for deletion and rebuild
 ✅ Aider has clear constraints (schema + types + tests)
 ✅ Rebuild will match test expectations
@@ -297,11 +340,13 @@ lib/auth/auth-options.ts    ✅ Has tests (70% coverage expected)
 ## ✅ 6. Next Steps for User
 
 ### Step 1: Delete Conflicting Implementation
+
 ```bash
 rm lib/auth/*.ts
 ```
 
 This removes:
+
 - lib/auth/errors.ts
 - lib/auth/session.ts
 - lib/auth/permissions.ts
@@ -310,6 +355,7 @@ This removes:
 ### Step 2: Run Aider with Part 5 Batch 1
 
 Aider prompt:
+
 ```
 Rebuild Part 5 Batch 1 (Authentication Core) with these constraints:
 
@@ -335,6 +381,7 @@ Verify: npm test __tests__/lib/auth/
 ```
 
 ### Step 3: Verify Tests Pass
+
 ```bash
 npm test __tests__/lib/auth/
 ```
@@ -342,6 +389,7 @@ npm test __tests__/lib/auth/
 Expected result: All 210+ tests pass
 
 ### Step 4: Verify Coverage
+
 ```bash
 npm test -- --coverage
 ```
@@ -353,6 +401,7 @@ Expected result: All thresholds exceeded
 ## ✅ 7. Success Criteria
 
 After Aider rebuild:
+
 - ✅ All 210+ tests pass
 - ✅ Statement coverage > 22%
 - ✅ Branch coverage > 17%
@@ -365,5 +414,5 @@ After Aider rebuild:
 ---
 
 **Status:** ✅ VERIFIED - Schema and tests are correct and ready
-**Action:** User can now delete lib/auth/*.ts and run Aider
+**Action:** User can now delete lib/auth/\*.ts and run Aider
 **Confidence:** HIGH - Tests provide clear implementation contract

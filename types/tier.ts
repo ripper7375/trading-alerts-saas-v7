@@ -21,11 +21,11 @@ export type Tier = 'FREE' | 'PRO';
  * Trial status for 7-day PRO trial
  */
 export type TrialStatus =
-  | 'NOT_STARTED'  // User has not started trial yet
-  | 'ACTIVE'       // Trial is currently active (within 7 days)
-  | 'EXPIRED'      // Trial period ended, no payment method
-  | 'CONVERTED'    // Trial converted to paid subscription
-  | 'CANCELLED';   // User cancelled trial before expiration
+  | 'NOT_STARTED' // User has not started trial yet
+  | 'ACTIVE' // Trial is currently active (within 7 days)
+  | 'EXPIRED' // Trial period ended, no payment method
+  | 'CONVERTED' // Trial converted to paid subscription
+  | 'CANCELLED'; // User cancelled trial before expiration
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // TIER LIMITS
@@ -40,10 +40,10 @@ export interface TierLimits {
   allowedSymbols: string[];
   allowedTimeframes: Timeframe[];
   pricing: {
-    monthlyPrice: number;    // in USD
-    yearlyPrice?: number;    // in USD (if available)
-    hasFreeTrial: boolean;   // 7-day free trial for PRO
-    trialDays?: number;      // number of trial days
+    monthlyPrice: number; // in USD
+    yearlyPrice?: number; // in USD (if available)
+    hasFreeTrial: boolean; // 7-day free trial for PRO
+    trialDays?: number; // number of trial days
   };
   features: {
     advancedCharts: boolean;
@@ -64,15 +64,15 @@ export interface TierLimits {
  * PRO tier: All 9 timeframes
  */
 export type Timeframe =
-  | 'M5'   // PRO only
-  | 'M15'  // PRO only
-  | 'M30'  // PRO only
-  | 'H1'   // FREE + PRO
-  | 'H2'   // PRO only
-  | 'H4'   // FREE + PRO
-  | 'H8'   // PRO only
-  | 'H12'  // PRO only
-  | 'D1';  // FREE + PRO
+  | 'M5' // PRO only
+  | 'M15' // PRO only
+  | 'M30' // PRO only
+  | 'H1' // FREE + PRO
+  | 'H2' // PRO only
+  | 'H4' // FREE + PRO
+  | 'H8' // PRO only
+  | 'H12' // PRO only
+  | 'D1'; // FREE + PRO
 
 /**
  * Timeframe display labels
@@ -97,27 +97,27 @@ export const TIMEFRAME_LABELS: Record<Timeframe, string> = {
  * FREE tier symbols (5 symbols)
  */
 export const FREE_TIER_SYMBOLS = [
-  'BTCUSD',  // Bitcoin
-  'EURUSD',  // Euro
-  'USDJPY',  // Yen
-  'US30',    // Dow Jones
-  'XAUUSD',  // Gold
+  'BTCUSD', // Bitcoin
+  'EURUSD', // Euro
+  'USDJPY', // Yen
+  'US30', // Dow Jones
+  'XAUUSD', // Gold
 ] as const;
 
 /**
  * PRO tier exclusive symbols (10 additional)
  */
 export const PRO_TIER_EXCLUSIVE_SYMBOLS = [
-  'GBPUSD',  // Pound
-  'AUDUSD',  // Australian Dollar
-  'USDCAD',  // Canadian Dollar
-  'USDCHF',  // Swiss Franc
-  'NZDUSD',  // New Zealand Dollar
-  'EURJPY',  // Euro-Yen
-  'GBPJPY',  // Pound-Yen
-  'AUDJPY',  // Aussie-Yen
-  'NAS100',  // Nasdaq
-  'SPX500',  // S&P 500
+  'GBPUSD', // Pound
+  'AUDUSD', // Australian Dollar
+  'USDCAD', // Canadian Dollar
+  'USDCHF', // Swiss Franc
+  'NZDUSD', // New Zealand Dollar
+  'EURJPY', // Euro-Yen
+  'GBPJPY', // Pound-Yen
+  'AUDJPY', // Aussie-Yen
+  'NAS100', // Nasdaq
+  'SPX500', // S&P 500
 ] as const;
 
 /**
@@ -131,7 +131,7 @@ export const PRO_TIER_SYMBOLS = [
 /**
  * All available symbols (union type)
  */
-export type Symbol = typeof PRO_TIER_SYMBOLS[number];
+export type Symbol = (typeof PRO_TIER_SYMBOLS)[number];
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // TIER CONFIGURATION

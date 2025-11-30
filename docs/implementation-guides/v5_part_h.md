@@ -181,8 +181,8 @@ export default function AdminDashboard() {
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-gray-500 h-2 rounded-full" 
+              <div
+                className="bg-gray-500 h-2 rounded-full"
                 style={{ width: `${analytics?.freePercentage || 0}%` }}
               />
             </div>
@@ -195,8 +195,8 @@ export default function AdminDashboard() {
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full" 
+              <div
+                className="bg-blue-600 h-2 rounded-full"
                 style={{ width: `${analytics?.proPercentage || 0}%` }}
               />
             </div>
@@ -292,7 +292,7 @@ export default function AdminUsers() {
       const params = new URLSearchParams();
       if (search) params.append('search', search);
       if (tierFilter !== 'ALL') params.append('tier', tierFilter);
-      
+
       const res = await fetch(`/api/admin/users?${params}`);
       return res.json();
     }
@@ -417,18 +417,18 @@ export default function AdminUsers() {
                         <DropdownMenuItem>Edit User</DropdownMenuItem>
                         {user.tier === 'FREE' ? (
                           <DropdownMenuItem
-                            onClick={() => changeTier.mutate({ 
-                              userId: user.id, 
-                              newTier: 'PRO' 
+                            onClick={() => changeTier.mutate({
+                              userId: user.id,
+                              newTier: 'PRO'
                             })}
                           >
                             Upgrade to PRO
                           </DropdownMenuItem>
                         ) : (
                           <DropdownMenuItem
-                            onClick={() => changeTier.mutate({ 
-                              userId: user.id, 
-                              newTier: 'FREE' 
+                            onClick={() => changeTier.mutate({
+                              userId: user.id,
+                              newTier: 'FREE'
                             })}
                           >
                             Downgrade to FREE
@@ -622,12 +622,12 @@ export default function PricingPage() {
                 className="w-full mb-6"
                 variant={plan.highlight ? 'default' : 'outline'}
               >
-                {!session 
-                  ? 'Get Started' 
-                  : session.user.tier === plan.tier 
+                {!session
+                  ? 'Get Started'
+                  : session.user.tier === plan.tier
                     ? 'Current Plan'
-                    : plan.name === 'Free' 
-                      ? 'Switch to Free' 
+                    : plan.name === 'Free'
+                      ? 'Switch to Free'
                       : 'Upgrade to Pro'}
               </Button>
 
@@ -661,8 +661,8 @@ export default function PricingPage() {
           {TIER_SYMBOLS.PRO.map((symbol) => {
             const inFree = TIER_SYMBOLS.FREE.includes(symbol as any);
             return (
-              <div 
-                key={symbol} 
+              <div
+                key={symbol}
                 className="grid grid-cols-3 gap-4 p-4 border-b last:border-0 items-center"
               >
                 <div className="font-medium">{symbol}</div>
@@ -693,37 +693,37 @@ export default function PricingPage() {
               Can I connect my own MT5 account?
             </h3>
             <p className="text-gray-600">
-              No, this is a commercial SaaS platform. All data comes from our professional 
+              No, this is a commercial SaaS platform. All data comes from our professional
               MT5 terminal, ensuring consistent, high-quality data for all users.
             </p>
           </Card>
-          
+
           <Card className="p-6">
             <h3 className="font-semibold mb-2">
               What happens if I downgrade from PRO to FREE?
             </h3>
             <p className="text-gray-600">
-              You'll lose access to 9 symbols and will only be able to track XAUUSD. 
+              You'll lose access to 9 symbols and will only be able to track XAUUSD.
               Your alerts for other symbols will be paused but not deleted.
             </p>
           </Card>
-          
+
           <Card className="p-6">
             <h3 className="font-semibold mb-2">
               How many timeframes can I use?
             </h3>
             <p className="text-gray-600">
-              Both FREE and PRO tiers have access to all 7 timeframes (M1, M5, M15, M30, H1, H4, D1). 
+              Both FREE and PRO tiers have access to all 7 timeframes (M1, M5, M15, M30, H1, H4, D1).
               The difference is in the number of symbols you can track.
             </p>
           </Card>
-          
+
           <Card className="p-6">
             <h3 className="font-semibold mb-2">
               Can I cancel anytime?
             </h3>
             <p className="text-gray-600">
-              Yes! PRO subscriptions can be cancelled at any time. You'll retain PRO access 
+              Yes! PRO subscriptions can be cancelled at any time. You'll retain PRO access
               until the end of your billing period, then automatically switch to FREE.
             </p>
           </Card>
@@ -738,7 +738,7 @@ export default function PricingPage() {
         <p className="text-xl text-gray-600 mb-8">
           Start with FREE, upgrade anytime
         </p>
-        <Button 
+        <Button
           size="lg"
           onClick={() => router.push('/register')}
         >
@@ -761,12 +761,12 @@ import { authOptions } from '@/lib/auth/auth-options';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia'  // V5: Updated Stripe API version
+  apiVersion: '2024-11-20.acacia', // V5: Updated Stripe API version
 });
 
 // V5: Only PRO tier has a price ID
 const priceIds = {
-  PRO: process.env.STRIPE_PRO_PRICE_ID!
+  PRO: process.env.STRIPE_PRO_PRICE_ID!,
 };
 
 export async function POST(request: NextRequest) {
@@ -807,12 +807,11 @@ export async function POST(request: NextRequest) {
       cancel_url: `${process.env.NEXTAUTH_URL}/pricing?canceled=true`,
       metadata: {
         userId: session.user.id,
-        tier: 'PRO'
-      }
+        tier: 'PRO',
+      },
     });
 
     return NextResponse.json({ url: checkoutSession.url });
-
   } catch (error) {
     console.error('Checkout error:', error);
     return NextResponse.json(
@@ -834,7 +833,7 @@ import Stripe from 'stripe';
 import { prisma } from '@/lib/db/prisma';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia'
+  apiVersion: '2024-11-20.acacia',
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -864,11 +863,11 @@ export async function POST(request: NextRequest) {
           // Update user to PRO tier
           await prisma.user.update({
             where: { id: userId },
-            data: { 
+            data: {
               tier: 'PRO',
               stripeCustomerId: session.customer as string,
-              stripeSubscriptionId: session.subscription as string
-            }
+              stripeSubscriptionId: session.subscription as string,
+            },
           });
 
           // Create subscription record
@@ -880,8 +879,8 @@ export async function POST(request: NextRequest) {
               stripeSubscriptionId: session.subscription as string,
               stripeCustomerId: session.customer as string,
               stripePriceId: session.line_items?.data[0]?.price?.id!,
-              stripeCurrentPeriodEnd: new Date(session.expires_at * 1000)
-            }
+              stripeCurrentPeriodEnd: new Date(session.expires_at * 1000),
+            },
           });
         }
         break;
@@ -889,35 +888,37 @@ export async function POST(request: NextRequest) {
 
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
-        
+
         await prisma.subscription.update({
           where: { stripeSubscriptionId: subscription.id },
           data: {
             status: subscription.status === 'active' ? 'ACTIVE' : 'CANCELLED',
-            stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000)
-          }
+            stripeCurrentPeriodEnd: new Date(
+              subscription.current_period_end * 1000
+            ),
+          },
         });
         break;
       }
 
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
-        
+
         // Downgrade user to FREE tier
         const sub = await prisma.subscription.findUnique({
           where: { stripeSubscriptionId: subscription.id },
-          include: { user: true }
+          include: { user: true },
         });
 
         if (sub) {
           await prisma.user.update({
             where: { id: sub.userId },
-            data: { tier: 'FREE' }
+            data: { tier: 'FREE' },
           });
 
           await prisma.subscription.update({
             where: { stripeSubscriptionId: subscription.id },
-            data: { status: 'CANCELLED' }
+            data: { status: 'CANCELLED' },
           });
         }
         break;
@@ -925,7 +926,6 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ received: true });
-
   } catch (error) {
     console.error('Webhook handler error:', error);
     return NextResponse.json(
@@ -970,7 +970,9 @@ export const TIMEFRAMES = {
 } as const;
 
 export type UserTier = 'FREE' | 'PRO';
-export type Symbol = typeof TIER_SYMBOLS.FREE[number] | typeof TIER_SYMBOLS.PRO[number];
+export type Symbol =
+  | (typeof TIER_SYMBOLS.FREE)[number]
+  | (typeof TIER_SYMBOLS.PRO)[number];
 export type Timeframe = keyof typeof TIMEFRAMES;
 
 // Helper functions
@@ -1001,7 +1003,7 @@ export function getTierFeatures(tier: UserTier) {
       timeframes: 7,
       alerts: 'Basic',
       support: 'Community',
-      price: 0
+      price: 0,
     },
     PRO: {
       symbols: 10,
@@ -1009,8 +1011,8 @@ export function getTierFeatures(tier: UserTier) {
       timeframes: 7,
       alerts: 'Unlimited',
       support: 'Priority',
-      price: 29
-    }
+      price: 29,
+    },
   };
 
   return features[tier];

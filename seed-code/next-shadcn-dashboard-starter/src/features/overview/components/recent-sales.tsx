@@ -61,7 +61,7 @@ export function RecentSales() {
                 <AvatarFallback>{sale.fallback}</AvatarFallback>
               </Avatar>
               <div className='ml-4 space-y-1'>
-                <p className='text-sm leading-none font-medium'>{sale.name}</p>
+                <p className='text-sm font-medium leading-none'>{sale.name}</p>
                 <p className='text-muted-foreground text-sm'>{sale.email}</p>
               </div>
               <div className='ml-auto font-medium'>{sale.amount}</div>

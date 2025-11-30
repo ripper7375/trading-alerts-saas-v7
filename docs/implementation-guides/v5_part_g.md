@@ -48,14 +48,14 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4">
             <p className="text-sm text-gray-600 mb-1">Current Plan</p>
             <div className="flex items-center justify-between">
-              <Badge 
+              <Badge
                 variant={session?.user?.tier === 'PRO' ? 'default' : 'secondary'}
                 className="text-sm"
               >
                 {session?.user?.tier || 'FREE'}
               </Badge>
               {session?.user?.tier === 'FREE' && (
-                <Link 
+                <Link
                   href="/settings/billing"
                   className="text-xs text-blue-600 hover:underline"
                 >
@@ -87,7 +87,7 @@ export default function SettingsLayout({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
-          
+
           <button
             onClick={() => signOut({ callbackUrl: '/' })}
             className="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-red-50 text-red-600 w-full"
@@ -166,10 +166,10 @@ export default function ProfileSettings() {
     if (!file) return;
 
     setUploading(true);
-    
+
     // Implement file upload logic here
     // For example, upload to S3 or similar service
-    
+
     setUploading(false);
   }
 
@@ -188,7 +188,7 @@ export default function ProfileSettings() {
                   {session?.user?.tier || 'FREE'}
                 </Badge>
                 <span className="text-sm text-gray-700">
-                  {session?.user?.tier === 'FREE' 
+                  {session?.user?.tier === 'FREE'
                     ? 'Access to XAUUSD'
                     : 'Access to 10 symbols'}
                 </span>
@@ -471,7 +471,7 @@ export default function BillingSettings() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <Badge 
+              <Badge
                 variant={currentTier === 'PRO' ? 'default' : 'secondary'}
                 className="text-lg px-3 py-1"
               >
@@ -506,7 +506,7 @@ export default function BillingSettings() {
         {/* Action Buttons */}
         <div className="flex gap-2">
           {currentTier === 'FREE' ? (
-            <Button 
+            <Button
               onClick={() => upgradeToPro.mutate()}
               disabled={upgradeToPro.isPending}
               className="flex items-center gap-2"
@@ -528,13 +528,13 @@ export default function BillingSettings() {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="flex gap-2 justify-end">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setShowCancelDialog(false)}
                   >
                     Keep PRO
                   </Button>
-                  <Button 
+                  <Button
                     variant="destructive"
                     onClick={() => cancelSubscription.mutate()}
                     disabled={cancelSubscription.isPending}
@@ -576,7 +576,7 @@ export default function BillingSettings() {
               </ul>
             </div>
           </div>
-          <Button 
+          <Button
             onClick={() => upgradeToPro.mutate()}
             disabled={upgradeToPro.isPending}
             className="w-full"
@@ -651,7 +651,7 @@ export function useSubscription() {
       const res = await fetch('/api/subscription');
       if (!res.ok) throw new Error('Failed to fetch subscription');
       return res.json();
-    }
+    },
   });
 
   const upgradeToPro = useMutation({
@@ -659,7 +659,7 @@ export function useSubscription() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tier: 'PRO' })
+        body: JSON.stringify({ tier: 'PRO' }),
       });
       const data = await res.json();
       if (data.url) {
@@ -671,15 +671,15 @@ export function useSubscription() {
       toast({
         title: 'Error',
         description: 'Failed to start upgrade process',
-        variant: 'destructive'
+        variant: 'destructive',
       });
-    }
+    },
   });
 
   const cancelSubscription = useMutation({
     mutationFn: async () => {
       const res = await fetch('/api/subscription/cancel', {
-        method: 'POST'
+        method: 'POST',
       });
       if (!res.ok) throw new Error('Failed to cancel subscription');
       return res.json();
@@ -692,16 +692,16 @@ export function useSubscription() {
       toast({
         title: 'Error',
         description: 'Failed to cancel subscription',
-        variant: 'destructive'
+        variant: 'destructive',
       });
-    }
+    },
   });
 
   return {
     subscription: subscription.data,
     isLoading: subscription.isLoading,
     upgradeToPro,
-    cancelSubscription
+    cancelSubscription,
   };
 }
 ```

@@ -25,6 +25,7 @@
 ### Problem Statement
 
 Currently, discount (20%) and commission (20%) percentages are:
+
 - ❌ Hardcoded in multiple places
 - ❌ Require code changes to update
 - ❌ Can become inconsistent across pages
@@ -33,6 +34,7 @@ Currently, discount (20%) and commission (20%) percentages are:
 ### Solution
 
 Create a **centralized configuration system** where:
+
 - ✅ Admin can change percentages from dashboard
 - ✅ Changes propagate instantly to ALL pages
 - ✅ Single source of truth in database
@@ -46,6 +48,7 @@ Create a **centralized configuration system** where:
 ### Admin Capabilities
 
 **Admin should be able to:**
+
 1. Change platform-wide default discount percentage (e.g., 20% → 30%)
 2. Change platform-wide default commission percentage (e.g., 20% → 40%)
 3. See preview of how changes affect pricing before saving
@@ -54,6 +57,7 @@ Create a **centralized configuration system** where:
 ### Automatic Updates
 
 **When admin changes percentages, update instantly on:**
+
 - ✅ Marketing homepage (discount messaging)
 - ✅ Pricing page (discount offers)
 - ✅ Registration form (discount helper text)
@@ -66,6 +70,7 @@ Create a **centralized configuration system** where:
 ### Constraints
 
 **Important rules:**
+
 1. ❌ **Do NOT retroactively change existing codes** - codes already generated keep their original percentages
 2. ✅ **Only affect NEW codes** - generated after the change
 3. ✅ **Do NOT change existing commissions** - already earned commissions stay the same
@@ -265,6 +270,7 @@ Response (200):
 ```
 
 **Caching:**
+
 - Cache for 5 minutes (reduces database load)
 - Invalidate cache when admin saves changes
 
@@ -353,6 +359,7 @@ Response (400) - Validation Error:
 ```
 
 **Validation Rules:**
+
 - `discountPercent`: 5-50
 - `commissionPercent`: 10-50
 - Both must be integers
@@ -423,8 +430,8 @@ export function useAffiliateConfig() {
     '/api/config/affiliate',
     {
       refreshInterval: 300000, // Refresh every 5 minutes
-      dedupingInterval: 60000,  // Dedupe requests within 1 minute
-      revalidateOnFocus: true,  // Revalidate when user focuses window
+      dedupingInterval: 60000, // Dedupe requests within 1 minute
+      revalidateOnFocus: true, // Revalidate when user focuses window
     }
   );
 
@@ -597,11 +604,13 @@ export default function AffiliateDashboard() {
 ### Caching Strategy
 
 **Level 1: API Response Cache (Redis/Memory)**
+
 - Duration: 5 minutes
 - Invalidated when: Admin saves changes
 - Benefit: Reduces database queries
 
 **Level 2: SWR Client Cache**
+
 - Duration: 1 minute (dedupe)
 - Revalidation: Every 5 minutes, on focus
 - Benefit: Instant UI updates
@@ -638,20 +647,33 @@ export async function getAffiliateConfig() {
           'affiliate_commission_percent',
           'affiliate_codes_per_month',
           'affiliate_max_discount_percent',
-          'affiliate_max_commission_percent'
-        ]
-      }
-    }
+          'affiliate_max_commission_percent',
+        ],
+      },
+    },
   });
 
   // Transform to object
   const config = {
-    discountPercent: parseInt(configs.find(c => c.key === 'affiliate_discount_percent')?.value ?? '20'),
-    commissionPercent: parseInt(configs.find(c => c.key === 'affiliate_commission_percent')?.value ?? '20'),
-    codesPerMonth: parseInt(configs.find(c => c.key === 'affiliate_codes_per_month')?.value ?? '15'),
-    maxDiscountPercent: parseInt(configs.find(c => c.key === 'affiliate_max_discount_percent')?.value ?? '50'),
-    maxCommissionPercent: parseInt(configs.find(c => c.key === 'affiliate_max_commission_percent')?.value ?? '50'),
-    updatedAt: configs[0]?.updatedAt.toISOString() ?? new Date().toISOString()
+    discountPercent: parseInt(
+      configs.find((c) => c.key === 'affiliate_discount_percent')?.value ?? '20'
+    ),
+    commissionPercent: parseInt(
+      configs.find((c) => c.key === 'affiliate_commission_percent')?.value ??
+        '20'
+    ),
+    codesPerMonth: parseInt(
+      configs.find((c) => c.key === 'affiliate_codes_per_month')?.value ?? '15'
+    ),
+    maxDiscountPercent: parseInt(
+      configs.find((c) => c.key === 'affiliate_max_discount_percent')?.value ??
+        '50'
+    ),
+    maxCommissionPercent: parseInt(
+      configs.find((c) => c.key === 'affiliate_max_commission_percent')
+        ?.value ?? '50'
+    ),
+    updatedAt: configs[0]?.updatedAt.toISOString() ?? new Date().toISOString(),
   };
 
   // Cache result
@@ -669,54 +691,61 @@ export async function updateAffiliateConfig(
   reason?: string
 ) {
   // Validate
-  if (updates.discountPercent && (updates.discountPercent < 5 || updates.discountPercent > 50)) {
+  if (
+    updates.discountPercent &&
+    (updates.discountPercent < 5 || updates.discountPercent > 50)
+  ) {
     throw new Error('Discount percentage must be between 5% and 50%');
   }
-  if (updates.commissionPercent && (updates.commissionPercent < 10 || updates.commissionPercent > 50)) {
+  if (
+    updates.commissionPercent &&
+    (updates.commissionPercent < 10 || updates.commissionPercent > 50)
+  ) {
     throw new Error('Commission percentage must be between 10% and 50%');
   }
 
-  const changes: Array<{ key: string; oldValue: string; newValue: string }> = [];
+  const changes: Array<{ key: string; oldValue: string; newValue: string }> =
+    [];
 
   // Update discount
   if (updates.discountPercent !== undefined) {
     const current = await prisma.systemConfig.findUnique({
-      where: { key: 'affiliate_discount_percent' }
+      where: { key: 'affiliate_discount_percent' },
     });
 
     await prisma.systemConfig.update({
       where: { key: 'affiliate_discount_percent' },
       data: {
         value: updates.discountPercent.toString(),
-        updatedBy: adminId
-      }
+        updatedBy: adminId,
+      },
     });
 
     changes.push({
       key: 'affiliate_discount_percent',
       oldValue: current?.value ?? '20',
-      newValue: updates.discountPercent.toString()
+      newValue: updates.discountPercent.toString(),
     });
   }
 
   // Update commission
   if (updates.commissionPercent !== undefined) {
     const current = await prisma.systemConfig.findUnique({
-      where: { key: 'affiliate_commission_percent' }
+      where: { key: 'affiliate_commission_percent' },
     });
 
     await prisma.systemConfig.update({
       where: { key: 'affiliate_commission_percent' },
       data: {
         value: updates.commissionPercent.toString(),
-        updatedBy: adminId
-      }
+        updatedBy: adminId,
+      },
     });
 
     changes.push({
       key: 'affiliate_commission_percent',
       oldValue: current?.value ?? '20',
-      newValue: updates.commissionPercent.toString()
+      newValue: updates.commissionPercent.toString(),
     });
   }
 
@@ -728,8 +757,8 @@ export async function updateAffiliateConfig(
         oldValue: change.oldValue,
         newValue: change.newValue,
         changedBy: adminId,
-        reason
-      }
+        reason,
+      },
     });
   }
 
@@ -738,7 +767,7 @@ export async function updateAffiliateConfig(
 
   return {
     success: true,
-    changes
+    changes,
   };
 }
 ```
@@ -761,8 +790,8 @@ export async function GET() {
 
     return NextResponse.json(config, {
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60'
-      }
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60',
+      },
     });
   } catch (error) {
     console.error('Error fetching affiliate config:', error);
@@ -774,7 +803,7 @@ export async function GET() {
       codesPerMonth: 15,
       maxDiscountPercent: 50,
       maxCommissionPercent: 50,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
   }
 }
@@ -810,7 +839,7 @@ export async function PATCH(req: NextRequest) {
     );
 
     // Calculate preview
-    const regularPrice = 29.00;
+    const regularPrice = 29.0;
     const discountedPrice = regularPrice * (1 - discountPercent / 100);
     const commission = discountedPrice * (commissionPercent / 100);
     const platformRevenue = discountedPrice - commission;
@@ -819,31 +848,42 @@ export async function PATCH(req: NextRequest) {
       success: true,
       updated: {
         discountPercent: {
-          old: parseInt(result.changes.find(c => c.key === 'affiliate_discount_percent')?.oldValue ?? '20'),
-          new: discountPercent
+          old: parseInt(
+            result.changes.find((c) => c.key === 'affiliate_discount_percent')
+              ?.oldValue ?? '20'
+          ),
+          new: discountPercent,
         },
         commissionPercent: {
-          old: parseInt(result.changes.find(c => c.key === 'affiliate_commission_percent')?.oldValue ?? '20'),
-          new: commissionPercent
-        }
+          old: parseInt(
+            result.changes.find((c) => c.key === 'affiliate_commission_percent')
+              ?.oldValue ?? '20'
+          ),
+          new: commissionPercent,
+        },
       },
       preview: {
         regularPrice,
         discountedPrice: parseFloat(discountedPrice.toFixed(2)),
-        customerSavings: parseFloat((regularPrice - discountedPrice).toFixed(2)),
+        customerSavings: parseFloat(
+          (regularPrice - discountedPrice).toFixed(2)
+        ),
         affiliateEarns: parseFloat(commission.toFixed(2)),
-        platformRevenue: parseFloat(platformRevenue.toFixed(2))
+        platformRevenue: parseFloat(platformRevenue.toFixed(2)),
       },
-      message: 'Settings updated successfully. Changes will affect all new codes and appear on all pages within 5 minutes.'
+      message:
+        'Settings updated successfully. Changes will affect all new codes and appear on all pages within 5 minutes.',
     });
-
   } catch (error: any) {
     console.error('Error updating affiliate settings:', error);
 
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'Failed to update settings'
-    }, { status: 400 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || 'Failed to update settings',
+      },
+      { status: 400 }
+    );
   }
 }
 ```
@@ -915,10 +955,10 @@ const { discountPercent } = useAffiliateConfig();
 async function generateCodes() {
   return prisma.affiliateCode.create({
     data: {
-      discountPercent: 20,      // Hardcoded
-      commissionPercent: 20,    // Hardcoded
+      discountPercent: 20, // Hardcoded
+      commissionPercent: 20, // Hardcoded
       // ...
-    }
+    },
   });
 }
 
@@ -928,10 +968,10 @@ async function generateCodes() {
 
   return prisma.affiliateCode.create({
     data: {
-      discountPercent: config.discountPercent,     // Dynamic
+      discountPercent: config.discountPercent, // Dynamic
       commissionPercent: config.commissionPercent, // Dynamic
       // ...
-    }
+    },
   });
 }
 ```
@@ -943,21 +983,25 @@ async function generateCodes() {
 ### What This System Provides
 
 ✅ **Admin Control**
+
 - Single dashboard to change all percentages
 - Real-time preview of impact
 - Audit trail of all changes
 
 ✅ **Instant Updates**
+
 - Changes propagate to all pages within 5 minutes
 - No code deployment needed
 - Consistent across entire platform
 
 ✅ **Safety**
+
 - Existing codes keep original percentages
 - Validation prevents invalid values
 - Audit log for compliance
 
 ✅ **Performance**
+
 - Cached responses (5-minute TTL)
 - Minimal database queries
 - Fast page loads

@@ -45,6 +45,7 @@ Step 6: NOW escalate with full research documented ⚠️
 ### Handling Document Conflicts and Version Precedence
 
 **IMPORTANT:** Due to the large number of documents in this repository, some documents may share the same development context but differ in details. This occurs because:
+
 - Documents are not always updated synchronously
 - Different documents may describe the same feature from different perspectives
 - Earlier documents may not reflect latest architectural decisions
@@ -52,15 +53,16 @@ Step 6: NOW escalate with full research documented ⚠️
 **When you encounter conflicting information between documents:**
 
 1. **Check Git commit dates** to determine which is most recent:
+
    ```bash
    git log --oneline -- path/to/document.md
    ```
 
 2. **Precedence rules** (highest to lowest priority):
    - ✅ **Most recent commit date** = Source of truth
-   - ✅ **Policy documents** (docs/policies/*) = Always current
-   - ✅ **Implementation guides** (docs/implementation-guides/*) = Part-specific details
-   - ✅ **Technical docs** (docs/*) = Specialized features
+   - ✅ **Policy documents** (docs/policies/\*) = Always current
+   - ✅ **Implementation guides** (docs/implementation-guides/\*) = Part-specific details
+   - ✅ **Technical docs** (docs/\*) = Specialized features
    - ✅ **Seed code** = Reference patterns only
 
 3. **Examples of common conflicts:**
@@ -86,12 +88,15 @@ Step 6: NOW escalate with full research documented ⚠️
    - Check most recent commits: `git log --since="1 week ago" -- docs/`
 
 5. **Document in escalation** if conflicts prevent progress:
+
    ```markdown
    ⚠️ Document Conflict Detected:
+
    - Document A: docs/old-guide.md (commit: abc123, date: 2025-01-15)
    - Document B: docs/new-guide.md (commit: def456, date: 2025-11-18)
 
    Conflict: Authentication method
+
    - Document A says: Use Clerk
    - Document B says: Use NextAuth + Google OAuth
 
@@ -106,16 +111,16 @@ Step 6: NOW escalate with full research documented ⚠️
 
 Based on your issue type, check these seed code files **BEFORE** escalating:
 
-| Issue Type | Check These Seed Files First |
-|-----------|------------------------------|
-| **Authentication** | `seed-code/saas-starter/app/(login)/actions.ts`<br>`seed-code/saas-starter/app/(login)/sign-in/page.tsx`<br>`seed-code/saas-starter/app/(login)/sign-up/page.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/app/auth/sign-in/[[...sign-in]]/page.tsx` |
-| **Dashboard Layout** | `seed-code/saas-starter/app/(dashboard)/layout.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/app/dashboard/layout.tsx`<br>`seed-code/v0-components/layouts/dashboard-layout.tsx` |
-| **API Routes** | `seed-code/saas-starter/app/api/user/route.ts`<br>`seed-code/saas-starter/app/api/team/route.ts`<br>`seed-code/saas-starter/app/api/stripe/checkout/route.ts`<br>`seed-code/saas-starter/app/api/stripe/webhook/route.ts` |
-| **Billing/Subscription** | `seed-code/saas-starter/app/(dashboard)/pricing/page.tsx`<br>`seed-code/saas-starter/app/api/stripe/checkout/route.ts`<br>`seed-code/saas-starter/app/api/stripe/webhook/route.ts`<br>`docs/SUBSCRIPTION-MODEL-CLARIFICATION.md` |
-| **Forms** | `seed-code/next-shadcn-dashboard-starter/src/components/forms/demo-form.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/components/forms/form-input.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/components/forms/form-select.tsx` |
-| **UI Components** | `seed-code/v0-components/README.md`<br>`seed-code/v0-components/charts/trading-chart.tsx`<br>`seed-code/v0-components/alerts/alert-card.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/components/layout/*` |
-| **Flask/MT5** | `seed-code/market_ai_engine.py`<br>`docs/flask-multi-mt5-implementation.md`<br>`docs/admin-mt5-dashboard-implementation.md` |
-| **Affiliate System** | `docs/AFFILIATE-MARKETING-DESIGN.md`<br>`docs/implementation-guides/v5_part_r.md` |
+| Issue Type               | Check These Seed Files First                                                                                                                                                                                                                                |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Authentication**       | `seed-code/saas-starter/app/(login)/actions.ts`<br>`seed-code/saas-starter/app/(login)/sign-in/page.tsx`<br>`seed-code/saas-starter/app/(login)/sign-up/page.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/app/auth/sign-in/[[...sign-in]]/page.tsx` |
+| **Dashboard Layout**     | `seed-code/saas-starter/app/(dashboard)/layout.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/app/dashboard/layout.tsx`<br>`seed-code/v0-components/layouts/dashboard-layout.tsx`                                                                     |
+| **API Routes**           | `seed-code/saas-starter/app/api/user/route.ts`<br>`seed-code/saas-starter/app/api/team/route.ts`<br>`seed-code/saas-starter/app/api/stripe/checkout/route.ts`<br>`seed-code/saas-starter/app/api/stripe/webhook/route.ts`                                   |
+| **Billing/Subscription** | `seed-code/saas-starter/app/(dashboard)/pricing/page.tsx`<br>`seed-code/saas-starter/app/api/stripe/checkout/route.ts`<br>`seed-code/saas-starter/app/api/stripe/webhook/route.ts`<br>`docs/SUBSCRIPTION-MODEL-CLARIFICATION.md`                            |
+| **Forms**                | `seed-code/next-shadcn-dashboard-starter/src/components/forms/demo-form.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/components/forms/form-input.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/components/forms/form-select.tsx`             |
+| **UI Components**        | `seed-code/v0-components/README.md`<br>`seed-code/v0-components/charts/trading-chart.tsx`<br>`seed-code/v0-components/alerts/alert-card.tsx`<br>`seed-code/next-shadcn-dashboard-starter/src/components/layout/*`                                           |
+| **Flask/MT5**            | `seed-code/market_ai_engine.py`<br>`docs/flask-multi-mt5-implementation.md`<br>`docs/admin-mt5-dashboard-implementation.md`                                                                                                                                 |
+| **Affiliate System**     | `docs/AFFILIATE-MARKETING-DESIGN.md`<br>`docs/implementation-guides/v5_part_r.md`                                                                                                                                                                           |
 
 ---
 
@@ -123,19 +128,19 @@ Based on your issue type, check these seed code files **BEFORE** escalating:
 
 For each part you're implementing, check the corresponding guide:
 
-| Part | Implementation Guide |
-|------|---------------------|
+| Part   | Implementation Guide                                                 |
+| ------ | -------------------------------------------------------------------- |
 | Part A | `docs/implementation-guides/v5_part_a.md` (Foundation & Root Config) |
-| Part B | `docs/implementation-guides/v5_part_b.md` (Database Schema) |
-| Part C | `docs/implementation-guides/v5_part_c.md` (Type Definitions) |
-| Part D | `docs/implementation-guides/v5_part_d.md` (Utilities & Helpers) |
-| Part E | `docs/implementation-guides/v5_part_e.md` (Authentication) |
-| Part F | `docs/implementation-guides/v5_part_f.md` (Flask MT5 Service) |
-| Part G | `docs/implementation-guides/v5_part_g.md` (API Routes - User) |
-| Part H | `docs/implementation-guides/v5_part_h.md` (API Routes - Charts) |
-| Part I | `docs/implementation-guides/v5_part_i.md` (API Routes - Indicators) |
-| Part J | `docs/implementation-guides/v5_part_j.md` (API Routes - Watchlist) |
-| Part R | `docs/implementation-guides/v5_part_r.md` (Affiliate Marketing) |
+| Part B | `docs/implementation-guides/v5_part_b.md` (Database Schema)          |
+| Part C | `docs/implementation-guides/v5_part_c.md` (Type Definitions)         |
+| Part D | `docs/implementation-guides/v5_part_d.md` (Utilities & Helpers)      |
+| Part E | `docs/implementation-guides/v5_part_e.md` (Authentication)           |
+| Part F | `docs/implementation-guides/v5_part_f.md` (Flask MT5 Service)        |
+| Part G | `docs/implementation-guides/v5_part_g.md` (API Routes - User)        |
+| Part H | `docs/implementation-guides/v5_part_h.md` (API Routes - Charts)      |
+| Part I | `docs/implementation-guides/v5_part_i.md` (API Routes - Indicators)  |
+| Part J | `docs/implementation-guides/v5_part_j.md` (API Routes - Watchlist)   |
+| Part R | `docs/implementation-guides/v5_part_r.md` (Affiliate Marketing)      |
 
 ---
 
@@ -143,14 +148,14 @@ For each part you're implementing, check the corresponding guide:
 
 For complex features, check specialized documentation:
 
-| Feature Area | Technical Documentation |
-|-------------|------------------------|
-| **UI Components** | `docs/ui-components-map.md` |
-| **Affiliate System** | `docs/AFFILIATE-MARKETING-DESIGN.md`<br>`docs/AFFILIATE-SYSTEM-SETTINGS-DESIGN.md` |
-| **System Config** | `docs/SYSTEMCONFIG-USAGE-GUIDE.md` |
-| **Subscriptions** | `docs/SUBSCRIPTION-MODEL-CLARIFICATION.md` |
-| **Admin Dashboard** | `docs/admin-mt5-dashboard-implementation.md` |
-| **Multi-MT5** | `docs/flask-multi-mt5-implementation.md` |
+| Feature Area          | Technical Documentation                                                            |
+| --------------------- | ---------------------------------------------------------------------------------- |
+| **UI Components**     | `docs/ui-components-map.md`                                                        |
+| **Affiliate System**  | `docs/AFFILIATE-MARKETING-DESIGN.md`<br>`docs/AFFILIATE-SYSTEM-SETTINGS-DESIGN.md` |
+| **System Config**     | `docs/SYSTEMCONFIG-USAGE-GUIDE.md`                                                 |
+| **Subscriptions**     | `docs/SUBSCRIPTION-MODEL-CLARIFICATION.md`                                         |
+| **Admin Dashboard**   | `docs/admin-mt5-dashboard-implementation.md`                                       |
+| **Multi-MT5**         | `docs/flask-multi-mt5-implementation.md`                                           |
 | **OAuth Integration** | `docs/google-oauth-integration-summary.md`<br>`docs/OAUTH_IMPLEMENTATION_READY.md` |
 
 ---
@@ -161,29 +166,34 @@ For complex features, check specialized documentation:
 
 ```markdown
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  ESCALATION: [CATEGORY] ⚠️
+⚠️ ESCALATION: [CATEGORY] ⚠️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Pre-Escalation Research Completed:
 ✅ Step 1 - Checked policies:
-   - [List specific policy files checked]
-   - Why policies didn't resolve: [Explanation]
+
+- [List specific policy files checked]
+- Why policies didn't resolve: [Explanation]
 
 ✅ Step 2 - Checked OpenAPI specs:
-   - [Which spec files checked]
-   - Why specs didn't resolve: [Explanation]
+
+- [Which spec files checked]
+- Why specs didn't resolve: [Explanation]
 
 ✅ Step 3 - Checked seed code:
-   - [List specific seed files checked]
-   - Why seed code didn't resolve: [Explanation]
+
+- [List specific seed files checked]
+- Why seed code didn't resolve: [Explanation]
 
 ✅ Step 4 - Checked implementation guide:
-   - [Which guide checked]
-   - Why guide didn't resolve: [Explanation]
+
+- [Which guide checked]
+- Why guide didn't resolve: [Explanation]
 
 ✅ Step 5 - Checked technical docs:
-   - [Which docs checked]
-   - Why docs didn't resolve: [Explanation]
+
+- [Which docs checked]
+- Why docs didn't resolve: [Explanation]
 
 Specific Gap or Ambiguity:
 [What specific information is missing that none of the resources provide]
@@ -198,7 +208,7 @@ Specific Gap or Ambiguity:
 
 ```markdown
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  ESCALATION: Architectural Decision ⚠️
+⚠️ ESCALATION: Architectural Decision ⚠️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Issue Type: Payment Provider Routing
@@ -207,34 +217,40 @@ Severity: High
 
 Pre-Escalation Research Completed:
 ✅ Step 1 - Checked policies:
-   - docs/policies/07-dlocal-integration-rules.md
-   - Why policies didn't resolve: Policy shows dLocal for emerging markets
-     but doesn't specify routing logic (IP-based vs user preference)
+
+- docs/policies/07-dlocal-integration-rules.md
+- Why policies didn't resolve: Policy shows dLocal for emerging markets
+  but doesn't specify routing logic (IP-based vs user preference)
 
 ✅ Step 2 - Checked OpenAPI specs:
-   - trading_alerts_openapi.yaml (checkout endpoint)
-   - docs/dlocal-openapi-endpoints.yaml
-   - Why specs didn't resolve: Specs define both Stripe and dLocal endpoints
-     but don't specify routing decision criteria
+
+- trading_alerts_openapi.yaml (checkout endpoint)
+- docs/dlocal-openapi-endpoints.yaml
+- Why specs didn't resolve: Specs define both Stripe and dLocal endpoints
+  but don't specify routing decision criteria
 
 ✅ Step 3 - Checked seed code:
-   - seed-code/saas-starter/app/api/stripe/checkout/route.ts
-   - Why seed code didn't resolve: Only shows Stripe integration, not
-     dual-provider routing logic
+
+- seed-code/saas-starter/app/api/stripe/checkout/route.ts
+- Why seed code didn't resolve: Only shows Stripe integration, not
+  dual-provider routing logic
 
 ✅ Step 4 - Checked implementation guide:
-   - docs/implementation-guides/v5_part_r.md (billing section)
-   - Why guide didn't resolve: Mentions both providers but doesn't specify
-     routing mechanism
+
+- docs/implementation-guides/v5_part_r.md (billing section)
+- Why guide didn't resolve: Mentions both providers but doesn't specify
+  routing mechanism
 
 ✅ Step 5 - Checked technical docs:
-   - docs/SUBSCRIPTION-MODEL-CLARIFICATION.md
-   - docs/DLOCAL-INTEGRATION-SUMMARY.md
-   - Why docs didn't resolve: Explains what dLocal does but not HOW to route
-     users between Stripe and dLocal
+
+- docs/SUBSCRIPTION-MODEL-CLARIFICATION.md
+- docs/DLOCAL-INTEGRATION-SUMMARY.md
+- Why docs didn't resolve: Explains what dLocal does but not HOW to route
+  users between Stripe and dLocal
 
 Specific Gap or Ambiguity:
 Need to decide routing mechanism for dual payment providers:
+
 - Option A: IP-based geo-detection (auto-route by country)
 - Option B: User preference (let user choose payment method)
 - Option C: Hybrid (default IP-based, allow override)
@@ -253,7 +269,7 @@ This is an architectural decision affecting checkout flow UX.
 ❌ BAD EXAMPLE - DO NOT DO THIS:
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  ESCALATION: How to implement authentication? ⚠️
+⚠️ ESCALATION: How to implement authentication? ⚠️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Problem: I don't know how to implement login/signup pages.
@@ -263,6 +279,7 @@ Problem: I don't know how to implement login/signup pages.
 ```
 
 **Why this is BAD:**
+
 - Didn't check `seed-code/saas-starter/app/(login)/*` (has complete auth examples)
 - Didn't check `docs/implementation-guides/v5_part_e.md` (has auth requirements)
 - Didn't check `docs/policies/08-google-oauth-implementation-rules.md`
@@ -292,6 +309,7 @@ Problem: I don't know how to implement login/signup pages.
 ### When to Escalate
 
 **Escalate IMMEDIATELY when detecting:**
+
 - SQL injection vulnerabilities
 - XSS (Cross-Site Scripting) vulnerabilities
 - Authentication bypass attempts
@@ -423,6 +441,7 @@ Proceed with implementation.
 ### When to Escalate
 
 **Escalate when:**
+
 - OpenAPI spec requires a field that doesn't exist in database schema
 - Response structure doesn't match OpenAPI after 3 auto-fix attempts
 - Missing required fields that require schema changes
@@ -594,6 +613,7 @@ Proceed with schema change.
 ### When to Escalate
 
 **Escalate when:**
+
 - Two policies contradict each other
 - Scenario not covered by any existing policy
 - Unclear which policy takes precedence
@@ -723,6 +743,7 @@ Proceed with policy update and implementation.
 ### When to Escalate
 
 **Escalate when:**
+
 - Multiple valid architectural approaches exist
 - Need to choose between patterns (Server Component vs Client Component)
 - Introducing new folder structure not in v5-structure-division.md
@@ -951,6 +972,7 @@ Proceed with implementation.
 ### When to Escalate
 
 **Escalate when:**
+
 - New npm package needed (not in pre-approved list)
 - New pip package needed for Flask
 - Alternative library proposed (e.g., dayjs vs date-fns)
@@ -1137,6 +1159,7 @@ Proceed with installation and implementation.
 ### When to Escalate
 
 **Escalate when:**
+
 - Adding new table/model to Prisma schema
 - Adding/removing fields from existing models
 - Changing field types (data migration may be required)
@@ -1252,26 +1275,30 @@ Risk Assessment:
 Migration Plan:
 
 1. Local Testing:
-   ```
-   npx prisma migrate dev --name add_triggered_at_to_alert
-   npx prisma studio  # Verify existing alerts have null triggeredAt
-   ```
+```
+
+npx prisma migrate dev --name add_triggered_at_to_alert
+npx prisma studio # Verify existing alerts have null triggeredAt
+
+```
 
 2. Railway Deployment:
-   ```
-   DATABASE_URL="postgresql://..." npx prisma migrate deploy
-   ```
+```
+
+DATABASE_URL="postgresql://..." npx prisma migrate deploy
+
+````
 
 3. Verification:
-   - Check Railway dashboard for migration success
-   - Run query: SELECT id, triggeredAt FROM "Alert" LIMIT 5;
-   - Verify existing alerts have NULL triggeredAt
-   - Create test alert, verify structure
+- Check Railway dashboard for migration success
+- Run query: SELECT id, triggeredAt FROM "Alert" LIMIT 5;
+- Verify existing alerts have NULL triggeredAt
+- Create test alert, verify structure
 
 4. Rollback Plan (if needed):
-   ```sql
-   ALTER TABLE "Alert" DROP COLUMN "triggeredAt";
-   ```
+```sql
+ALTER TABLE "Alert" DROP COLUMN "triggeredAt";
+````
 
 5. Code Updates After Migration:
    - Update API responses to include triggeredAt
@@ -1280,20 +1307,24 @@ Migration Plan:
 
 Awaiting human approval to proceed with migration.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ```
 
 ### How Human Should Respond
 
 ```
+
 Decision: Approved - Proceed with migration
 
 Pre-Migration Checklist:
+
 - [ ] Backup Railway database (Railway dashboard → Database → Create backup)
 - [ ] Migration tested locally successfully
 - [ ] Migration SQL reviewed (just ADD COLUMN, no data changes)
 - [ ] Low-risk migration (nullable field, no constraints)
 
 Actions:
+
 1. Test migration locally (DONE per your message)
 2. Create Railway backup (I'll do this now)
 3. Run migration on Railway:
@@ -1306,6 +1337,7 @@ Actions:
 6. Update PROGRESS.md: "Added triggeredAt field via migration"
 
 Proceed after confirming Railway backup is complete.
+
 ```
 
 ---
@@ -1326,6 +1358,7 @@ Proceed after confirming Railway backup is complete.
 ### What Information to Include
 
 ```
+
 Issue Type: Breaking Change
 File: [filename]
 Severity: High
@@ -1341,6 +1374,7 @@ Proposed Behavior:
 [What you want to change to]
 
 Breaking Impact:
+
 - Frontend: [what breaks in UI]
 - API contracts: [which endpoints affected]
 - Database: [schema changes needed]
@@ -1350,16 +1384,19 @@ Migration Path:
 [How to transition from old to new]
 
 Options:
+
 1. [Immediate breaking change]
 2. [Versioned API approach]
 3. [Gradual migration with deprecation]
+
 ```
 
 ### Example Escalation
 
 ```
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  ESCALATION: Breaking Change ⚠️
+⚠️ ESCALATION: Breaking Change ⚠️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Issue Type: Breaking Change
@@ -1375,8 +1412,8 @@ in object with metadata. This changes response structure.
 Current Behavior:
 GET /api/alerts → Returns:
 [
-  { id: "1", symbol: "EURUSD", ... },
-  { id: "2", symbol: "BTCUSD", ... }
+{ id: "1", symbol: "EURUSD", ... },
+{ id: "2", symbol: "BTCUSD", ... }
 ]
 
 Frontend code expects:
@@ -1387,32 +1424,33 @@ setAlerts(alerts);
 Proposed Behavior:
 GET /api/alerts → Returns:
 {
-  data: [
-    { id: "1", symbol: "EURUSD", ... },
-    { id: "2", symbol: "BTCUSD", ... }
-  ],
-  pagination: {
-    page: 1,
-    pageSize: 20,
-    total: 45,
-    totalPages: 3
-  },
-  filters: {
-    isActive: true
-  }
+data: [
+{ id: "1", symbol: "EURUSD", ... },
+{ id: "2", symbol: "BTCUSD", ... }
+],
+pagination: {
+page: 1,
+pageSize: 20,
+total: 45,
+totalPages: 3
+},
+filters: {
+isActive: true
+}
 }
 
 Frontend code must change to:
 const res = await fetch('/api/alerts?page=1');
 const json = await res.json();
-const alerts = json.data;  // ← Changed
+const alerts = json.data; // ← Changed
 setAlerts(alerts);
 
 Breaking Impact:
+
 - Frontend: All components fetching /api/alerts will break
-  * components/alerts/alert-list.tsx
-  * app/dashboard/alerts/page.tsx
-  * hooks/use-alerts.ts
+  - components/alerts/alert-list.tsx
+  - app/dashboard/alerts/page.tsx
+  - hooks/use-alerts.ts
 - API contract: Violates current OpenAPI spec
 - Database: No changes needed
 - External services: None (internal API only)
@@ -1420,61 +1458,65 @@ Breaking Impact:
 Migration Path:
 
 Option 1: Immediate Breaking Change (NOT RECOMMENDED)
+
 1. Update API route to return new structure
 2. Update frontend to expect new structure
 3. Deploy both simultaneously
-Pros: Simple, clean break
-Cons: Must update all frontend code before deploying
-      Risk of missing a component
+   Pros: Simple, clean break
+   Cons: Must update all frontend code before deploying
+   Risk of missing a component
 
 Option 2: Versioned API (/api/v1/alerts vs /api/v2/alerts)
+
 1. Create new endpoint: /api/v2/alerts with new structure
 2. Keep /api/alerts unchanged (old structure)
 3. Migrate frontend components one by one to /api/v2/alerts
 4. Once all migrated, deprecate /api/alerts
-Pros: No breakage, gradual migration
-Cons: Maintains two endpoints temporarily
-      More code to maintain
+   Pros: No breakage, gradual migration
+   Cons: Maintains two endpoints temporarily
+   More code to maintain
 
 Option 3: Query Parameter Opt-In (RECOMMENDED)
+
 1. Update API to check query param: ?paginated=true
 2. If ?paginated=true → return new structure
 3. If no param → return old structure (backward compatible)
 4. Migrate frontend components to use ?paginated=true
 5. After all migrated, make pagination default (remove param)
 6. Eventually remove old structure support
-Pros: Backward compatible, gradual migration, no duplicate endpoints
-Cons: Slight complexity in API route logic temporarily
+   Pros: Backward compatible, gradual migration, no duplicate endpoints
+   Cons: Slight complexity in API route logic temporarily
 
 Recommended: Option 3 (Query Parameter Opt-In)
 
 Implementation:
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const paginated = searchParams.get('paginated') === 'true';
-  const page = parseInt(searchParams.get('page') || '1');
-  const pageSize = parseInt(searchParams.get('pageSize') || '20');
+const { searchParams } = new URL(req.url);
+const paginated = searchParams.get('paginated') === 'true';
+const page = parseInt(searchParams.get('page') || '1');
+const pageSize = parseInt(searchParams.get('pageSize') || '20');
 
-  const alerts = await getUserAlerts(userId);
+const alerts = await getUserAlerts(userId);
 
-  if (paginated) {
-    // New structure
-    return Response.json({
-      data: alerts.slice((page - 1) * pageSize, page * pageSize),
-      pagination: {
-        page,
-        pageSize,
-        total: alerts.length,
-        totalPages: Math.ceil(alerts.length / pageSize),
-      },
-    });
-  } else {
-    // Old structure (backward compatible)
-    return Response.json(alerts);
-  }
+if (paginated) {
+// New structure
+return Response.json({
+data: alerts.slice((page - 1) _ pageSize, page _ pageSize),
+pagination: {
+page,
+pageSize,
+total: alerts.length,
+totalPages: Math.ceil(alerts.length / pageSize),
+},
+});
+} else {
+// Old structure (backward compatible)
+return Response.json(alerts);
+}
 }
 
 Migration Timeline:
+
 - Week 1: Deploy API with opt-in pagination
 - Week 2: Update frontend components to use ?paginated=true
 - Week 3: Make pagination default, deprecate old structure
@@ -1482,14 +1524,17 @@ Migration Timeline:
 
 Awaiting human decision on breaking change approach.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ```
 
 ### How Human Should Respond
 
 ```
+
 Decision: Option 3 (Query Parameter Opt-In) - Approved
 
 Actions:
+
 1. Implement dual-mode API route as suggested
 2. Update OpenAPI spec to document both modes
 3. Add deprecation notice to old mode:
@@ -1501,7 +1546,8 @@ Actions:
 
 Proceed with implementation. Create TODO in code:
 // TODO: Remove backward compatibility (non-paginated mode) after 2024-02-01
-//       when all frontend components migrated
+// when all frontend components migrated
+
 ```
 
 ---
@@ -1522,12 +1568,14 @@ Due to character limits, I'll create a second file to continue with sections 8-1
 ### What Information to Include
 
 ```
+
 Issue Type: Claude Code Validation Failure
 File: [filename]
 Severity: Critical/High
 Attempts: [number of fix attempts made]
 
 Validation Results:
+
 - Critical: [count]
 - High: [count]
 - Medium: [count]
@@ -1550,16 +1598,19 @@ Root Cause Analysis:
 [Why fixes aren't working - misunderstood requirement? conflicting policies?]
 
 Options:
+
 1. [Try different approach]
 2. [Update policy that's causing conflict]
 3. [Accept validation issue as false positive]
+
 ```
 
 ### Example Escalation
 
 ```
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  ESCALATION: Claude Code Validation Failure ⚠️
+⚠️ ESCALATION: Claude Code Validation Failure ⚠️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Issue Type: Claude Code Validation Failure
@@ -1568,12 +1619,14 @@ Severity: High
 Attempts: 3 (exhausted)
 
 Validation Results:
+
 - Critical: 0
 - High: 4
 - Medium: 2
 - Low: 1
 
 High Severity Issues:
+
 1. Line 45: Missing tier validation for timeframe access
 2. Line 67: MT5 API call not wrapped in try/catch
 3. Line 89: Response doesn't match OpenAPI schema (missing "metadata" field)
@@ -1582,22 +1635,26 @@ High Severity Issues:
 Auto-Fix Attempts:
 
 Attempt 1:
+
 - Added try/catch around MT5 call (fixed issue #2)
 - Added tier validation for symbol (but forgot timeframe - issue #1 remains)
-Result: Still 3 High issues
+  Result: Still 3 High issues
 
 Attempt 2:
+
 - Added timeframe validation (fixed issue #1)
 - Added "metadata" field to response (fixed issue #3)
-Result: Still 2 High issues (new issue appeared: metadata structure wrong)
+  Result: Still 2 High issues (new issue appeared: metadata structure wrong)
 
 Attempt 3:
+
 - Fixed metadata structure
 - Added rate limiting check (fixed issue #4)
-Result: 1 High issue remains (metadata now causes schema mismatch)
+  Result: 1 High issue remains (metadata now causes schema mismatch)
 
 Root Cause Analysis:
 The "metadata" field requirement is unclear:
+
 - Claude Code validation requires it (based on OpenAPI)
 - OpenAPI spec shows: metadata?: { fetchedAt: string; source: string }
 - But when I add it, validation says structure doesn't match
@@ -1609,23 +1666,23 @@ The "metadata" field requirement is unclear:
 
 Current Code:
 export async function GET(
-  req: Request,
-  { params }: { params: { symbol: string; timeframe: string } }
+req: Request,
+{ params }: { params: { symbol: string; timeframe: string } }
 ) {
-  // 1. Authentication ✅
-  const session = await getServerSession();
-  if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+// 1. Authentication ✅
+const session = await getServerSession();
+if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-  // 2. Rate limiting ✅
-  await checkRateLimit(session.user.id);
+// 2. Rate limiting ✅
+await checkRateLimit(session.user.id);
 
-  // 3. Tier validation ✅
-  const userTier = session.user.tier || 'FREE';
-  validateChartAccess(userTier, params.symbol, params.timeframe);
+// 3. Tier validation ✅
+const userTier = session.user.tier || 'FREE';
+validateChartAccess(userTier, params.symbol, params.timeframe);
 
-  // 4. Fetch data ✅
-  try {
-    const data = await fetchFromMT5(params.symbol, params.timeframe);
+// 4. Fetch data ✅
+try {
+const data = await fetchFromMT5(params.symbol, params.timeframe);
 
     return Response.json({
       symbol: params.symbol,
@@ -1636,29 +1693,31 @@ export async function GET(
         source: 'MT5'
       }
     });
-  } catch (error) {
-    console.error('MT5 fetch error:', error);
-    return Response.json({ error: 'Failed to fetch data' }, { status: 500 });
-  }
+
+} catch (error) {
+console.error('MT5 fetch error:', error);
+return Response.json({ error: 'Failed to fetch data' }, { status: 500 });
+}
 }
 
 OpenAPI Spec (trading_alerts_openapi.yaml):
 IndicatorResponse:
-  type: object
-  required: [symbol, timeframe, indicators]
-  properties:
-    symbol: { type: string }
-    timeframe: { type: string }
-    indicators: { $ref: '#/components/schemas/IndicatorData' }
-    metadata:  # ← Optional field
-      type: object
-      properties:
-        fetchedAt: { type: string, format: date-time }
-        source: { type: string }
+type: object
+required: [symbol, timeframe, indicators]
+properties:
+symbol: { type: string }
+timeframe: { type: string }
+indicators: { $ref: '#/components/schemas/IndicatorData' }
+metadata: # ← Optional field
+type: object
+properties:
+fetchedAt: { type: string, format: date-time }
+source: { type: string }
 
 My metadata structure matches the spec exactly, but validation still flags it.
 
 Options:
+
 1. Generate types from OpenAPI and use them (ensures exact match)
    sh scripts/openapi/generate-nextjs-types.sh
    import { IndicatorResponse } from '@/lib/api-client'
@@ -1676,6 +1735,7 @@ Options:
 Recommendation: Option 1 (Use auto-generated types)
 
 Reasoning:
+
 - Should be using generated types anyway (policy requirement)
 - Guarantees match with OpenAPI spec
 - Type-safe at compile time
@@ -1683,11 +1743,13 @@ Reasoning:
 
 Awaiting human guidance on validation failure resolution.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ```
 
 ### How Human Should Respond
 
 ```
+
 Decision: Option 1 - Use auto-generated types
 
 Root Cause:
@@ -1695,6 +1757,7 @@ You're manually constructing response instead of using generated types from Open
 This is exactly why we have type generation - to prevent these mismatches.
 
 Actions:
+
 1. Generate types (if not already done):
    sh scripts/openapi/generate-nextjs-types.sh
 
@@ -1702,25 +1765,25 @@ Actions:
    import type { IndicatorResponse } from '@/lib/api-client';
 
    export async function GET(...): Promise<Response> {
-     // ...
-     const response: IndicatorResponse = {
-       symbol: params.symbol,
-       timeframe: params.timeframe,
-       indicators: data.indicators,
-       metadata: {
-         fetchedAt: new Date().toISOString(),
-         source: 'MT5'
-       }
-     };
+   // ...
+   const response: IndicatorResponse = {
+   symbol: params.symbol,
+   timeframe: params.timeframe,
+   indicators: data.indicators,
+   metadata: {
+   fetchedAt: new Date().toISOString(),
+   source: 'MT5'
+   }
+   };
 
-     return Response.json(response);
+   return Response.json(response);
    }
 
 3. TypeScript will now catch any mismatch at compile time
 
 4. Update 01-approval-policies.md to emphasize:
    "CRITICAL: Always use auto-generated types from lib/api-client.
-    Never manually define response shapes that exist in OpenAPI."
+   Never manually define response shapes that exist in OpenAPI."
 
 5. Add to 02-quality-standards.md:
    "Import response types from OpenAPI-generated lib/api-client, not manual interfaces."
@@ -1730,6 +1793,7 @@ This validation failure happened because policy wasn't specific enough about
 ALWAYS using generated types. Update policies to prevent future occurrences.
 
 Proceed with using generated types.
+
 ```
 
 ---
@@ -1749,6 +1813,7 @@ Proceed with using generated types.
 ### What Information to Include
 
 ```
+
 Issue Type: Unclear Requirement
 File: [filename]
 Severity: Medium
@@ -1764,6 +1829,7 @@ Ambiguity:
 [What's unclear about the requirement]
 
 Interpretation Options:
+
 1. [Interpretation A]
    - Assumes: [...]
    - Implementation: [...]
@@ -1778,16 +1844,19 @@ Impact of Wrong Choice:
 [What happens if we choose wrong interpretation]
 
 Questions for Human:
+
 1. [Specific question]
 2. [Specific question]
 3. [Specific question]
+
 ```
 
 ### Example Escalation
 
 ```
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  ESCALATION: Unclear Requirement ⚠️
+⚠️ ESCALATION: Unclear Requirement ⚠️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Issue Type: Unclear Requirement
@@ -1808,13 +1877,14 @@ Examples: 'RSI > 70', 'price crosses above 1.1000', 'MACD crosses signal line'"
 
 From trading_alerts_openapi.yaml:
 condition:
-  type: string
-  minLength: 1
-  maxLength: 500
-  description: "Alert trigger condition"
-  example: "RSI > 70"
+type: string
+minLength: 1
+maxLength: 500
+description: "Alert trigger condition"
+example: "RSI > 70"
 
 Ambiguity:
+
 1. Is condition free-form text or structured format?
 2. How do we parse and evaluate conditions?
 3. What indicators are supported? (RSI, MACD, price, etc.)
@@ -1825,38 +1895,43 @@ Ambiguity:
 Interpretation Options:
 
 Option A: Free-Form Text (Simple, No Validation)
+
 - Condition stored as-is in database
 - No parsing or validation
 - Manual user interpretation
 - No automatic triggering
-Pros: Simple to implement, flexible
-Cons: Can't auto-trigger alerts, no validation, unclear UX
-Implementation: Just store string, display it to user
+  Pros: Simple to implement, flexible
+  Cons: Can't auto-trigger alerts, no validation, unclear UX
+  Implementation: Just store string, display it to user
 
 Option B: Predefined Templates (Structured, Limited)
+
 - Dropdown selection: "RSI above", "Price below", etc.
 - User fills in values: threshold, symbol, timeframe
 - Backend evaluates conditions against MT5 data
-Pros: Parseable, validatable, can auto-trigger
-Cons: Limited flexibility, more UI complexity
-Implementation:
+  Pros: Parseable, validatable, can auto-trigger
+  Cons: Limited flexibility, more UI complexity
+  Implementation:
   type ConditionType = 'RSI_ABOVE' | 'RSI_BELOW' | 'PRICE_ABOVE' | 'PRICE_BELOW'
   { type: 'RSI_ABOVE', value: 70, symbol: 'EURUSD', timeframe: 'H1' }
 
 Option C: Simple Expression Parser (Flexible, Complex)
+
 - Support syntax: "RSI > 70", "price < 1.2000"
 - Parse with regex or parser library
 - Evaluate against MT5 data
-Pros: Flexible like free-form, but parseable
-Cons: Complex parser, validation edge cases, security risk (code injection)
-Implementation: Use expression parser library (e.g., mathjs or custom regex)
+  Pros: Flexible like free-form, but parseable
+  Cons: Complex parser, validation edge cases, security risk (code injection)
+  Implementation: Use expression parser library (e.g., mathjs or custom regex)
 
 Impact of Wrong Choice:
+
 - Option A: Can't implement auto-triggering feature (major feature loss)
 - Option B: Users complain about limited flexibility
 - Option C: Security risk if parser allows code injection
 
 Questions for Human:
+
 1. Should alerts auto-trigger based on conditions? (If no → Option A ok)
 2. If yes, who evaluates conditions? (Backend cron job? Real-time?)
 3. What indicators must be supported? (Just RSI? MACD? All indicators?)
@@ -1865,25 +1940,29 @@ Questions for Human:
 
 Recommended Approach (for MVP):
 Option B (Predefined Templates) - Start simple
+
 - Phase 1 (MVP): Support 4 simple conditions:
-  * RSI > [value]
-  * RSI < [value]
-  * Price > [value]
-  * Price < [value]
+  - RSI > [value]
+  - RSI < [value]
+  - Price > [value]
+  - Price < [value]
 - Phase 2 (Post-MVP): Add more indicators, complex conditions
 - Pros: Fast to implement, secure, validatable, auto-triggerable
 - Cons: Limited (but sufficient for MVP)
 
 Awaiting human clarification on alert condition requirements.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ```
 
 ### How Human Should Respond
 
 ```
+
 Decision: Option B (Predefined Templates) for MVP
 
 Clarifications:
+
 1. Yes, alerts should auto-trigger (key feature)
 2. Backend cron job evaluates every 5 minutes
 3. MVP supports: RSI, MACD, Price (3 indicators)
@@ -1891,6 +1970,7 @@ Clarifications:
 5. No external parser library - build simple regex matcher
 
 MVP Condition Types:
+
 - RSI > [value]
 - RSI < [value]
 - MACD_LINE > SIGNAL_LINE (MACD crosses above signal)
@@ -1899,6 +1979,7 @@ MVP Condition Types:
 - PRICE < [value]
 
 Implementation:
+
 1. Create lib/alerts/condition-types.ts with enum
 2. Frontend: Dropdown to select type + input for value
 3. Store as JSON in database:
@@ -1907,11 +1988,13 @@ Implementation:
 5. OpenAPI spec: Define ConditionInput schema with discriminated union
 
 Post-MVP (Phase 2):
+
 - Add more indicators (Bollinger Bands, Moving Averages)
 - Add AND/OR logic for combining conditions
 - Add "crosses above/below" operators
 
 Actions:
+
 1. Update v5_part_k.md with specific condition types for MVP
 2. Create ConditionType enum in lib/alerts/condition-types.ts
 3. Update OpenAPI spec with structured ConditionInput schema
@@ -1919,6 +2002,7 @@ Actions:
 5. Implement backend evaluator (lib/alerts/evaluator.ts)
 
 Proceed with Option B implementation.
+
 ```
 
 ---
@@ -1938,6 +2022,7 @@ Proceed with Option B implementation.
 ### What Information to Include
 
 ```
+
 Issue Type: Test Failure
 File: [test file or source file causing failure]
 Severity: High
@@ -1959,16 +2044,19 @@ Attempted Fixes:
 [What you tried to fix it]
 
 Options:
+
 1. [Fix code to pass test]
 2. [Update test to match new behavior]
 3. [Disable test temporarily (NOT RECOMMENDED)]
+
 ```
 
 ### Example Escalation
 
 ```
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  ESCALATION: Test Failure ⚠️
+⚠️ ESCALATION: Test Failure ⚠️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Issue Type: Test Failure
@@ -1977,32 +2065,32 @@ Severity: High
 Test Type: TypeScript Compilation Error
 
 Error Message:
-app/api/alerts/route.ts:42:18 - error TS2345: Argument of type 'string | undefined' 
+app/api/alerts/route.ts:42:18 - error TS2345: Argument of type 'string | undefined'
 is not assignable to parameter of type 'string'.
 
-  42   await createAlert(userId, symbol, timeframe);
-                         ~~~~~~
+42 await createAlert(userId, symbol, timeframe);
+~~~~~~
 
 Type 'string | undefined' is not assignable to type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
+Type 'undefined' is not assignable to type 'string'.
 
 Code Causing Failure:
 export async function POST(req: Request) {
-  const session = await getServerSession();
-  const userId = session?.user?.id;  // Type: string | undefined
+const session = await getServerSession();
+const userId = session?.user?.id; // Type: string | undefined
 
-  const body = await req.json();
-  const { symbol, timeframe, condition } = body;
+const body = await req.json();
+const { symbol, timeframe, condition } = body;
 
-  // createAlert expects userId: string, but we have string | undefined
-  await createAlert(userId, symbol, timeframe);  // ❌ Type error
+// createAlert expects userId: string, but we have string | undefined
+await createAlert(userId, symbol, timeframe); // ❌ Type error
 }
 
 Function signature:
 async function createAlert(
-  userId: string,  // Required, not optional
-  symbol: string,
-  timeframe: string
+userId: string, // Required, not optional
+symbol: string,
+timeframe: string
 ): Promise<Alert>
 
 What Changed:
@@ -2018,17 +2106,17 @@ but createAlert requires a string. This would cause a runtime error.
 Attempted Fixes:
 
 Option 1: Non-null assertion (UNSAFE - don't do this)
-await createAlert(userId!, symbol, timeframe);  // ❌ Bypasses type safety
+await createAlert(userId!, symbol, timeframe); // ❌ Bypasses type safety
 
 Option 2: Add null check (CORRECT)
 if (!userId) {
-  return Response.json({ error: 'Unauthorized' }, { status: 401 });
+return Response.json({ error: 'Unauthorized' }, { status: 401 });
 }
-await createAlert(userId, symbol, timeframe);  // ✅ userId is now definitely string
+await createAlert(userId, symbol, timeframe); // ✅ userId is now definitely string
 
 Option 3: Make createAlert accept undefined (WRONG - bad API design)
 async function createAlert(userId: string | undefined, ...) {
-  // Creates alerts with undefined userId? Bad data model
+// Creates alerts with undefined userId? Bad data model
 }
 
 Analysis:
@@ -2038,25 +2126,25 @@ After the check, TypeScript's control flow analysis knows userId is string.
 
 Recommended Fix:
 export async function POST(req: Request) {
-  // 1. Get session
-  const session = await getServerSession();
+// 1. Get session
+const session = await getServerSession();
 
-  // 2. Check authentication EARLY
-  if (!session?.user?.id) {
-    return Response.json(
-      { error: 'Unauthorized. Please log in.' },
-      { status: 401 }
-    );
-  }
+// 2. Check authentication EARLY
+if (!session?.user?.id) {
+return Response.json(
+{ error: 'Unauthorized. Please log in.' },
+{ status: 401 }
+);
+}
 
-  // 3. After check, userId is guaranteed to be string
-  const userId = session.user.id;  // Type: string (TypeScript knows it's defined)
+// 3. After check, userId is guaranteed to be string
+const userId = session.user.id; // Type: string (TypeScript knows it's defined)
 
-  // 4. Rest of logic
-  const body = await req.json();
-  const { symbol, timeframe, condition } = body;
+// 4. Rest of logic
+const body = await req.json();
+const { symbol, timeframe, condition } = body;
 
-  await createAlert(userId, symbol, timeframe);  // ✅ No type error
+await createAlert(userId, symbol, timeframe); // ✅ No type error
 }
 
 This follows 01-approval-policies.md Section 1.2: "All protected routes must
@@ -2064,30 +2152,35 @@ verify authentication BEFORE business logic."
 
 Awaiting approval to implement Option 2 (null check).
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ```
 
 ### How Human Should Respond
 
 ```
+
 Decision: Approved - Implement Option 2 (null check)
 
 This is exactly what TypeScript is supposed to catch! Good job on the
 strict type checking.
 
 Actions:
+
 1. Implement the recommended fix (null check before createAlert)
 2. Verify TypeScript compilation passes: pnpm type-check
 3. Add to 02-quality-standards.md:
    "PATTERN: Always check session?.user?.id for null BEFORE using userId.
-    Return 401 if null. After check, TypeScript knows it's defined."
+   Return 401 if null. After check, TypeScript knows it's defined."
 4. This pattern applies to ALL protected API routes
 
 Good example of:
+
 - TypeScript catching bugs at compile time (not runtime)
 - Following authentication-first pattern
 - Using TypeScript's control flow analysis
 
 Proceed with implementation.
+
 ```
 
 ---
@@ -2097,8 +2190,9 @@ Proceed with implementation.
 All escalations should follow this format for consistency:
 
 ```
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  ESCALATION: [CATEGORY] ⚠️
+⚠️ ESCALATION: [CATEGORY] ⚠️
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Issue Type: [One of 10 categories]
@@ -2111,6 +2205,7 @@ Problem:
 [Category-Specific Sections - see examples above]
 
 Options:
+
 1. [Option 1]
    Pros: [...]
    Cons: [...]
@@ -2128,6 +2223,7 @@ Recommendation:
 
 Awaiting human decision...
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 ```
 
 ---
@@ -2152,6 +2248,7 @@ Awaiting human decision...
 ## ESCALATION WORKFLOW
 
 ```
+
 1. Detect escalation condition
    ↓
 2. STOP autonomous work
@@ -2163,7 +2260,7 @@ Awaiting human decision...
    - Relevant context/code
    - Options with pros/cons
    - Your recommendation
-   ↓
+     ↓
 5. WAIT for human response
    ↓
 6. Receive decision
@@ -2171,7 +2268,8 @@ Awaiting human decision...
 7. Update relevant policy (if gap found)
    ↓
 8. Resume autonomous work
-```
+
+````
 
 **Never:**
 - ❌ Continue working while waiting for escalation response
@@ -2209,7 +2307,7 @@ undefined. Added explicit rule to check authentication FIRST, then use userId.
 
 This prevents similar escalations for all protected routes."
 git push
-```
+````
 
 **Result:** Future similar scenarios auto-approve (no escalation needed).
 
@@ -2244,6 +2342,7 @@ The affiliate marketing platform introduces unique escalation scenarios that don
 ### 11.1 Commission Fraud Detection
 
 **Escalate when:**
+
 - Manual commission creation attempted (bypassing Stripe webhook)
 - Commission calculation doesn't match formula
 - Duplicate commissions detected for same subscription
@@ -2253,6 +2352,7 @@ The affiliate marketing platform introduces unique escalation scenarios that don
 **Why escalate:** Commission fraud directly impacts business revenue. Human review required for any suspicious activity.
 
 **Example escalation:**
+
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠️  ESCALATION: Commission Fraud Detection ⚠️
@@ -2311,6 +2411,7 @@ Awaiting human decision on commission creation security policy.
 ### 11.2 Affiliate Code Distribution Timing
 
 **Escalate when:**
+
 - Unclear when codes should be distributed (registration? verification? approval?)
 - Unclear code expiry policy (end of month? fixed duration?)
 - Unclear what happens to expired unused codes
@@ -2319,6 +2420,7 @@ Awaiting human decision on commission creation security policy.
 **Why escalate:** Code distribution timing affects affiliate cash flow and business model.
 
 **Example escalation:**
+
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠️  ESCALATION: Unclear Requirement ⚠️
@@ -2400,6 +2502,7 @@ Awaiting human clarification on code distribution timing.
 ### 11.3 Affiliate Payment Processing Security
 
 **Escalate when:**
+
 - Implementing bulk payment functionality
 - Processing large commission payments
 - Payment method requires manual intervention
@@ -2409,6 +2512,7 @@ Awaiting human clarification on code distribution timing.
 **Why escalate:** Payment processing involves real money and potential fraud.
 
 **Example escalation:**
+
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠️  ESCALATION: Architectural Decision ⚠━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2511,6 +2615,7 @@ Awaiting human decision on payment processing architecture.
 ### 11.4 Affiliate Dashboard BI Report Performance
 
 **Escalate when:**
+
 - Report queries taking >5 seconds
 - Large number of commissions causing pagination issues
 - Complex accounting calculations causing timeouts
@@ -2519,6 +2624,7 @@ Awaiting human decision on payment processing architecture.
 **Why escalate:** Performance issues affect both affiliate UX and system stability.
 
 **Example escalation:**
+
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠️  ESCALATION: Architectural Decision ⚠️
@@ -2615,6 +2721,7 @@ Awaiting human decision on report performance optimization.
 ### 11.5 Affiliate Email Notification Strategy
 
 **Escalate when:**
+
 - Unclear email frequency (immediate? daily digest? weekly?)
 - Unclear which events trigger emails
 - Email provider rate limits (Resend, SendGrid)
@@ -2627,6 +2734,7 @@ Awaiting human decision on report performance optimization.
 ### 11.6 Affiliate Verification Process
 
 **Escalate when:**
+
 - Unclear what verification means (email only? identity? business license?)
 - Unclear who can verify (any admin? specific role?)
 - Unclear verification criteria (what makes affiliate legitimate?)
@@ -2638,20 +2746,21 @@ Awaiting human decision on report performance optimization.
 
 ## SUMMARY: AFFILIATE ESCALATION QUICK REFERENCE
 
-| Escalation Type | Trigger | Category | Severity |
-|----------------|---------|----------|----------|
-| Commission Fraud | Manual commission creation, wrong calculation | Security (1) | Critical |
-| Code Distribution Timing | When/how often codes distributed | Unclear Req (9) | Medium |
-| Payment Processing | Payment automation level, security | Architecture (4) | High |
-| Report Performance | Queries >5s, complex aggregations | Architecture (4) | Medium |
-| Email Notifications | Frequency, triggers, spam concerns | Architecture (4) | Medium |
-| Affiliate Verification | Verification criteria, who can verify | Policy Gap (3) | Medium |
-| Payment Method Change | Affiliate changes payment method after earning | Architecture (4) | Medium |
-| Cryptocurrency Volatility | Price changes during payment | Architecture (4) | Medium |
-| Bulk Payment Errors | Multiple payments fail simultaneously | Architecture (4) | High |
-| Code Expiry Disputes | Affiliate disputes code expiration | Policy Gap (3) | Low |
+| Escalation Type           | Trigger                                        | Category         | Severity |
+| ------------------------- | ---------------------------------------------- | ---------------- | -------- |
+| Commission Fraud          | Manual commission creation, wrong calculation  | Security (1)     | Critical |
+| Code Distribution Timing  | When/how often codes distributed               | Unclear Req (9)  | Medium   |
+| Payment Processing        | Payment automation level, security             | Architecture (4) | High     |
+| Report Performance        | Queries >5s, complex aggregations              | Architecture (4) | Medium   |
+| Email Notifications       | Frequency, triggers, spam concerns             | Architecture (4) | Medium   |
+| Affiliate Verification    | Verification criteria, who can verify          | Policy Gap (3)   | Medium   |
+| Payment Method Change     | Affiliate changes payment method after earning | Architecture (4) | Medium   |
+| Cryptocurrency Volatility | Price changes during payment                   | Architecture (4) | Medium   |
+| Bulk Payment Errors       | Multiple payments fail simultaneously          | Architecture (4) | High     |
+| Code Expiry Disputes      | Affiliate disputes code expiration             | Policy Gap (3)   | Low      |
 
 **Affiliate-specific escalations should reference:**
+
 - AFFILIATE-MARKETING-DESIGN.md (business requirements)
 - 03-architecture-rules.md Section 13 (affiliate architecture)
 - trading_alerts_openapi.yaml (affiliate/admin API contracts)
@@ -2665,4 +2774,3 @@ Awaiting human decision on report performance optimization.
 **End of Escalation Triggers**
 
 These triggers enable Aider with MiniMax M2 to work autonomously while seeking human guidance for exceptions. Update this document as you learn from escalations!
-

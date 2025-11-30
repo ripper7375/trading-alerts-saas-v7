@@ -13,9 +13,11 @@
 **Scope:** Root-level configuration files for Next.js 15, TypeScript, Tailwind CSS, ESLint, and development environment setup.
 
 **Implementation Guide References:**
+
 - `docs/implementation-guides/v5_part_a.md` - Technology stack, Next.js 15 configuration, and environment setup
 
 **Key Changes from V4:**
+
 - ✅ `next.config.js` - Updated for Next.js 15 with Turbopack
 - ✅ `package.json` - Next.js 15, React 19 dependencies
 - ✅ `.env.example` - 2-tier system environment variables
@@ -23,9 +25,11 @@
 **Note:** Part 1 consists primarily of configuration files (JSON, YAML, etc.). While `docs/policies/05-coding-patterns.md` focuses on TypeScript/API patterns, the configuration standards from `docs/policies/02-quality-standards.md` apply here.
 
 **Dependencies:**
+
 - None (this is the foundation - builds first)
 
 **Integration Points:**
+
 - Provides configuration for ALL subsequent parts
 - Sets up TypeScript compiler options for type safety
 - Establishes Tailwind CSS design system
@@ -44,25 +48,30 @@ Build these files **in sequence**:
 **Purpose:** VS Code workspace settings for consistent development environment
 
 **From v5-structure-division.md:**
+
 > VS Code settings for TypeScript, ESLint, Prettier integration
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/implementation-guides/v5_part_a.md` Section 7.5
 - **Pattern:** Configuration file (no specific pattern - JSON config)
 - **Seed Code Reference:** `seed-code/saas-starter/.vscode/settings.json`
 
 **Dependencies:**
+
 - None (first file)
 
 **Build Steps:**
 
 1. **Read Requirements**
+
    ```
    - seed-code/saas-starter/.vscode/settings.json
    - Standard VS Code settings for Next.js/TypeScript projects
    ```
 
 2. **Generate Code**
+
    ```json
    {
      "editor.formatOnSave": true,
@@ -92,11 +101,13 @@ Build these files **in sequence**:
 **Purpose:** Recommended VS Code extensions for the project
 
 **Implementation Details:**
+
 - **Seed Code Reference:** `seed-code/saas-starter/.vscode/extensions.json`
 
 **Build Steps:**
 
 1. **Generate Code**
+
    ```json
    {
      "recommendations": [
@@ -121,16 +132,19 @@ Build these files **in sequence**:
 **Purpose:** Next.js 15 configuration with Turbopack, image domains, environment variables
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/implementation-guides/v5_part_a.md` Section 7.4
 - **Pattern:** Next.js 15 config pattern
 - **Seed Code Reference:** `seed-code/saas-starter/next.config.mjs`
 
 **Dependencies:**
+
 - None
 
 **Build Steps:**
 
 1. **Read Requirements**
+
    ```
    - v5_part_a.md Section 7.4 (Next.js 15 features)
    - Turbopack enabled
@@ -139,6 +153,7 @@ Build these files **in sequence**:
    ```
 
 2. **Generate Code**
+
    ```javascript
    /** @type {import('next').NextConfig} */
    const nextConfig = {
@@ -190,12 +205,14 @@ Build these files **in sequence**:
 **Purpose:** Tailwind CSS configuration with design system colors, animations
 
 **Implementation Details:**
+
 - **Seed Code Reference:** `seed-code/saas-starter/tailwind.config.ts`
 - **Reference:** shadcn/ui color variables
 
 **Build Steps:**
 
 1. **Generate Code**
+
    ```typescript
    import type { Config } from 'tailwindcss';
 
@@ -291,11 +308,13 @@ Build these files **in sequence**:
 **Purpose:** TypeScript compiler configuration for strict type checking
 
 **Implementation Details:**
+
 - **Seed Code Reference:** `seed-code/saas-starter/tsconfig.json`
 
 **Build Steps:**
 
 1. **Generate Code**
+
    ```json
    {
      "compilerOptions": {
@@ -339,12 +358,14 @@ Build these files **in sequence**:
 **Purpose:** Project dependencies for Next.js 15, React 19, Prisma, NextAuth, Stripe, etc.
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/implementation-guides/v5_part_a.md` Section 4 (Technology Stack)
 - **Pattern:** Next.js 15 + React 19 package.json
 
 **Build Steps:**
 
 1. **Read Requirements**
+
    ```
    - Next.js 15
    - React 19
@@ -356,6 +377,7 @@ Build these files **in sequence**:
    ```
 
 2. **Generate Code**
+
    ```json
    {
      "name": "trading-alerts-saas-v7",
@@ -435,11 +457,13 @@ Build these files **in sequence**:
 **Purpose:** Example environment variables for 2-tier SaaS system
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/implementation-guides/v5_part_a.md` Section 7.6
 
 **Build Steps:**
 
 1. **Generate Code**
+
    ```bash
    # Database
    DATABASE_URL="postgresql://user:password@localhost:5432/trading_alerts_v7"
@@ -488,6 +512,7 @@ Build these files **in sequence**:
 **Build Steps:**
 
 1. **Generate Code**
+
    ```json
    {
      "extends": ["next/core-web-vitals", "prettier"],
@@ -513,6 +538,7 @@ Build these files **in sequence**:
 **Build Steps:**
 
 1. **Generate Code**
+
    ```json
    {
      "semi": true,
@@ -539,6 +565,7 @@ Build these files **in sequence**:
 **Build Steps:**
 
 1. **Generate Code**
+
    ```
    # Dependencies
    node_modules/
@@ -594,6 +621,7 @@ Build these files **in sequence**:
 **Build Steps:**
 
 1. **Generate Code**
+
    ```javascript
    module.exports = {
      plugins: {
@@ -618,7 +646,8 @@ Build these files **in sequence**:
 **Build Steps:**
 
 1. **Generate Code**
-   ```markdown
+
+   ````markdown
    # Trading Alerts SaaS V7
 
    A commercial SaaS platform for trading alerts and signal generation with real-time chart visualization.
@@ -638,14 +667,17 @@ Build these files **in sequence**:
       ```bash
       pnpm install
       ```
+   ````
 
    2. Set up environment variables:
+
       ```bash
       cp .env.example .env.local
       # Edit .env.local with your credentials
       ```
 
    3. Set up database:
+
       ```bash
       pnpm db:push
       pnpm db:seed
@@ -659,7 +691,6 @@ Build these files **in sequence**:
    Open [http://localhost:3000](http://localhost:3000)
 
    ## Project Structure
-
    - `/app` - Next.js 15 App Router
    - `/components` - React components
    - `/lib` - Utility functions and configurations
@@ -669,6 +700,9 @@ Build these files **in sequence**:
    ## License
 
    Proprietary - All rights reserved
+
+   ```
+
    ```
 
 2. **Commit**
@@ -684,20 +718,25 @@ Build these files **in sequence**:
 Once all 12 files are built:
 
 1. **Install Dependencies**
+
    ```bash
    pnpm install
    ```
 
 2. **Verify TypeScript Config**
+
    ```bash
    npx tsc --noEmit
    ```
+
    Expected: No errors
 
 3. **Verify Linting**
+
    ```bash
    pnpm lint
    ```
+
    Expected: No critical errors
 
 4. **Verify Next.js Build**
@@ -724,6 +763,7 @@ Part 1 is complete when:
 ## Next Steps
 
 After Part 1 complete:
+
 - Ready for Part 2: Database Schema & Migrations
 - Unblocks: All subsequent development (foundation ready)
 
@@ -734,6 +774,7 @@ After Part 1 complete:
 No expected escalations for Part 1 (configuration files are straightforward).
 
 If issues arise:
+
 - Refer to `docs/policies/04-escalation-triggers.md`
 - Check seed-code references
 - Verify Node.js version (18+ required)

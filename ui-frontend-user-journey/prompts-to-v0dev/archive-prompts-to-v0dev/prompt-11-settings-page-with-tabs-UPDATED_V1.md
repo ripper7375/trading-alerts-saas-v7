@@ -95,12 +95,13 @@ TAB 4: BILLING (ENHANCED WITH AFFILIATE DISCOUNT):
 Section heading: "Billing & Subscription" (text-2xl, font-bold, mb-6)
 
 CURRENT PLAN CARD (Enhanced):
+
 - Card: border-2 border-blue-600, rounded-xl, p-6
 - Header:
-  * Badges (flex gap-2):
+  - Badges (flex gap-2):
     - "Current Plan" (bg-blue-100, text-blue-800)
     - "🎉 20% AFFILIATE DISCOUNT" (bg-green-100, text-green-800) - CONDITIONAL
-  * Plan name: "Pro Plan" (text-2xl, font-bold, mt-4)
+  - Plan name: "Pro Plan" (text-2xl, font-bold, mt-4)
 
 - PRICING DISPLAY (TWO VERSIONS):
 
@@ -119,13 +120,14 @@ CURRENT PLAN CARD (Enhanced):
   - Next billing: "January 15, 2025 (you'll be charged $23.20)"
 
   - AFFILIATE DISCOUNT DETAILS (conditional box):
-    * Container: bg-green-50, border-l-4 border-green-500, p-3, rounded-lg, mt-4
-    * Icon: ℹ️
-    * Heading: "Lifetime Affiliate Discount" (font-semibold, text-green-800, text-sm)
-    * Details: "Applied with code: REF-ABC123XYZ" (text-green-700, text-xs, mt-1)
-    * Notice: "Your discount is permanent as long as you maintain your subscription" (text-green-600, text-xs, italic, mt-1)
+    - Container: bg-green-50, border-l-4 border-green-500, p-3, rounded-lg, mt-4
+    - Icon: ℹ️
+    - Heading: "Lifetime Affiliate Discount" (font-semibold, text-green-800, text-sm)
+    - Details: "Applied with code: REF-ABC123XYZ" (text-green-700, text-xs, mt-1)
+    - Notice: "Your discount is permanent as long as you maintain your subscription" (text-green-600, text-xs, italic, mt-1)
 
 AFFILIATE BENEFITS CARD (NEW - conditional section):
+
 - Position: AFTER Current Plan, BEFORE Payment Method
 - Section subheading: "🎁 Your Affiliate Benefits" (text-lg, font-semibold, mb-4)
 - Card: bg-gradient-to-r from-green-50 to-blue-50, rounded-xl, p-6, border-2 border-green-200
@@ -148,13 +150,16 @@ AFFILIATE BENEFITS CARD (NEW - conditional section):
   - Subtext: "This code gave you the discount" (text-xs, text-gray-500, mt-1)
 
 PAYMENT METHOD:
+
 - Card with payment details (same as original)
 
 USAGE STATISTICS:
+
 - API Calls: 8,456 / 10,000 (progress bar)
 - Alerts Sent: 234 / Unlimited (progress bar)
 
 BILLING HISTORY TABLE (Enhanced):
+
 - Table with discount amounts if applicable
 
 WITHOUT discount:

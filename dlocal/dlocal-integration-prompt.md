@@ -9,6 +9,7 @@ Build a unified payment checkout system integrating dLocal payment gateway along
 ## 1. Core Requirements
 
 ### 1.1 Unified Checkout Page
+
 - **Single checkout page** displaying both Stripe and dLocal payment methods
 - All payment options visible in one place - no country-specific separate pages
 - Dynamic rendering based on detected/selected country
@@ -16,16 +17,16 @@ Build a unified payment checkout system integrating dLocal payment gateway along
 
 ### 1.2 Supported Countries & Currencies
 
-| Country | Code | Currency | Symbol | Example Amount |
-|---------|------|----------|--------|----------------|
-| India | IN | INR | ₹ | ₹4,200 |
-| Nigeria | NG | NGN | ₦ | ₦75,000 |
-| Pakistan | PK | PKR | Rs | Rs14,000 |
-| Vietnam | VN | VND | ₫ | ₫1,200,000 |
-| Indonesia | ID | IDR | Rp | Rp750,000 |
-| Thailand | TH | THB | ฿ | ฿1,750 |
-| South Africa | ZA | ZAR | R | R900 |
-| Turkey | TR | TRY | ₺ | ₺1,700 |
+| Country      | Code | Currency | Symbol | Example Amount |
+| ------------ | ---- | -------- | ------ | -------------- |
+| India        | IN   | INR      | ₹      | ₹4,200         |
+| Nigeria      | NG   | NGN      | ₦      | ₦75,000        |
+| Pakistan     | PK   | PKR      | Rs     | Rs14,000       |
+| Vietnam      | VN   | VND      | ₫      | ₫1,200,000     |
+| Indonesia    | ID   | IDR      | Rp     | Rp750,000      |
+| Thailand     | TH   | THB      | ฿      | ฿1,750         |
+| South Africa | ZA   | ZAR      | R      | R900           |
+| Turkey       | TR   | TRY      | ₺      | ₺1,700         |
 
 **Base Currency**: USD (all SaaS pricing in USD, converted to local currency for display)
 
@@ -34,6 +35,7 @@ Build a unified payment checkout system integrating dLocal payment gateway along
 ## 2. Country Detection System
 
 ### 2.1 Detection Flow
+
 ```
 1. Page Load → Attempt IP-based geolocation
 2. Display detected country with confidence indicator
@@ -45,11 +47,13 @@ Build a unified payment checkout system integrating dLocal payment gateway along
 ### 2.2 Implementation Requirements
 
 **IP Geolocation API Options** (choose one):
+
 - `ipapi.co` - Free tier: 30,000 requests/month
 - `ip-api.com` - Free: 45 requests/minute
 - `geojs.io` - Free, no rate limit
 
 **Fallback Strategy**:
+
 ```javascript
 async function detectCountry() {
   try {
@@ -58,25 +62,24 @@ async function detectCountry() {
     if (savedCountry && SUPPORTED_COUNTRIES.includes(savedCountry)) {
       return savedCountry;
     }
-    
+
     // 2. Try IP geolocation
     const response = await fetch('https://ipapi.co/json/');
     const data = await response.json();
-    
+
     if (SUPPORTED_COUNTRIES.includes(data.country_code)) {
       return data.country_code;
     }
-    
+
     // 3. Fallback to browser language
     const browserLang = navigator.language; // e.g., 'en-IN', 'en-NG'
     const countryFromLang = browserLang.split('-')[1];
     if (SUPPORTED_COUNTRIES.includes(countryFromLang)) {
       return countryFromLang;
     }
-    
+
     // 4. Default fallback
     return null; // Show country selector
-    
   } catch (error) {
     console.error('Country detection failed:', error);
     return null; // Show country selector
@@ -116,6 +119,7 @@ async function detectCountry() {
 **Endpoint**: `GET https://api.dlocal.com/payment-methods?country={COUNTRY_CODE}`
 
 **Request Headers**:
+
 ```javascript
 {
   'X-Date': new Date().toISOString(),
@@ -128,6 +132,7 @@ async function detectCountry() {
 ```
 
 **Expected Response Structure**:
+
 ```json
 [
   {
@@ -166,21 +171,21 @@ interface PaymentMethod {
 
 class PaymentMethodsService {
   private cache = new Map<string, PaymentMethod[]>();
-  
+
   async getMethodsForCountry(country: string): Promise<PaymentMethod[]> {
     // Check cache first
     if (this.cache.has(country)) {
       return this.cache.get(country)!;
     }
-    
+
     const methods: PaymentMethod[] = [];
-    
+
     // 1. Fetch dLocal methods if country is supported
     if (DLOCAL_COUNTRIES.includes(country)) {
       const dlocalMethods = await this.fetchDLocalMethods(country);
       methods.push(...dlocalMethods);
     }
-    
+
     // 2. Always add Stripe card option
     methods.push({
       id: 'card',
@@ -191,49 +196,48 @@ class PaymentMethodsService {
       icon: '💳',
       description: 'Visa, Mastercard, Amex',
       processing_time: 'Instant',
-      recommended: !DLOCAL_COUNTRIES.includes(country) // Recommended for non-dLocal countries
+      recommended: !DLOCAL_COUNTRIES.includes(country), // Recommended for non-dLocal countries
     });
-    
+
     // 3. Enrich with metadata
     const enrichedMethods = this.enrichWithMetadata(methods, country);
-    
+
     // 4. Cache results
     this.cache.set(country, enrichedMethods);
-    
+
     return enrichedMethods;
   }
-  
+
   private async fetchDLocalMethods(country: string): Promise<PaymentMethod[]> {
     try {
       const response = await fetch(
         `${process.env.DLOCAL_API_URL}/payment-methods?country=${country}`,
         {
-          headers: this.getDLocalHeaders()
+          headers: this.getDLocalHeaders(),
         }
       );
-      
+
       if (!response.ok) {
         throw new Error(`dLocal API error: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       return data.map((method: any) => ({
         ...method,
-        provider: 'dlocal'
+        provider: 'dlocal',
       }));
-      
     } catch (error) {
       console.error('Failed to fetch dLocal methods:', error);
       return []; // Graceful fallback - return empty array
     }
   }
-  
+
   private enrichWithMetadata(
-    methods: PaymentMethod[], 
+    methods: PaymentMethod[],
     country: string
   ): PaymentMethod[] {
-    return methods.map(method => {
+    return methods.map((method) => {
       const metadata = PAYMENT_METHOD_METADATA[method.id] || {};
       return { ...method, ...metadata };
     });
@@ -248,200 +252,200 @@ class PaymentMethodsService {
 
 export const PAYMENT_METHOD_METADATA: Record<string, Partial<PaymentMethod>> = {
   // India
-  'UP': { 
-    icon: '📲', 
-    name: 'UPI', 
+  UP: {
+    icon: '📲',
+    name: 'UPI',
     description: 'Pay via GPay, PhonePe, Paytm',
     processing_time: 'Instant',
     recommended: true,
-    popular: true
+    popular: true,
   },
-  'PT': { 
-    icon: '💙', 
+  PT: {
+    icon: '💙',
     name: 'Paytm Wallet',
     description: 'Pay with Paytm balance',
     processing_time: 'Instant',
-    popular: true
+    popular: true,
   },
-  'PP': { 
-    icon: '💜', 
+  PP: {
+    icon: '💜',
     name: 'PhonePe',
     description: 'PhonePe wallet payment',
-    processing_time: 'Instant'
+    processing_time: 'Instant',
   },
-  'NB': { 
-    icon: '🏦', 
+  NB: {
+    icon: '🏦',
     name: 'Net Banking',
     description: 'Direct bank transfer',
-    processing_time: 'Instant'
+    processing_time: 'Instant',
   },
-  
+
   // Nigeria
-  'BT': { 
-    icon: '🏦', 
+  BT: {
+    icon: '🏦',
     name: 'Bank Transfer',
     description: 'Direct bank transfer',
     processing_time: 'Same day',
     recommended: true,
-    popular: true
+    popular: true,
   },
-  'USSD': { 
-    icon: '📞', 
+  USSD: {
+    icon: '📞',
     name: 'USSD Payment',
     description: 'Dial USSD code to pay',
     processing_time: 'Instant',
-    popular: true
+    popular: true,
   },
-  'PS': { 
-    icon: '💰', 
+  PS: {
+    icon: '💰',
     name: 'Paystack',
     description: 'Pay via Paystack',
-    processing_time: 'Instant'
+    processing_time: 'Instant',
   },
-  'VE': { 
-    icon: '💳', 
+  VE: {
+    icon: '💳',
     name: 'Verve Card',
     description: 'Nigerian Verve cards',
-    processing_time: 'Instant'
+    processing_time: 'Instant',
   },
-  
+
   // Pakistan
-  'JC': { 
-    icon: '🎵', 
+  JC: {
+    icon: '🎵',
     name: 'JazzCash',
     description: 'Mobile wallet payment',
     processing_time: 'Instant',
     recommended: true,
-    popular: true
+    popular: true,
   },
-  'EP': { 
-    icon: '💚', 
+  EP: {
+    icon: '💚',
     name: 'Easypaisa',
     description: 'Mobile wallet payment',
     processing_time: 'Instant',
-    popular: true
+    popular: true,
   },
-  
+
   // Vietnam
-  'VM': { 
-    icon: '💙', 
+  VM: {
+    icon: '💙',
     name: 'VNPay',
     description: 'Vietnam e-wallet',
     processing_time: 'Instant',
     recommended: true,
-    popular: true
+    popular: true,
   },
-  'MM': { 
-    icon: '💗', 
+  MM: {
+    icon: '💗',
     name: 'MoMo',
     description: 'MoMo wallet payment',
     processing_time: 'Instant',
-    popular: true
+    popular: true,
   },
-  'ZP': { 
-    icon: '💙', 
+  ZP: {
+    icon: '💙',
     name: 'ZaloPay',
     description: 'Zalo wallet payment',
-    processing_time: 'Instant'
+    processing_time: 'Instant',
   },
-  
+
   // Indonesia
-  'GO': { 
-    icon: '🟢', 
+  GO: {
+    icon: '🟢',
     name: 'GoPay',
     description: 'Gojek wallet payment',
     processing_time: 'Instant',
     recommended: true,
-    popular: true
+    popular: true,
   },
-  'OV': { 
-    icon: '🟣', 
+  OV: {
+    icon: '🟣',
     name: 'OVO',
     description: 'OVO wallet payment',
     processing_time: 'Instant',
-    popular: true
+    popular: true,
   },
-  'DN': { 
-    icon: '💙', 
+  DN: {
+    icon: '💙',
     name: 'Dana',
     description: 'Dana wallet payment',
     processing_time: 'Instant',
-    popular: true
+    popular: true,
   },
-  'SP': { 
-    icon: '🛍️', 
+  SP: {
+    icon: '🛍️',
     name: 'ShopeePay',
     description: 'Shopee wallet payment',
-    processing_time: 'Instant'
+    processing_time: 'Instant',
   },
-  
+
   // Thailand
-  'TM': { 
-    icon: '💰', 
+  TM: {
+    icon: '💰',
     name: 'TrueMoney',
     description: 'TrueMoney wallet',
     processing_time: 'Instant',
     recommended: true,
-    popular: true
+    popular: true,
   },
-  'RL': { 
-    icon: '🐰', 
+  RL: {
+    icon: '🐰',
     name: 'Rabbit LINE Pay',
     description: 'Pay via LINE app',
     processing_time: 'Instant',
-    popular: true
+    popular: true,
   },
-  'TQ': { 
-    icon: '📱', 
+  TQ: {
+    icon: '📱',
     name: 'Thai QR Payment',
     description: 'Scan QR with any Thai bank app',
-    processing_time: 'Instant'
+    processing_time: 'Instant',
   },
-  'BC': { 
-    icon: '🏪', 
+  BC: {
+    icon: '🏪',
     name: 'Big C',
     description: 'Pay cash at Big C stores',
-    processing_time: '24-48 hours'
+    processing_time: '24-48 hours',
   },
-  
+
   // South Africa
-  'EFT': { 
-    icon: '🏦', 
+  EFT: {
+    icon: '🏦',
     name: 'EFT',
     description: 'Electronic Funds Transfer',
     processing_time: '1-2 days',
-    recommended: true
+    recommended: true,
   },
-  'IEF': { 
-    icon: '⚡', 
+  IEF: {
+    icon: '⚡',
     name: 'Instant EFT',
     description: 'Real-time bank transfer',
     processing_time: 'Instant',
-    popular: true
+    popular: true,
   },
-  
+
   // Turkey
-  'TR_BT': { 
-    icon: '🏦', 
+  TR_BT: {
+    icon: '🏦',
     name: 'Bank Transfer',
     description: 'Turkish bank transfer',
     processing_time: 'Same day',
-    recommended: true
+    recommended: true,
   },
-  'TR_CARD': { 
-    icon: '💳', 
+  TR_CARD: {
+    icon: '💳',
     name: 'Local Cards',
     description: 'Turkish debit/credit cards',
-    processing_time: 'Instant'
+    processing_time: 'Instant',
   },
-  
+
   // Universal
-  'CARD': { 
-    icon: '💳', 
+  CARD: {
+    icon: '💳',
     name: 'Credit/Debit Card',
     description: 'Visa, Mastercard, Amex',
-    processing_time: 'Instant'
-  }
+    processing_time: 'Instant',
+  },
 };
 ```
 
@@ -454,6 +458,7 @@ export const PAYMENT_METHOD_METADATA: Record<string, Partial<PaymentMethod>> = {
 **Endpoint**: `GET https://api.dlocal.com/exchange-rates?from=USD&to={CURRENCY}`
 
 **Implementation**:
+
 ```typescript
 // services/currency-converter.service.ts
 
@@ -467,55 +472,54 @@ interface ExchangeRate {
 class CurrencyConverterService {
   private cache = new Map<string, { rate: number; expires: number }>();
   private CACHE_DURATION = 3600000; // 1 hour in milliseconds
-  
+
   async convertUSDToLocal(
-    amountUSD: number, 
+    amountUSD: number,
     targetCurrency: string
   ): Promise<{ amount: number; rate: number }> {
     const rate = await this.getExchangeRate('USD', targetCurrency);
     const convertedAmount = Math.round(amountUSD * rate);
-    
+
     return {
       amount: convertedAmount,
-      rate: rate
+      rate: rate,
     };
   }
-  
+
   async getExchangeRate(from: string, to: string): Promise<number> {
     const cacheKey = `${from}-${to}`;
     const cached = this.cache.get(cacheKey);
-    
+
     // Return cached rate if still valid
     if (cached && Date.now() < cached.expires) {
       return cached.rate;
     }
-    
+
     try {
       const response = await fetch(
         `${process.env.DLOCAL_API_URL}/exchange-rates?from=${from}&to=${to}`,
         {
-          headers: this.getDLocalHeaders()
+          headers: this.getDLocalHeaders(),
         }
       );
-      
+
       const data: ExchangeRate = await response.json();
-      
+
       // Cache the rate
       this.cache.set(cacheKey, {
         rate: data.rate,
-        expires: Date.now() + this.CACHE_DURATION
+        expires: Date.now() + this.CACHE_DURATION,
       });
-      
+
       return data.rate;
-      
     } catch (error) {
       console.error('Exchange rate fetch failed:', error);
-      
+
       // Fallback to approximate rates if API fails
       return this.getFallbackRate(from, to);
     }
   }
-  
+
   private getFallbackRate(from: string, to: string): number {
     // Approximate rates (update periodically)
     const FALLBACK_RATES: Record<string, number> = {
@@ -526,18 +530,18 @@ class CurrencyConverterService {
       'USD-IDR': 15500,
       'USD-THB': 35,
       'USD-ZAR': 18,
-      'USD-TRY': 34
+      'USD-TRY': 34,
     };
-    
+
     return FALLBACK_RATES[`${from}-${to}`] || 1;
   }
-  
+
   formatCurrency(amount: number, currency: string, locale?: string): string {
     return new Intl.NumberFormat(locale || 'en-US', {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   }
 }
@@ -557,35 +561,36 @@ interface PriceDisplayProps {
 function PriceDisplay({ baseAmountUSD, country, currency }: PriceDisplayProps) {
   const [localAmount, setLocalAmount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     async function convertPrice() {
       setLoading(true);
       const converter = new CurrencyConverterService();
-      const { amount } = await converter.convertUSDToLocal(baseAmountUSD, currency);
+      const { amount } = await converter.convertUSDToLocal(
+        baseAmountUSD,
+        currency
+      );
       setLocalAmount(amount);
       setLoading(false);
     }
-    
+
     convertPrice();
   }, [baseAmountUSD, currency]);
-  
+
   if (loading) {
     return <div className="price-skeleton">Loading price...</div>;
   }
-  
+
   return (
     <div className="price-display">
       <div className="local-price">
         {new Intl.NumberFormat(getLocale(country), {
           style: 'currency',
-          currency: currency
+          currency: currency,
         }).format(localAmount!)}
         <span className="frequency">/month</span>
       </div>
-      <div className="usd-equivalent">
-        Approximately ${baseAmountUSD} USD
-      </div>
+      <div className="usd-equivalent">Approximately ${baseAmountUSD} USD</div>
     </div>
   );
 }
@@ -593,14 +598,14 @@ function PriceDisplay({ baseAmountUSD, country, currency }: PriceDisplayProps) {
 // Helper function
 function getLocale(country: string): string {
   const localeMap: Record<string, string> = {
-    'IN': 'en-IN',
-    'NG': 'en-NG',
-    'PK': 'en-PK',
-    'VN': 'vi-VN',
-    'ID': 'id-ID',
-    'TH': 'th-TH',
-    'ZA': 'en-ZA',
-    'TR': 'tr-TR'
+    IN: 'en-IN',
+    NG: 'en-NG',
+    PK: 'en-PK',
+    VN: 'vi-VN',
+    ID: 'id-ID',
+    TH: 'th-TH',
+    ZA: 'en-ZA',
+    TR: 'tr-TR',
   };
   return localeMap[country] || 'en-US';
 }
@@ -626,51 +631,53 @@ export default function CheckoutPage() {
   const [country, setCountry] = useState<string | null>(null);
   const [currency, setCurrency] = useState<string>('USD');
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const [selectedProvider, setSelectedProvider] = useState<'stripe' | 'dlocal' | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<
+    'stripe' | 'dlocal' | null
+  >(null);
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Base price in USD
   const BASE_PRICE_USD = 50;
-  
+
   // Detect country on mount
   useEffect(() => {
     async function initialize() {
       const detectedCountry = await detectCountry();
       setCountry(detectedCountry);
-      
+
       if (detectedCountry) {
         const currencyInfo = COUNTRY_CURRENCY_MAP[detectedCountry];
         setCurrency(currencyInfo.currency);
       }
     }
-    
+
     initialize();
   }, []);
-  
+
   // Load payment methods when country changes
   useEffect(() => {
     async function loadPaymentMethods() {
       if (!country) return;
-      
+
       setLoading(true);
       const service = new PaymentMethodsService();
       const methods = await service.getMethodsForCountry(country);
       setPaymentMethods(methods);
-      
+
       // Auto-select recommended method
-      const recommended = methods.find(m => m.recommended);
+      const recommended = methods.find((m) => m.recommended);
       if (recommended) {
         setSelectedProvider(recommended.provider);
         setSelectedMethod(recommended.id);
       }
-      
+
       setLoading(false);
     }
-    
+
     loadPaymentMethods();
   }, [country]);
-  
+
   const handlePayment = async () => {
     if (selectedProvider === 'stripe') {
       return processStripePayment();
@@ -678,14 +685,14 @@ export default function CheckoutPage() {
       return processDLocalPayment();
     }
   };
-  
+
   return (
     <div className="checkout-page">
       {/* Header */}
       <div className="checkout-header">
         <h1>Subscribe to Pro Plan</h1>
       </div>
-      
+
       {/* Country Selection */}
       <CountrySelector
         selectedCountry={country}
@@ -694,7 +701,7 @@ export default function CheckoutPage() {
           setCurrency(COUNTRY_CURRENCY_MAP[newCountry].currency);
         }}
       />
-      
+
       {/* Price Display */}
       {country && (
         <PriceDisplay
@@ -703,7 +710,7 @@ export default function CheckoutPage() {
           currency={currency}
         />
       )}
-      
+
       {/* Payment Methods */}
       {loading ? (
         <PaymentMethodsSkeleton />
@@ -718,12 +725,10 @@ export default function CheckoutPage() {
           }}
         />
       )}
-      
+
       {/* Stripe Card Form (only shown when card selected) */}
-      {selectedProvider === 'stripe' && (
-        <StripeCardForm />
-      )}
-      
+      {selectedProvider === 'stripe' && <StripeCardForm />}
+
       {/* Payment Button */}
       <PaymentButton
         provider={selectedProvider}
@@ -754,24 +759,24 @@ export function PaymentMethodSelector({
   methods,
   selectedProvider,
   selectedMethod,
-  onSelect
+  onSelect,
 }: PaymentMethodSelectorProps) {
   // Group methods by category
   const grouped = groupPaymentMethods(methods);
-  
+
   return (
     <div className="payment-methods">
       <h2>Select Payment Method</h2>
-      
+
       {/* Recommended Methods */}
       {grouped.recommended.length > 0 && (
         <MethodGroup title="⭐ Recommended" methods={grouped.recommended}>
-          {grouped.recommended.map(method => (
+          {grouped.recommended.map((method) => (
             <PaymentMethodOption
               key={`${method.provider}-${method.id}`}
               method={method}
               selected={
-                selectedProvider === method.provider && 
+                selectedProvider === method.provider &&
                 selectedMethod === method.id
               }
               onSelect={() => onSelect(method.provider, method.id)}
@@ -779,16 +784,16 @@ export function PaymentMethodSelector({
           ))}
         </MethodGroup>
       )}
-      
+
       {/* Digital Wallets */}
       {grouped.wallets.length > 0 && (
         <MethodGroup title="💰 Digital Wallets" methods={grouped.wallets}>
-          {grouped.wallets.map(method => (
+          {grouped.wallets.map((method) => (
             <PaymentMethodOption
               key={`${method.provider}-${method.id}`}
               method={method}
               selected={
-                selectedProvider === method.provider && 
+                selectedProvider === method.provider &&
                 selectedMethod === method.id
               }
               onSelect={() => onSelect(method.provider, method.id)}
@@ -796,16 +801,16 @@ export function PaymentMethodSelector({
           ))}
         </MethodGroup>
       )}
-      
+
       {/* Bank Transfers */}
       {grouped.bankTransfers.length > 0 && (
         <MethodGroup title="🏦 Bank Transfers" methods={grouped.bankTransfers}>
-          {grouped.bankTransfers.map(method => (
+          {grouped.bankTransfers.map((method) => (
             <PaymentMethodOption
               key={`${method.provider}-${method.id}`}
               method={method}
               selected={
-                selectedProvider === method.provider && 
+                selectedProvider === method.provider &&
                 selectedMethod === method.id
               }
               onSelect={() => onSelect(method.provider, method.id)}
@@ -813,16 +818,16 @@ export function PaymentMethodSelector({
           ))}
         </MethodGroup>
       )}
-      
+
       {/* Cards */}
       {grouped.cards.length > 0 && (
         <MethodGroup title="💳 Cards" methods={grouped.cards}>
-          {grouped.cards.map(method => (
+          {grouped.cards.map((method) => (
             <PaymentMethodOption
               key={`${method.provider}-${method.id}`}
               method={method}
               selected={
-                selectedProvider === method.provider && 
+                selectedProvider === method.provider &&
                 selectedMethod === method.id
               }
               onSelect={() => onSelect(method.provider, method.id)}
@@ -848,7 +853,7 @@ function PaymentMethodOption({ method, selected, onSelect }: any) {
           <div className="description">{method.description}</div>
         </div>
       </div>
-      
+
       <div className="option-right">
         <span className="processing-time">{method.processing_time}</span>
         <span className="provider-badge">
@@ -863,15 +868,13 @@ function PaymentMethodOption({ method, selected, onSelect }: any) {
 // Helper function to group methods
 function groupPaymentMethods(methods: PaymentMethod[]) {
   return {
-    recommended: methods.filter(m => m.recommended),
-    wallets: methods.filter(m => m.type === 'WALLET' && !m.recommended),
-    bankTransfers: methods.filter(m => 
-      (m.type === 'BANK_TRANSFER' || m.type === 'USSD') && !m.recommended
+    recommended: methods.filter((m) => m.recommended),
+    wallets: methods.filter((m) => m.type === 'WALLET' && !m.recommended),
+    bankTransfers: methods.filter(
+      (m) => (m.type === 'BANK_TRANSFER' || m.type === 'USSD') && !m.recommended
     ),
-    cards: methods.filter(m => m.type === 'CARD' && !m.recommended),
-    other: methods.filter(m => 
-      m.type === 'TICKET' && !m.recommended
-    )
+    cards: methods.filter((m) => m.type === 'CARD' && !m.recommended),
+    other: methods.filter((m) => m.type === 'TICKET' && !m.recommended),
   };
 }
 ```
@@ -927,47 +930,43 @@ class DLocalPaymentService {
     request: DLocalPaymentRequest
   ): Promise<DLocalPaymentResponse> {
     try {
-      const response = await fetch(
-        `${process.env.DLOCAL_API_URL}/payments`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Date': new Date().toISOString(),
-            'X-Login': process.env.DLOCAL_API_LOGIN!,
-            'X-Trans-Key': process.env.DLOCAL_API_KEY!,
-            'X-Version': '2.1',
-            'Authorization': this.generateSignature(request)
-          },
-          body: JSON.stringify(request)
-        }
-      );
-      
+      const response = await fetch(`${process.env.DLOCAL_API_URL}/payments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Date': new Date().toISOString(),
+          'X-Login': process.env.DLOCAL_API_LOGIN!,
+          'X-Trans-Key': process.env.DLOCAL_API_KEY!,
+          'X-Version': '2.1',
+          Authorization: this.generateSignature(request),
+        },
+        body: JSON.stringify(request),
+      });
+
       if (!response.ok) {
         const error = await response.json();
         throw new Error(`dLocal payment failed: ${error.message}`);
       }
-      
+
       const data: DLocalPaymentResponse = await response.json();
       return data;
-      
     } catch (error) {
       console.error('dLocal payment creation failed:', error);
       throw error;
     }
   }
-  
+
   private generateSignature(request: any): string {
     // HMAC-SHA256 signature generation
     // See dLocal documentation for exact implementation
     const crypto = require('crypto');
-    
+
     const payload = JSON.stringify(request);
     const signature = crypto
       .createHmac('sha256', process.env.DLOCAL_API_SECRET!)
       .update(payload)
       .digest('hex');
-    
+
     return `V2-HMAC-SHA256, Signature: ${signature}`;
   }
 }
@@ -981,14 +980,14 @@ class DLocalPaymentService {
 async function processDLocalPayment() {
   try {
     setProcessing(true);
-    
+
     // Convert USD to local currency
     const converter = new CurrencyConverterService();
     const { amount: localAmount } = await converter.convertUSDToLocal(
       BASE_PRICE_USD,
       currency
     );
-    
+
     // Create payment via backend API
     const response = await fetch('/api/payments/dlocal', {
       method: 'POST',
@@ -1001,15 +1000,15 @@ async function processDLocalPayment() {
         payer: {
           name: userName,
           email: userEmail,
-          document: userTaxId // If available
+          document: userTaxId, // If available
         },
         order_id: `SUB-${userId}-${Date.now()}`,
-        callback_url: `${window.location.origin}/payment/success`
-      })
+        callback_url: `${window.location.origin}/payment/success`,
+      }),
     });
-    
+
     const payment = await response.json();
-    
+
     // Handle different payment flows
     if (payment.payment_method_flow === 'REDIRECT') {
       // Redirect user to payment provider (TrueMoney, UPI, etc.)
@@ -1018,7 +1017,6 @@ async function processDLocalPayment() {
       // Show QR code or payment instructions
       displayPaymentInstructions(payment);
     }
-    
   } catch (error) {
     console.error('Payment failed:', error);
     showErrorNotification('Payment failed. Please try again.');
@@ -1044,19 +1042,18 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const country = searchParams.get('country');
-    
+
     if (!country) {
       return NextResponse.json(
         { error: 'Country parameter is required' },
         { status: 400 }
       );
     }
-    
+
     const service = new PaymentMethodsService();
     const methods = await service.getMethodsForCountry(country);
-    
+
     return NextResponse.json(methods);
-    
   } catch (error) {
     console.error('Failed to fetch payment methods:', error);
     return NextResponse.json(
@@ -1078,15 +1075,20 @@ import { DLocalPaymentService } from '@/services/dlocal-payment.service';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate request
-    if (!body.amount || !body.currency || !body.country || !body.payment_method_id) {
+    if (
+      !body.amount ||
+      !body.currency ||
+      !body.country ||
+      !body.payment_method_id
+    ) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
-    
+
     // Create payment
     const service = new DLocalPaymentService();
     const payment = await service.createPayment({
@@ -1098,9 +1100,9 @@ export async function POST(request: NextRequest) {
       order_id: body.order_id,
       description: 'SaaS Subscription',
       notification_url: `${process.env.API_URL}/api/webhooks/dlocal`,
-      callback_url: body.callback_url
+      callback_url: body.callback_url,
     });
-    
+
     // Store payment in database
     await savePaymentToDatabase({
       provider: 'dlocal',
@@ -1110,11 +1112,10 @@ export async function POST(request: NextRequest) {
       currency: payment.currency,
       country: body.country,
       status: payment.status,
-      payment_method: body.payment_method_id
+      payment_method: body.payment_method_id,
     });
-    
+
     return NextResponse.json(payment);
-    
   } catch (error) {
     console.error('dLocal payment creation failed:', error);
     return NextResponse.json(
@@ -1137,24 +1138,23 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const to = searchParams.get('to');
-    
+
     if (!to) {
       return NextResponse.json(
         { error: 'Currency parameter is required' },
         { status: 400 }
       );
     }
-    
+
     const service = new CurrencyConverterService();
     const rate = await service.getExchangeRate('USD', to);
-    
+
     return NextResponse.json({
       from: 'USD',
       to: to,
       rate: rate,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
   } catch (error) {
     console.error('Failed to fetch exchange rate:', error);
     return NextResponse.json(
@@ -1176,19 +1176,16 @@ import crypto from 'crypto';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Verify webhook signature
     const signature = request.headers.get('x-signature');
     const isValid = verifyDLocalSignature(body, signature);
-    
+
     if (!isValid) {
       console.error('Invalid dLocal webhook signature');
-      return NextResponse.json(
-        { error: 'Invalid signature' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
-    
+
     // Process webhook based on status
     if (body.status === 'PAID') {
       await handlePaymentSuccess(body);
@@ -1197,9 +1194,8 @@ export async function POST(request: NextRequest) {
     } else if (body.status === 'CANCELLED') {
       await handlePaymentCancellation(body);
     }
-    
+
     return NextResponse.json({ received: true });
-    
   } catch (error) {
     console.error('Webhook processing failed:', error);
     return NextResponse.json(
@@ -1211,23 +1207,23 @@ export async function POST(request: NextRequest) {
 
 function verifyDLocalSignature(body: any, signature: string | null): boolean {
   if (!signature) return false;
-  
+
   const payload = JSON.stringify(body);
   const expectedSignature = crypto
     .createHmac('sha256', process.env.DLOCAL_WEBHOOK_SECRET!)
     .update(payload)
     .digest('hex');
-  
+
   return signature === expectedSignature;
 }
 
 async function handlePaymentSuccess(payment: any) {
   // Update subscription status to active
   await updateSubscriptionStatus(payment.order_id, 'active');
-  
+
   // Send confirmation email
   await sendPaymentConfirmationEmail(payment);
-  
+
   // Log successful payment
   console.log('Payment successful:', payment.id);
 }
@@ -1235,7 +1231,7 @@ async function handlePaymentSuccess(payment: any) {
 async function handlePaymentFailure(payment: any) {
   // Update subscription status
   await updateSubscriptionStatus(payment.order_id, 'payment_failed');
-  
+
   // Notify user
   await sendPaymentFailureEmail(payment);
 }
@@ -1279,33 +1275,33 @@ API_URL=http://localhost:3000
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id),
-  
+
   -- Payment provider
   payment_provider VARCHAR(20) NOT NULL, -- 'stripe' or 'dlocal'
-  
+
   -- Stripe fields
   stripe_subscription_id VARCHAR(255),
   stripe_customer_id VARCHAR(255),
-  
+
   -- dLocal fields
   dlocal_payment_id VARCHAR(255),
   dlocal_payment_method VARCHAR(50),
-  
+
   -- Common fields
   status VARCHAR(20) NOT NULL, -- 'active', 'cancelled', 'past_due', 'payment_failed'
   amount DECIMAL(10,2) NOT NULL,
   currency VARCHAR(3) NOT NULL,
   country VARCHAR(2) NOT NULL,
-  
+
   -- Billing cycle
   current_period_start TIMESTAMP NOT NULL,
   current_period_end TIMESTAMP NOT NULL,
-  
+
   -- Metadata
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   cancelled_at TIMESTAMP,
-  
+
   INDEX idx_user_id (user_id),
   INDEX idx_provider (payment_provider),
   INDEX idx_status (status)
@@ -1316,26 +1312,26 @@ CREATE TABLE payments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   subscription_id UUID REFERENCES subscriptions(id),
   user_id UUID NOT NULL REFERENCES users(id),
-  
+
   -- Provider info
   provider VARCHAR(20) NOT NULL, -- 'stripe' or 'dlocal'
   provider_payment_id VARCHAR(255) NOT NULL,
   provider_status VARCHAR(50),
-  
+
   -- Payment details
   amount DECIMAL(10,2) NOT NULL,
   currency VARCHAR(3) NOT NULL,
   country VARCHAR(2) NOT NULL,
   payment_method VARCHAR(50),
-  
+
   -- Status
   status VARCHAR(20) NOT NULL, -- 'pending', 'completed', 'failed', 'refunded'
-  
+
   -- Timestamps
   paid_at TIMESTAMP,
   failed_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  
+
   INDEX idx_subscription (subscription_id),
   INDEX idx_user (user_id),
   INDEX idx_provider (provider, provider_payment_id),
@@ -1405,9 +1401,9 @@ const PaymentMethodFallback = {
   // If dLocal fails, show Stripe
   primary: 'dlocal',
   fallback: 'stripe',
-  
+
   // If both fail, show error with contact info
-  ultimate: 'contact_support'
+  ultimate: 'contact_support',
 };
 
 async function getPaymentMethods(country: string) {
@@ -1419,13 +1415,12 @@ async function getPaymentMethods(country: string) {
         return [...dlocalMethods, stripeCardMethod];
       }
     }
-    
+
     // Fallback to Stripe only
     return [stripeCardMethod];
-    
   } catch (error) {
     console.error('All payment providers failed:', error);
-    
+
     // Last resort: show contact form
     return [];
   }
@@ -1442,54 +1437,219 @@ async function getPaymentMethods(country: string) {
 // config/mock-data.ts
 
 export const MOCK_PAYMENT_METHODS: Record<string, PaymentMethod[]> = {
-  'IN': [
-    { id: 'UP', name: 'UPI', type: 'BANK_TRANSFER', provider: 'dlocal', icon: '📲', recommended: true },
-    { id: 'PT', name: 'Paytm', type: 'WALLET', provider: 'dlocal', icon: '💙', popular: true },
-    { id: 'PP', name: 'PhonePe', type: 'WALLET', provider: 'dlocal', icon: '💜' },
-    { id: 'CARD', name: 'Credit/Debit Card', type: 'CARD', provider: 'stripe', icon: '💳' }
+  IN: [
+    {
+      id: 'UP',
+      name: 'UPI',
+      type: 'BANK_TRANSFER',
+      provider: 'dlocal',
+      icon: '📲',
+      recommended: true,
+    },
+    {
+      id: 'PT',
+      name: 'Paytm',
+      type: 'WALLET',
+      provider: 'dlocal',
+      icon: '💙',
+      popular: true,
+    },
+    {
+      id: 'PP',
+      name: 'PhonePe',
+      type: 'WALLET',
+      provider: 'dlocal',
+      icon: '💜',
+    },
+    {
+      id: 'CARD',
+      name: 'Credit/Debit Card',
+      type: 'CARD',
+      provider: 'stripe',
+      icon: '💳',
+    },
   ],
-  'NG': [
-    { id: 'BT', name: 'Bank Transfer', type: 'BANK_TRANSFER', provider: 'dlocal', icon: '🏦', recommended: true },
-    { id: 'USSD', name: 'USSD Payment', type: 'USSD', provider: 'dlocal', icon: '📞', popular: true },
-    { id: 'CARD', name: 'Credit/Debit Card', type: 'CARD', provider: 'stripe', icon: '💳' }
+  NG: [
+    {
+      id: 'BT',
+      name: 'Bank Transfer',
+      type: 'BANK_TRANSFER',
+      provider: 'dlocal',
+      icon: '🏦',
+      recommended: true,
+    },
+    {
+      id: 'USSD',
+      name: 'USSD Payment',
+      type: 'USSD',
+      provider: 'dlocal',
+      icon: '📞',
+      popular: true,
+    },
+    {
+      id: 'CARD',
+      name: 'Credit/Debit Card',
+      type: 'CARD',
+      provider: 'stripe',
+      icon: '💳',
+    },
   ],
-  'PK': [
-    { id: 'JC', name: 'JazzCash', type: 'WALLET', provider: 'dlocal', icon: '🎵', recommended: true },
-    { id: 'EP', name: 'Easypaisa', type: 'WALLET', provider: 'dlocal', icon: '💚', popular: true },
-    { id: 'CARD', name: 'Credit/Debit Card', type: 'CARD', provider: 'stripe', icon: '💳' }
+  PK: [
+    {
+      id: 'JC',
+      name: 'JazzCash',
+      type: 'WALLET',
+      provider: 'dlocal',
+      icon: '🎵',
+      recommended: true,
+    },
+    {
+      id: 'EP',
+      name: 'Easypaisa',
+      type: 'WALLET',
+      provider: 'dlocal',
+      icon: '💚',
+      popular: true,
+    },
+    {
+      id: 'CARD',
+      name: 'Credit/Debit Card',
+      type: 'CARD',
+      provider: 'stripe',
+      icon: '💳',
+    },
   ],
-  'VN': [
-    { id: 'VM', name: 'VNPay', type: 'WALLET', provider: 'dlocal', icon: '💙', recommended: true },
-    { id: 'MM', name: 'MoMo', type: 'WALLET', provider: 'dlocal', icon: '💗', popular: true },
-    { id: 'CARD', name: 'Credit/Debit Card', type: 'CARD', provider: 'stripe', icon: '💳' }
+  VN: [
+    {
+      id: 'VM',
+      name: 'VNPay',
+      type: 'WALLET',
+      provider: 'dlocal',
+      icon: '💙',
+      recommended: true,
+    },
+    {
+      id: 'MM',
+      name: 'MoMo',
+      type: 'WALLET',
+      provider: 'dlocal',
+      icon: '💗',
+      popular: true,
+    },
+    {
+      id: 'CARD',
+      name: 'Credit/Debit Card',
+      type: 'CARD',
+      provider: 'stripe',
+      icon: '💳',
+    },
   ],
-  'ID': [
-    { id: 'GO', name: 'GoPay', type: 'WALLET', provider: 'dlocal', icon: '🟢', recommended: true },
-    { id: 'OV', name: 'OVO', type: 'WALLET', provider: 'dlocal', icon: '🟣', popular: true },
+  ID: [
+    {
+      id: 'GO',
+      name: 'GoPay',
+      type: 'WALLET',
+      provider: 'dlocal',
+      icon: '🟢',
+      recommended: true,
+    },
+    {
+      id: 'OV',
+      name: 'OVO',
+      type: 'WALLET',
+      provider: 'dlocal',
+      icon: '🟣',
+      popular: true,
+    },
     { id: 'DN', name: 'Dana', type: 'WALLET', provider: 'dlocal', icon: '💙' },
-    { id: 'CARD', name: 'Credit/Debit Card', type: 'CARD', provider: 'stripe', icon: '💳' }
+    {
+      id: 'CARD',
+      name: 'Credit/Debit Card',
+      type: 'CARD',
+      provider: 'stripe',
+      icon: '💳',
+    },
   ],
-  'TH': [
-    { id: 'TM', name: 'TrueMoney', type: 'WALLET', provider: 'dlocal', icon: '💰', recommended: true },
-    { id: 'RL', name: 'Rabbit LINE Pay', type: 'WALLET', provider: 'dlocal', icon: '🐰', popular: true },
-    { id: 'TQ', name: 'Thai QR', type: 'TICKET', provider: 'dlocal', icon: '📱' },
-    { id: 'CARD', name: 'Credit/Debit Card', type: 'CARD', provider: 'stripe', icon: '💳' }
+  TH: [
+    {
+      id: 'TM',
+      name: 'TrueMoney',
+      type: 'WALLET',
+      provider: 'dlocal',
+      icon: '💰',
+      recommended: true,
+    },
+    {
+      id: 'RL',
+      name: 'Rabbit LINE Pay',
+      type: 'WALLET',
+      provider: 'dlocal',
+      icon: '🐰',
+      popular: true,
+    },
+    {
+      id: 'TQ',
+      name: 'Thai QR',
+      type: 'TICKET',
+      provider: 'dlocal',
+      icon: '📱',
+    },
+    {
+      id: 'CARD',
+      name: 'Credit/Debit Card',
+      type: 'CARD',
+      provider: 'stripe',
+      icon: '💳',
+    },
   ],
-  'ZA': [
-    { id: 'IEF', name: 'Instant EFT', type: 'BANK_TRANSFER', provider: 'dlocal', icon: '⚡', recommended: true },
-    { id: 'EFT', name: 'EFT', type: 'BANK_TRANSFER', provider: 'dlocal', icon: '🏦' },
-    { id: 'CARD', name: 'Credit/Debit Card', type: 'CARD', provider: 'stripe', icon: '💳' }
+  ZA: [
+    {
+      id: 'IEF',
+      name: 'Instant EFT',
+      type: 'BANK_TRANSFER',
+      provider: 'dlocal',
+      icon: '⚡',
+      recommended: true,
+    },
+    {
+      id: 'EFT',
+      name: 'EFT',
+      type: 'BANK_TRANSFER',
+      provider: 'dlocal',
+      icon: '🏦',
+    },
+    {
+      id: 'CARD',
+      name: 'Credit/Debit Card',
+      type: 'CARD',
+      provider: 'stripe',
+      icon: '💳',
+    },
   ],
-  'TR': [
-    { id: 'TR_BT', name: 'Bank Transfer', type: 'BANK_TRANSFER', provider: 'dlocal', icon: '🏦', recommended: true },
-    { id: 'CARD', name: 'Credit/Debit Card', type: 'CARD', provider: 'stripe', icon: '💳' }
-  ]
+  TR: [
+    {
+      id: 'TR_BT',
+      name: 'Bank Transfer',
+      type: 'BANK_TRANSFER',
+      provider: 'dlocal',
+      icon: '🏦',
+      recommended: true,
+    },
+    {
+      id: 'CARD',
+      name: 'Credit/Debit Card',
+      type: 'CARD',
+      provider: 'stripe',
+      icon: '💳',
+    },
+  ],
 };
 
 // Use in development
-const methods = process.env.NODE_ENV === 'development'
-  ? MOCK_PAYMENT_METHODS[country]
-  : await fetchRealPaymentMethods(country);
+const methods =
+  process.env.NODE_ENV === 'development'
+    ? MOCK_PAYMENT_METHODS[country]
+    : await fetchRealPaymentMethods(country);
 ```
 
 ### 11.2 Test Cases
@@ -1502,32 +1662,32 @@ describe('Unified Checkout', () => {
     const country = await detectCountry();
     expect(SUPPORTED_COUNTRIES).toContain(country);
   });
-  
+
   test('allows manual country selection', () => {
     render(<CountrySelector />);
     fireEvent.click(screen.getByText('Change Country'));
     fireEvent.click(screen.getByText('🇮🇳 India'));
     expect(screen.getByText('India')).toBeInTheDocument();
   });
-  
+
   test('loads payment methods for selected country', async () => {
     const methods = await getPaymentMethods('IN');
     expect(methods).toContainEqual(
       expect.objectContaining({ id: 'UP', name: 'UPI' })
     );
   });
-  
+
   test('converts USD to local currency', async () => {
     const { amount } = await convertUSDToLocal(50, 'INR');
     expect(amount).toBeGreaterThan(4000);
   });
-  
+
   test('auto-selects recommended payment method', () => {
     const methods = MOCK_PAYMENT_METHODS['IN'];
     const recommended = methods.find(m => m.recommended);
     expect(recommended?.id).toBe('UP');
   });
-  
+
   test('processes dLocal payment', async () => {
     const payment = await processDLocalPayment({
       amount: 4200,
@@ -1538,11 +1698,11 @@ describe('Unified Checkout', () => {
     expect(payment.status).toBe('PENDING');
     expect(payment.redirect_url).toBeTruthy();
   });
-  
+
   test('falls back to Stripe when dLocal unavailable', async () => {
     // Mock dLocal API failure
     jest.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('API Error'));
-    
+
     const methods = await getPaymentMethods('IN');
     expect(methods).toHaveLength(1);
     expect(methods[0].provider).toBe('stripe');
@@ -1604,7 +1764,7 @@ describe('Unified Checkout', () => {
 function PaymentMethodsSkeleton() {
   return (
     <div className="payment-methods-skeleton">
-      {[1, 2, 3, 4].map(i => (
+      {[1, 2, 3, 4].map((i) => (
         <div key={i} className="skeleton-option">
           <div className="skeleton-icon" />
           <div className="skeleton-text">
@@ -1641,14 +1801,16 @@ function PaymentMethodsSkeleton() {
 
 Add to project README:
 
-```markdown
+````markdown
 ## Payment Integration
 
 This project supports payments through:
+
 - **Stripe**: For credit/debit card payments globally
 - **dLocal**: For local payment methods in 8 emerging markets
 
 ### Supported Countries
+
 - 🇮🇳 India - UPI, Paytm, PhonePe, Net Banking
 - 🇳🇬 Nigeria - Bank Transfer, USSD, Paystack
 - 🇵🇰 Pakistan - JazzCash, Easypaisa
@@ -1667,6 +1829,8 @@ This project supports payments through:
    DLOCAL_API_KEY=your_key
    DLOCAL_API_SECRET=your_secret
    ```
+````
+
 3. Configure webhook endpoint at dLocal dashboard:
    ```
    https://yourdomain.com/api/webhooks/dlocal
@@ -1675,12 +1839,14 @@ This project supports payments through:
 ### Testing
 
 Use mock data in development:
+
 ```bash
 npm run dev
 ```
 
 Payment methods will load from mock data when API credentials are not provided.
-```
+
+````
 
 ### 13.2 Code Comments
 
@@ -1688,7 +1854,7 @@ Payment methods will load from mock data when API credentials are not provided.
 /**
  * Detects user's country using IP geolocation
  * Falls back to manual selection if detection fails
- * 
+ *
  * @returns {Promise<string|null>} Country code (e.g., 'IN', 'NG') or null
  */
 async function detectCountry(): Promise<string | null> {
@@ -1698,38 +1864,42 @@ async function detectCountry(): Promise<string | null> {
 /**
  * Fetches available payment methods for a country
  * Combines dLocal methods with Stripe card option
- * 
+ *
  * @param country - Two-letter country code
  * @returns {Promise<PaymentMethod[]>} Array of payment methods
  */
 async function getPaymentMethods(country: string): Promise<PaymentMethod[]> {
   // Implementation
 }
-```
+````
 
 ---
 
 ## 14. Priority & Milestones
 
 ### Phase 1: Core Infrastructure (Week 1)
+
 - ✅ Country detection system
 - ✅ Currency conversion service
 - ✅ Payment methods API integration
 - ✅ Basic checkout UI
 
 ### Phase 2: Payment Processing (Week 2)
+
 - ✅ dLocal payment creation
 - ✅ Webhook handling
 - ✅ Database schema
 - ✅ Error handling
 
 ### Phase 3: Polish & Testing (Week 3)
+
 - ✅ Responsive design
 - ✅ Loading states
 - ✅ Error messages
 - ✅ Testing with mock data
 
 ### Phase 4: Production Ready (Week 4)
+
 - ✅ Real API integration
 - ✅ Security audit
 - ✅ Performance optimization
@@ -1740,6 +1910,7 @@ async function getPaymentMethods(country: string): Promise<PaymentMethod[]> {
 ## 15. Success Criteria
 
 ### Functional Requirements
+
 - ✅ Single checkout page displays both Stripe and dLocal options
 - ✅ Country detection works with manual override
 - ✅ Payment methods load dynamically from dLocal API
@@ -1749,6 +1920,7 @@ async function getPaymentMethods(country: string): Promise<PaymentMethod[]> {
 - ✅ Existing Stripe integration remains functional
 
 ### Non-Functional Requirements
+
 - ✅ Page loads in < 3 seconds
 - ✅ Payment method selection updates UI instantly
 - ✅ Mobile responsive on all screen sizes
@@ -1772,6 +1944,7 @@ async function getPaymentMethods(country: string): Promise<PaymentMethod[]> {
 ---
 
 ## Notes
+
 - Keep existing Stripe integration untouched
 - Test with mock data first before real API integration
 - Implement proper error handling at every step

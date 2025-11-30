@@ -11,6 +11,7 @@ This file is kept for historical reference but contains **redundant information*
 **➡️ See: `MINIMAX-TROUBLESHOOTING.md` (recommended)**
 
 Key differences resolved in the new guide:
+
 - ✅ Uses Anthropic-compatible endpoint (the only configuration that works)
 - ✅ Includes free trial expiration troubleshooting
 - ✅ Complete step-by-step debugging process
@@ -68,16 +69,19 @@ Aider reports: "✅ 3 files created, 0 issues"
 ### 1. Install Aider
 
 **On Windows:**
+
 ```bash
 pip install aider-chat
 ```
 
 **On Mac/Linux:**
+
 ```bash
 pip3 install aider-chat
 ```
 
 **Verify installation:**
+
 ```bash
 aider --version
 ```
@@ -194,6 +198,7 @@ ls -la .aider.conf.yml
 ```
 
 **Expected output:**
+
 ```
 -rw-r--r-- 1 user user 6500 Nov  9 12:00 .aider.conf.yml
 ```
@@ -215,6 +220,7 @@ nano .aider.conf.yml
 **Key Settings to Notice:**
 
 1. **Model Configuration**:
+
    ```yaml
    model: anthropic/MiniMax-M2
    editor-model: anthropic/MiniMax-M2
@@ -223,6 +229,7 @@ nano .aider.conf.yml
    ```
 
 2. **Auto-Commits** (line 34):
+
    ```yaml
    auto-commits: true
    ```
@@ -264,6 +271,7 @@ git push -u origin claude/aider-setup-testing-011CUwomNS5nvK7YYUcyykVb
 ```
 
 **Expected output:**
+
 ```
 [claude/aider-setup-testing-011CUwomNS5nvK7YYUcyykVb abc1234] feat(aider): add Aider configuration...
  2 files changed, 200 insertions(+), 1 deletion(-)
@@ -273,6 +281,7 @@ git push -u origin claude/aider-setup-testing-011CUwomNS5nvK7YYUcyykVb
 ### ✅ Milestone 1.5 Complete!
 
 **What You've Accomplished:**
+
 - ✅ Updated `.gitignore` to allow Aider config
 - ✅ Created `.aider.conf.yml` with MiniMax M2 settings
 - ✅ Configured auto-commits
@@ -288,6 +297,7 @@ Now let's test that Aider can read your policies and understand your project!
 ### Step 1: Start Aider
 
 **On Windows (Recommended):**
+
 ```cmd
 # Make sure you're in the project root
 cd "D:\SaaS Project\trading-alerts-saas-v7"
@@ -297,6 +307,7 @@ start-aider-anthropic.bat
 ```
 
 **On Mac/Linux:**
+
 ```bash
 # Make sure you're in the project root
 cd /home/user/trading-alerts-saas-v7
@@ -329,6 +340,7 @@ Reading files from 'read' config...
 ```
 
 **Troubleshooting:**
+
 - If Aider says "Model not found", check your `ANTHROPIC_API_KEY` environment variable
 - If connection errors occur, see MINIMAX-TROUBLESHOOTING.md for detailed debugging
 - If policy files don't load, check the paths in `.aider.conf.yml`
@@ -345,6 +357,7 @@ You: What are the AUTO-APPROVE conditions according to our policies?
 ```
 
 **Expected Answer (summary):**
+
 ```
 Aider: According to 01-approval-policies.md, AUTO-APPROVE conditions are:
 1. 0 Critical issues
@@ -363,6 +376,7 @@ You: What TypeScript type should I use for object shapes - 'type' or 'interface'
 ```
 
 **Expected Answer:**
+
 ```
 Aider: According to 02-quality-standards.md, use 'interface' for object shapes.
 Use 'type' for unions, intersections, or primitives.
@@ -379,6 +393,7 @@ You: How many tiers does our system have and what symbols can FREE users access?
 ```
 
 **Expected Answer:**
+
 ```
 Aider: According to 03-architecture-rules.md and 00-tier-specifications.md:
 
@@ -404,6 +419,7 @@ You: Show me the structure of an API route handler from our coding patterns.
 ```
 
 **Expected Answer:**
+
 ```
 Aider: According to 05-coding-patterns.md, Pattern 1 (API Route) has this structure:
 
@@ -447,6 +463,7 @@ You: What endpoints are defined in our OpenAPI spec for alerts?
 ```
 
 **Expected Answer:**
+
 ```
 Aider: According to trading_alerts_openapi.yaml, the alert endpoints are:
 
@@ -464,6 +481,7 @@ You: What seed code repositories should you reference when building?
 ```
 
 **Expected Answer:**
+
 ```
 Aider: According to ARCHITECTURE.md and the seed-code/ folder, I should reference:
 
@@ -589,6 +607,7 @@ Awaiting human decision...
 ### ✅ Milestone 1.6 Complete!
 
 **What You've Verified:**
+
 - ✅ Aider starts and loads all policy documents
 - ✅ Aider understands approval policies
 - ✅ Aider understands quality standards
@@ -606,6 +625,7 @@ Awaiting human decision...
 ### Issue 1: "ModuleNotFoundError: No module named 'aider'"
 
 **Solution:**
+
 ```bash
 # Install Aider
 pip install aider-chat
@@ -630,6 +650,7 @@ echo $env:ANTHROPIC_BASE_URL  # Windows PowerShell
 ```
 
 **Also check:**
+
 - Verify you have credits in your MiniMax account (free trial ended Nov 7, 2025)
 - Log in to https://platform.minimax.io and check balance
 - See MINIMAX-TROUBLESHOOTING.md for detailed debugging
@@ -637,6 +658,7 @@ echo $env:ANTHROPIC_BASE_URL  # Windows PowerShell
 ### Issue 3: Policy Files Not Loading
 
 **Solution:**
+
 ```bash
 # Verify files exist
 ls -la docs/policies/
@@ -648,6 +670,7 @@ cat .aider.conf.yml | grep "docs/policies"
 ### Issue 4: "Not a git repository"
 
 **Solution:**
+
 ```bash
 # Check if you're in the right directory
 pwd
@@ -664,6 +687,7 @@ git init
 ### Issue 5: Aider Hangs or Very Slow
 
 **Solution:**
+
 ```bash
 # Check internet connection
 ping google.com
@@ -679,6 +703,7 @@ map-tokens: 1024  # Reduced from 2048
 ### Issue 6: Auto-commits Not Working
 
 **Solution:**
+
 ```bash
 # Verify auto-commits enabled in .aider.conf.yml
 cat .aider.conf.yml | grep auto-commits
@@ -707,6 +732,7 @@ git config user.email "your.email@example.com"
 ### Starting Development with Aider:
 
 **On Windows:**
+
 ```cmd
 # Start Aider
 start-aider-anthropic.bat
@@ -718,6 +744,7 @@ You: "Let's start building Part 1: Foundation & Root Configuration.
 ```
 
 **On Mac/Linux:**
+
 ```bash
 # Start Aider
 aider --model anthropic/MiniMax-M2
@@ -729,6 +756,7 @@ You: "Let's start building Part 1: Foundation & Root Configuration.
 ```
 
 **Aider will:**
+
 1. Read requirements from docs/v5-structure-division.md
 2. Plan which files to create
 3. Generate code following patterns
@@ -753,6 +781,7 @@ git show HEAD
 ### When to Intervene:
 
 Aider will ask for your help when it encounters:
+
 1. **Escalations** - Security issues, architectural decisions, unclear requirements
 2. **Test failures** - If tests fail after code generation
 3. **Validation failures** - If critical issues found
@@ -763,6 +792,7 @@ Aider will ask for your help when it encounters:
 ## 🎉 Congratulations!
 
 You've successfully:
+
 - ✅ Configured Aider with MiniMax M2
 - ✅ Loaded all 6 policy documents
 - ✅ Tested Aider's understanding

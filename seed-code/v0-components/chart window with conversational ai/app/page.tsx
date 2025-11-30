@@ -1,14 +1,18 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
-import TradingChart from "@/components/trading-chart"
-import ChatPanel from "@/components/chat-panel"
-import type { Symbol, Timeframe } from "@/lib/types"
+import { useState } from 'react';
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from '@/components/ui/resizable';
+import TradingChart from '@/components/trading-chart';
+import ChatPanel from '@/components/chat-panel';
+import type { Symbol, Timeframe } from '@/lib/types';
 
 export default function Page() {
-  const [symbol, setSymbol] = useState<Symbol>("XAUUSD")
-  const [timeframe, setTimeframe] = useState<Timeframe>("H1")
+  const [symbol, setSymbol] = useState<Symbol>('XAUUSD');
+  const [timeframe, setTimeframe] = useState<Timeframe>('H1');
 
   return (
     <div className="h-screen w-full bg-background overflow-hidden">
@@ -37,5 +41,5 @@ export default function Page() {
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
-  )
+  );
 }

@@ -1,4 +1,5 @@
 ## **PROMPT 14: Empty States Component**
+
 ==================================================
 
 Create reusable empty state components for various scenarios in Next.js 15 using TypeScript, Tailwind CSS, and shadcn/ui.
@@ -14,19 +15,19 @@ Optional: Full height variant for pages (min-h-96, flex, items-center, justify-c
 Props Structure:
 
 interface EmptyStateProps {
-  icon?: React.ReactNode | string  // Emoji or component
-  title: string
-  description: string
-  action?: {
-    label: string
-    onClick: () => void
-    variant?: 'primary' | 'secondary'
-  }
-  secondaryAction?: {
-    label: string
-    onClick: () => void
-  }
-  illustration?: React.ReactNode  // Optional custom illustration
+icon?: React.ReactNode | string // Emoji or component
+title: string
+description: string
+action?: {
+label: string
+onClick: () => void
+variant?: 'primary' | 'secondary'
+}
+secondaryAction?: {
+label: string
+onClick: () => void
+}
+illustration?: React.ReactNode // Optional custom illustration
 }
 
 2. SPECIFIC EMPTY STATE VARIANTS:
@@ -183,6 +184,5 @@ Use shadcn/ui Button, Card components
 Use lucide-react icons where needed (RefreshCw, Search, Bell, etc.)
 Reusable and composable
 Easy to customize via props
-
 
 Generate complete, production-ready code with base component and all 10+ variants that I can copy and run immediately.

@@ -42,14 +42,14 @@ Our Trading Alerts SaaS has two main components:
 
 ### Why Docker for the Flask MT5 service?
 
-| Problem | Docker Solution |
-|---------|----------------|
-| **Python version conflicts** | Docker locks Python 3.11 version |
-| **MetaTrader 5 installation complexity** | Pre-installed in Docker image |
+| Problem                                                        | Docker Solution                                              |
+| -------------------------------------------------------------- | ------------------------------------------------------------ |
+| **Python version conflicts**                                   | Docker locks Python 3.11 version                             |
+| **MetaTrader 5 installation complexity**                       | Pre-installed in Docker image                                |
 | **Dependency hell** (different developers, different packages) | All dependencies defined in requirements.txt, installed once |
-| **"Works on my machine" syndrome** | Same container runs everywhere |
-| **Easy deployment to Railway** | Railway supports Docker out-of-the-box |
-| **Isolation from Next.js** | Flask runs in separate container, no conflicts |
+| **"Works on my machine" syndrome**                             | Same container runs everywhere                               |
+| **Easy deployment to Railway**                                 | Railway supports Docker out-of-the-box                       |
+| **Isolation from Next.js**                                     | Flask runs in separate container, no conflicts               |
 
 ---
 
@@ -62,12 +62,14 @@ Our Trading Alerts SaaS has two main components:
    - **Linux**: Follow [official Docker Engine installation](https://docs.docker.com/engine/install/)
 
 2. **Verify installation**:
+
    ```bash
    docker --version
    docker-compose --version
    ```
 
    Expected output:
+
    ```
    Docker version 24.0.0 (or higher)
    Docker Compose version v2.20.0 (or higher)
@@ -219,6 +221,7 @@ CMD ["python", "app.py"]
 ### Why Each Layer Matters
 
 **Layer Caching Optimization:**
+
 ```
 Layer 1-4: System setup (rarely changes) ✓ Cached
 Layer 5-6: Dependencies (changes occasionally) ✓ Cached if requirements.txt unchanged
@@ -247,7 +250,6 @@ version: '3.8'
 # Services (Containers)
 # ============================================
 services:
-
   # ==========================================
   # PostgreSQL Database
   # ==========================================
@@ -274,7 +276,7 @@ services:
     # - Creates database user, password, and database name
 
     ports:
-      - "5432:5432"
+      - '5432:5432'
     # What this does:
     # - Maps port 5432 on host to port 5432 in container
     # - Format: "host_port:container_port"
@@ -294,7 +296,7 @@ services:
     # - All services on same network can communicate
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -330,7 +332,7 @@ services:
     # - DATABASE_URL: Uses "postgres" as hostname (Docker DNS)
 
     ports:
-      - "5001:5001"
+      - '5001:5001'
     # What this does:
     # - Exposes Flask on http://localhost:5001
 
@@ -352,7 +354,15 @@ services:
     # - Prevents "database connection failed" errors on startup
 
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5001/health"]
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:5001/health',
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -792,6 +802,7 @@ Railway supports Docker deployments out-of-the-box.
 ### Steps:
 
 1. **Push code to GitHub**:
+
    ```bash
    git add flask_mt5/
    git commit -m "feat: add Flask MT5 Docker setup"
@@ -831,17 +842,20 @@ CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=${PORT}"]
 ## Summary
 
 **Docker in this project**:
+
 - **PostgreSQL**: Database container for development
 - **Flask MT5**: Python microservice for MetaTrader 5 integration
 - **Docker Compose**: Orchestrates both containers
 
 **Key benefits**:
+
 - ✅ Consistent development environment
 - ✅ Easy deployment to Railway
 - ✅ Isolated Flask service
 - ✅ Simple setup (one command: `docker-compose up`)
 
 **Next steps**:
+
 1. Review `flask_mt5/Dockerfile`
 2. Review `docker-compose.yml`
 3. Run `docker-compose up -d --build`
@@ -849,6 +863,7 @@ CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=${PORT}"]
 5. Check logs: `docker-compose logs -f`
 
 For more details, see:
+
 - **ARCHITECTURE.md**: System design overview
 - **docs/policies/03-architecture-rules.md**: Flask MT5 integration patterns
 - **docs/policies/05-coding-patterns.md**: Flask endpoint examples

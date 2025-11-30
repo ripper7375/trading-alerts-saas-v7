@@ -9,6 +9,7 @@
 ## Executive Summary
 
 **Unified Admin Authentication Approach:**
+
 - Single NextAuth system for SaaS users, affiliates, AND admins
 - Role-Based Access Control (RBAC) using `session.user.role`
 - 2 fixed admin accounts (pre-seeded, no dynamic registration)
@@ -19,6 +20,7 @@
 - Admin permissions enforced in `permissions.ts`
 
 **Review Results:**
+
 - ✅ **5 files** are consistent with unified admin auth
 - ❌ **1 file** has critical inconsistencies (v5_part_q.md)
 - ⚠️ **1 file** needs minor clarification (part-17b-admin-automation.md)
@@ -32,6 +34,7 @@
 **Status:** ✅ **CONSISTENT** (Updated on 2025-11-29)
 
 **Verified:**
+
 - File 1 (types/next-auth.d.ts): Includes `role` and `isAffiliate` in Session, User, JWT
 - File 3 (lib/auth/auth-options.ts): Includes role and isAffiliate in callbacks
 - File 4 (lib/auth/session.ts): Includes `isAdmin()` and `requireAdmin()` helpers
@@ -50,6 +53,7 @@
 **Status:** ✅ **CONSISTENT** (Updated on 2025-11-29)
 
 **Verified:**
+
 - Line 24: "Unified authentication (single session for SaaS user + affiliate roles)"
 - Line 33: "Part 5 complete (Unified authentication with affiliate support via session.user.isAffiliate)"
 - File 3: Removed `lib/auth/affiliate-auth.ts` (not needed with unified auth)
@@ -67,18 +71,21 @@
 **Status:** ⚠️ **MOSTLY CONSISTENT** (Needs minor clarification)
 
 **Current State:**
+
 - All API endpoints use "Auth: Require admin role" (lines 46-139)
 - Admin portal pages at `/admin/affiliates/*` (lines 145-201)
 - No mention of admin authentication method
 - Uses generic "admin role" without specifying how it's enforced
 
 **Minor Issues:**
+
 1. **Missing authentication implementation details:**
    - Doesn't specify `requireAdmin()` helper usage
    - Doesn't mention admin login page dependency
    - Doesn't reference Part 5 admin authentication
 
 **Recommended Updates:**
+
 ```markdown
 **Dependencies:**
 
@@ -87,6 +94,7 @@
 - Part 14 complete (Admin dashboard foundation)
 
 **Authentication Notes:**
+
 - All admin endpoints use `requireAdmin()` helper from Part 5
 - Admin access controlled by `session.user.role === 'ADMIN'`
 - Admins login via `/admin/login` (credentials only)
@@ -94,6 +102,7 @@
 ```
 
 **Add to File 1 (app/api/admin/affiliates/route.ts):**
+
 ```markdown
 **File 1/35:** `app/api/admin/affiliates/route.ts`
 
@@ -117,41 +126,51 @@
 **Inconsistencies Found:**
 
 #### Line 24: Separate Authentication System
+
 ```markdown
-- Separate authentication system for affiliates  ❌ WRONG
+- Separate authentication system for affiliates ❌ WRONG
 ```
+
 **Should be:** "Unified authentication (affiliates use NextAuth with isAffiliate flag)"
 
 #### Line 40: Separate Login Portal
+
 ```markdown
-- Has separate login portal (not user dashboard)  ❌ WRONG
+- Has separate login portal (not user dashboard) ❌ WRONG
 ```
-**Should be:** "Uses same NextAuth login (/login), separate portal routes (/affiliate/*)"
+
+**Should be:** "Uses same NextAuth login (/login), separate portal routes (/affiliate/\*)"
 
 #### Lines 204-220: Section 6 - Affiliate Authentication
-```markdown
+
+````markdown
 ### 6. Affiliate Authentication (Separate System)
 
 **Critical:** Affiliates use a **completely separate** authentication system from regular users.
 
 **Why Separate:**
+
 - Security isolation (affiliate accounts handle money)
 - Different session management (longer timeouts)
 - Independent credentials (not linked to user account)
 - Separate JWT secret (AFFILIATE_JWT_SECRET)
 
 **Code Pattern:**
+
 ```typescript
 // lib/auth/affiliate-auth.ts  ❌ THIS FILE SHOULD NOT EXIST
 ```
+````
 
 **Should be:**
-```markdown
+
+````markdown
 ### 6. Affiliate Authentication (Unified System)
 
 **Unified Auth:** Affiliates use the **same NextAuth authentication** as SaaS users.
 
 **How It Works:**
+
 - Users login via `/login` (NextAuth - email/password or Google OAuth)
 - After login, users can navigate to `/affiliate/register` to become affiliates
 - Setting `User.isAffiliate = true` grants affiliate access
@@ -160,6 +179,7 @@
 - Affiliate routes protected by `requireAffiliate()` helper
 
 **Code Pattern:**
+
 ```typescript
 // lib/auth/session.ts (Part 5)
 export async function requireAffiliate(): Promise<Session> {
@@ -179,32 +199,40 @@ export async function GET(req: NextRequest) {
   // Fetch affiliate stats for session.user.id
 }
 ```
+````
 
 **Benefits:**
+
 - Single authentication system (simpler to maintain)
 - Users can be both SaaS users AND affiliates (dual roles)
 - No separate login credentials needed
 - Unified session management
 - Admins can also be affiliates if needed
-```
+
+````
 
 #### Line 271: Wrong Auth Check Pattern
 ```typescript
 const token = req.headers.get('authorization')?.replace('Bearer ', '')  ❌ WRONG
-```
+````
+
 **Should use:** NextAuth session via `getServerSession()` or `requireAffiliate()`
 
 #### Section 9: Admin Portal References
+
 ```markdown
 ### 9. Admin Portal - Affiliate Management
 
-**Admin Features:**  ✅ This section is OK
+**Admin Features:** ✅ This section is OK
 ```
+
 This section correctly describes admin features without specifying separate admin authentication. However, it should reference unified admin auth.
 
 **Add:**
+
 ```markdown
 **Admin Authentication:**
+
 - Admins login via `/admin/login` (credentials only, no Google OAuth)
 - 2 fixed admin accounts (pre-seeded in Part 5)
   - Admin 1: Pure admin (role='ADMIN', isAffiliate=false)
@@ -228,6 +256,7 @@ This section correctly describes admin features without specifying separate admi
 **Status:** ✅ **CONSISTENT**
 
 **Verified:**
+
 - No admin-specific authentication rules (correct - admin auth is separate concern)
 - Google OAuth for SaaS users only (correct - admins use credentials only)
 - Unified session strategy with JWT (correct)
@@ -245,6 +274,7 @@ This section correctly describes admin features without specifying separate admi
 **Status:** ✅ **CONSISTENT**
 
 **Verified:**
+
 - No admin-specific authentication mentioned (correct - out of scope)
 - Google OAuth for SaaS users only (correct)
 - JWT session strategy (correct)
@@ -263,12 +293,12 @@ This section correctly describes admin features without specifying separate admi
 
 **File:** `docs/implementation-guides/v5_part_q.md`
 
-| Line | Current (Wrong) | Should Be |
-|------|----------------|-----------|
-| 24 | "Separate authentication system for affiliates" | "Unified authentication (NextAuth with isAffiliate)" |
-| 40 | "Has separate login portal" | "Uses same /login, separate portal routes" |
-| 204-220 | Section 6: "Separate System", lib/auth/affiliate-auth.ts | Section 6: "Unified System", use requireAffiliate() |
-| 271 | Bearer token auth pattern | NextAuth session via getServerSession() |
+| Line    | Current (Wrong)                                          | Should Be                                            |
+| ------- | -------------------------------------------------------- | ---------------------------------------------------- |
+| 24      | "Separate authentication system for affiliates"          | "Unified authentication (NextAuth with isAffiliate)" |
+| 40      | "Has separate login portal"                              | "Uses same /login, separate portal routes"           |
+| 204-220 | Section 6: "Separate System", lib/auth/affiliate-auth.ts | Section 6: "Unified System", use requireAffiliate()  |
+| 271     | Bearer token auth pattern                                | NextAuth session via getServerSession()              |
 
 **Impact:** HIGH - This file provides business logic guidance and would mislead Aider into building separate affiliate authentication.
 
@@ -279,6 +309,7 @@ This section correctly describes admin features without specifying separate admi
 **File:** `docs/build-orders/part-17b-admin-automation.md`
 
 **Changes Needed:**
+
 1. Add Part 5 to dependencies (unified authentication with admin support)
 2. Add authentication notes explaining `requireAdmin()` usage
 3. Specify that only 2 fixed admin accounts can access
@@ -295,6 +326,7 @@ This section correctly describes admin features without specifying separate admi
 **Action:** Rewrite Section 6 (Affiliate Authentication) to describe unified auth approach.
 
 **Key Changes:**
+
 1. Remove all references to "separate authentication system"
 2. Remove `lib/auth/affiliate-auth.ts` references
 3. Add unified auth explanation (NextAuth + isAffiliate flag)
@@ -310,6 +342,7 @@ This section correctly describes admin features without specifying separate admi
 **Action:** Add authentication context and dependencies.
 
 **Key Changes:**
+
 1. Add Part 5 to dependencies
 2. Add authentication notes section
 3. Update File 1 description to mention `requireAdmin()`
@@ -323,6 +356,7 @@ This section correctly describes admin features without specifying separate admi
 **Action:** Create unified authentication cross-reference document.
 
 **Content:**
+
 - Overview of unified authentication architecture
 - How SaaS users, affiliates, and admins all use same NextAuth system
 - Visual diagram showing role/isAffiliate combinations

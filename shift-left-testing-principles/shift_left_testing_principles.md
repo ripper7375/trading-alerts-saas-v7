@@ -42,6 +42,7 @@ Lost time: 2-4 hours per cycle
 ### Why This Happens
 
 **Architectural Flaw in Phase Separation:**
+
 - **Phase 3 (Aider):** Builds code based on feature requirements only
 - **Phase 3.5 (Testing):** Discovers quality violations after code is complete
 - **Gap:** No feedback loop between what Aider generates and what quality gates require
@@ -83,12 +84,14 @@ Shift-Left Approach:
 ### Why Shift-Left for V7 Methodology
 
 **V7 Characteristics:**
+
 - Autonomous AI-driven development (Aider with MiniMax M2 API)
 - Policy-driven code generation
 - Zero manual coding by developer
 - High token cost efficiency requirement
 
 **Shift-Left Benefits:**
+
 1. **Eliminates Rework:** Code passes quality gates on first generation
 2. **Reduces Token Usage:** No regeneration needed, lower API costs
 3. **Faster Iteration:** No waiting for CI/CD to discover issues
@@ -97,21 +100,25 @@ Shift-Left Approach:
 ### Implementation Philosophy
 
 **Principle 1: Constraints Enable Autonomy**
+
 - Giving Aider ESLint/Jest rules doesn't limit creativity
 - It provides guard rails that prevent costly mistakes
 - AI works best with clear, explicit requirements
 
 **Principle 2: Policy as Code**
+
 - Quality requirements are code requirements
 - If it will fail CI/CD, it should fail during generation
 - Policies must be machine-readable by AI
 
 **Principle 3: Fast Feedback Loops**
+
 - Detect issues in seconds (during generation)
 - Not minutes (during CI/CD)
 - Not hours (during Phase 3.5)
 
 **Principle 4: Context Window Optimization**
+
 - Include only essential quality rules in Aider context
 - Not full test files or documentation
 - Rules summary: 2-5KB vs full specs: 50-100KB
@@ -125,22 +132,26 @@ Shift-Left Approach:
 **Objective:** Document quality requirements in Aider-consumable format
 
 **New Policy: `09-testing-framework-compliance.md`**
+
 - ESLint rules enforcement
 - Jest configuration requirements
 - TypeScript strict mode compliance
 - Package naming conventions
 
 **Updated Policy: `05-coding-patterns.md`**
+
 - Add "Code Quality Gates" section
 - TypeScript standards
 - Testing requirements built-in
 
 **Updated Policy: `06-aider-instructions.md`**
+
 - Pre-generation checklist
 - Quality gate validation steps
 - Read-only context files list
 
 **Rationale:**
+
 - Policies are Aider's instruction manual
 - Must be explicit, not assumed
 - Single source of truth for quality standards
@@ -150,18 +161,21 @@ Shift-Left Approach:
 **Objective:** Give Aider awareness of project quality standards
 
 **Add to Aider Read-Only Context:**
+
 1. `.eslintrc.js` - Linting rules
 2. `jest.config.js` - Test configuration
 3. `tsconfig.json` - TypeScript compiler options
 4. Quality rules summary (generated from above)
 
 **Context Window Management:**
+
 - Current project: 281,867 tokens
 - ESLint config: ~5KB
 - Jest config: ~3KB
 - Impact: <1% of context window
 
 **Rationale:**
+
 - Aider cannot comply with rules it doesn't see
 - Configuration files are compact, high-value context
 - Small token cost, massive quality improvement
@@ -173,12 +187,14 @@ Shift-Left Approach:
 **Local Validation Strategy:**
 
 The project already has comprehensive GitHub Actions workflows:
+
 - **Track 1 (Development CI)**: Non-blocking, informative workflows
 - **Track 2 (Deployment Gate)**: `tests.yml` and `deploy.yml` BLOCK deployments
 
 **Gap Identified:** No local validation before code reaches CI/CD
 
 **Pre-Commit Hooks (Husky + lint-staged):**
+
 ```bash
 # .husky/pre-commit
 npm run lint-staged
@@ -191,6 +207,7 @@ npm run lint-staged
 ```
 
 **Pre-Push Hooks:**
+
 ```bash
 # .husky/pre-push
 npm run type-check
@@ -198,11 +215,13 @@ npm run test:quick
 ```
 
 **Integration with Existing CI/CD:**
+
 - Pre-commit hooks catch issues in **5-10 seconds** on developer machine
 - If issues slip through, Track 1 workflows provide feedback (non-blocking)
 - If issues reach main branch, Track 2 (`tests.yml`) **BLOCKS deployment**
 
 **Rationale:**
+
 - **Local validation (new)**: 5-10 seconds, free, immediate feedback
 - **Track 1 CI (existing)**: 2-5 minutes, informative, parallel execution
 - **Track 2 Gate (existing)**: 3-5 minutes, BLOCKING, protects production
@@ -212,23 +231,27 @@ npm run test:quick
 ### D. Critical Success Factors
 
 **1. Token Management**
+
 - Monitor context window usage per Aider session
 - Compress policies using tables, not prose
 - Rotate documentation parts as needed
 - Target: Keep quality rules under 10KB total
 
 **2. Policy Maintenance**
+
 - Review policies when ESLint rules change
 - Update when Jest configuration changes
 - Version control all policy documents
 - Changelog for policy updates
 
 **3. Validation Workflow**
+
 - After Phase 3: Run `npm run lint && npm test`
 - Before marking phase complete: Verify CI/CD would pass
 - Create Phase 3.5 checklist: Integration tests only
 
 **4. Living Documentation**
+
 - Policies evolve with project needs
 - Document exceptions with rationale
 - Track policy violations and patterns
@@ -241,21 +264,25 @@ npm run test:quick
 ### Quantitative Improvements
 
 **Time Savings:**
+
 - Before: Issues caught in CI/CD (2-5 minutes per failure)
 - After: Issues caught locally (5-10 seconds)
 - **Reduction: 95% faster feedback loop**
 
 **Token Cost Reduction:**
+
 - Before: Code generation + rework = 2x token usage
 - After: Code generation once = 1x token usage + minimal context overhead
 - **Reduction: 45% per feature**
 
 **CI/CD Success Rate:**
+
 - Current: Tests.yml already BLOCKS bad deployments (Track 2)
 - Improvement: Catch issues BEFORE reaching CI/CD
 - **Impact: Faster iteration, fewer CI/CD failures to debug**
 
 **GitHub Actions Cost:**
+
 - Before: Failed runs consume GitHub Actions minutes
 - After: Most issues caught locally (free)
 - **Savings: ~30-40% reduction in Actions minutes used**
@@ -287,6 +314,7 @@ npm run test:quick
 ## Implementation Roadmap
 
 ### Phase 1: Foundation (Week 1)
+
 - [ ] Create `09-testing-framework-compliance.md`
 - [ ] Update `05-coding-patterns.md`
 - [ ] Update `06-aider-instructions.md`
@@ -294,6 +322,7 @@ npm run test:quick
 - [ ] Commit and push policy updates
 
 ### Phase 2: Context Enhancement (Week 1-2)
+
 - [ ] Configure Aider to read `.eslintrc.js`
 - [ ] Configure Aider to read `jest.config.js`
 - [ ] Test with one component build
@@ -301,6 +330,7 @@ npm run test:quick
 - [ ] Validate Jest compatibility
 
 ### Phase 3: Automation (Week 2)
+
 - [ ] Install Husky and lint-staged
 - [ ] Create pre-commit hook for linting
 - [ ] Create pre-push hook for type checking
@@ -308,6 +338,7 @@ npm run test:quick
 - [ ] Test full CI/CD pipeline
 
 ### Phase 4: Validation (Week 2-3)
+
 - [ ] Build 3 components using new policies
 - [ ] Measure first-pass CI/CD success rate
 - [ ] Document any policy gaps
@@ -315,6 +346,7 @@ npm run test:quick
 - [ ] Train team on new workflow
 
 ### Phase 5: Optimization (Ongoing)
+
 - [ ] Monitor Aider token usage
 - [ ] Track time savings metrics
 - [ ] Gather policy violation patterns
@@ -330,11 +362,11 @@ npm run test:quick
 ```markdown
 ## ESLint Standards (MANDATORY)
 
-| Rule | Requirement | Example |
-|------|-------------|---------|
-| Return Types | Explicit on ALL functions | `function getData(): Promise<Data>` |
-| Any Types | FORBIDDEN - use proper types | Use `unknown` then type guard |
-| Console | Remove or conditional dev only | Use logger or `if (process.env.NODE_ENV === 'dev')` |
+| Rule         | Requirement                    | Example                                             |
+| ------------ | ------------------------------ | --------------------------------------------------- |
+| Return Types | Explicit on ALL functions      | `function getData(): Promise<Data>`                 |
+| Any Types    | FORBIDDEN - use proper types   | Use `unknown` then type guard                       |
+| Console      | Remove or conditional dev only | Use logger or `if (process.env.NODE_ENV === 'dev')` |
 ```
 
 ### Jest Compatibility Section (for all policies)
@@ -342,11 +374,11 @@ npm run test:quick
 ```markdown
 ## Jest Requirements (MANDATORY)
 
-| Requirement | Implementation | Validation |
-|-------------|----------------|------------|
-| Unique Names | Each package.json has unique name | No "my-v0-project" |
-| Test Files | Generate .test.tsx alongside code | Component.tsx → Component.test.tsx |
-| Coverage | Write testable, modular code | Enable statement coverage |
+| Requirement  | Implementation                    | Validation                         |
+| ------------ | --------------------------------- | ---------------------------------- |
+| Unique Names | Each package.json has unique name | No "my-v0-project"                 |
+| Test Files   | Generate .test.tsx alongside code | Component.tsx → Component.test.tsx |
+| Coverage     | Write testable, modular code      | Enable statement coverage          |
 ```
 
 ### Aider Pre-Generation Checklist (for 06-aider-instructions.md)
@@ -368,18 +400,21 @@ npm run test:quick
 ### Key Performance Indicators (KPIs)
 
 **CI/CD Health:**
+
 - First-pass success rate (target: 95%+)
 - Average time to merge (target: <30 minutes)
 - ESLint failures per PR (target: 0)
 - Jest failures per PR (target: 0)
 
 **Development Efficiency:**
+
 - Phase 3 completion time (target: 2.5 hours)
 - Phase 3.5 completion time (target: 0.5 hours)
 - Rework cycles per feature (target: 0)
 - Token usage per feature (track trend)
 
 **Code Quality:**
+
 - TypeScript `any` usage (target: 0%)
 - Test coverage percentage (target: 60%+)
 - Console statements in production (target: 0)
@@ -400,18 +435,21 @@ npm run test:quick
 ### Timeline of Issues
 
 **Commit #28-29: ESLint Failures**
+
 - Missing return types in layout.tsx, page.tsx, seed.ts
 - Multiple "any" types in components
 - Console statements throughout
 - **Root Cause:** Aider not aware of ESLint rules
 
 **Commit #30-31: ESLint Fixes Applied**
+
 - Claude Code (web) added return types
 - Replaced "any" with proper types
 - Removed console statements
 - **Result:** ESLint passed
 
 **Commit #32-33: Jest Failures**
+
 - Haste map collision: "my-v0-project" in multiple packages
 - Coverage thresholds not met (45% vs 60%)
 - **Root Cause:** Aider not aware of Jest config
@@ -423,12 +461,14 @@ npm run test:quick
 **With New Policies + Local Hooks (Complementing Existing CI/CD):**
 
 **Current System:**
+
 ```
 Code generation → Push to GitHub → Track 1 CI (non-blocking feedback)
                                  → Track 2 tests.yml (BLOCKS deployment)
 ```
 
 **Enhanced System:**
+
 ```
 Code generation (Aider with policies) → Local pre-commit hooks → Push to GitHub
          ↓                                      ↓
@@ -460,6 +500,7 @@ Code generation (Aider with policies) → Local pre-commit hooks → Push to Git
    - **Catches: 1% of issues that slip through Layers 1-2**
 
 **Time Saved in PR #71 Example:**
+
 - Without shift-left: 4 hours of CI/CD debug cycles
 - With shift-left Layer 1: Issues caught during generation (0 CI/CD cycles)
 - With shift-left Layer 2: Issues caught in 10 seconds locally (0 CI/CD cycles)
@@ -485,6 +526,7 @@ This document provides the principles and roadmap. The implementation will prove
 ## References
 
 ### Internal Documents
+
 - `docs/policies/05-coding-patterns.md`
 - `docs/policies/06-aider-instructions.md`
 - `.github/workflows/tests.yml`
@@ -492,6 +534,7 @@ This document provides the principles and roadmap. The implementation will prove
 - `jest.config.js`
 
 ### External Resources
+
 - [Shift-Left Testing Explained](https://www.ibm.com/topics/shift-left-testing)
 - [TypeScript Best Practices](https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html)
 - [Jest Configuration](https://jestjs.io/docs/configuration)

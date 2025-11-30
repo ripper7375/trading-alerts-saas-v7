@@ -1,21 +1,21 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 
 interface SystemConfig {
-  discountPercent: number
-  commissionPercent: number
-  createdAt: string
-  updatedAt: string
+  discountPercent: number;
+  commissionPercent: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface UseAffiliateConfigReturn {
-  discountPercent: number
-  commissionPercent: number
-  calculateDiscountedPrice: (price: number) => number
-  config: SystemConfig | null
-  isLoading: boolean
-  error: Error | null
+  discountPercent: number;
+  commissionPercent: number;
+  calculateDiscountedPrice: (price: number) => number;
+  config: SystemConfig | null;
+  isLoading: boolean;
+  error: Error | null;
 }
 
 /**
@@ -23,39 +23,41 @@ interface UseAffiliateConfigReturn {
  * Ensures all discount calculations are based on centralized configuration
  */
 export function useAffiliateConfig(): UseAffiliateConfigReturn {
-  const [config, setConfig] = useState<SystemConfig | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const [config, setConfig] = useState<SystemConfig | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     async function fetchConfig() {
       try {
-        setIsLoading(true)
-        
+        setIsLoading(true);
+
         // In production, this would fetch from your API endpoint
         // const response = await fetch('/api/system/config')
         // const data = await response.json()
-        
+
         // Mock data for demonstration - replace with actual API call
         const mockConfig: SystemConfig = {
           discountPercent: 20,
           commissionPercent: 20,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-        }
-        
-        setConfig(mockConfig)
-        setError(null)
+        };
+
+        setConfig(mockConfig);
+        setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Failed to fetch config'))
-        console.error('Error fetching SystemConfig:', err)
+        setError(
+          err instanceof Error ? err : new Error('Failed to fetch config')
+        );
+        console.error('Error fetching SystemConfig:', err);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
 
-    fetchConfig()
-  }, [])
+    fetchConfig();
+  }, []);
 
   /**
    * Calculate discounted price based on SystemConfig percentage
@@ -63,10 +65,10 @@ export function useAffiliateConfig(): UseAffiliateConfigReturn {
    * @returns Discounted price rounded to 2 decimal places
    */
   const calculateDiscountedPrice = (price: number): number => {
-    if (!config) return price
-    const discountAmount = price * (config.discountPercent / 100)
-    return Number((price - discountAmount).toFixed(2))
-  }
+    if (!config) return price;
+    const discountAmount = price * (config.discountPercent / 100);
+    return Number((price - discountAmount).toFixed(2));
+  };
 
   return {
     discountPercent: config?.discountPercent ?? 0,
@@ -75,5 +77,5 @@ export function useAffiliateConfig(): UseAffiliateConfigReturn {
     config,
     isLoading,
     error,
-  }
+  };
 }

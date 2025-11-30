@@ -12,15 +12,15 @@ This document defines the architectural and business rules for integrating dLoca
 
 **Rule:** dLocal subscriptions behave fundamentally differently from Stripe subscriptions. Never apply Stripe's auto-renewal logic to dLocal.
 
-| Feature | Stripe | dLocal |
-|---------|--------|--------|
-| **Auto-Renewal** | ✅ Automatic monthly renewal | ❌ NO auto-renewal - Manual payment required |
-| **Free Trial** | ✅ 7-day free trial | ❌ NO free trial period |
-| **Subscription Plans** | Monthly only | **3-day** (NEW) + Monthly |
-| **Discount Codes** | ✅ On all plans | ❌ Monthly only (NOT on 3-day) |
-| **Payment Flow** | Card authorization → Subscription | One-time payment → Manual subscription activation |
-| **Renewal Notifications** | Stripe manages | **We must send** 3 days before expiry |
-| **Expiry Handling** | Stripe auto-downgrade | **We must manually downgrade** to FREE |
+| Feature                   | Stripe                            | dLocal                                            |
+| ------------------------- | --------------------------------- | ------------------------------------------------- |
+| **Auto-Renewal**          | ✅ Automatic monthly renewal      | ❌ NO auto-renewal - Manual payment required      |
+| **Free Trial**            | ✅ 7-day free trial               | ❌ NO free trial period                           |
+| **Subscription Plans**    | Monthly only                      | **3-day** (NEW) + Monthly                         |
+| **Discount Codes**        | ✅ On all plans                   | ❌ Monthly only (NOT on 3-day)                    |
+| **Payment Flow**          | Card authorization → Subscription | One-time payment → Manual subscription activation |
+| **Renewal Notifications** | Stripe manages                    | **We must send** 3 days before expiry             |
+| **Expiry Handling**       | Stripe auto-downgrade             | **We must manually downgrade** to FREE            |
 
 **Why this matters:** Mixing Stripe and dLocal logic will cause incorrect subscription states, charge failures, and user access issues.
 
@@ -34,37 +34,38 @@ This document defines the architectural and business rules for integrating dLoca
 // dLocal Subscription Plans
 const DLOCAL_PLANS = {
   THREE_DAY: {
-    duration: 3,              // 3 days
-    price_usd: 1.99,         // Base price in USD
+    duration: 3, // 3 days
+    price_usd: 1.99, // Base price in USD
     code: 'DLOCAL_3DAY',
-    discountAllowed: false,  // ❌ NO discount codes
-    trialPeriod: false,      // ❌ NO trial
-    autoRenewal: false       // ❌ Manual renewal only
+    discountAllowed: false, // ❌ NO discount codes
+    trialPeriod: false, // ❌ NO trial
+    autoRenewal: false, // ❌ Manual renewal only
   },
   MONTHLY: {
-    duration: 30,            // 30 days
-    price_usd: 29.00,       // Base price in USD
+    duration: 30, // 30 days
+    price_usd: 29.0, // Base price in USD
     code: 'DLOCAL_MONTHLY',
-    discountAllowed: true,  // ✅ Discount codes allowed
-    trialPeriod: false,     // ❌ NO trial
-    autoRenewal: false      // ❌ Manual renewal only
-  }
+    discountAllowed: true, // ✅ Discount codes allowed
+    trialPeriod: false, // ❌ NO trial
+    autoRenewal: false, // ❌ Manual renewal only
+  },
 } as const;
 
 // Stripe Plans (for comparison)
 const STRIPE_PLANS = {
   MONTHLY: {
     duration: 30,
-    price_usd: 29.00,
+    price_usd: 29.0,
     code: 'STRIPE_MONTHLY',
     discountAllowed: true,
-    trialPeriod: 7,         // ✅ 7-day trial
-    autoRenewal: true       // ✅ Auto-renewal
-  }
+    trialPeriod: 7, // ✅ 7-day trial
+    autoRenewal: true, // ✅ Auto-renewal
+  },
 } as const;
 ```
 
 **Implementation:**
+
 - ✅ 3-day plan is exclusive to dLocal (NOT available with Stripe)
 - ✅ Monthly dLocal plan same price as Stripe ($29/month)
 - ✅ All dLocal plans require manual renewal before expiry
@@ -78,7 +79,10 @@ const STRIPE_PLANS = {
 
 ```typescript
 // Discount code validation logic
-function canApplyDiscountCode(plan: string, paymentProvider: 'stripe' | 'dlocal'): boolean {
+function canApplyDiscountCode(
+  plan: string,
+  paymentProvider: 'stripe' | 'dlocal'
+): boolean {
   // Stripe: All plans support discount codes
   if (paymentProvider === 'stripe') {
     return true;
@@ -87,10 +91,10 @@ function canApplyDiscountCode(plan: string, paymentProvider: 'stripe' | 'dlocal'
   // dLocal: Only MONTHLY plan supports discount codes
   if (paymentProvider === 'dlocal') {
     if (plan === 'DLOCAL_3DAY') {
-      return false;  // ❌ 3-day plan: NO discount codes
+      return false; // ❌ 3-day plan: NO discount codes
     }
     if (plan === 'DLOCAL_MONTHLY') {
-      return true;   // ✅ Monthly plan: discount codes allowed
+      return true; // ✅ Monthly plan: discount codes allowed
     }
   }
 
@@ -99,6 +103,7 @@ function canApplyDiscountCode(plan: string, paymentProvider: 'stripe' | 'dlocal'
 ```
 
 **UI Behavior:**
+
 - When user selects **3-day dLocal plan**: Hide discount code input field entirely
 - When user selects **Monthly dLocal plan**: Show discount code input with validation
 - When user selects **Stripe plan**: Always show discount code input
@@ -112,39 +117,45 @@ function canApplyDiscountCode(plan: string, paymentProvider: 'stripe' | 'dlocal'
 #### Monthly Plan Early Renewal (ALLOWED)
 
 **Business Logic:**
+
 - ✅ User can pay for monthly subscription before current subscription expires
 - ✅ System calculates: `remaining_days + 30_days = total_PRO_period`
 - ✅ No limit on how early (can renew with 29 days remaining)
 - ✅ Discount codes apply to renewal payments
 
 **Example:**
+
 ```typescript
 // User's current subscription
 const currentSubscription = {
-  expiresAt: new Date('2025-12-01'),  // 10 days from now
-  tier: 'PRO'
+  expiresAt: new Date('2025-12-01'), // 10 days from now
+  tier: 'PRO',
 };
 
 // User pays for monthly renewal today (Nov 21)
 const renewalPayment = {
   planType: 'MONTHLY',
   duration: 30,
-  paidAt: new Date('2025-11-21')
+  paidAt: new Date('2025-11-21'),
 };
 
 // System calculation
-const remainingDays = 10;  // Days until Dec 1
-const addedDays = 30;      // New monthly period
-const newExpiryDate = new Date('2025-12-31');  // 10 + 30 = 40 days from now
+const remainingDays = 10; // Days until Dec 1
+const addedDays = 30; // New monthly period
+const newExpiryDate = new Date('2025-12-31'); // 10 + 30 = 40 days from now
 
 // Result: User gets 40 days of PRO access total
 ```
 
 **Implementation:**
+
 ```typescript
-async function processEarlyRenewal(userId: string, planType: 'MONTHLY'): Promise<Date> {
+async function processEarlyRenewal(
+  userId: string,
+  planType: 'MONTHLY'
+): Promise<Date> {
   const currentSub = await prisma.subscription.findUnique({
-    where: { userId }
+    where: { userId },
   });
 
   let newExpiryDate: Date;
@@ -165,8 +176,8 @@ async function processEarlyRenewal(userId: string, planType: 'MONTHLY'): Promise
       expiresAt: newExpiryDate,
       tier: 'PRO',
       status: 'ACTIVE',
-      renewalReminderSent: false // Reset reminder flag
-    }
+      renewalReminderSent: false, // Reset reminder flag
+    },
   });
 
   return newExpiryDate;
@@ -180,6 +191,7 @@ async function processEarlyRenewal(userId: string, planType: 'MONTHLY'): Promise
 **Rule:** 3-day plan CANNOT be purchased if user has ANY active subscription.
 
 **Validation:**
+
 ```typescript
 async function canPurchaseThreeDayPlan(userId: string): Promise<{
   allowed: boolean;
@@ -188,25 +200,28 @@ async function canPurchaseThreeDayPlan(userId: string): Promise<{
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
-      subscription: true
-    }
+      subscription: true,
+    },
   });
 
   // Check 1: Already used 3-day plan (lifetime restriction)
   if (user.hasUsedThreeDayPlan) {
     return {
       allowed: false,
-      reason: '3-day plan is a one-time offer. Please select monthly plan.'
+      reason: '3-day plan is a one-time offer. Please select monthly plan.',
     };
   }
 
   // Check 2: Currently has active subscription (any type)
-  if (user.subscription &&
-      user.subscription.expiresAt &&
-      user.subscription.expiresAt > new Date()) {
+  if (
+    user.subscription &&
+    user.subscription.expiresAt &&
+    user.subscription.expiresAt > new Date()
+  ) {
     return {
       allowed: false,
-      reason: 'You already have an active PRO subscription. The 3-day plan cannot be purchased while you have active PRO access.'
+      reason:
+        'You already have an active PRO subscription. The 3-day plan cannot be purchased while you have active PRO access.',
     };
   }
 
@@ -215,25 +230,29 @@ async function canPurchaseThreeDayPlan(userId: string): Promise<{
 ```
 
 **Why Prohibited:**
+
 - Prevents abuse (user stacking multiple 3-day periods)
 - 3-day plan is introductory offer, not renewable
 - User should upgrade to monthly for continued access
 
 **UI Behavior:**
+
 ```tsx
 // Hide 3-day plan option if user has active subscription
-{!hasActiveSubscription && !hasUsedThreeDayPlan && (
-  <PlanOption value="3-day">
-    3-Day PRO Plan - $1.99
-  </PlanOption>
-)}
+{
+  !hasActiveSubscription && !hasUsedThreeDayPlan && (
+    <PlanOption value="3-day">3-Day PRO Plan - $1.99</PlanOption>
+  );
+}
 
-{hasActiveSubscription && (
-  <Notice>
-    You already have active PRO access until {expiryDate}.
-    You can renew with a monthly plan to extend your subscription.
-  </Notice>
-)}
+{
+  hasActiveSubscription && (
+    <Notice>
+      You already have active PRO access until {expiryDate}. You can renew with
+      a monthly plan to extend your subscription.
+    </Notice>
+  );
+}
 ```
 
 ---
@@ -245,13 +264,13 @@ async function canPurchaseThreeDayPlan(userId: string): Promise<{
 #### Stripe Cancellation (ALLOWED)
 
 **Use Case:** Stop future automatic charges
+
 ```typescript
 // Stripe user can cancel auto-renewal
 async function cancelStripeSubscription(userId: string) {
-  const subscription = await stripe.subscriptions.update(
-    subscriptionId,
-    { cancel_at_period_end: true }
-  );
+  const subscription = await stripe.subscriptions.update(subscriptionId, {
+    cancel_at_period_end: true,
+  });
 
   // User keeps PRO access until current period ends
   // Then auto-downgrades to FREE
@@ -259,12 +278,13 @@ async function cancelStripeSubscription(userId: string) {
 ```
 
 **UI:**
+
 ```tsx
-{subscription.provider === 'STRIPE' && (
-  <Button onClick={handleCancelSubscription}>
-    Cancel Auto-Renewal
-  </Button>
-)}
+{
+  subscription.provider === 'STRIPE' && (
+    <Button onClick={handleCancelSubscription}>Cancel Auto-Renewal</Button>
+  );
+}
 ```
 
 ---
@@ -274,12 +294,14 @@ async function cancelStripeSubscription(userId: string) {
 **Rule:** NO cancellation feature for dLocal users.
 
 **Why:**
+
 - ❌ dLocal has NO auto-renewal
 - ❌ User already paid for fixed period (3 or 30 days)
 - ❌ No future charges to cancel
 - ✅ Subscription naturally expires at end of period
 
 **Instead:** User simply doesn't renew
+
 ```typescript
 // dLocal user doesn't need to "cancel"
 // They just don't make another payment
@@ -287,21 +309,29 @@ async function cancelStripeSubscription(userId: string) {
 ```
 
 **UI Behavior:**
-```tsx
-{subscription.provider === 'DLOCAL' && (
-  <Notice>
-    Your PRO subscription is active until {expiryDate}.
-    No auto-renewal - simply renew before expiry to continue PRO access.
-  </Notice>
-)}
 
-{/* DO NOT show cancellation button for dLocal users */}
-{subscription.provider === 'STRIPE' && (
-  <Button variant="destructive">Cancel Subscription</Button>
-)}
+```tsx
+{
+  subscription.provider === 'DLOCAL' && (
+    <Notice>
+      Your PRO subscription is active until {expiryDate}. No auto-renewal -
+      simply renew before expiry to continue PRO access.
+    </Notice>
+  );
+}
+
+{
+  /* DO NOT show cancellation button for dLocal users */
+}
+{
+  subscription.provider === 'STRIPE' && (
+    <Button variant="destructive">Cancel Subscription</Button>
+  );
+}
 ```
 
 **Account Settings Page:**
+
 ```tsx
 // Stripe user sees:
 ┌─────────────────────────────────────────┐
@@ -327,12 +357,14 @@ async function cancelStripeSubscription(userId: string) {
 **Rule:** Regardless of what local currency users pay with, you receive USD only.
 
 **dLocal FX@Transfer Model:**
+
 - ✅ Users pay in **local currency** (INR, PKR, NGN, VND, IDR, THB, ZAR, TRY)
 - ✅ dLocal converts to **USD** using their exchange rate
 - ✅ You receive **USD only** in your dLocal account
 - ✅ dLocal absorbs FX fluctuation risk (you get fixed USD amount)
 
 **Database Storage:**
+
 ```typescript
 // Always store both amounts
 model Payment {
@@ -349,6 +381,7 @@ model Payment {
 ```
 
 **Accounting:**
+
 - ✅ Revenue calculations: Use `amountUSD` field only
 - ✅ Financial reports: USD amounts only
 - ✅ Tax calculations: Based on USD received
@@ -361,6 +394,7 @@ model Payment {
 **SECURITY RISK IDENTIFIED:**
 
 User could exploit 3-day plan pricing:
+
 - 3-day plan: $1.99 ÷ 3 = **$0.663/day**
 - Monthly (20% discount): $23.20 ÷ 30 = **$0.773/day**
 - **Abuse scenario:** User buys 3-day plan repeatedly instead of monthly to save $3.30/month
@@ -380,14 +414,14 @@ async function canPurchaseThreeDayPlan(userId: string): Promise<{
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
-      subscription: true
-    }
+      subscription: true,
+    },
   });
 
   if (!user) {
     return {
       allowed: false,
-      reason: 'User not found'
+      reason: 'User not found',
     };
   }
 
@@ -395,17 +429,21 @@ async function canPurchaseThreeDayPlan(userId: string): Promise<{
   if (user.hasUsedThreeDayPlan) {
     return {
       allowed: false,
-      reason: '3-day plan is a one-time introductory offer. Please select monthly plan.'
+      reason:
+        '3-day plan is a one-time introductory offer. Please select monthly plan.',
     };
   }
 
   // Check 2: Currently has active subscription (any type - 3-day OR monthly)
-  if (user.subscription &&
-      user.subscription.expiresAt &&
-      user.subscription.expiresAt > new Date()) {
+  if (
+    user.subscription &&
+    user.subscription.expiresAt &&
+    user.subscription.expiresAt > new Date()
+  ) {
     return {
       allowed: false,
-      reason: 'You already have an active PRO subscription. The 3-day plan cannot be purchased while you have active PRO access. Use monthly plan to extend your subscription.'
+      reason:
+        'You already have an active PRO subscription. The 3-day plan cannot be purchased while you have active PRO access. Use monthly plan to extend your subscription.',
     };
   }
 
@@ -453,20 +491,20 @@ async function detectMultiAccountAbuse(
 const SUSPICIOUS_PATTERNS = {
   // Same IP purchasing 3-day plans on multiple accounts within 30 days
   MULTIPLE_ACCOUNTS_SAME_IP: {
-    threshold: 2,    // Max 2 accounts from same IP
-    window: 30       // Within 30 days
+    threshold: 2, // Max 2 accounts from same IP
+    window: 30, // Within 30 days
   },
 
   // Same device fingerprint
   MULTIPLE_ACCOUNTS_SAME_DEVICE: {
     threshold: 2,
-    window: 30
+    window: 30,
   },
 
   // Account created immediately before 3-day purchase
   FRESH_ACCOUNT_PURCHASE: {
-    accountAge: 1    // Account < 1 hour old
-  }
+    accountAge: 1, // Account < 1 hour old
+  },
 };
 
 // Log for manual review
@@ -481,8 +519,8 @@ async function logSuspiciousActivity(
       pattern,
       metadata,
       severity: 'MEDIUM',
-      status: 'PENDING_REVIEW'
-    }
+      status: 'PENDING_REVIEW',
+    },
   });
 }
 ```
@@ -493,37 +531,36 @@ async function logSuspiciousActivity(
 
 ```tsx
 // components/PlanSelector.tsx
-{provider === 'dlocal' && (
-  <div className="plan-option three-day">
-    <h3>3-Day PRO Plan</h3>
-    <p className="price">$1.99 (one-time)</p>
+{
+  provider === 'dlocal' && (
+    <div className="plan-option three-day">
+      <h3>3-Day PRO Plan</h3>
+      <p className="price">$1.99 (one-time)</p>
 
-    {/* Clear messaging about restrictions */}
-    <div className="restriction-notice">
-      <AlertIcon />
-      <p>
-        <strong>One-time offer:</strong> Available once per account.
-        After 3 days, upgrade to monthly plan to continue PRO access.
-      </p>
-    </div>
-
-    {hasUsedThreeDayPlan && (
-      <div className="restriction-blocked">
+      {/* Clear messaging about restrictions */}
+      <div className="restriction-notice">
+        <AlertIcon />
         <p>
-          You've already used the 3-day trial offer.
-          Please select the monthly plan.
+          <strong>One-time offer:</strong> Available once per account. After 3
+          days, upgrade to monthly plan to continue PRO access.
         </p>
       </div>
-    )}
 
-    <Button
-      disabled={hasUsedThreeDayPlan}
-      onClick={handleThreeDayPurchase}
-    >
-      {hasUsedThreeDayPlan ? 'Not Available' : 'Try 3 Days'}
-    </Button>
-  </div>
-)}
+      {hasUsedThreeDayPlan && (
+        <div className="restriction-blocked">
+          <p>
+            You've already used the 3-day trial offer. Please select the monthly
+            plan.
+          </p>
+        </div>
+      )}
+
+      <Button disabled={hasUsedThreeDayPlan} onClick={handleThreeDayPurchase}>
+        {hasUsedThreeDayPlan ? 'Not Available' : 'Try 3 Days'}
+      </Button>
+    </div>
+  );
+}
 ```
 
 #### Database Schema Additions
@@ -609,6 +646,7 @@ model FraudAlert {
 ```
 
 **Summary of Anti-Abuse Strategy:**
+
 1. **Primary:** Enforce one-time use per account (hard block)
 2. **Secondary:** Track by email + payment method (detect multi-account abuse)
 3. **Tertiary:** Monitor suspicious patterns (manual review queue)
@@ -687,6 +725,7 @@ export default function CheckoutPage() {
 ```
 
 **Key Rules:**
+
 - ✅ ONE checkout page for both providers
 - ✅ Country detection determines available payment methods
 - ✅ Plan selection updates discount code availability
@@ -772,6 +811,7 @@ enum PlanType {
 ```
 
 **Why this approach:**
+
 - ✅ Single source of truth for all subscriptions
 - ✅ Easy to query "active PRO users" regardless of provider
 - ✅ Maintains referential integrity with User table
@@ -842,6 +882,7 @@ enum PaymentStatus {
 ```
 
 **Why separate payments table:**
+
 - ✅ Complete audit trail for accounting
 - ✅ Track failed payments for analytics
 - ✅ Debug payment issues with raw provider responses
@@ -991,12 +1032,12 @@ export async function checkExpiringSubscriptions() {
       status: 'ACTIVE',
       expiresAt: {
         gte: new Date(),
-        lte: addDays(new Date(), 3)
+        lte: addDays(new Date(), 3),
       },
       // Don't spam: only notify once
-      renewalReminderSent: false
+      renewalReminderSent: false,
     },
-    include: { user: true }
+    include: { user: true },
   });
 
   for (const subscription of expiringIn3Days) {
@@ -1004,13 +1045,13 @@ export async function checkExpiringSubscriptions() {
     await sendRenewalReminderEmail({
       to: subscription.user.email,
       expiryDate: subscription.expiresAt,
-      renewalLink: `${process.env.APP_URL}/checkout?renew=${subscription.id}`
+      renewalLink: `${process.env.APP_URL}/checkout?renew=${subscription.id}`,
     });
 
     // Mark reminder sent
     await prisma.subscription.update({
       where: { id: subscription.id },
-      data: { renewalReminderSent: true }
+      data: { renewalReminderSent: true },
     });
   }
 }
@@ -1022,10 +1063,10 @@ export async function downgradeExpiredSubscriptions() {
       paymentProvider: 'DLOCAL',
       status: 'ACTIVE',
       expiresAt: {
-        lte: new Date()
-      }
+        lte: new Date(),
+      },
     },
-    include: { user: true }
+    include: { user: true },
   });
 
   for (const subscription of expired) {
@@ -1036,20 +1077,20 @@ export async function downgradeExpiredSubscriptions() {
         where: { id: subscription.id },
         data: {
           status: 'EXPIRED',
-          tier: 'FREE'
-        }
+          tier: 'FREE',
+        },
       }),
       // Update user
       prisma.user.update({
         where: { id: subscription.userId },
-        data: { tier: 'FREE' }
-      })
+        data: { tier: 'FREE' },
+      }),
     ]);
 
     // Send expiry notification
     await sendSubscriptionExpiredEmail({
       to: subscription.user.email,
-      renewalLink: `${process.env.APP_URL}/checkout`
+      renewalLink: `${process.env.APP_URL}/checkout`,
     });
 
     console.log(`Downgraded user ${subscription.userId} to FREE tier`);
@@ -1099,7 +1140,7 @@ const DLOCAL_EMAIL_TEMPLATES = {
       Expires: {expiryDate}
 
       {planType === '3DAY' && 'Enjoying the PRO features? Upgrade to monthly for better value!'}
-    `
+    `,
   },
 
   // 2. Renewal Reminder - 3 Days Before Expiry
@@ -1117,7 +1158,7 @@ const DLOCAL_EMAIL_TEMPLATES = {
       [Renew Now Button → /checkout?renew={subscriptionId}]
 
       {hasDiscountCode && 'Enter discount code RENEW20 for 20% off!'}
-    `
+    `,
   },
 
   // 3. Renewal Reminder - 1 Day Before Expiry
@@ -1133,7 +1174,7 @@ const DLOCAL_EMAIL_TEMPLATES = {
       ❌ 15 extra alerts (back to 5 max)
 
       [Renew Now]
-    `
+    `,
   },
 
   // 4. Subscription Expired
@@ -1150,7 +1191,7 @@ const DLOCAL_EMAIL_TEMPLATES = {
       • 5 max alerts
 
       [Reactivate PRO → /checkout]
-    `
+    `,
   },
 
   // 5. Payment Failed
@@ -1164,8 +1205,8 @@ const DLOCAL_EMAIL_TEMPLATES = {
 
       Please try again with a different payment method.
       [Try Again → /checkout]
-    `
-  }
+    `,
+  },
 } as const;
 ```
 
@@ -1194,7 +1235,7 @@ export async function sendDLocalNotification(
   await sendEmail({
     to: user.email,
     subject,
-    html: renderEmailTemplate(content)
+    html: renderEmailTemplate(content),
   });
 
   // Also create in-app notification
@@ -1204,8 +1245,8 @@ export async function sendDLocalNotification(
       type: type,
       title: subject,
       message: content,
-      read: false
-    }
+      read: false,
+    },
   });
 }
 ```
@@ -1227,7 +1268,7 @@ const DLOCAL_SUPPORTED_COUNTRIES = {
   ID: { name: 'Indonesia', currency: 'IDR', locale: 'id-ID' },
   TH: { name: 'Thailand', currency: 'THB', locale: 'th-TH' },
   ZA: { name: 'South Africa', currency: 'ZAR', locale: 'en-ZA' },
-  TR: { name: 'Turkey', currency: 'TRY', locale: 'tr-TR' }
+  TR: { name: 'Turkey', currency: 'TRY', locale: 'tr-TR' },
 } as const;
 
 function isDLocalCountry(countryCode: string): boolean {
@@ -1266,7 +1307,6 @@ export async function detectUserCountry(): Promise<string | null> {
 
     // 4. No dLocal country detected
     return null;
-
   } catch (error) {
     console.error('Country detection failed:', error);
     return null;
@@ -1281,12 +1321,14 @@ export async function detectUserCountry(): Promise<string | null> {
 **Rule:** Currency conversion ONLY applies to dLocal. Stripe always uses USD.
 
 **Stripe Pricing:**
+
 - ✅ Display: USD only ($29/month)
 - ❌ NO currency conversion
 - ❌ NO local currency display
 - ✅ User pays in USD
 
 **dLocal Pricing:**
+
 - ✅ Display: Local currency (₹2,407/month)
 - ✅ WITH currency conversion (USD → local)
 - ✅ Show USD as secondary reference ("Approximately $29 USD")
@@ -1319,7 +1361,7 @@ export async function convertUSDToLocal(
     amountUSD,
     amountLocal,
     currency: targetCurrency,
-    exchangeRate: rate
+    exchangeRate: rate,
   };
 }
 
@@ -1327,7 +1369,7 @@ export async function convertUSDToLocal(
 const monthly3DayPrice = await convertUSDToLocal(1.99, 'INR');
 // Returns: { amountUSD: 1.99, amountLocal: 165, currency: 'INR', exchangeRate: 83 }
 
-const monthlyPrice = await convertUSDToLocal(29.00, 'INR');
+const monthlyPrice = await convertUSDToLocal(29.0, 'INR');
 // Returns: { amountUSD: 29.00, amountLocal: 2490, currency: 'INR', exchangeRate: 83 }
 ```
 
@@ -1337,26 +1379,28 @@ const monthlyPrice = await convertUSDToLocal(29.00, 'INR');
 // components/PriceDisplay.tsx
 
 // STRIPE: USD only
-{provider === 'stripe' && (
-  <div className="price-display stripe">
-    <div className="price-usd">
-      $29.00<span className="frequency">/month</span>
+{
+  provider === 'stripe' && (
+    <div className="price-display stripe">
+      <div className="price-usd">
+        $29.00<span className="frequency">/month</span>
+      </div>
+      {/* NO local currency conversion */}
     </div>
-    {/* NO local currency conversion */}
-  </div>
-)}
+  );
+}
 
 // DLOCAL: Local currency with USD reference
-{provider === 'dlocal' && (
-  <div className="price-display dlocal">
-    <div className="local-price">
-      ₹2,407<span className="frequency">/month</span>
+{
+  provider === 'dlocal' && (
+    <div className="price-display dlocal">
+      <div className="local-price">
+        ₹2,407<span className="frequency">/month</span>
+      </div>
+      <div className="usd-equivalent">Approximately $29 USD</div>
     </div>
-    <div className="usd-equivalent">
-      Approximately $29 USD
-    </div>
-  </div>
-)}
+  );
+}
 ```
 
 ---
@@ -1395,7 +1439,7 @@ export async function getPaymentMethodsForCountry(country: string) {
     icon: '💳',
     description: 'Visa, Mastercard, Amex',
     processingTime: 'Instant',
-    recommended: !isDLocalCountry(country) // Recommended for non-dLocal countries
+    recommended: !isDLocalCountry(country), // Recommended for non-dLocal countries
   });
 
   return methods;
@@ -1443,10 +1487,7 @@ export async function POST(request: Request) {
 
   // Verify signature BEFORE processing
   if (!verifyDLocalSignature(body, signature)) {
-    return Response.json(
-      { error: 'Invalid signature' },
-      { status: 401 }
-    );
+    return Response.json({ error: 'Invalid signature' }, { status: 401 });
   }
 
   // Process webhook...
@@ -1475,13 +1516,13 @@ export async function createDLocalPayment(data: PaymentData) {
       userId: data.userId,
       metadata: {
         path: ['idempotencyKey'],
-        equals: idempotencyKey
+        equals: idempotencyKey,
       },
       status: { in: ['PENDING', 'COMPLETED'] },
       createdAt: {
-        gte: new Date(Date.now() - 5 * 60 * 1000) // Last 5 minutes
-      }
-    }
+        gte: new Date(Date.now() - 5 * 60 * 1000), // Last 5 minutes
+      },
+    },
   });
 
   if (existingPayment) {
@@ -1494,9 +1535,9 @@ export async function createDLocalPayment(data: PaymentData) {
     data: {
       ...data,
       metadata: {
-        idempotencyKey
-      }
-    }
+        idempotencyKey,
+      },
+    },
   });
 
   return payment;
@@ -1516,15 +1557,27 @@ export async function createDLocalPayment(data: PaymentData) {
 
 export const MOCK_DLOCAL_PAYMENT_METHODS = {
   IN: [
-    { id: 'UP', name: 'UPI', type: 'BANK_TRANSFER', icon: '📲', recommended: true },
+    {
+      id: 'UP',
+      name: 'UPI',
+      type: 'BANK_TRANSFER',
+      icon: '📲',
+      recommended: true,
+    },
     { id: 'PT', name: 'Paytm', type: 'WALLET', icon: '💙', popular: true },
     { id: 'PP', name: 'PhonePe', type: 'WALLET', icon: '💜' },
-    { id: 'NB', name: 'Net Banking', type: 'BANK_TRANSFER', icon: '🏦' }
+    { id: 'NB', name: 'Net Banking', type: 'BANK_TRANSFER', icon: '🏦' },
   ],
   PK: [
-    { id: 'JC', name: 'JazzCash', type: 'WALLET', icon: '🎵', recommended: true },
-    { id: 'EP', name: 'Easypaisa', type: 'WALLET', icon: '💚', popular: true }
-  ]
+    {
+      id: 'JC',
+      name: 'JazzCash',
+      type: 'WALLET',
+      icon: '🎵',
+      recommended: true,
+    },
+    { id: 'EP', name: 'Easypaisa', type: 'WALLET', icon: '💚', popular: true },
+  ],
   // ... other countries
 } as const;
 
@@ -1632,14 +1685,14 @@ export async function validateDiscountCode(
   if (paymentProvider === 'DLOCAL' && planType === 'THREE_DAY') {
     return {
       valid: false,
-      reason: 'Discount codes not available for 3-day plans'
+      reason: 'Discount codes not available for 3-day plans',
     };
   }
 
   // 2. Look up discount code in database
   const discount = await prisma.discountCode.findUnique({
     where: { code: code.toUpperCase() },
-    include: { affiliateCode: true }
+    include: { affiliateCode: true },
   });
 
   if (!discount) {
@@ -1664,7 +1717,7 @@ export async function validateDiscountCode(
   // 6. Valid code!
   return {
     valid: true,
-    discountPercentage: discount.percentage
+    discountPercentage: discount.percentage,
   };
 }
 ```
@@ -1681,7 +1734,9 @@ export function DiscountCodeInput({ planType, paymentProvider }: Props) {
   }
 
   const [code, setCode] = useState('');
-  const [validation, setValidation] = useState<DiscountValidationResult | null>(null);
+  const [validation, setValidation] = useState<DiscountValidationResult | null>(
+    null
+  );
 
   const handleApply = async () => {
     const result = await validateDiscountCode(code, planType, paymentProvider);
@@ -1726,7 +1781,7 @@ const DLOCAL_ESCALATION_TRIGGERS = {
     trigger: 'dLocal returns no payment methods for supported country',
     escalate: true,
     reason: 'May indicate API issue or country restriction change',
-    action: 'Ask human: Should we disable dLocal for this country temporarily?'
+    action: 'Ask human: Should we disable dLocal for this country temporarily?',
   },
 
   // 2. Exchange rate volatility
@@ -1734,7 +1789,7 @@ const DLOCAL_ESCALATION_TRIGGERS = {
     trigger: 'Exchange rate changed > 10% from last fetch',
     escalate: true,
     reason: 'Large price changes may confuse users',
-    action: 'Ask human: Accept new rate or use cached rate?'
+    action: 'Ask human: Accept new rate or use cached rate?',
   },
 
   // 3. Webhook signature mismatch pattern
@@ -1742,15 +1797,15 @@ const DLOCAL_ESCALATION_TRIGGERS = {
     trigger: '5+ signature validation failures in 1 hour',
     escalate: true,
     reason: 'Possible security issue or dLocal API change',
-    action: 'Ask human: Investigate webhook secret or API version mismatch?'
+    action: 'Ask human: Investigate webhook secret or API version mismatch?',
   },
 
   // 4. Payment success but subscription creation fails
   PAYMENT_WITHOUT_SUBSCRIPTION: {
     trigger: 'Payment status = PAID but subscription not created',
     escalate: true,
-    reason: 'User paid but didn\'t get PRO access',
-    action: 'Ask human: Manual subscription activation or refund?'
+    reason: "User paid but didn't get PRO access",
+    action: 'Ask human: Manual subscription activation or refund?',
   },
 
   // 5. Multiple active subscriptions
@@ -1758,8 +1813,8 @@ const DLOCAL_ESCALATION_TRIGGERS = {
     trigger: 'User has >1 active subscription',
     escalate: true,
     reason: 'Should not be possible, data integrity issue',
-    action: 'Ask human: Which subscription to keep active?'
-  }
+    action: 'Ask human: Which subscription to keep active?',
+  },
 } as const;
 ```
 

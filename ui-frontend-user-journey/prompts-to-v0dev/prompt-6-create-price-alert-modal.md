@@ -4,6 +4,7 @@ PROMPT 6: Create Alert Modal/Form
 Create an alert creation modal component for Next.js 15 using TypeScript, Tailwind CSS, shadcn/ui, React Hook Form, and Zod validation.
 
 REQUIREMENTS:
+
 1. MODAL OVERLAY:
    - Backdrop: fixed inset-0, bg-black/50, backdrop-blur-sm, z-50
    - Modal container: Centered, max-w-2xl, bg-white, rounded-2xl, shadow-2xl, p-8
@@ -17,42 +18,42 @@ REQUIREMENTS:
    - Subheading: "Get notified when price reaches your target" (text-gray-600, mb-6)
 
 3. FORM FIELDS (Pre-filled from chart click):
-   
+
    **Symbol Field (Locked):**
    - Label: "Symbol" (font-medium, text-gray-700, mb-2)
    - Display: "XAUUSD" in locked input (bg-gray-100, cursor-not-allowed, opacity-70)
    - Lock icon: 🔒 (right side of input)
    - Note: "(Selected from chart)" (text-xs, text-gray-500, mt-1)
-   
+
    **Timeframe Field (Locked):**
    - Label: "Timeframe" (font-medium, text-gray-700, mb-2)
    - Display: "H1" in locked input (bg-gray-100, cursor-not-allowed, opacity-70)
    - Lock icon: 🔒
    - Note: "(Selected from chart)" (text-xs, text-gray-500, mt-1)
-   
+
    **Alert Type (Radio buttons):**
    - Label: "Alert Type" (font-medium, text-gray-700, mb-3)
    - Options (vertical stack):
-     * ◉ "Price near Support/Resistance" (selected by default)
+     - ◉ "Price near Support/Resistance" (selected by default)
        - Description: "Alert when price comes within tolerance range" (text-sm, text-gray-500, ml-6)
-     * ○ "Price crosses Support/Resistance"
+     - ○ "Price crosses Support/Resistance"
        - Description: "Alert only when price breaks through the level" (text-sm, text-gray-500, ml-6)
-     * ○ "New fractal detected"
+     - ○ "New fractal detected"
        - Description: "Alert when new fractal pattern forms" (text-sm, text-gray-500, ml-6)
    - Styling: Each option in a card (border-2, rounded-lg, p-4, hover:border-blue-500, cursor-pointer)
    - Selected: border-blue-600, bg-blue-50
-   
+
    **Target Line (Dropdown):**
    - Label: "Target Line" (font-medium, text-gray-700, mb-2)
    - Dropdown: Pre-selected with clicked line from chart
    - Options (with visual indicators):
-     * "🔴 P-P1: $2,655.20 (Resistance)" - red color indicator
-     * "🟢 B-B1: $2,645.00 (Support)" - green color indicator (selected)
-     * "🔵 B-P1: $2,648.30 (Ascending Support)" - blue color indicator
-     * "🟠 P-B1: $2,652.50 (Descending Resistance)" - orange color indicator
+     - "🔴 P-P1: $2,655.20 (Resistance)" - red color indicator
+     - "🟢 B-B1: $2,645.00 (Support)" - green color indicator (selected)
+     - "🔵 B-P1: $2,648.30 (Ascending Support)" - blue color indicator
+     - "🟠 P-B1: $2,652.50 (Descending Resistance)" - orange color indicator
    - Each option shows: Type | Price | Line Name
    - Search enabled in dropdown
-   
+
    **Tolerance Slider:**
    - Label: "Tolerance" (font-medium, text-gray-700, mb-2)
    - Slider: Range 0.05% to 1.00% (default: 0.10%)
@@ -61,19 +62,19 @@ REQUIREMENTS:
    - Value display: "± 0.10%" (text-2xl, font-bold, text-blue-600, mb-2)
    - Dollar amount: "(±$2.65)" (text-gray-600)
    - Range preview box (bg-blue-50, border-2 border-blue-200, rounded-lg, p-4, mt-3):
-     * "Alert will trigger when price reaches:"
-     * "$2,642.35 - $2,647.65" (text-xl, font-bold, text-gray-900)
-     * Visual range bar showing current price position
-   
+     - "Alert will trigger when price reaches:"
+     - "$2,642.35 - $2,647.65" (text-xl, font-bold, text-gray-900)
+     - Visual range bar showing current price position
+
    **Notification Methods (Checkboxes):**
    - Label: "Notification Method" (font-medium, text-gray-700, mb-3)
    - Options (with icons):
-     * ☑ "Email" (checked by default) - icon: ✉️
-     * ☑ "Push Notification" (checked by default) - icon: 📱
-     * ☐ "SMS (PRO only) 🔒" (disabled for FREE users, checked for PRO) - icon: 💬
+     - ☑ "Email" (checked by default) - icon: ✉️
+     - ☑ "Push Notification" (checked by default) - icon: 📱
+     - ☐ "SMS (PRO only) 🔒" (disabled for FREE users, checked for PRO) - icon: 💬
        - Hover tooltip: "Upgrade to PRO to enable SMS notifications"
    - At least one must be selected (validation)
-   
+
    **Alert Name (Optional):**
    - Label: "Alert Name (optional)" (font-medium, text-gray-700, mb-2)
    - Input: Auto-filled with "Gold H1 Support B-B1" (editable)
@@ -84,15 +85,16 @@ REQUIREMENTS:
 4. TIER VALIDATION WARNING (Bottom of form):
    - Card: bg-yellow-50, border-l-4 border-yellow-500, rounded-lg, p-4, mb-6
    - FREE users:
-     * "⚠️ Alerts Used: 4/5 (FREE Tier)" (text-yellow-800, font-semibold)
-     * Progress bar: 80% filled, bg-yellow-500
-     * Note: "You have 1 alert remaining. Upgrade to PRO for 20 alerts." (text-sm, text-yellow-700)
-     * Link: "See upgrade options" (text-blue-600, underline)
+     - "⚠️ Alerts Used: 4/5 (FREE Tier)" (text-yellow-800, font-semibold)
+     - Progress bar: 80% filled, bg-yellow-500
+     - Note: "You have 1 alert remaining. Upgrade to PRO for 20 alerts." (text-sm, text-yellow-700)
+     - Link: "See upgrade options" (text-blue-600, underline)
    - PRO users:
-     * "✓ Alerts Used: 8/20 (PRO Tier)" (text-green-800, font-semibold)
-     * Progress bar: 40% filled, bg-green-500
+     - "✓ Alerts Used: 8/20 (PRO Tier)" (text-green-800, font-semibold)
+     - Progress bar: 40% filled, bg-green-500
 
 5. VALIDATION RULES (Zod Schema):
+
 ```typescript
 const alertSchema = z.object({
   symbol: z.string().min(1, "Symbol is required"),
@@ -163,3 +165,4 @@ Mock onSubmit handler that simulates API call
 
 
 Generate complete, production-ready code with all imports and mock data that I can copy and run immediately.
+```

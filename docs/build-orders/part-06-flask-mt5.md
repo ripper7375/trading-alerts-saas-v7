@@ -13,9 +13,11 @@
 **Scope:** Complete Flask microservice for MT5 data retrieval with tier validation, indicator processing, and Docker deployment.
 
 **Implementation Guide References:**
+
 - `docs/implementation-guides/v5_part_e.md` Section 8 - MT5 integration and data retrieval specifications
 
 **Key Changes from V4:**
+
 - ✅ NEW: `tier_service.py` for tier validation
 - ✅ Updated timeframe mapping: M5, H12 added (9 total timeframes)
 - ✅ Tier validation for BOTH symbols AND timeframes before reading indicators
@@ -25,10 +27,12 @@
 - ✅ 5 new symbols: AUDJPY, GBPJPY, NZDUSD, USDCAD, USDCHF
 
 **Dependencies:**
+
 - Part 4 complete (Tier constants for validation logic)
 - MT5 terminal running with indicators installed
 
 **Integration Points:**
+
 - Provides indicator data for Next.js frontend
 - Called by `/api/indicators` routes
 - Validates tier access before data retrieval
@@ -40,26 +44,31 @@
 ### Python Application Files (8 files)
 
 **File 1/15:** `mt5-service/app/__init__.py`
+
 - Initialize Flask app
 - Configure CORS
 - Load environment variables
 - Commit: `feat(mt5): initialize Flask application`
 
 **File 2/15:** `mt5-service/app/routes/__init__.py`
+
 - Blueprint registration
 - Commit: `feat(mt5): add routes init`
 
 **File 3/15:** `mt5-service/app/routes/indicators.py`
+
 - GET /indicators/<symbol>/<timeframe> endpoint
 - Tier validation before data retrieval
 - Return fractal horizontal/diagonal data
 - Commit: `feat(mt5): add indicators route with tier validation`
 
 **File 4/15:** `mt5-service/app/services/__init__.py`
+
 - Service exports
 - Commit: `feat(mt5): add services init`
 
 **File 5/15:** `mt5-service/app/services/tier_service.py`
+
 - validateSymbolAccess(symbol, tier)
 - validateTimeframeAccess(timeframe, tier)
 - validateChartAccess(symbol, timeframe, tier)
@@ -67,6 +76,7 @@
 - Commit: `feat(mt5): add tier validation service`
 
 **File 6/15:** `mt5-service/app/services/mt5_service.py`
+
 - Connect to MT5 terminal
 - Read indicator data from files
 - Parse fractal horizontal/diagonal lines
@@ -75,10 +85,12 @@
 - Commit: `feat(mt5): add MT5 data service`
 
 **File 7/15:** `mt5-service/app/utils/__init__.py`
+
 - Utils exports
 - Commit: `feat(mt5): add utils init`
 
 **File 8/15:** `mt5-service/app/utils/constants.py`
+
 - TIMEFRAME_MAP (9 timeframes)
 - SYMBOL_MAP (15 symbols)
 - FREE_TIER_SYMBOLS (5 symbols)
@@ -90,6 +102,7 @@
 ### Configuration & Deployment Files (7 files)
 
 **File 9/15:** `mt5-service/requirements.txt`
+
 - Flask==3.0.0
 - Flask-CORS==4.0.0
 - python-dotenv==1.0.0
@@ -97,11 +110,13 @@
 - Commit: `feat(mt5): add Python dependencies`
 
 **File 10/15:** `mt5-service/run.py`
+
 - Flask app entry point
 - Run on port 5001
 - Commit: `feat(mt5): add Flask entry point`
 
 **File 11/15:** `mt5-service/.env.example`
+
 - MT5_TERMINAL_PATH
 - MT5_LOGIN
 - MT5_PASSWORD
@@ -110,23 +125,27 @@
 - Commit: `feat(mt5): add environment variables template`
 
 **File 12/15:** `mt5-service/Dockerfile`
+
 - Python 3.11 base image
 - Install dependencies
 - Run Flask app
 - Commit: `feat(mt5): add Dockerfile`
 
 **File 13/15:** `mt5-service/.dockerignore`
-- __pycache__
-- *.pyc
+
+- **pycache**
+- \*.pyc
 - .env
 - Commit: `feat(mt5): add dockerignore`
 
 **File 14/15:** `mt5-service/tests/test_indicators.py`
+
 - Test tier validation
 - Test indicator data retrieval
 - Commit: `feat(mt5): add indicator tests`
 
 **File 15/15:** `mt5-service/indicators/README.md`
+
 - List installed indicators
 - Installation instructions
 - File paths
@@ -137,6 +156,7 @@
 ## Testing After Part Complete
 
 1. **Start Flask Service**
+
    ```bash
    cd mt5-service
    python3 -m venv venv
@@ -146,6 +166,7 @@
    ```
 
 2. **Test Endpoint**
+
    ```bash
    # Test FREE tier symbol
    curl http://localhost:5001/indicators/XAUUSD/H1?tier=FREE
@@ -158,6 +179,7 @@
    ```
 
 3. **Test Tier Validation**
+
    ```bash
    # Should succeed
    curl http://localhost:5001/indicators/BTCUSD/H4?tier=FREE
@@ -194,11 +216,13 @@
 ## Escalation Scenarios
 
 **Scenario 1: MT5 connection fails**
+
 - Check MT5 terminal is running
 - Verify credentials in .env
 - Check MT5 API is enabled
 
 **Scenario 2: Indicator files not found**
+
 - Check indicator installation
 - Verify file paths in mt5_service.py
 - Check MT5 data directory permissions

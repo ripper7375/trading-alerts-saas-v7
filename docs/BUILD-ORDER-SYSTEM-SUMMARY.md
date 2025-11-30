@@ -133,6 +133,7 @@ Created `scripts/verify-alignment.sh` that checks:
 ### Example: Building Part 1
 
 **Before (ambiguous):**
+
 ```
 User: "Build Part 1"
 Aider: "Which files? What order? Where's the spec?"
@@ -140,6 +141,7 @@ Aider: "Which files? What order? Where's the spec?"
 ```
 
 **After (crystal clear):**
+
 ```
 User: "Build Part 1"
 Aider reads: docs/build-orders/part-01-foundation.md
@@ -165,10 +167,12 @@ File 2/12: .vscode/extensions.json
 ## ✅ What's Detailed vs Placeholder
 
 ### Detailed Build Orders (Ready to Use):
+
 - ✅ **Part 1: Foundation** - 12 files with complete build instructions
 - ✅ **Part 2: Database** - 4 files with complete build instructions
 
 ### Placeholder Build Orders (To Be Detailed):
+
 - ⚠️ **Parts 3-18** - File lists exist in v5-structure-division.md
 - ⚠️ Need to extract and organize into file-by-file orders
 - ⚠️ Use TEMPLATE.md as guide for creating detailed orders
@@ -200,6 +204,7 @@ aider --model anthropic/MiniMax-M2
 ### For Future Parts (3-18):
 
 **Option A: Use Placeholder (Basic)**
+
 ```bash
 > Build Part 3: Types
 > Reference docs/v5-structure-division.md Part 3 for file list
@@ -207,6 +212,7 @@ aider --model anthropic/MiniMax-M2
 ```
 
 **Option B: Detail the Build Order First (Recommended)**
+
 ```bash
 # 1. Open docs/build-orders/TEMPLATE.md
 # 2. Copy template
@@ -229,6 +235,7 @@ aider --model anthropic/MiniMax-M2
 ```
 
 **Expected output:**
+
 ```
 🔍 Verifying Aider Framework Alignment...
 ==========================================
@@ -265,21 +272,25 @@ aider --model anthropic/MiniMax-M2
 ## 📈 Benefits Achieved
 
 ### 1. **Zero Ambiguity**
+
 - Aider knows **exactly** which files to build
 - Aider knows **exactly** what order to build them
 - Aider knows **exactly** which patterns to use
 
 ### 2. **Maximum Autonomy**
+
 - 90%+ approval rate (no guessing)
 - <5% escalations (only real decisions)
 - Consistent quality across all 170+ files
 
 ### 3. **Maintainability**
+
 - Single source of truth for each part
 - Easy to update (just edit the build-order file)
 - Verification script catches misalignments
 
 ### 4. **Learning Curve Reduction**
+
 - You (beginner) don't need to figure out build order
 - Aider follows clear instructions
 - Mistakes caught before commit
@@ -310,16 +321,19 @@ aider --model anthropic/MiniMax-M2
 ## 📝 Next Steps
 
 ### Immediate (Ready Now):
+
 1. ✅ Build Part 1 using detailed build order
 2. ✅ Build Part 2 using detailed build order
 3. ⏳ Test Aider with these parts to verify autonomy
 
 ### Short-Term (Next Week):
+
 1. ⏳ Detail Parts 3-6 build orders (foundation parts)
 2. ⏳ Test complete foundation phase
 3. ⏳ Refine template based on learnings
 
 ### Long-Term (As Needed):
+
 1. ⏳ Detail Parts 7-18 build orders
 2. ⏳ Add more examples to TEMPLATE
 3. ⏳ Create verification tests for each part

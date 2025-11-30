@@ -13,20 +13,24 @@
 **Scope:** [Brief description of what this part does]
 
 **Implementation Guide References:**
+
 - `docs/implementation-guides/v5_part_[letter].md` - [Description of what this guide provides]
 - `docs/[openapi-spec].yaml` - [Specific schemas or endpoints referenced]
 - `docs/policies/[policy-file].md` - [Specific policies that apply]
 
 **Key Changes from V4/V5:**
+
 - ✅ [Change 1]
 - ✅ [Change 2]
 - ✅ [Change 3]
 
 **Dependencies:**
+
 - Requires Part [X] to be complete (for [reason])
 - Requires Part [Y] to be complete (for [reason])
 
 **Integration Points:**
+
 - Integrates with Part [Z] via [mechanism]
 
 ---
@@ -42,21 +46,25 @@ Build these files **in sequence** (dependencies flow top to bottom):
 **Purpose:** [What this file does in 1-2 sentences]
 
 **From v5-structure-division.md:**
+
 > [Exact quote or description from v5-structure-division.md]
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/implementation-guides/v5_part_[letter].md` Section [X.X]
 - **Pattern:** `docs/policies/05-coding-patterns.md` → **Pattern [N]: [Pattern Name]**
 - **OpenAPI Reference:** `docs/[spec].yaml` → Schema: `[SchemaName]`
 - **Seed Code Reference:** `seed-code/[path]/[file]` (lines [X-Y])
 
 **Dependencies:**
+
 - Requires: [File from earlier part or earlier in this part]
 - Creates: [What this file provides for later files]
 
 **Build Steps:**
 
 1. **Read Requirements**
+
    ```
    - v5-structure-division.md Part [N] description
    - v5_part_[letter].md Section [X.X]
@@ -66,6 +74,7 @@ Build these files **in sequence** (dependencies flow top to bottom):
    ```
 
 2. **Plan Implementation**
+
    ```
    - Use Pattern [N] as base
    - Customize for [specific requirements]
@@ -76,6 +85,7 @@ Build these files **in sequence** (dependencies flow top to bottom):
    ```
 
 3. **Generate Code**
+
    ```
    - Start with Pattern [N] template
    - Add [specific customizations]
@@ -87,6 +97,7 @@ Build these files **in sequence** (dependencies flow top to bottom):
    ```
 
 4. **Validate**
+
    ```
    Check against:
    - 00-tier-specifications.md: [Specific check]
@@ -97,6 +108,7 @@ Build these files **in sequence** (dependencies flow top to bottom):
    ```
 
 5. **Approval Criteria**
+
    ```
    ✅ 0 Critical issues
    ✅ ≤2 High issues (auto-fixable)
@@ -107,6 +119,7 @@ Build these files **in sequence** (dependencies flow top to bottom):
    ```
 
 6. **Commit**
+
    ```
    If approved:
      git add [file path]
@@ -118,6 +131,7 @@ Build these files **in sequence** (dependencies flow top to bottom):
    ```
 
 **Validation Checklist:**
+
 - [ ] TypeScript: No `any` types
 - [ ] Error Handling: Try/catch present
 - [ ] JSDoc: Function documented
@@ -127,12 +141,14 @@ Build these files **in sequence** (dependencies flow top to bottom):
 - [ ] Dependencies: All imports resolve
 
 **Expected Output:**
+
 ```typescript
 // Brief code snippet showing structure
 [Example code structure]
 ```
 
 **Known Issues / Edge Cases:**
+
 - ⚠️ [Edge case 1]: [How to handle]
 - ⚠️ [Edge case 2]: [How to handle]
 
@@ -149,11 +165,13 @@ Build these files **in sequence** (dependencies flow top to bottom):
 Once all [N] files are built, test:
 
 1. **Unit Tests**
+
    ```bash
    pnpm test [test-file-pattern]
    ```
 
 2. **Integration Tests**
+
    ```
    [Specific integration tests for this part]
    ```
@@ -181,6 +199,7 @@ Part [N] is complete when:
 ## Next Steps
 
 After Part [N] complete:
+
 - Ready for Part [N+1]: [Next part name]
 - Unblocks: [What this enables]
 

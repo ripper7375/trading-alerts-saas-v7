@@ -12,20 +12,20 @@ REQUIREMENTS:
    - Logo section at top: "📊 Trading Alerts" (bold, blue-600)
    - User tier badge below logo: "FREE TIER 🆓" (green background, small text)
    - Navigation links (with icons):
-     * 🏠 Dashboard (default active: bg-blue-50, text-blue-600, font-semibold)
-     * 📊 Live Charts
-     * 🔔 Alerts
-     * 📝 Watchlist
-     * ⚙️ Settings
+     - 🏠 Dashboard (default active: bg-blue-50, text-blue-600, font-semibold)
+     - 📊 Live Charts
+     - 🔔 Alerts
+     - 📝 Watchlist
+     - ⚙️ Settings
    - Each link: rounded-lg, px-4, py-3, hover:bg-gray-100, cursor-pointer
    - Active state: bg-blue-50, text-blue-600, border-l-4 border-blue-600
 
 2. TOP BAR (Full width, 64px height):
    - Background: white with bottom border
    - Right side: User profile section with:
-     * Avatar image (circular, 40px)
-     * User name "John Trader" (font-medium)
-     * Dropdown icon (▼)
+     - Avatar image (circular, 40px)
+     - User name "John Trader" (font-medium)
+     - Dropdown icon (▼)
    - Bell icon (notifications) next to profile
    - Make profile section clickable (dropdown menu not required, just make it look clickable)
 
@@ -60,9 +60,10 @@ REQUIREMENTS:
    - Professional appearance
 
 EXAMPLE STATE STRUCTURE:
+
 ```typescript
-const [activeNav, setActiveNav] = useState('dashboard')
-const [sidebarOpen, setSidebarOpen] = useState(false) // for mobile
+const [activeNav, setActiveNav] = useState('dashboard');
+const [sidebarOpen, setSidebarOpen] = useState(false); // for mobile
 ```
 
 Generate complete, production-ready code that I can copy and run immediately.

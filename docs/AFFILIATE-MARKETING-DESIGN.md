@@ -28,25 +28,30 @@
 ## 1. EXECUTIVE SUMMARY
 
 ### Overview
+
 Build a **2-sided marketplace platform** that operates both as a SaaS provider AND distributor. This comprehensive affiliate marketing system enables:
 
 **Affiliate Marketers (Side 1):**
+
 - Self-service registration and authentication
 - Personal dashboard with code inventory and commission reports
 - Profile management with payment preferences
 - Real-time tracking of conversions and earnings
 
 **End Users (Side 2):**
+
 - Apply affiliate discount codes at checkout
 - Upgrade from FREE to PRO tier with discounts
 
 **Admin (Platform Operator):**
+
 - Manage affiliate accounts and code distribution
 - View P&L, sales performance, and commission owings reports
 - Process monthly commission payouts
 - Monitor aggregate code inventory across all affiliates
 
 ### Key Business Model
+
 - **Automated Code Distribution:** 15 codes per affiliate at registration + 15 monthly
 - **Code Lifecycle:** All codes expire at end of month automatically
 - **Code Format:** Cryptographically random >12 characters (e.g., `SxTYo25#1dpgiNguD`)
@@ -54,6 +59,7 @@ Build a **2-sided marketplace platform** that operates both as a SaaS provider A
 - **Payment Options:** Bank transfers, Crypto (USDT), Global wallets (PayPal, Apple Pay, Google Pay, Stripe), Local wallets
 
 ### Success Criteria
+
 - ✅ Affiliates can self-register and manage their business independently
 - ✅ Automated monthly code distribution (15 codes per affiliate)
 - ✅ Comprehensive accounting-style reports (opening/closing balances)
@@ -68,6 +74,7 @@ Build a **2-sided marketplace platform** that operates both as a SaaS provider A
 ### 2.1 Affiliate Registration & Authentication
 
 **Affiliate Self-Registration:**
+
 ```
 1. Public registration page: /affiliate/register
 2. Required fields:
@@ -85,6 +92,7 @@ Build a **2-sided marketplace platform** that operates both as a SaaS provider A
 ```
 
 **Affiliate Authentication:**
+
 ```
 - Separate login system from end users
 - Login page: /affiliate/login
@@ -96,12 +104,14 @@ Build a **2-sided marketplace platform** that operates both as a SaaS provider A
 ### 2.2 Discount Code System
 
 **Code Generation:**
+
 - **Format:** Cryptographically random >12 characters (e.g., `SxTYo25#1dpgiNguD`)
 - **Uniqueness:** Enforced at database level
 - **Security:** Using crypto.randomBytes for generation
 - **Ownership:** Each code belongs to exactly one affiliate
 
 **Automated Code Distribution:**
+
 ```
 1. At Registration: 15 codes generated automatically
 2. Monthly Distribution: 15 new codes at beginning of each month (automated cron job)
@@ -110,6 +120,7 @@ Build a **2-sided marketplace platform** that operates both as a SaaS provider A
 ```
 
 **Code Configuration:**
+
 ```
 - Code: "SxTYo25#1dpgiNguD" (auto-generated, >12 chars)
 - Discount Percentage: Set by admin (0-50%)
@@ -125,6 +136,7 @@ Build a **2-sided marketplace platform** that operates both as a SaaS provider A
 ### 2.3 Code Inventory Tracking (Accounting Style)
 
 **Monthly Code Inventory Formula:**
+
 ```
 (1.0) Opening codes balance (at beginning of current month)
 (1.1) + Discount codes received from Admin during current month
@@ -135,6 +147,7 @@ Build a **2-sided marketplace platform** that operates both as a SaaS provider A
 ```
 
 **Example Report for November 2025:**
+
 ```
 Affiliate: John Doe (john@example.com)
 
@@ -154,6 +167,7 @@ Drill-down capability:
 ### 2.4 Commission Calculation
 
 **Formula:**
+
 ```
 Commission (USD) = (Regular Price × (100% - Discount%)) × Commission%
 ```
@@ -161,14 +175,15 @@ Commission (USD) = (Regular Price × (100% - Discount%)) × Commission%
 **Examples:**
 
 | Regular Price | Discount % | Discounted Price | Commission % | Affiliate Earns |
-|---------------|------------|------------------|--------------|-----------------|
-| $29.00        | 20%        | $23.20          | 30%          | $6.96           |
-| $29.00        | 50%        | $14.50          | 40%          | $5.80           |
-| $29.00        | 10%        | $26.10          | 25%          | $6.53           |
+| ------------- | ---------- | ---------------- | ------------ | --------------- |
+| $29.00        | 20%        | $23.20           | 30%          | $6.96           |
+| $29.00        | 50%        | $14.50           | 40%          | $5.80           |
+| $29.00        | 10%        | $26.10           | 25%          | $6.53           |
 
 ### 2.5 Commission Receivable Tracking (Accounting Style)
 
 **Monthly Commission Receivable Formula:**
+
 ```
 (2.0) Opening commission receivable balance (beginning of month)
 (2.1) + Commission earned during current month (from code usage)
@@ -177,6 +192,7 @@ Commission (USD) = (Regular Price × (100% - Discount%)) × Commission%
 ```
 
 **Example Report for November 2025:**
+
 ```
 Affiliate: John Doe (john@example.com)
 
@@ -219,6 +235,7 @@ Drill-down capability:
 ```
 
 **Affiliate Profile Fields:**
+
 ```
 - Personal Info: Full Name, Email, Country
 - Social Media: Facebook, Instagram, Twitter, YouTube, TikTok URLs
@@ -248,35 +265,40 @@ Affiliate Notified (Email) + Balance Updated
 ### 2.8 User Restrictions
 
 **Who Can Use Codes:**
+
 - ✅ FREE tier users upgrading to PRO (first-time signup)
 - ✅ Existing PRO users at renewal (monthly discount application)
 - ✅ All users can apply NEW, UNUSED, UNEXPIRED codes each month
 
 **Competitive Monthly Model:**
 This design drives affiliate competition by requiring users to find NEW codes monthly:
+
 - User applies Affiliate B's code in Month 1 → Affiliate B earns commission
 - User applies Affiliate C's code in Month 2 → Affiliate C earns commission (Affiliate B gets nothing)
 - User applies Affiliate D's code in Month 3 → Affiliate D earns commission (B and C get nothing)
 - Result: Affiliates must continuously post codes on social media to earn
 
 **Code Validation:**
+
 - Code must exist in database
 - Code must be ACTIVE (not Used, Expired, or Cancelled)
 - Code must not be expired (expiresAt > now)
 - Code must be UNUSED (usedBy = null)
 - Code must be NEW (generated current month, not expired from previous months)
 - User can apply code at:
-  * Initial signup: FREE → PRO with discount ($23.20)
-  * Monthly renewal: PRO → PRO with discount ($23.20 instead of $29.00)
-  * Without code at renewal: User pays full price ($29.00)
+  - Initial signup: FREE → PRO with discount ($23.20)
+  - Monthly renewal: PRO → PRO with discount ($23.20 instead of $29.00)
+  - Without code at renewal: User pays full price ($29.00)
 
 ### 2.9 Subscription Model (Monthly-Only for Early Stage)
 
 **Subscription Type:**
+
 - ✅ **MONTHLY subscriptions ONLY** during early stage (no annual plans)
 - ❌ **NO annual subscriptions** until product is mature and stable
 
 **Subscription Behavior:**
+
 - **AUTO-RENEWAL:** Subscriptions automatically renew every month
 - **Continuous Access:** Users NEVER lose access (unless they cancel or payment fails)
 - **Optional Codes:** Users can OPTIONALLY enter affiliate codes to save 20%
@@ -284,6 +306,7 @@ This design drives affiliate competition by requiring users to find NEW codes mo
 - **Code Effect:** Code applies to NEXT billing cycle only (one-time use)
 
 **Pricing Structure:**
+
 ```
 PRO Plan (Monthly):
 - Regular Price: $29.00/month
@@ -319,6 +342,7 @@ PRO Plan (Monthly):
    - Annual plan can be launched with data on user retention
 
 **When to Introduce Annual:**
+
 - After 6-12 months of operation
 - When feature set is stable and mature
 - When monthly churn rate is <5%
@@ -326,6 +350,7 @@ PRO Plan (Monthly):
 - As an upsell opportunity for existing satisfied users
 
 **Renewal Cycle Flow:**
+
 ```
 Day -10: User receives first reminder email
          "Your subscription renews in 10 days for $29.00"
@@ -355,6 +380,7 @@ Repeat:  Cycle repeats monthly
 ```
 
 **Key Benefits:**
+
 - ✅ Users never lose access unexpectedly
 - ✅ Users can choose to save money by finding codes
 - ✅ Affiliates compete monthly for commissions
@@ -567,6 +593,7 @@ Repeat:  Cycle repeats monthly
 ### 3.6 Component Breakdown
 
 **New Components for Affiliate Portal:**
+
 1. **Affiliate Auth** (`app/affiliate/(auth)/`)
    - Registration page
    - Login page
@@ -628,6 +655,7 @@ Repeat:  Cycle repeats monthly
 ### 4.1 New Tables
 
 **Table: `Affiliate`** (New - Core entity for affiliate marketers)
+
 ```prisma
 model Affiliate {
   id                String   @id @default(cuid())
@@ -708,6 +736,7 @@ enum AffiliateStatus {
 ```
 
 **Table: `AffiliateCode`** (Updated with comprehensive tracking)
+
 ```prisma
 model AffiliateCode {
   id                String   @id @default(cuid())
@@ -761,6 +790,7 @@ enum CodeStatus {
 ```
 
 **Table: `Commission`** (Updated with affiliate relationship)
+
 ```prisma
 model Commission {
   id                  String   @id @default(cuid())
@@ -812,6 +842,7 @@ enum CommissionStatus {
 ```
 
 **Table: `SystemConfig`** (Centralized Settings Management)
+
 ```prisma
 model SystemConfig {
   id          String   @id @default(cuid())
@@ -832,6 +863,7 @@ model SystemConfig {
 **Purpose:** Allows admins to dynamically change affiliate discount and commission percentages from the admin dashboard without code changes. When admin updates these values, all pages (marketing site, user dashboard, affiliate dashboard, admin panels) automatically reflect the new percentages within 1-5 minutes via frontend caching and SWR auto-refresh.
 
 **Table: `SystemConfigHistory`** (Audit Trail for Settings Changes)
+
 ```prisma
 model SystemConfigHistory {
   id         String   @id @default(cuid())
@@ -850,6 +882,7 @@ model SystemConfigHistory {
 **Purpose:** Provides complete audit trail of all configuration changes. Allows admins to review who changed what settings, when, and why. Essential for compliance and debugging.
 
 **Default Configuration Values:**
+
 ```typescript
 // Initial seed data for SystemConfig table
 const defaultConfig = [
@@ -858,22 +891,22 @@ const defaultConfig = [
     value: '20.0',
     valueType: 'number',
     description: 'Default discount percentage for affiliate codes',
-    category: 'affiliate'
+    category: 'affiliate',
   },
   {
     key: 'affiliate_commission_percent',
     value: '20.0',
     valueType: 'number',
     description: 'Default commission percentage for affiliates',
-    category: 'affiliate'
+    category: 'affiliate',
   },
   {
     key: 'affiliate_codes_per_month',
     value: '15',
     valueType: 'number',
     description: 'Number of codes distributed to each affiliate monthly',
-    category: 'affiliate'
-  }
+    category: 'affiliate',
+  },
 ];
 ```
 
@@ -882,6 +915,7 @@ const defaultConfig = [
 ### 4.2 Existing Table Updates
 
 **Table: `User`** (Add relations for admin operations)
+
 ```prisma
 model User {
   // ... existing fields ...
@@ -902,6 +936,7 @@ enum Role {
 ```
 
 **Table: `Subscription`** (Add discount tracking)
+
 ```prisma
 model Subscription {
   // ... existing fields ...
@@ -916,6 +951,7 @@ model Subscription {
 ### 4.3 Migration Strategy
 
 **Prisma Migration Steps:**
+
 ```bash
 # 1. Update schema.prisma with new models
 # 2. Generate migration
@@ -925,6 +961,7 @@ npx prisma migrate dev --name add_affiliate_system
 ```
 
 **Generated Migration SQL (Example):**
+
 ```sql
 -- CreateEnum
 CREATE TYPE "PaymentMethod" AS ENUM ('BANK_TRANSFER', 'CRYPTO', 'GLOBAL_WALLET', 'LOCAL_WALLET');
@@ -1085,6 +1122,7 @@ CREATE INDEX "Commission_paidAt_idx" ON "Commission"("paidAt");
 ### 5.1 Affiliate Authentication Endpoints
 
 **POST /api/affiliate/register** - Affiliate Self-Registration
+
 ```typescript
 Request:
 {
@@ -1116,6 +1154,7 @@ Response (201):
 ```
 
 **POST /api/affiliate/verify-email** - Email Verification
+
 ```typescript
 Request:
 {
@@ -1137,6 +1176,7 @@ Response (200):
 ```
 
 **POST /api/affiliate/login** - Affiliate Login
+
 ```typescript
 Request:
 {
@@ -1169,6 +1209,7 @@ Response (403) - Email Not Verified:
 ```
 
 **POST /api/affiliate/forgot-password** - Password Reset Request
+
 ```typescript
 Request:
 {
@@ -1183,6 +1224,7 @@ Response (200):
 ```
 
 **POST /api/affiliate/reset-password** - Reset Password
+
 ```typescript
 Request:
 {
@@ -1200,6 +1242,7 @@ Response (200):
 ### 5.2 Affiliate Dashboard Endpoints
 
 **GET /api/affiliate/dashboard** - Dashboard Overview
+
 ```typescript
 Headers:
   Authorization: Bearer <affiliate_token>
@@ -1234,6 +1277,7 @@ Response (200):
 ```
 
 **GET /api/affiliate/codes/inventory** - Code Inventory Report
+
 ```typescript
 Headers:
   Authorization: Bearer <affiliate_token>
@@ -1288,6 +1332,7 @@ Response (200):
 ```
 
 **GET /api/affiliate/commissions/receivable** - Commission Receivable Report
+
 ```typescript
 Headers:
   Authorization: Bearer <affiliate_token>
@@ -1346,6 +1391,7 @@ Response (200):
 ```
 
 **GET /api/affiliate/profile** - Get Affiliate Profile
+
 ```typescript
 Headers:
   Authorization: Bearer <affiliate_token>
@@ -1378,6 +1424,7 @@ Response (200):
 ```
 
 **PATCH /api/affiliate/profile** - Update Profile
+
 ```typescript
 Headers:
   Authorization: Bearer <affiliate_token>
@@ -1402,6 +1449,7 @@ Response (200):
 ### 5.3 Admin Affiliate Management Endpoints
 
 **GET /api/admin/affiliates** - List All Affiliates
+
 ```typescript
 Headers:
   Authorization: Bearer <admin_token>
@@ -1436,6 +1484,7 @@ Response (200):
 ```
 
 **GET /api/admin/affiliates/:id** - Get Affiliate Details
+
 ```typescript
 Headers:
   Authorization: Bearer <admin_token>
@@ -1476,6 +1525,7 @@ Response (200):
 ```
 
 **POST /api/admin/affiliates/:id/distribute-codes** - Manual Code Distribution
+
 ```typescript
 Headers:
   Authorization: Bearer <admin_token>
@@ -1502,6 +1552,7 @@ Response (201):
 ```
 
 **PATCH /api/admin/affiliates/:id/status** - Update Affiliate Status
+
 ```typescript
 Headers:
   Authorization: Bearer <admin_token>
@@ -1524,6 +1575,7 @@ Response (200):
 ```
 
 **POST /api/admin/affiliates/codes/:id/cancel** - Cancel Specific Code
+
 ```typescript
 Headers:
   Authorization: Bearer <admin_token>
@@ -1550,6 +1602,7 @@ Response (200):
 ### 5.4 Admin Reporting Endpoints (Business Intelligence)
 
 **GET /api/admin/reports/profit-loss** - Profit & Loss Report (3 Months)
+
 ```typescript
 Headers:
   Authorization: Bearer <admin_token>
@@ -1608,6 +1661,7 @@ Response (200):
 ```
 
 **GET /api/admin/reports/sales-performance** - Sales Performance by Affiliate
+
 ```typescript
 Headers:
   Authorization: Bearer <admin_token>
@@ -1662,6 +1716,7 @@ Response (200):
 ```
 
 **GET /api/admin/reports/sales-performance/:affiliateId** - Drill-down: Affiliate Detail
+
 ```typescript
 Headers:
   Authorization: Bearer <admin_token>
@@ -1712,6 +1767,7 @@ Response (200):
 ```
 
 **GET /api/admin/reports/commission-owings** - Commission Owings Report
+
 ```typescript
 Headers:
   Authorization: Bearer <admin_token>
@@ -1769,6 +1825,7 @@ Response (200):
 ```
 
 **POST /api/admin/reports/commission-owings/bulk-pay** - Bulk Pay Commissions
+
 ```typescript
 Headers:
   Authorization: Bearer <admin_token>
@@ -1805,6 +1862,7 @@ Response (200):
 ```
 
 **GET /api/admin/reports/aggregate-code-inventory** - Aggregate Code Inventory (All Affiliates)
+
 ```typescript
 Headers:
   Authorization: Bearer <admin_token>
@@ -1861,6 +1919,7 @@ Response (200):
 ### 5.5 Public Endpoints (Code Validation for Checkout)
 
 **POST /api/public/validate-code** - Validate Discount Code (for checkout)
+
 ```typescript
 Headers:
   Authorization: Bearer <user_token>  // Regular user token (FREE tier)
@@ -1938,6 +1997,7 @@ Response (200):
 ```
 
 **PATCH /api/admin/affiliate/codes/:id** - Update Code
+
 ```typescript
 Request:
 {
@@ -1954,6 +2014,7 @@ Response (200):
 ```
 
 **GET /api/admin/affiliate/commissions** - Commission Report
+
 ```typescript
 Query Params:
 - status: "PENDING" | "PAID" | "CANCELLED" | "all"
@@ -1988,6 +2049,7 @@ Response (200):
 ```
 
 **POST /api/admin/affiliate/commissions/bulk-pay** - Mark as Paid
+
 ```typescript
 Request:
 {
@@ -2006,6 +2068,7 @@ Response (200):
 ### 5.2 Public Endpoints
 
 **POST /api/affiliate/validate-code** - Validate Discount Code
+
 ```typescript
 Request:
 {
@@ -2032,6 +2095,7 @@ Response (400) - Invalid:
 ```
 
 **GET /api/affiliate/my-commissions** - Affiliate's Earnings (Future)
+
 ```typescript
 // Optional: Allow affiliates to log in and view their earnings
 Headers:
@@ -2059,6 +2123,7 @@ Response (200):
 ### 5.3 Modified Endpoints
 
 **POST /api/checkout/create-session** - Update for Discount Codes
+
 ```typescript
 Request:
 {
@@ -2324,6 +2389,7 @@ RESULT:
 ### 6.3 Invalid Code Scenarios
 
 **Scenario A: Code doesn't exist**
+
 ```
 User enters: "FAKE123"
 API Response (400):
@@ -2336,6 +2402,7 @@ UI: Show error message below input field
 ```
 
 **Scenario B: Code expired**
+
 ```
 User enters: "EXPIRED2024"
 API Response (400):
@@ -2347,6 +2414,7 @@ API Response (400):
 ```
 
 **Scenario C: PRO User at Renewal (NOW VALID)**
+
 ```
 User tier: PRO (at renewal checkout)
 User enters: "SAVE20PRO" (NEW, UNUSED code from current month)
@@ -2364,6 +2432,7 @@ API Response (200):
 ```
 
 **Scenario D: Code disabled by admin**
+
 ```
 User enters: "DISABLED123"
 API Response (400):
@@ -2516,11 +2585,10 @@ export interface CommissionCalculation {
 }
 
 export function calculateCommission(
-  regularPrice: number,        // 29.00
-  discountPercent: number,      // 20
-  commissionPercent: number     // 30
+  regularPrice: number, // 29.00
+  discountPercent: number, // 20
+  commissionPercent: number // 30
 ): CommissionCalculation {
-
   // Validate inputs
   if (discountPercent < 0 || discountPercent > 50) {
     throw new Error('Discount must be 0-50%');
@@ -2543,12 +2611,12 @@ export function calculateCommission(
     discountedPrice: parseFloat(discountedPrice.toFixed(2)),
     commissionPercent,
     commissionAmount: parseFloat(commissionAmount.toFixed(2)),
-    savings: parseFloat(discountAmount.toFixed(2))
+    savings: parseFloat(discountAmount.toFixed(2)),
   };
 }
 
 // Example usage
-const result = calculateCommission(29.00, 20, 30);
+const result = calculateCommission(29.0, 20, 30);
 console.log(result);
 // {
 //   regularPrice: 29.00,
@@ -2563,8 +2631,9 @@ console.log(result);
 ### 8.2 Edge Cases
 
 **Case 1: 0% Discount (Code gives commission only)**
+
 ```typescript
-calculateCommission(29.00, 0, 30);
+calculateCommission(29.0, 0, 30);
 // Result:
 // discountedPrice: 29.00
 // commissionAmount: 8.70
@@ -2572,16 +2641,18 @@ calculateCommission(29.00, 0, 30);
 ```
 
 **Case 2: 50% Discount (Maximum)**
+
 ```typescript
-calculateCommission(29.00, 50, 40);
+calculateCommission(29.0, 50, 40);
 // Result:
 // discountedPrice: 14.50
 // commissionAmount: 5.80
 ```
 
 **Case 3: 0% Commission (Pure discount, no affiliate)**
+
 ```typescript
-calculateCommission(29.00, 15, 0);
+calculateCommission(29.0, 15, 0);
 // Result:
 // discountedPrice: 24.65
 // commissionAmount: 0.00
@@ -2595,6 +2666,7 @@ calculateCommission(29.00, 15, 0);
 ### 9.1 Code Generation
 
 **Secure Random Code:**
+
 ```typescript
 import crypto from 'crypto';
 
@@ -2610,13 +2682,14 @@ export function generateDiscountCode(prefix: string = 'TRADE'): string {
 ```
 
 **Uniqueness Check:**
+
 ```typescript
 async function createCode(data: CreateCodeRequest) {
   let code = data.code || generateDiscountCode();
 
   // Ensure uniqueness
   const existing = await prisma.affiliateCode.findUnique({
-    where: { code }
+    where: { code },
   });
 
   if (existing) {
@@ -2630,24 +2703,26 @@ async function createCode(data: CreateCodeRequest) {
 ### 9.2 Validation Security
 
 **Rate Limiting:**
+
 ```typescript
 // Prevent brute-force code guessing
 import rateLimit from 'express-rate-limit';
 
 const codeValidationLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10,                   // Max 10 validation attempts
-  message: 'Too many validation attempts, try again later'
+  max: 10, // Max 10 validation attempts
+  message: 'Too many validation attempts, try again later',
 });
 
 // Apply to POST /api/affiliate/validate-code
 ```
 
 **SQL Injection Prevention:**
+
 ```typescript
 // ✅ SAFE - Using Prisma (parameterized queries)
 const code = await prisma.affiliateCode.findUnique({
-  where: { code: userInput }  // Prisma escapes automatically
+  where: { code: userInput }, // Prisma escapes automatically
 });
 
 // ❌ UNSAFE - Raw SQL (don't do this)
@@ -2659,13 +2734,14 @@ const code = await prisma.$queryRaw`
 ### 9.3 Fraud Prevention
 
 **One-time Use Per User:**
+
 ```typescript
 // Check if user already used this code
 const existingCommission = await prisma.commission.findFirst({
   where: {
     userId: currentUser.id,
-    codeId: code.id
-  }
+    codeId: code.id,
+  },
 });
 
 if (existingCommission) {
@@ -2674,6 +2750,7 @@ if (existingCommission) {
 ```
 
 **User Eligibility (UPDATED - Supports Monthly Competition):**
+
 ```typescript
 // Both FREE and PRO users can use codes
 // FREE users: Apply at signup
@@ -2706,6 +2783,7 @@ if (code.expiresAt < new Date()) {
 ### 9.4 Admin Authorization
 
 **Restrict Admin Actions:**
+
 ```typescript
 // Middleware for admin-only routes
 export async function requireAdmin(req: Request) {
@@ -2728,6 +2806,7 @@ export async function requireAdmin(req: Request) {
 ### 10.1 Stripe Integration
 
 **Create Checkout with Discount:**
+
 ```typescript
 // app/api/checkout/create-session/route.ts
 
@@ -2763,31 +2842,32 @@ export async function POST(req: Request) {
           currency: 'usd',
           product: process.env.STRIPE_PRO_PRODUCT_ID,
           recurring: { interval: 'month' },
-          unit_amount: finalPrice  // Discounted price
+          unit_amount: finalPrice, // Discounted price
         },
-        quantity: 1
-      }
+        quantity: 1,
+      },
     ],
     metadata: {
       userId: session.user.id,
       discountCode: discountCode || '',
       codeId: codeData?.codeId || '',
       originalPrice: '29.00',
-      discountedPrice: (finalPrice / 100).toFixed(2)
+      discountedPrice: (finalPrice / 100).toFixed(2),
     },
     success_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_URL}/pricing`
+    cancel_url: `${process.env.NEXT_PUBLIC_URL}/pricing`,
   });
 
   return Response.json({
     sessionId: checkoutSession.id,
     url: checkoutSession.url,
-    discountApplied: codeData
+    discountApplied: codeData,
   });
 }
 ```
 
 **Webhook Handler:**
+
 ```typescript
 // app/api/webhooks/stripe/route.ts
 
@@ -2812,20 +2892,20 @@ export async function POST(req: Request) {
         status: 'active',
         discountCodeId: metadata.codeId || null,
         originalPrice: parseFloat(metadata.originalPrice),
-        discountedPrice: parseFloat(metadata.discountedPrice)
-      }
+        discountedPrice: parseFloat(metadata.discountedPrice),
+      },
     });
 
     // Upgrade user tier
     await prisma.user.update({
       where: { id: metadata.userId },
-      data: { tier: 'PRO' }
+      data: { tier: 'PRO' },
     });
 
     // Create commission record if code used
     if (metadata.codeId) {
       const code = await prisma.affiliateCode.findUnique({
-        where: { id: metadata.codeId }
+        where: { id: metadata.codeId },
       });
 
       if (code) {
@@ -2845,15 +2925,15 @@ export async function POST(req: Request) {
             discountedPrice: calc.discountedPrice,
             commissionPercent: calc.commissionPercent,
             commissionAmount: calc.commissionAmount,
-            status: 'PENDING'
-          }
+            status: 'PENDING',
+          },
         });
 
         // Email affiliate
         await sendAffiliateNotification(code.affiliateEmail, {
           code: code.code,
           userName: session.customer_details.email,
-          amount: calc.commissionAmount
+          amount: calc.commissionAmount,
         });
       }
     }
@@ -2866,6 +2946,7 @@ export async function POST(req: Request) {
 ### 10.2 Email Notifications
 
 **Affiliate Code Used:**
+
 ```typescript
 // lib/email/affiliate-notifications.ts
 
@@ -2887,12 +2968,13 @@ export async function sendAffiliateNotification(
       <p><strong>Commission earned:</strong> $${data.amount.toFixed(2)}</p>
       <p>This commission will be paid during the first week of next month.</p>
       <p>Keep sharing your code to earn more!</p>
-    `
+    `,
   });
 }
 ```
 
 **Commission Payment Confirmation:**
+
 ```typescript
 export async function sendPaymentConfirmation(
   affiliateEmail: string,
@@ -2915,7 +2997,7 @@ export async function sendPaymentConfirmation(
         <li><strong>Amount Paid:</strong> $${data.totalAmount.toFixed(2)}</li>
       </ul>
       <p>Thank you for promoting Trading Alerts SaaS!</p>
-    `
+    `,
   });
 }
 ```
@@ -2925,9 +3007,11 @@ export async function sendPaymentConfirmation(
 ## 11. IMPLEMENTATION PHASES
 
 ### Phase 1: Core Infrastructure (Week 1)
+
 **Estimated Time:** 8 hours
 
 **Tasks:**
+
 - [ ] Create Prisma schema for `AffiliateCode` and `Commission`
 - [ ] Run database migration
 - [ ] Create `lib/affiliate/commission.ts` calculation logic
@@ -2935,6 +3019,7 @@ export async function sendPaymentConfirmation(
 - [ ] Write unit tests for calculation and validation
 
 **Files Created:**
+
 - `prisma/migrations/YYYYMMDD_add_affiliate_tables.sql`
 - `lib/affiliate/commission.ts`
 - `lib/affiliate/validator.ts`
@@ -2944,9 +3029,11 @@ export async function sendPaymentConfirmation(
 ---
 
 ### Phase 2: Admin Dashboard (Week 2)
+
 **Estimated Time:** 12 hours
 
 **Tasks:**
+
 - [ ] Create admin affiliate dashboard page
 - [ ] Build code creation form
 - [ ] Build codes list with enable/disable toggle
@@ -2957,6 +3044,7 @@ export async function sendPaymentConfirmation(
 - [ ] API endpoint: POST `/api/admin/affiliate/commissions/bulk-pay`
 
 **Files Created:**
+
 - `app/admin/affiliates/page.tsx`
 - `app/admin/affiliates/codes/page.tsx`
 - `app/admin/affiliates/commissions/page.tsx`
@@ -2970,9 +3058,11 @@ export async function sendPaymentConfirmation(
 ---
 
 ### Phase 3: Checkout Integration (Week 3)
+
 **Estimated Time:** 10 hours
 
 **Tasks:**
+
 - [ ] Add discount code input to checkout page
 - [ ] Implement real-time code validation
 - [ ] Show price breakdown (regular → discounted)
@@ -2982,10 +3072,12 @@ export async function sendPaymentConfirmation(
 - [ ] UI components for discount code flow
 
 **Files Modified:**
+
 - `app/checkout/page.tsx`
 - `app/api/checkout/create-session/route.ts`
 
 **Files Created:**
+
 - `app/api/affiliate/validate-code/route.ts`
 - `components/checkout/discount-code-input.tsx`
 - `components/checkout/price-breakdown.tsx`
@@ -2993,9 +3085,11 @@ export async function sendPaymentConfirmation(
 ---
 
 ### Phase 4: Webhook & Commission Tracking (Week 3)
+
 **Estimated Time:** 6 hours
 
 **Tasks:**
+
 - [ ] Update Stripe webhook handler
 - [ ] Extract discount code from metadata
 - [ ] Create commission record on successful payment
@@ -3004,17 +3098,21 @@ export async function sendPaymentConfirmation(
 - [ ] Handle commission cancellation on refund
 
 **Files Modified:**
+
 - `app/api/webhooks/stripe/route.ts`
 
 **Files Created:**
+
 - `lib/email/affiliate-notifications.ts`
 
 ---
 
 ### Phase 5: Testing & Documentation (Week 4)
+
 **Estimated Time:** 8 hours
 
 **Tasks:**
+
 - [ ] End-to-end testing of full flow
 - [ ] Postman collection for affiliate endpoints
 - [ ] Admin guide documentation
@@ -3024,6 +3122,7 @@ export async function sendPaymentConfirmation(
 - [ ] Performance testing
 
 **Files Created:**
+
 - `docs/AFFILIATE-ADMIN-GUIDE.md`
 - `docs/AFFILIATE-MARKETER-GUIDE.md`
 - `postman/affiliate-endpoints.json`
@@ -3032,9 +3131,11 @@ export async function sendPaymentConfirmation(
 ---
 
 ### Phase 6: Optional Enhancements (Future)
+
 **Estimated Time:** 16 hours
 
 **Tasks:**
+
 - [ ] Affiliate self-service dashboard
 - [ ] Real-time commission tracking
 - [ ] Code usage analytics
@@ -3050,35 +3151,37 @@ export async function sendPaymentConfirmation(
 ### 12.1 Unit Tests
 
 **Commission Calculation:**
+
 ```typescript
 // lib/affiliate/__tests__/commission.test.ts
 
 describe('calculateCommission', () => {
   it('should calculate 20% discount, 20% commission correctly', () => {
-    const result = calculateCommission(29.00, 20, 20);
-    expect(result.discountedPrice).toBe(23.20);
+    const result = calculateCommission(29.0, 20, 20);
+    expect(result.discountedPrice).toBe(23.2);
     expect(result.commissionAmount).toBe(4.64);
   });
 
   it('should handle 0% discount', () => {
-    const result = calculateCommission(29.00, 0, 20);
-    expect(result.discountedPrice).toBe(29.00);
-    expect(result.commissionAmount).toBe(5.80);
+    const result = calculateCommission(29.0, 0, 20);
+    expect(result.discountedPrice).toBe(29.0);
+    expect(result.commissionAmount).toBe(5.8);
   });
 
   it('should throw error for discount > 50%', () => {
-    expect(() => calculateCommission(29.00, 60, 30)).toThrow();
+    expect(() => calculateCommission(29.0, 60, 30)).toThrow();
   });
 });
 ```
 
 **Code Validation:**
+
 ```typescript
 describe('validateDiscountCode', () => {
   it('should accept valid code for FREE user', async () => {
     const result = await validateDiscountCode('SAVE20PRO', freeUser);
     expect(result.valid).toBe(true);
-    expect(result.discountedPrice).toBe(23.20);
+    expect(result.discountedPrice).toBe(23.2);
   });
 
   it('should reject expired code', async () => {
@@ -3098,6 +3201,7 @@ describe('validateDiscountCode', () => {
 ### 12.2 Integration Tests
 
 **Full Checkout Flow:**
+
 ```typescript
 describe('Affiliate Checkout Flow', () => {
   it('should complete checkout with discount code', async () => {
@@ -3105,7 +3209,7 @@ describe('Affiliate Checkout Flow', () => {
     const code = await createTestCode({
       code: 'TEST20',
       discountPercent: 20,
-      commissionPercent: 30
+      commissionPercent: 30,
     });
 
     // 2. Login as FREE user
@@ -3113,14 +3217,14 @@ describe('Affiliate Checkout Flow', () => {
 
     // 3. Validate code
     const validation = await POST('/api/affiliate/validate-code', {
-      code: 'TEST20'
+      code: 'TEST20',
     });
     expect(validation.valid).toBe(true);
 
     // 4. Create checkout session
     const session = await POST('/api/checkout/create-session', {
       priceId: 'price_pro',
-      discountCode: 'TEST20'
+      discountCode: 'TEST20',
     });
     expect(session.url).toBeDefined();
 
@@ -3131,13 +3235,13 @@ describe('Affiliate Checkout Flow', () => {
         codeId: code.id,
         discountCode: 'TEST20',
         originalPrice: '29.00',
-        discountedPrice: '23.20'
-      }
+        discountedPrice: '23.20',
+      },
     });
 
     // 6. Verify commission created
     const commission = await prisma.commission.findFirst({
-      where: { userId: user.id, codeId: code.id }
+      where: { userId: user.id, codeId: code.id },
     });
     expect(commission).toBeDefined();
     expect(commission.commissionAmount).toBe(6.96);
@@ -3145,7 +3249,7 @@ describe('Affiliate Checkout Flow', () => {
 
     // 7. Verify user upgraded
     const updatedUser = await prisma.user.findUnique({
-      where: { id: user.id }
+      where: { id: user.id },
     });
     expect(updatedUser.tier).toBe('PRO');
   });
@@ -3155,6 +3259,7 @@ describe('Affiliate Checkout Flow', () => {
 ### 12.3 Manual Testing Checklist
 
 **Admin Functions:**
+
 - [ ] Create discount code with custom settings
 - [ ] Auto-generate random code
 - [ ] Disable code (verify validation fails after)
@@ -3165,6 +3270,7 @@ describe('Affiliate Checkout Flow', () => {
 - [ ] Verify email sent to affiliate after payment
 
 **User Functions:**
+
 - [ ] Apply valid code at checkout (FREE user)
 - [ ] See discounted price preview
 - [ ] Complete payment with discount
@@ -3175,6 +3281,7 @@ describe('Affiliate Checkout Flow', () => {
 - [ ] Try to apply non-existent code (should fail)
 
 **Security Tests:**
+
 - [ ] Try SQL injection in code input
 - [ ] Try XSS in code input
 - [ ] Attempt rate limit bypass (10+ validations/15min)
@@ -3189,9 +3296,11 @@ describe('Affiliate Checkout Flow', () => {
 Based on this design, the following existing documents need updates:
 
 ### 13.1 Database Schema
+
 **File:** `docs/v5-structure-division.md` → Part 2: Database Schema
 
 **Changes:**
+
 - Add `AffiliateCode` table
 - Add `Commission` table
 - Update `User` relations
@@ -3200,9 +3309,11 @@ Based on this design, the following existing documents need updates:
 ---
 
 ### 13.2 API Specification
+
 **File:** `docs/trading_alerts_openapi.yaml`
 
 **New Endpoints to Add:**
+
 ```yaml
 /api/admin/affiliate/codes:
   get: # List codes
@@ -3222,6 +3333,7 @@ Based on this design, the following existing documents need updates:
 ```
 
 **Updated Endpoints:**
+
 ```yaml
 /api/checkout/create-session:
   post:
@@ -3233,9 +3345,11 @@ Based on this design, the following existing documents need updates:
 ---
 
 ### 13.3 Architecture Rules
+
 **File:** `docs/policies/03-architecture-rules.md`
 
 **New Section to Add:**
+
 ```markdown
 ## Affiliate Marketing Rules
 
@@ -3255,37 +3369,41 @@ Based on this design, the following existing documents need updates:
    - Create commission ONLY after payment success
 
 4. **Admin Authorization:**
-   - ALL /api/admin/affiliate/* routes require ADMIN role
+   - ALL /api/admin/affiliate/\* routes require ADMIN role
    - Log all admin actions (create, disable, payout)
 ```
 
 ---
 
 ### 13.4 Coding Patterns
+
 **File:** `docs/policies/05-coding-patterns.md`
 
 **New Pattern to Add:**
+
 ```markdown
 ## Pattern 8: Affiliate Discount Code Validation
 
 ### Use Case
+
 Validate discount code before checkout
 
 ### Code Example
+
 \`\`\`typescript
 // app/api/affiliate/validate-code/route.ts
 import { getServerSession } from 'next-auth';
 import { validateDiscountCode } from '@/lib/affiliate/validator';
 
 export async function POST(req: NextRequest) {
-  try {
-    const session = await getServerSession();
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+try {
+const session = await getServerSession();
+if (!session) {
+return NextResponse.json(
+{ error: 'Unauthorized' },
+{ status: 401 }
+);
+}
 
     const { code } = await req.json();
     const result = await validateDiscountCode(code, session.user);
@@ -3295,13 +3413,14 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(result);
-  } catch (error) {
-    console.error('Code validation failed:', error);
-    return NextResponse.json(
-      { error: 'Validation failed' },
-      { status: 500 }
-    );
-  }
+
+} catch (error) {
+console.error('Code validation failed:', error);
+return NextResponse.json(
+{ error: 'Validation failed' },
+{ status: 500 }
+);
+}
 }
 \`\`\`
 ```
@@ -3309,9 +3428,11 @@ export async function POST(req: NextRequest) {
 ---
 
 ### 13.5 Project Structure
+
 **File:** `docs/v5-structure-division.md`
 
 **New Part to Add:**
+
 ```markdown
 ## PART 17: Affiliate Marketing System
 
@@ -3320,9 +3441,9 @@ export async function POST(req: NextRequest) {
 **Folders & Files:**
 \`\`\`
 app/admin/affiliates/
-├── page.tsx              # Affiliate dashboard
-├── codes/page.tsx        # Code management
-└── commissions/page.tsx  # Commission reports
+├── page.tsx # Affiliate dashboard
+├── codes/page.tsx # Code management
+└── commissions/page.tsx # Commission reports
 
 app/api/admin/affiliate/
 ├── codes/route.ts
@@ -3334,11 +3455,11 @@ app/api/affiliate/
 └── validate-code/route.ts
 
 lib/affiliate/
-├── commission.ts         # Calculation logic
-├── validator.ts          # Validation logic
-└── __tests__/
-    ├── commission.test.ts
-    └── validator.test.ts
+├── commission.ts # Calculation logic
+├── validator.ts # Validation logic
+└── **tests**/
+├── commission.test.ts
+└── validator.test.ts
 
 components/admin/
 ├── code-form.tsx
@@ -3355,28 +3476,32 @@ components/checkout/
 ---
 
 ### 13.6 Testing Guide
+
 **File:** `postman/TESTING-GUIDE.md`
 
 **New Scenario to Add:**
+
 ```markdown
 ## Scenario 6: Affiliate Marketing Flow
 
 ### Prerequisites
+
 - Admin user logged in
 - FREE tier test user created
 
 ### Step 1: Admin Creates Code
+
 \`\`\`
 POST /api/admin/affiliate/codes
 Authorization: Bearer {{admin_token}}
 
 Body:
 {
-  "code": "SAVE20PRO",
-  "discountPercent": 20,
-  "commissionPercent": 30,
-  "affiliateEmail": "affiliate@test.com",
-  "expiresAt": "2025-12-31T23:59:59Z"
+"code": "SAVE20PRO",
+"discountPercent": 20,
+"commissionPercent": 30,
+"affiliateEmail": "affiliate@test.com",
+"expiresAt": "2025-12-31T23:59:59Z"
 }
 
 Expected: 201 Created, code object returned
@@ -3384,75 +3509,82 @@ Save {{code_id}} for later tests
 \`\`\`
 
 ### Step 2: User Validates Code
+
 \`\`\`
 POST /api/affiliate/validate-code
 Authorization: Bearer {{free_user_token}}
 
 Body:
 {
-  "code": "SAVE20PRO"
+"code": "SAVE20PRO"
 }
 
 Expected: 200 OK
 {
-  "valid": true,
-  "discountedPrice": 23.20,
-  "savings": 5.80
+"valid": true,
+"discountedPrice": 23.20,
+"savings": 5.80
 }
 \`\`\`
 
 ### Step 3: User Completes Checkout
+
 \`\`\`
 POST /api/checkout/create-session
 Authorization: Bearer {{free_user_token}}
 
 Body:
 {
-  "priceId": "price_pro_monthly",
-  "discountCode": "SAVE20PRO"
+"priceId": "price_pro_monthly",
+"discountCode": "SAVE20PRO"
 }
 
 Expected: 200 OK, Stripe checkout URL
 \`\`\`
 
 ### Step 4: Simulate Webhook (Dev Only)
+
 Complete Stripe checkout in test mode
 Webhook fires automatically
 
 ### Step 5: Verify Commission Created
+
 \`\`\`
 GET /api/admin/affiliate/commissions?status=PENDING
 Authorization: Bearer {{admin_token}}
 
 Expected: 200 OK
 Commission record with:
+
 - commissionAmount: 6.96
 - status: PENDING
-\`\`\`
+  \`\`\`
 
 ### Step 6: Mark Commission as Paid
+
 \`\`\`
 POST /api/admin/affiliate/commissions/bulk-pay
 Authorization: Bearer {{admin_token}}
 
 Body:
 {
-  "commissionIds": ["{{commission_id}}"],
-  "note": "Paid via PayPal"
+"commissionIds": ["{{commission_id}}"],
+"note": "Paid via PayPal"
 }
 
 Expected: 200 OK
 \`\`\`
 
 ### Step 7: Verify Status Updated
+
 \`\`\`
 GET /api/admin/affiliate/commissions/{{commission_id}}
 Authorization: Bearer {{admin_token}}
 
 Expected: 200 OK
 {
-  "status": "PAID",
-  "paidAt": "2025-11-14T..."
+"status": "PAID",
+"paidAt": "2025-11-14T..."
 }
 \`\`\`
 ```
@@ -3460,9 +3592,11 @@ Expected: 200 OK
 ---
 
 ### 13.7 Progress Tracking
+
 **File:** `PROGRESS.md`
 
 **Update Phase 3 Build Order:**
+
 ```markdown
 ### PART 17: Affiliate Marketing System (Week 11, 8 hours)
 
@@ -3478,6 +3612,7 @@ Create database schema, admin dashboard, checkout integration, commission tracki
 \`\`\`
 
 **Testing:**
+
 - [ ] Admin can create codes
 - [ ] User can apply code at checkout
 - [ ] Commission created on payment
@@ -3494,6 +3629,7 @@ Create database schema, admin dashboard, checkout integration, commission tracki
 A **comprehensive 2-sided marketplace platform** that operates as both SaaS provider AND distributor:
 
 **Side 1 - Affiliate Marketers (Independent Distributors):**
+
 1. Self-service registration with email verification
 2. Personal dashboard with code inventory and commission reports (accounting-style)
 3. Profile management with 4 payment preference options
@@ -3501,11 +3637,13 @@ A **comprehensive 2-sided marketplace platform** that operates as both SaaS prov
 5. Monthly automated code distribution (15 codes)
 
 **Side 2 - End Users (FREE/PRO tiers):**
+
 1. Apply affiliate discount codes at checkout
 2. Upgrade from FREE to PRO tier with discounts
 3. One-time use per user
 
 **Platform Operator - Admin:**
+
 1. Manage all affiliates (list, view, suspend, terminate)
 2. Manual code distribution when needed
 3. Cancel specific codes
@@ -3517,6 +3655,7 @@ A **comprehensive 2-sided marketplace platform** that operates as both SaaS prov
 5. Process monthly commission payouts (bulk operations)
 
 ### Key Features
+
 - ✅ **Affiliate Self-Service Portal** - Complete registration, authentication, and dashboard
 - ✅ **Automated Monthly Code Distribution** - 15 codes per affiliate at month start
 - ✅ **Automatic Code Expiry** - All codes expire at end of month
@@ -3528,6 +3667,7 @@ A **comprehensive 2-sided marketplace platform** that operates as both SaaS prov
 - ✅ **Stripe Integration** - Custom pricing with metadata tracking
 
 ### Technical Highlights
+
 - **3 new database tables** (Affiliate, AffiliateCode, Commission)
 - **4 new enums** (PaymentMethod, AffiliateStatus, CodeStatus, CommissionStatus)
 - **30+ new API endpoints** (auth, dashboard, admin management, reporting, validation)
@@ -3539,33 +3679,39 @@ A **comprehensive 2-sided marketplace platform** that operates as both SaaS prov
 - **Report generation** with drill-down capabilities
 
 ### Time Estimate
+
 **Total:** ~120 hours across 8 phases
 
 **Phase 1: Database & Core Infrastructure (16h)**
+
 - Prisma schema with 3 models + 4 enums
 - Code generator utility (>12 chars random)
 - Commission calculator
 - Report generator utilities
 
 **Phase 2: Affiliate Authentication (16h)**
+
 - Registration with email verification
 - Login/logout
 - Password reset flow
 - JWT token management
 
 **Phase 3: Affiliate Dashboard (24h)**
+
 - Dashboard overview page
 - Code inventory report (with drill-downs)
 - Commission receivable report (with drill-downs)
 - Profile management (4 payment options)
 
 **Phase 4: Admin Affiliate Management (20h)**
+
 - Affiliate list and details
 - Manual code distribution
 - Status management (suspend/terminate)
 - Code cancellation
 
 **Phase 5: Admin Business Intelligence Reports (24h)**
+
 - P&L Report (3 months)
 - Sales Performance by Affiliate (with drill-down)
 - Commission Owings Report
@@ -3573,12 +3719,14 @@ A **comprehensive 2-sided marketplace platform** that operates as both SaaS prov
 - Chart generation
 
 **Phase 6: Checkout Integration (12h)**
+
 - Code validation API
 - Checkout page integration
 - Price preview
 - Stripe custom pricing
 
 **Phase 7: Webhook & Automation (16h)**
+
 - Stripe webhook updates
 - Commission creation
 - Code status updates
@@ -3586,12 +3734,14 @@ A **comprehensive 2-sided marketplace platform** that operates as both SaaS prov
 - Monthly report emails
 
 **Phase 8: Testing & Documentation (12h)**
+
 - Unit tests
 - Integration tests
 - API documentation
 - User guides
 
 ### Your Current Status
+
 **Milestone 1.6** - Phase 1 (Documentation & Policies)
 
 ### Immediate Next Steps
@@ -3711,4 +3861,3 @@ A **comprehensive 2-sided marketplace platform** that operates as both SaaS prov
 **Document Status:** Complete Design Specification
 **Ready for:** Review & Implementation Planning
 **Contact:** Project Owner for decisions on open questions
-

@@ -17,10 +17,13 @@ Know when to use npm run fix
 ✅ Quick Test (1 minute)
 
 # Just run this once to see it works:
+
 npm run validate
 
 # Expected: Will show validation errors since no code built yet
+
 # That's OK! You just want to see the command works
+
 ✅ That's it! You're ready for Phase 3
 
 Why You Don't Need Extensive Testing:

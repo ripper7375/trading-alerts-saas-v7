@@ -10,13 +10,13 @@
 
 ### 🔄 CI/CD Status
 
-| Workflow | Status | Phase | Purpose |
-|----------|--------|-------|---------|
-| OpenAPI Validation | ✅ Active | 1-4 | Validate API specifications |
-| Dependencies Security | ✅ Active | 1-4 | Scan for vulnerabilities |
-| Flask CI | ✅ Active | 1-4 | Flask app validation |
-| Next.js CI | ⏭️ Standby | 3-4 | Next.js app validation |
-| API Tests | ⏭️ Standby | 3-4 | Integration tests |
+| Workflow              | Status     | Phase | Purpose                     |
+| --------------------- | ---------- | ----- | --------------------------- |
+| OpenAPI Validation    | ✅ Active  | 1-4   | Validate API specifications |
+| Dependencies Security | ✅ Active  | 1-4   | Scan for vulnerabilities    |
+| Flask CI              | ✅ Active  | 1-4   | Flask app validation        |
+| Next.js CI            | ⏭️ Standby | 3-4   | Next.js app validation      |
+| API Tests             | ⏭️ Standby | 3-4   | Integration tests           |
 
 **Current Phase:** 1-2 (Planning/Documentation) | **Success Rate:** 100%
 📖 [View detailed workflow documentation](.github/workflows/README.md)
@@ -28,6 +28,7 @@
 A commercial SaaS platform providing real-time trading alerts and chart visualization with MT5 integration. Built using modern web technologies and cost-effective AI-driven autonomous development with MiniMax M2.
 
 ### **Key Features**
+
 - 🔄 Real-time market data from centralized MT5 terminal
 - 📊 Interactive charts with TradingView Lightweight Charts
 - 🔔 Price alerts with notifications
@@ -40,6 +41,7 @@ A commercial SaaS platform providing real-time trading alerts and chart visualiz
 - 📱 Responsive design for desktop and mobile
 
 ### **Technical Highlights**
+
 - **Frontend:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS
 - **Backend:** Next.js API Routes + Flask Microservice
 - **Database:** PostgreSQL 15+ with Prisma ORM
@@ -91,6 +93,7 @@ A commercial SaaS platform providing real-time trading alerts and chart visualiz
 ## 📚 **Documentation Structure**
 
 ### **V7 Development Guide** (Step-by-Step)
+
 Phase-by-phase guide for building with MiniMax M2:
 
 - 📖 [`docs/v7/v7_overview.md`](docs/v7/v7_overview.md) - Project philosophy and overview
@@ -104,25 +107,33 @@ Phase-by-phase guide for building with MiniMax M2:
 **Total Timeline:** 67 hours over 11 weeks
 
 ### **V5 Implementation Details**
+
 Detailed implementation guides for each part:
+
 - [`docs/implementation-guides/v5_part_a.md`](docs/implementation-guides/v5_part_a.md) through `v5_part_j.md`
 
 ### **API Specifications**
+
 OpenAPI 3.0 specifications for all endpoints:
+
 - [`docs/trading_alerts_openapi.yaml`](docs/trading_alerts_openapi.yaml) - Next.js API (38+ endpoints)
 - [`docs/flask_mt5_openapi.yaml`](docs/flask_mt5_openapi.yaml) - Flask MT5 service (4 endpoints)
 - [`docs/dlocal-openapi-endpoints.yaml`](docs/dlocal-openapi-endpoints.yaml) - dLocal payment endpoints (7 endpoints)
 
 ### **Project Structure**
+
 - [`docs/v5-structure-division.md`](docs/v5-structure-division.md) - 18 parts, 289 files breakdown (includes affiliate + dLocal)
 
 ### **Testing & Policies**
+
 - [`docs/mvp-manual-testing-checklist.md`](docs/mvp-manual-testing-checklist.md) - Complete testing checklist
 - [`docs/policies/00-tier-specifications.md`](docs/policies/00-tier-specifications.md) - Tier system rules
 - [`docs/policies/03-architecture-rule.md`](docs/policies/03-architecture-rule.md) - Architecture patterns
 
 ### **Diagrams**
+
 12 Mermaid diagrams visualizing system architecture:
+
 - `docs/diagrams/diagram-01-system-overview.mermaid`
 - `docs/diagrams/diagram-02-components.mermaid`
 - ... through `diagram-12-implementation-phases.mermaid`
@@ -134,15 +145,18 @@ OpenAPI 3.0 specifications for all endpoints:
 The `seed-code/` folder contains reference implementations for Aider to learn patterns from:
 
 ### **1. Flask/MT5 Service Pattern**
+
 ```
 seed-code/market_ai_engine.py
 ```
+
 - Flask route structure
 - MT5 connection patterns
 - Indicator data fetching logic
 - **Used in:** Part 6 (Flask MT5 Service)
 
 ### **2. Next.js Backend Patterns**
+
 ```
 seed-code/saas-starter/
 ├── app/api/          # API route patterns
@@ -150,12 +164,14 @@ seed-code/saas-starter/
 ├── middleware.ts     # NextAuth patterns
 └── prisma/           # Database patterns
 ```
+
 - NextAuth.js configuration
 - Prisma database patterns
 - Stripe payment integration
 - **Used in:** Parts 5, 7, 12 (Auth, API Routes, E-commerce)
 
 ### **3. Frontend UI Patterns**
+
 ```
 seed-code/next-shadcn-dashboard-starter/
 ├── app/dashboard/    # Dashboard layouts
@@ -163,6 +179,7 @@ seed-code/next-shadcn-dashboard-starter/
 ├── components/charts/ # Chart patterns
 └── lib/utils.ts      # Utility functions
 ```
+
 - Dashboard layout structure
 - shadcn/ui component usage
 - Chart components
@@ -170,12 +187,14 @@ seed-code/next-shadcn-dashboard-starter/
 - **Used in:** Parts 8-14 (All UI components)
 
 ### **4. MQL5 Indicators**
+
 ```
 seed-code/mlq5-indicator/
 ├── Fractal Horizontal Line_V5.mq5  (used by Flask - horizontal support/resistance)
 ├── Fractal Diagonal Line_V4.mq5    (used by Flask - diagonal trend lines)
 └── OHLC Download_V4.mq5            (utility tool - data export to files)
 ```
+
 - **Active Indicators (2):** Fractal Horizontal & Diagonal provide real-time data via buffers
 - **Utility Tool (1):** OHLC Download exports historical data to files (not used by Flask service)
 - Custom indicator source code for reference
@@ -189,6 +208,7 @@ seed-code/mlq5-indicator/
 ## 🎯 **Tier System**
 
 ### **FREE Tier**
+
 - ✅ **5 symbols** (BTCUSD, EURUSD, USDJPY, US30, XAUUSD)
 - ✅ **3 timeframes** (H1, H4, D1)
 - ✅ **15 chart combinations** (5 symbols × 3 timeframes)
@@ -198,6 +218,7 @@ seed-code/mlq5-indicator/
 - 💰 **$0/month**
 
 ### **PRO Tier**
+
 - 📊 **15 symbols** (AUDJPY, AUDUSD, BTCUSD, ETHUSD, EURUSD, GBPJPY, GBPUSD, NDX100, NZDUSD, US30, USDCAD, USDCHF, USDJPY, XAGUSD, XAUUSD)
 - ⏱️ **9 timeframes** (M5, M15, M30, H1, H2, H4, H8, H12, D1)
 - 📈 **135 chart combinations** (15 symbols × 9 timeframes)
@@ -211,6 +232,7 @@ seed-code/mlq5-indicator/
 ## 🚀 **Quick Start**
 
 ### **Prerequisites**
+
 - Node.js 18.18+
 - Python 3.11+
 - PostgreSQL 15+
@@ -218,13 +240,16 @@ seed-code/mlq5-indicator/
 - MiniMax M2 API key (for AI development)
 
 ### **Phase 0: Setup (4 hours)**
+
 Follow the detailed setup guide:
+
 ```bash
 # See complete instructions in:
 docs/v7/v7_phase_0_setup.md
 ```
 
 Key installations:
+
 1. Git, Node.js 18.18+, Python 3.11+
 2. VSCode + 6 required extensions
 3. PostgreSQL 15+, Docker Desktop
@@ -232,13 +257,16 @@ Key installations:
 5. MetaTrader 5 with custom indicators
 
 ### **Phase 1: Create Policies (14 hours)**
+
 **MOST IMPORTANT PHASE** - Create the "AI constitution":
+
 ```bash
 # See complete instructions in:
 docs/v7/v7_phase_1_policies.md
 ```
 
 Create 6 policy documents that guide autonomous development:
+
 1. `01-approval-policies.md` - When to auto-approve, auto-fix, or escalate
 2. `02-quality-standards.md` - Code quality requirements
 3. `03-architecture-rules.md` - System design constraints
@@ -247,6 +275,7 @@ Create 6 policy documents that guide autonomous development:
 6. `06-aider-instructions.md` - How Aider should operate
 
 ### **Phase 2-5: Build & Deploy (49 hours)**
+
 Follow remaining phases for autonomous building with MiniMax M2.
 
 ---
@@ -265,6 +294,7 @@ Follow remaining phases for autonomous building with MiniMax M2.
 ## 🛠️ **Technology Stack**
 
 ### **Frontend**
+
 - **Framework:** Next.js 15 (App Router)
 - **Language:** TypeScript 5.6+
 - **Styling:** Tailwind CSS 3.4
@@ -273,6 +303,7 @@ Follow remaining phases for autonomous building with MiniMax M2.
 - **State Management:** React 19 hooks
 
 ### **Backend**
+
 - **API:** Next.js 15 API Routes
 - **Auth:** NextAuth.js 4.24+
 - **Validation:** Zod schemas
@@ -280,22 +311,26 @@ Follow remaining phases for autonomous building with MiniMax M2.
 - **Database:** PostgreSQL 15+
 
 ### **MT5 Integration**
+
 - **Language:** Python 3.11+
 - **Framework:** Flask 3.0+
 - **MT5 API:** MetaTrader5 Python library 5.0.45+
 - **Deployment:** Docker containers
 
 ### **Payments**
+
 - **Provider:** Stripe
 - **SDK:** stripe-js + stripe (Node)
 
 ### **Development**
+
 - **AI Coding:** Aider with MiniMax M2
 - **Package Manager:** pnpm
 - **Linting:** ESLint + Prettier
 - **Type Checking:** TypeScript strict mode
 
 ### **Deployment**
+
 - **Frontend:** Vercel (Next.js)
 - **Database:** Railway (PostgreSQL)
 - **Backend:** Railway (Flask Docker)
@@ -359,12 +394,14 @@ This project uses a **3-AI team** approach:
 3. **Claude Code** - Your quality validator
 
 ### **Why MiniMax M2?**
+
 - ✅ **Cost-effective:** Significantly cheaper than Anthropic API
 - ✅ **Quality output:** Same professional code quality
 - ✅ **Perfect for autonomous building:** Excellent for repetitive tasks
 - ✅ **Lower total project cost:** 67 hours of development at reduced API cost
 
 ### **Development Workflow**
+
 ```
 1. You define policies (rules for AI)
 2. Aider builds autonomously with MiniMax M2
@@ -381,21 +418,26 @@ This project uses a **3-AI team** approach:
 ## 📖 **Getting Started Guide**
 
 ### **For Beginners**
+
 Start here: [`docs/v7/v7_overview.md`](docs/v7/v7_overview.md)
 
 This guide explains:
+
 - ✅ What you're building (in simple terms)
 - ✅ Why V7 approach is powerful
 - ✅ How AI helps you build faster
 - ✅ Step-by-step roadmap
 
 ### **For Developers**
+
 Jump to: [`docs/v7/v7_phase_0_setup.md`](docs/v7/v7_phase_0_setup.md)
 
 Then follow phases 0-5 sequentially.
 
 ### **For Reviewers**
+
 Check out:
+
 - OpenAPI specs: [`docs/trading_alerts_openapi.yaml`](docs/trading_alerts_openapi.yaml)
 - Architecture: [`docs/v5-structure-division.md`](docs/v5-structure-division.md)
 - Testing: [`docs/mvp-manual-testing-checklist.md`](docs/mvp-manual-testing-checklist.md)
@@ -405,15 +447,19 @@ Check out:
 ## 🧪 **Testing**
 
 ### **Automated Testing** (Optional for MVP)
+
 - Jest for unit tests
 - React Testing Library for component tests
 - Configured in Phase 2
 
 ### **Manual Testing** (Required)
+
 Complete checklist available:
+
 - [`docs/mvp-manual-testing-checklist.md`](docs/mvp-manual-testing-checklist.md)
 
 Covers:
+
 - Authentication flows
 - Tier access control
 - Watchlist & alerts CRUD
@@ -464,6 +510,7 @@ ANTHROPIC_API_BASE=https://api.minimaxi.com/v1
 This is a commercial project with AI-driven development approach.
 
 For improvements to documentation or policies:
+
 1. Fork the repository
 2. Make your changes
 3. Submit a pull request with clear description
@@ -479,10 +526,12 @@ MIT License - See [LICENSE](LICENSE) file for details
 ## 🙏 **Acknowledgments**
 
 **Seed Code Providers:**
+
 - [nextjs/saas-starter](https://github.com/vercel/nextjs-subscription-payments) - Next.js SaaS patterns
 - [Kiranism/next-shadcn-dashboard-starter](https://github.com/Kiranism/next-shadcn-dashboard-starter) - Dashboard UI patterns
 
 **Technologies:**
+
 - Next.js, React, TypeScript (Vercel)
 - Prisma, PostgreSQL
 - Stripe (payments)
@@ -519,7 +568,7 @@ MIT License - See [LICENSE](LICENSE) file for details
 **Cost-Effective Development:** MiniMax M2
 **Quality Assurance:** Claude Code validation
 
-*Welcome to the future of SaaS development!* 🚀
+_Welcome to the future of SaaS development!_ 🚀
 
 ---
 
@@ -579,8 +628,9 @@ npm run validate:policies   # Policy validator only
 ```
 
 **Success Metrics:**
+
 - Target: 85-92% auto-approve rate
-- Target: 6-12% auto-fix rate  
+- Target: 6-12% auto-fix rate
 - Target: 2-5% escalation rate
 
 ### Documentation

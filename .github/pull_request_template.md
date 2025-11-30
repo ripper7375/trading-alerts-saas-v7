@@ -39,7 +39,7 @@ npm run test:coverage
 ```
 
 **Coverage:** **%
-**New Tests:** **
+**New Tests:\*\* \*\*
 **Updated Tests:** \_\_
 
 ---

@@ -7,6 +7,7 @@
 Trading Alerts SaaS is a web application that enables traders to monitor multiple financial markets (Forex, Crypto, Indices, Commodities) and set automated alerts based on fractal-based support and resistance levels. The system integrates with MetaTrader 5 (MT5) to fetch real-time market data and provides a tiered subscription model (FREE and PRO) with varying levels of access. Additionally, it operates as a **2-sided marketplace** with an affiliate marketing program that allows partners to promote the platform and earn commissions.
 
 **Key Features:**
+
 - Real-time market data visualization from MT5
 - Fractal-based support/resistance detection with multi-point trendlines
 - Automated alert system when price approaches key levels
@@ -15,12 +16,13 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 - Subscription management with Stripe integration
 - Responsive dashboard built with Next.js 15 and shadcn/ui
 - **Affiliate Marketing Program** (2-sided marketplace)
-  * Affiliates can register and generate unique referral codes
-  * Earn 20% commission on referred PRO subscriptions
-  * Dedicated affiliate portal with analytics and payment tracking
-  * Admin dashboard for managing affiliates and commission approvals
+  - Affiliates can register and generate unique referral codes
+  - Earn 20% commission on referred PRO subscriptions
+  - Dedicated affiliate portal with analytics and payment tracking
+  - Admin dashboard for managing affiliates and commission approvals
 
 **Technical Indicators:**
+
 - **Fractal Horizontal Lines V5** (Peak-to-Peak and Bottom-to-Bottom trendlines)
 - **Fractal Diagonal Lines V4** (Mixed Peak-Bottom ascending/descending trendlines)
 
@@ -29,6 +31,7 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 ## 2. Tech Stack
 
 ### Frontend
+
 - **Framework:** Next.js 15 (App Router)
 - **Runtime:** React 19
 - **Language:** TypeScript 5
@@ -39,6 +42,7 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 - **Icons:** Lucide React
 
 ### Backend (Next.js)
+
 - **API Routes:** Next.js 15 serverless functions
 - **Authentication:** NextAuth.js v4.24.5 (Google OAuth + Email/Password, JWT sessions)
 - **Database ORM:** Prisma 5
@@ -46,6 +50,7 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 - **API Contract:** OpenAPI 3.0 (trading_alerts_openapi.yaml v7.1.0)
 
 ### Backend (Flask Microservice)
+
 - **Framework:** Flask 3.x
 - **Language:** Python 3.11
 - **MT5 Integration:** MetaTrader5 Python package
@@ -53,18 +58,21 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 - **Production Server:** Gunicorn
 
 ### Database
+
 - **Primary Database:** PostgreSQL 15
 - **Hosting:** Railway
 - **ORM:** Prisma (TypeScript)
 - **Migrations:** Prisma Migrate
 
 ### External Services
+
 - **MT5 Terminal:** MetaTrader 5 (Windows/Linux VPS)
 - **Payments:** Stripe (international cards) + dLocal (emerging market local payments)
 - **Email:** Resend
 - **Deployment:** Vercel (Next.js), Railway (PostgreSQL + Flask)
 
 ### AI Development
+
 - **Model:** MiniMax M2 (via OpenAI-compatible API)
 - **Validation:** Claude Code
 - **Autonomous Builder:** Aider
@@ -153,6 +161,7 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 **Location:** `app/` directory
 
 **Responsibilities:**
+
 - Server-side rendering (SSR) for SEO and performance
 - Client-side interactivity (forms, real-time updates)
 - User authentication UI (login, register, profile)
@@ -160,6 +169,7 @@ Trading Alerts SaaS is a web application that enables traders to monitor multipl
 - Tier-aware UI (disable PRO features for FREE users)
 
 **Key Files:**
+
 ```
 app/
 ├── (marketing)/
@@ -199,6 +209,7 @@ components/
 ```
 
 **Tech Notes:**
+
 - Default to **Server Components** (async, fetch data directly)
 - Use **Client Components** (`'use client'`) only when needed (state, events, hooks)
 - Data fetching: Server Components fetch directly, Client Components use `/api` routes
@@ -211,6 +222,7 @@ components/
 **Location:** `app/affiliate/` and `app/admin/` directories
 
 **Responsibilities:**
+
 - Affiliate registration, login, and code generation
 - Affiliate analytics dashboard (referred users, earnings, payment status)
 - Admin management of affiliates (approval, suspension)
@@ -218,6 +230,7 @@ components/
 - Separate authentication system for affiliates (not NextAuth)
 
 **Key Files:**
+
 ```
 app/
 ├── affiliate/
@@ -268,6 +281,7 @@ components/
 ```
 
 **Authentication Pattern (Separate from User Auth):**
+
 ```typescript
 // Affiliate authentication uses separate JWT (not NextAuth)
 // Pattern 7: Separate JWT for affiliates
@@ -304,6 +318,7 @@ export async function affiliateAuthMiddleware(req: Request) {
 ```
 
 **Affiliate Code Generation (Crypto-Secure):**
+
 ```typescript
 // Pattern 8: Crypto-secure affiliate code generation
 import crypto from 'crypto';
@@ -317,6 +332,7 @@ export function generateAffiliateCode(prefix: string = 'REF'): string {
 ```
 
 **Commission Calculation (Webhook-Only):**
+
 ```typescript
 // Pattern 9: Commission calculation only in Stripe webhook
 // app/api/webhooks/stripe/route.ts
@@ -334,13 +350,13 @@ export async function POST(req: Request) {
       // Find affiliate code in database
       const code = await prisma.affiliateCode.findUnique({
         where: { code: affiliateCode },
-        include: { affiliate: true }
+        include: { affiliate: true },
       });
 
       if (code && code.affiliate.status === 'APPROVED') {
         // Calculate 20% commission
         const subscriptionAmount = session.amount_total / 100; // cents to dollars
-        const commissionAmount = subscriptionAmount * 0.20;
+        const commissionAmount = subscriptionAmount * 0.2;
 
         // Create commission record (pending approval)
         await prisma.commission.create({
@@ -350,14 +366,14 @@ export async function POST(req: Request) {
             subscriptionId: session.subscription,
             amount: commissionAmount,
             status: 'PENDING',
-            stripeChargeId: session.payment_intent
-          }
+            stripeChargeId: session.payment_intent,
+          },
         });
 
         // Increment affiliate code usage count
         await prisma.affiliateCode.update({
           where: { id: code.id },
-          data: { usageCount: { increment: 1 } }
+          data: { usageCount: { increment: 1 } },
         });
       }
     }
@@ -368,6 +384,7 @@ export async function POST(req: Request) {
 ```
 
 **Tech Notes:**
+
 - Separate authentication system for affiliates (JWT, not NextAuth)
 - Crypto-secure code generation (`crypto.randomBytes`, not `Math.random`)
 - Commission calculation ONLY in Stripe webhook (single source of truth)
@@ -381,6 +398,7 @@ export async function POST(req: Request) {
 **Location:** `app/api/` directory
 
 **Responsibilities:**
+
 - RESTful API endpoints for frontend
 - Authentication and authorization (NextAuth.js)
 - Tier validation before data access
@@ -389,13 +407,15 @@ export async function POST(req: Request) {
 - Webhook handlers (Stripe)
 
 **API Structure:**
+
 ```typescript
 // Standard pattern for ALL API routes:
 export async function GET(req: Request) {
   try {
     // 1. Authentication
     const session = await getServerSession();
-    if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session)
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     // 2. Tier validation (if applicable)
     const userTier = session.user.tier || 'FREE';
@@ -415,6 +435,7 @@ export async function GET(req: Request) {
 ```
 
 **Key Endpoints:**
+
 - `GET /api/alerts` - Fetch user's alerts
 - `POST /api/alerts` - Create new alert (with tier validation)
 - `GET /api/fractals/{symbol}/{timeframe}` - Fetch fractal data from MT5
@@ -422,6 +443,7 @@ export async function GET(req: Request) {
 - `POST /api/webhooks/stripe` - Handle Stripe payment events
 
 **Tech Notes:**
+
 - All endpoints defined in `docs/trading_alerts_openapi.yaml`
 - Auto-generated TypeScript types in `lib/api-client/`
 - Tier validation uses `lib/tier/validation.ts`
@@ -434,6 +456,7 @@ export async function GET(req: Request) {
 **Location:** `lib/` directory
 
 **Responsibilities:**
+
 - Pure business logic (no HTTP, no UI)
 - Tier validation utilities
 - Database operation wrappers
@@ -441,6 +464,7 @@ export async function GET(req: Request) {
 - Custom React hooks
 
 **Key Modules:**
+
 ```
 lib/
 ├── tier/
@@ -460,6 +484,7 @@ lib/
 ```
 
 **Separation of Concerns:**
+
 - `lib/tier/` → Tier validation (used by API routes)
 - `lib/db/` → Database operations (used by API routes)
 - `lib/utils/` → Pure utilities (used everywhere)
@@ -472,12 +497,14 @@ lib/
 **Location:** `prisma/schema.prisma`
 
 **Responsibilities:**
+
 - Data persistence
 - Relational data modeling
 - Type-safe database queries
 - Migrations
 
 **Schema Overview:**
+
 ```prisma
 model User {
   id                  String   @id @default(cuid())
@@ -728,6 +755,7 @@ model FraudAlert {
 ```
 
 **Migration Workflow:**
+
 1. Update `prisma/schema.prisma`
 2. Local: `npx prisma migrate dev --name description`
 3. Railway: `DATABASE_URL=[Railway] npx prisma migrate deploy`
@@ -740,6 +768,7 @@ model FraudAlert {
 **Location:** `mt5-service/` directory
 
 **Responsibilities:**
+
 - Manage 15 MT5 terminal connections (connection pool)
 - Route requests to correct terminal based on symbol
 - Fetch real-time market data from appropriate terminal
@@ -751,12 +780,14 @@ model FraudAlert {
 - Serve fractal data via REST API
 
 **Why Multiple Terminals:**
+
 - PRO tier requires 135 chart combinations (15 symbols × 9 timeframes)
 - Single MT5 terminal cannot efficiently handle 135 chart windows
 - Solution: 15 terminals × 9 charts each = distributed load (manageable)
 - Fault isolation: if one terminal fails, others continue working
 
 **Symbol-to-Terminal Mapping:**
+
 ```
 MT5_01 → AUDJPY    MT5_09 → NZDUSD
 MT5_02 → AUDUSD    MT5_10 → US30
@@ -769,6 +800,7 @@ MT5_08 → NDX100
 ```
 
 **Structure:**
+
 ```
 mt5-service/
 ├── app/
@@ -796,6 +828,7 @@ mt5-service/
 ```
 
 **Key Endpoint (Multi-Terminal):**
+
 ```python
 # GET /api/indicators/{symbol}/{timeframe}
 from app.services.mt5_connection_pool import get_connection_pool
@@ -845,6 +878,7 @@ def get_indicators(symbol: str, timeframe: str):
 ```
 
 **Admin Health Endpoint:**
+
 ```python
 # GET /api/admin/terminals/health (Admin-only)
 @admin_terminals_bp.route('/api/admin/terminals/health', methods=['GET'])
@@ -867,11 +901,11 @@ def get_terminals_health():
 ```
 
 **Fractal Detection:**
+
 - **Horizontal Lines:** Peak-to-Peak and Bottom-to-Bottom multi-point trendlines
   - Detects fractals using 108-bar pattern (configurable)
   - Connects 3+ fractal points in near-horizontal lines
   - Displays angles (positive for ascending, negative for descending)
-  
 - **Diagonal Lines:** Mixed Peak-Bottom trendlines
   - Ascending support (Bottom → Peak)
   - Descending resistance (Peak → Bottom)
@@ -879,6 +913,7 @@ def get_terminals_health():
   - Minimum 4 touches with proper alternation
 
 **Why Separate Service:**
+
 - MT5 Python library requires Python (Next.js is JavaScript)
 - MQL5 indicators need MT5 terminal connection
 - Isolates MT5 connection from main app
@@ -886,6 +921,7 @@ def get_terminals_health():
 - Easier to debug MT5-specific issues
 
 **Multi-Terminal Architecture Benefits:**
+
 - **Scalability:** 15 terminals × 9 charts = 135 total (vs 135 on one terminal)
 - **Performance:** Each terminal handles only 9 charts (very manageable load)
 - **Fault Tolerance:** If MT5_03 (BTCUSD) fails, other 14 symbols still work
@@ -894,6 +930,7 @@ def get_terminals_health():
 - **Symbol Routing:** Automatic routing to correct terminal (transparent to clients)
 
 **Deployment Configuration:**
+
 - **Option 1 (Development):** Single VPS with 15 MT5 instances
   - Cost: ~$80/month (32GB RAM, 8 cores)
   - Simpler to manage
@@ -906,6 +943,7 @@ def get_terminals_health():
   - Professional reliability
 
 **Reference Documentation:**
+
 - Implementation guide: `docs/flask-multi-mt5-implementation.md`
 - Deployment strategy: `docs/mt5-terminal-mapping.md`
 - Admin dashboard: `docs/admin-mt5-dashboard-implementation.md`
@@ -917,6 +955,7 @@ def get_terminals_health():
 **Location:** `app/api/payments/` directory
 
 **Responsibilities:**
+
 - Dual payment provider system (Stripe + dLocal)
 - International cards via Stripe (global reach)
 - Local payment methods via dLocal (8 emerging markets)
@@ -927,6 +966,7 @@ def get_terminals_health():
 - Payment transaction audit trail
 
 **Supported Countries (dLocal):**
+
 - 🇮🇳 India (INR) - UPI, NetBanking, Cards
 - 🇳🇬 Nigeria (NGN) - Bank Transfer, Cards, Mobile Money
 - 🇵🇰 Pakistan (PKR) - EasyPaisa, JazzCash, Bank Transfer
@@ -937,6 +977,7 @@ def get_terminals_health():
 - 🇹🇷 Turkey (TRY) - Bank Transfer, Cards
 
 **Key Files:**
+
 ```
 app/
 ├── api/
@@ -998,16 +1039,16 @@ export function getAvailableProviders(countryCode: string): PaymentProvider[] {
 
 **Key Differences: Stripe vs dLocal**
 
-| Feature | Stripe | dLocal |
-|---------|--------|--------|
-| **Auto-Renewal** | ✅ Yes (recurring billing) | ❌ No (manual renewal) |
-| **Trial Period** | ✅ 7-day free trial | ❌ No trial |
-| **Payment Methods** | Cards (Visa, MC, Amex) | Local methods (UPI, PIX, Mobile Money, etc.) |
-| **Currency** | USD only | Local currency (INR, NGN, PKR, etc.) |
-| **Plan Types** | Monthly only | 3-day + Monthly |
-| **Cancellation** | ✅ User can cancel anytime | ❌ No cancellation (expires naturally) |
-| **Refunds** | Via Stripe dashboard | Via dLocal dashboard |
-| **Webhook Events** | `checkout.session.completed`, `customer.subscription.*` | `payment.completed`, `payment.refunded` |
+| Feature             | Stripe                                                  | dLocal                                       |
+| ------------------- | ------------------------------------------------------- | -------------------------------------------- |
+| **Auto-Renewal**    | ✅ Yes (recurring billing)                              | ❌ No (manual renewal)                       |
+| **Trial Period**    | ✅ 7-day free trial                                     | ❌ No trial                                  |
+| **Payment Methods** | Cards (Visa, MC, Amex)                                  | Local methods (UPI, PIX, Mobile Money, etc.) |
+| **Currency**        | USD only                                                | Local currency (INR, NGN, PKR, etc.)         |
+| **Plan Types**      | Monthly only                                            | 3-day + Monthly                              |
+| **Cancellation**    | ✅ User can cancel anytime                              | ❌ No cancellation (expires naturally)       |
+| **Refunds**         | Via Stripe dashboard                                    | Via dLocal dashboard                         |
+| **Webhook Events**  | `checkout.session.completed`, `customer.subscription.*` | `payment.completed`, `payment.refunded`      |
 
 **Early Renewal Logic (dLocal Monthly Only):**
 
@@ -1018,14 +1059,16 @@ export function getAvailableProviders(countryCode: string): PaymentProvider[] {
 export async function POST(req: NextRequest) {
   const session = await getServerSession();
   const subscription = await prisma.subscription.findUnique({
-    where: { userId: session.user.id }
+    where: { userId: session.user.id },
   });
 
   // Check if subscription is active
   if (subscription && subscription.status === 'active') {
     const now = new Date();
     const expiresAt = new Date(subscription.expiresAt);
-    const remainingDays = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const remainingDays = Math.ceil(
+      (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    );
 
     if (remainingDays > 0) {
       // Early renewal: Stack remaining days + 30 new days
@@ -1034,9 +1077,9 @@ export async function POST(req: NextRequest) {
 
       // Process payment first
       const payment = await dLocalClient.createPayment({
-        amount: 29.00,
+        amount: 29.0,
         currency: subscription.dLocalCurrency,
-        userId: session.user.id
+        userId: session.user.id,
       });
 
       if (payment.status === 'completed') {
@@ -1045,14 +1088,14 @@ export async function POST(req: NextRequest) {
           where: { id: subscription.id },
           data: {
             expiresAt: newExpiresAt,
-            updatedAt: now
-          }
+            updatedAt: now,
+          },
         });
 
         return NextResponse.json({
           success: true,
           message: `Renewed! ${remainingDays} days + 30 days = ${remainingDays + 30} days total`,
-          expiresAt: newExpiresAt
+          expiresAt: newExpiresAt,
         });
       }
     }
@@ -1126,36 +1169,43 @@ export async function POST(req: NextRequest) {
 // Pattern 14: Fraud Detection and Admin Dashboard
 // lib/payments/fraud-detector.ts
 
-export async function detectFraud(userId: string, context: FraudContext): Promise<FraudAlert | null> {
+export async function detectFraud(
+  userId: string,
+  context: FraudContext
+): Promise<FraudAlert | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
       payments: { orderBy: { createdAt: 'desc' }, take: 10 },
-      fraudAlerts: { where: { resolution: null } }
-    }
+      fraudAlerts: { where: { resolution: null } },
+    },
   });
 
   // Rule 1: Multiple failed payments in short time
   const recentFailedPayments = user.payments.filter(
-    p => p.status === 'failed' &&
-    p.createdAt > new Date(Date.now() - 60 * 60 * 1000) // Last hour
+    (p) =>
+      p.status === 'failed' &&
+      p.createdAt > new Date(Date.now() - 60 * 60 * 1000) // Last hour
   );
 
   if (recentFailedPayments.length >= 3) {
     return createFraudAlert(userId, {
       alertType: 'MULTIPLE_FAILED_PAYMENTS',
       severity: 'HIGH',
-      description: `${recentFailedPayments.length} failed payments in the last hour`
+      description: `${recentFailedPayments.length} failed payments in the last hour`,
     });
   }
 
   // Rule 2: IP address change with device fingerprint mismatch
   if (user.lastLoginIP && user.lastLoginIP !== context.ipAddress) {
-    if (user.deviceFingerprint && user.deviceFingerprint !== context.deviceFingerprint) {
+    if (
+      user.deviceFingerprint &&
+      user.deviceFingerprint !== context.deviceFingerprint
+    ) {
       return createFraudAlert(userId, {
         alertType: 'SUSPICIOUS_IP_CHANGE',
         severity: 'MEDIUM',
-        description: 'IP address and device fingerprint both changed'
+        description: 'IP address and device fingerprint both changed',
       });
     }
   }
@@ -1189,12 +1239,12 @@ export async function convertUsdToLocal(
 
   return {
     amount: roundedAmount,
-    rate
+    rate,
   };
 }
 
 // Example: $29 USD → ₹2,407 INR (assuming 1 USD = 83 INR)
-const { amount, rate } = await convertUsdToLocal(29.00, 'INR');
+const { amount, rate } = await convertUsdToLocal(29.0, 'INR');
 // amount = 2407.00, rate = 83.00
 ```
 
@@ -1204,9 +1254,11 @@ const { amount, rate } = await convertUsdToLocal(29.00, 'INR');
 // Pattern 16: Unified Subscription Status Check
 // lib/payments/subscription-manager.ts
 
-export async function getSubscriptionStatus(userId: string): Promise<SubscriptionStatus> {
+export async function getSubscriptionStatus(
+  userId: string
+): Promise<SubscriptionStatus> {
   const subscription = await prisma.subscription.findUnique({
-    where: { userId }
+    where: { userId },
   });
 
   if (!subscription) {
@@ -1215,7 +1267,7 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
       status: 'none',
       provider: null,
       expiresAt: null,
-      canRenew: false
+      canRenew: false,
     };
   }
 
@@ -1225,7 +1277,9 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
 
   if (subscription.paymentProvider === 'STRIPE') {
     // Stripe: Check Stripe API for real-time status
-    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
+    const stripeSubscription = await stripe.subscriptions.retrieve(
+      subscription.stripeSubscriptionId
+    );
 
     return {
       tier: stripeSubscription.status === 'active' ? 'PRO' : 'FREE',
@@ -1233,7 +1287,7 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
       provider: 'STRIPE',
       expiresAt: new Date(stripeSubscription.current_period_end * 1000),
       canRenew: false, // Stripe handles renewal automatically
-      autoRenew: true
+      autoRenew: true,
     };
   } else {
     // dLocal: Check expiresAt field
@@ -1244,13 +1298,18 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
       expiresAt,
       canRenew: true, // Manual renewal allowed
       autoRenew: false,
-      daysRemaining: isExpired ? 0 : Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      daysRemaining: isExpired
+        ? 0
+        : Math.ceil(
+            (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+          ),
     };
   }
 }
 ```
 
 **Tech Notes:**
+
 - Single `Subscription` model for both Stripe and dLocal (provider field distinguishes)
 - `Payment` model tracks all transactions for audit trail
 - `FraudAlert` model enables admin review of suspicious activity
@@ -1385,12 +1444,12 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
    │
    ▼
 8. API LAYER returns data to FRONTEND
-   - Response.json({ 
-       symbol, 
-       timeframe, 
-       horizontal_lines: [...], 
+   - Response.json({
+       symbol,
+       timeframe,
+       horizontal_lines: [...],
        diagonal_lines: [...],
-       metadata 
+       metadata
      })
    │
    ▼
@@ -1462,6 +1521,7 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
 ```
 
 **Key Security Notes:**
+
 - Commission calculation ONLY happens in Stripe webhook (single source of truth)
 - Affiliate code stored in Stripe metadata (tamper-proof)
 - All commissions require admin approval before payout
@@ -1796,6 +1856,7 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
 **Security Feature: Verified-Only Account Linking**
 
 This prevents the #1 OAuth account takeover attack:
+
 ```
 Attack Scenario (WITHOUT verified-only linking):
 1. Attacker registers victim@gmail.com with password (unverified)
@@ -1812,6 +1873,7 @@ Defense (WITH verified-only linking):
 ### 6.3 Session Management
 
 **NextAuth.js Configuration (Updated for OAuth):**
+
 ```typescript
 // app/api/auth/[...nextauth]/route.ts
 import GoogleProvider from 'next-auth/providers/google';
@@ -1837,7 +1899,7 @@ export const authOptions: NextAuthOptions = {
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -1845,7 +1907,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: credentials.email },
         });
 
         // Check password (handle OAuth-only users with null password)
@@ -1853,7 +1915,10 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
         if (!isPasswordValid) {
           return null;
         }
@@ -1866,8 +1931,8 @@ export const authOptions: NextAuthOptions = {
           role: user.role,
           image: user.image,
         };
-      }
-    })
+      },
+    }),
   ],
 
   session: {
@@ -1880,7 +1945,7 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, profile }) {
       if (account?.provider === 'google') {
         const existingUser = await prisma.user.findUnique({
-          where: { email: user.email! }
+          where: { email: user.email! },
         });
 
         // SECURITY: Prevent account takeover via OAuth
@@ -1911,9 +1976,9 @@ export const authOptions: NextAuthOptions = {
                   token_type: account.token_type,
                   scope: account.scope,
                   id_token: account.id_token,
-                }
-              }
-            }
+                },
+              },
+            },
           });
         } else {
           // Existing verified user: Link Google account if not already linked
@@ -1921,9 +1986,9 @@ export const authOptions: NextAuthOptions = {
             where: {
               provider_providerAccountId: {
                 provider: 'google',
-                providerAccountId: account.providerAccountId
-              }
-            }
+                providerAccountId: account.providerAccountId,
+              },
+            },
           });
 
           if (!existingAccount) {
@@ -1939,7 +2004,7 @@ export const authOptions: NextAuthOptions = {
                 token_type: account.token_type,
                 scope: account.scope,
                 id_token: account.id_token,
-              }
+              },
             });
           }
 
@@ -1947,7 +2012,7 @@ export const authOptions: NextAuthOptions = {
           if (!existingUser.image && user.image) {
             await prisma.user.update({
               where: { id: existingUser.id },
-              data: { image: user.image }
+              data: { image: user.image },
             });
           }
         }
@@ -1979,7 +2044,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role as 'USER' | 'ADMIN';
       }
       return session;
-    }
+    },
   },
 
   pages: {
@@ -1990,6 +2055,7 @@ export const authOptions: NextAuthOptions = {
 ```
 
 **Database Models (Prisma):**
+
 ```prisma
 model User {
   id            String    @id @default(cuid())
@@ -2035,6 +2101,7 @@ model Account {
 ```
 
 **Protected Routes (Middleware):**
+
 ```typescript
 // middleware.ts
 export async function middleware(request: NextRequest) {
@@ -2085,6 +2152,7 @@ export async function middleware(request: NextRequest) {
 ```
 
 **Key Differences from User Auth:**
+
 - **Separate JWT secret:** `AFFILIATE_JWT_SECRET` (not NextAuth)
 - **Separate session storage:** Token in localStorage (not httpOnly cookie)
 - **No NextAuth:** Manual JWT implementation
@@ -2092,6 +2160,7 @@ export async function middleware(request: NextRequest) {
 - **Approval required:** Affiliates must be approved by admin before login works
 
 **Middleware Protection:**
+
 ```typescript
 // middleware.ts
 export async function middleware(request: NextRequest) {
@@ -2104,7 +2173,8 @@ export async function middleware(request: NextRequest) {
   // Affiliate portal routes (JWT)
   if (request.nextUrl.pathname.startsWith('/affiliate')) {
     const token = request.cookies.get('affiliate_token')?.value;
-    if (!token) return NextResponse.redirect(new URL('/affiliate/login', request.url));
+    if (!token)
+      return NextResponse.redirect(new URL('/affiliate/login', request.url));
 
     try {
       verifyAffiliateToken(token);
@@ -2131,23 +2201,28 @@ export async function middleware(request: NextRequest) {
 
 ### 7.1 Tier Definitions
 
-| Feature | FREE Tier | PRO Tier |
-|---------|-----------|----------|
-| **Price** | $0/month | $29/month |
-| **Symbols** | 5 (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) | 15 (AUDJPY, AUDUSD, BTCUSD, ETHUSD, EURUSD, GBPJPY, GBPUSD, NDX100, NZDUSD, US30, USDCAD, USDCHF, USDJPY, XAGUSD, XAUUSD) |
-| **Timeframes** | 3 (H1, H4, D1) | 9 (M5, M15, M30, H1, H2, H4, H8, H12, D1) |
-| **Chart Combinations** | 15 (5 × 3) | 135 (15 × 9) |
-| **Max Alerts** | 5 | 20 |
-| **Max Watchlist Items** | 5 | 50 |
-| **API Rate Limit** | 60 req/hour (1 per minute) | 300 req/hour (5 per minute) |
-| **Chart Update Interval** | 60 seconds | 30 seconds |
+| Feature                   | FREE Tier                                | PRO Tier                                                                                                                  |
+| ------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Price**                 | $0/month                                 | $29/month                                                                                                                 |
+| **Symbols**               | 5 (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) | 15 (AUDJPY, AUDUSD, BTCUSD, ETHUSD, EURUSD, GBPJPY, GBPUSD, NDX100, NZDUSD, US30, USDCAD, USDCHF, USDJPY, XAGUSD, XAUUSD) |
+| **Timeframes**            | 3 (H1, H4, D1)                           | 9 (M5, M15, M30, H1, H2, H4, H8, H12, D1)                                                                                 |
+| **Chart Combinations**    | 15 (5 × 3)                               | 135 (15 × 9)                                                                                                              |
+| **Max Alerts**            | 5                                        | 20                                                                                                                        |
+| **Max Watchlist Items**   | 5                                        | 50                                                                                                                        |
+| **API Rate Limit**        | 60 req/hour (1 per minute)               | 300 req/hour (5 per minute)                                                                                               |
+| **Chart Update Interval** | 60 seconds                               | 30 seconds                                                                                                                |
 
 ### 7.2 Tier Enforcement
 
 **Backend Validation (CRITICAL):**
+
 ```typescript
 // lib/tier/validation.ts
-export function validateChartAccess(tier: UserTier, symbol: string, timeframe: string) {
+export function validateChartAccess(
+  tier: UserTier,
+  symbol: string,
+  timeframe: string
+) {
   // Validate symbol
   const allowedSymbols = tier === 'PRO' ? PRO_SYMBOLS : FREE_SYMBOLS;
   if (!allowedSymbols.includes(symbol)) {
@@ -2157,7 +2232,9 @@ export function validateChartAccess(tier: UserTier, symbol: string, timeframe: s
   // Validate timeframe
   const allowedTimeframes = tier === 'PRO' ? PRO_TIMEFRAMES : FREE_TIMEFRAMES;
   if (!allowedTimeframes.includes(timeframe)) {
-    throw new ForbiddenError(`${tier} tier cannot access ${timeframe} timeframe`);
+    throw new ForbiddenError(
+      `${tier} tier cannot access ${timeframe} timeframe`
+    );
   }
 }
 
@@ -2166,18 +2243,42 @@ export const FREE_SYMBOLS = ['BTCUSD', 'EURUSD', 'USDJPY', 'US30', 'XAUUSD'];
 export const FREE_TIMEFRAMES = ['H1', 'H4', 'D1'];
 
 export const PRO_SYMBOLS = [
-  'AUDJPY', 'AUDUSD', 'BTCUSD', 'ETHUSD', 'EURUSD', 
-  'GBPJPY', 'GBPUSD', 'NDX100', 'NZDUSD', 'US30', 
-  'USDCAD', 'USDCHF', 'USDJPY', 'XAGUSD', 'XAUUSD'
+  'AUDJPY',
+  'AUDUSD',
+  'BTCUSD',
+  'ETHUSD',
+  'EURUSD',
+  'GBPJPY',
+  'GBPUSD',
+  'NDX100',
+  'NZDUSD',
+  'US30',
+  'USDCAD',
+  'USDCHF',
+  'USDJPY',
+  'XAGUSD',
+  'XAUUSD',
 ];
-export const PRO_TIMEFRAMES = ['M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12', 'D1'];
+export const PRO_TIMEFRAMES = [
+  'M5',
+  'M15',
+  'M30',
+  'H1',
+  'H2',
+  'H4',
+  'H8',
+  'H12',
+  'D1',
+];
 ```
 
 **Used in:**
+
 - Next.js API routes: `app/api/fractals/[symbol]/[timeframe]/route.ts`
 - Flask MT5 service: `mt5-service/app/middleware/tier_validator.py`
 
 **Frontend UI (User Experience):**
+
 ```typescript
 // components/charts/symbol-selector.tsx
 <Select>
@@ -2200,25 +2301,27 @@ export const PRO_TIMEFRAMES = ['M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12'
 ### 8.1 Fractal Detection Algorithm
 
 **Base Pattern (108-Bar Fractals):**
+
 - Uses configurable N-bar pattern (default: 35 bars = 17 bars each side)
 - **Upper Fractal (Peak):** High[i] must be highest among surrounding bars
 - **Lower Fractal (Bottom):** Low[i] must be lowest among surrounding bars
 
 **Code Pattern (from MQL5):**
+
 ```cpp
 bool IsUpperFractal(const double &high[], int index, int side_bars) {
    double center_high = high[index];
-   
+
    // Check left side
    for(int i = 1; i <= side_bars; i++)
       if(center_high <= high[index - i])
          return false;
-   
+
    // Check right side
    for(int i = 1; i <= side_bars; i++)
       if(center_high < high[index + i])
          return false;
-   
+
    return true;
 }
 ```
@@ -2228,6 +2331,7 @@ bool IsUpperFractal(const double &high[], int index, int side_bars) {
 **Purpose:** Connect fractals at similar price levels
 
 **Algorithm:**
+
 1. **Detect fractals** using 108-bar pattern
 2. **Find multi-point lines:**
    - Connect 3+ peaks (Peak-to-Peak resistance)
@@ -2244,6 +2348,7 @@ bool IsUpperFractal(const double &high[], int index, int side_bars) {
 6. **Display:** Top 3 peak lines + top 3 bottom lines
 
 **Alert Conditions:**
+
 - Price approaches fractal peak + nearby trendline
 - Price approaches fractal bottom + nearby trendline
 
@@ -2252,6 +2357,7 @@ bool IsUpperFractal(const double &high[], int index, int side_bars) {
 **Purpose:** Detect trendline channels with alternating peaks/bottoms
 
 **Algorithm:**
+
 1. **Detect fractals** using same 108-bar pattern
 2. **Find diagonal lines:**
    - **Ascending Support:** Bottom → Peak (positive slope)
@@ -2264,6 +2370,7 @@ bool IsUpperFractal(const double &high[], int index, int side_bars) {
 5. **Display:** Top 3 ascending + top 3 descending lines
 
 **Alert Conditions:**
+
 - Price approaches diagonal support line
 - Price approaches diagonal resistance line
 
@@ -2277,6 +2384,7 @@ Both indicators include advanced optimizations:
 4. **Early Exit:** Stops searching after finding N high-quality lines
 
 **Performance Impact:**
+
 - 60-80% reduction in calculation time
 - Caching prevents redundant recalculation
 - Spatial indexing reduces O(n²) to O(n log n)
@@ -2320,6 +2428,7 @@ Both indicators include advanced optimizations:
 ### 9.2 Deployment Steps
 
 **1. Next.js (Vercel):**
+
 ```bash
 # Connect GitHub repo to Vercel
 # Configure environment variables:
@@ -2335,6 +2444,7 @@ git push origin main
 ```
 
 **2. PostgreSQL (Railway):**
+
 ```bash
 # Already deployed in Phase 2
 # Run migrations:
@@ -2342,6 +2452,7 @@ DATABASE_URL=[Railway URL] npx prisma migrate deploy
 ```
 
 **3. Flask MT5 Service (Railway):**
+
 ```bash
 # Push to Railway
 railway up
@@ -2354,6 +2465,7 @@ FLASK_API_KEY=[same as Next.js]
 ```
 
 **4. MT5 Terminal Setup:**
+
 ```
 1. Install MT5 on Windows VPS or local machine
 2. Copy indicator files to MT5 Indicators folder:
@@ -2371,6 +2483,7 @@ FLASK_API_KEY=[same as Next.js]
 ### 10.1 Policy-Driven Development
 
 **Workflow:**
+
 ```
 1. Create 6 Policy Documents (Phase 1)
    - 01-approval-policies.md
@@ -2401,6 +2514,7 @@ FLASK_API_KEY=[same as Next.js]
 ### 10.2 Cost-Effectiveness
 
 **MiniMax M2 vs Alternatives:**
+
 - MiniMax M2: ~80% cheaper than Claude/GPT-4
 - Quality: Sufficient for code generation with validation
 - Validation: Claude Code ensures quality regardless of model
@@ -2413,46 +2527,51 @@ FLASK_API_KEY=[same as Next.js]
 ### 11.1 Reference Repositories
 
 **1. market_ai_engine.py (Flask/MT5 Reference):**
+
 - **What:** Python Flask server with MT5 integration
 - **Used for:** Part 6 (Flask MT5 Service)
 - **Reference patterns:**
-  * Flask route structure
-  * MT5 connection handling
-  * Indicator data fetching
-  * Error handling in Python
+  - Flask route structure
+  - MT5 connection handling
+  - Indicator data fetching
+  - Error handling in Python
 
 **2. nextjs/saas-starter (Backend/Auth Reference):**
+
 - **What:** Next.js SaaS template with auth, database, payments
 - **Used for:** Parts 5 (Auth), 7 (API Routes), 12 (E-commerce), **Part 17 (Affiliate Marketing)**
 - **Reference patterns:**
-  * NextAuth.js configuration
-  * Prisma database patterns
-  * Stripe payment integration
-  * API route structure
-  * Middleware patterns
-  * **Stripe webhook handling (critical for commission calculation)**
+  - NextAuth.js configuration
+  - Prisma database patterns
+  - Stripe payment integration
+  - API route structure
+  - Middleware patterns
+  - **Stripe webhook handling (critical for commission calculation)**
 
 **3. next-shadcn-dashboard-starter (Frontend/UI Reference):**
+
 - **What:** Next.js dashboard with shadcn/ui components
 - **Used for:** Parts 8-14 (All UI components), **Part 17 (Affiliate Portal & Admin Dashboard)**
 - **Reference patterns:**
-  * Dashboard layout structure
-  * shadcn/ui component usage
-  * Chart components (Recharts)
-  * Form patterns (React Hook Form)
-  * Navigation structure
-  * Responsive design
-  * **Analytics dashboards (for affiliate earnings tracking)**
-  * **Admin management interfaces (for affiliate approval workflow)**
+  - Dashboard layout structure
+  - shadcn/ui component usage
+  - Chart components (Recharts)
+  - Form patterns (React Hook Form)
+  - Navigation structure
+  - Responsive design
+  - **Analytics dashboards (for affiliate earnings tracking)**
+  - **Admin management interfaces (for affiliate approval workflow)**
 
 ### 11.2 How Aider Uses Seed Code
 
 **Aider references seed code as:**
+
 - **Inspiration** (not copy/paste)
 - **Pattern reference** (adapt to our requirements)
 - **Best practices** (proven approaches)
 
 **Always adapted for:**
+
 - Our OpenAPI contracts
 - Our tier system (FREE: 5×3, PRO: 15×9)
 - Our specific business logic (fractal-based alerts)
@@ -2496,6 +2615,7 @@ FLASK_API_KEY=[same as Next.js]
 ## Summary
 
 This architecture enables:
+
 - ✅ **Scalability:** Serverless Next.js, independent Flask service
 - ✅ **Security:** Multi-layer validation, NextAuth.js + separate affiliate JWT, Prisma, fraud detection
 - ✅ **Performance:** Server Components, edge runtime, polling, optimized indicators
@@ -2513,10 +2633,12 @@ This architecture enables:
 **Project Scale:** **18 Parts**, **289 files total** (170 core + 67 affiliate/admin + **52 dLocal payment**)
 
 **Payment Providers:**
+
 - **Stripe:** International cards (auto-renewal, 7-day trial, monthly only)
 - **dLocal:** Local payment methods in 8 countries (manual renewal, 3-day + monthly plans)
 
 **Supported Markets:**
+
 - 🌍 Global (Stripe): Visa, Mastercard, Amex (USD)
 - 🇮🇳 India: UPI, NetBanking, Cards (INR)
 - 🇳🇬 Nigeria: Bank Transfer, Mobile Money (NGN)
@@ -2527,8 +2649,7 @@ This architecture enables:
 - 🇿🇦 South Africa: EFT, SnapScan (ZAR)
 - 🇹🇷 Turkey: Bank Transfer, Cards (TRY)
 
-**Next Steps:** Proceed to Phase 2 (CI/CD & Database Foundation) or Phase 3 (Autonomous Building with Aider + MiniMax M2).
----
+## **Next Steps:** Proceed to Phase 2 (CI/CD & Database Foundation) or Phase 3 (Autonomous Building with Aider + MiniMax M2).
 
 ## Development Workflow - Phase 3: Autonomous Building with Aider
 
@@ -2539,12 +2660,14 @@ This architecture enables:
 Aider serves as both the **autonomous builder** and **automated validator** for Phase 3:
 
 #### 1. Autonomous Builder
+
 - Generates code following policies from `.aider.conf.yml`
 - Applies patterns from `docs/policies/05-coding-patterns.md`
 - Follows build orders from `docs/build-orders/part-*.md`
 - Creates 170+ files across 18 parts
 
 #### 2. Automated Validator
+
 - Executes validation tools after each file
 - Analyzes validation results
 - Makes approve/fix/escalate decisions
@@ -2580,6 +2703,7 @@ Aider serves as both the **autonomous builder** and **automated validator** for 
 ### Validation Tools
 
 #### 1. TypeScript Compiler (`tsc --noEmit`)
+
 - **Purpose:** Type safety validation
 - **Configuration:** `tsconfig.json`
 - **Checks:**
@@ -2590,6 +2714,7 @@ Aider serves as both the **autonomous builder** and **automated validator** for 
   - Type consistency
 
 #### 2. ESLint (`next lint`)
+
 - **Purpose:** Code quality validation
 - **Configuration:** `.eslintrc.json`
 - **Checks:**
@@ -2600,6 +2725,7 @@ Aider serves as both the **autonomous builder** and **automated validator** for 
   - Console.log statements
 
 #### 3. Prettier (`prettier --check`)
+
 - **Purpose:** Code formatting validation
 - **Configuration:** `.prettierrc`
 - **Checks:**
@@ -2610,6 +2736,7 @@ Aider serves as both the **autonomous builder** and **automated validator** for 
   - Line length (80 characters)
 
 #### 4. Custom Policy Validator
+
 - **Purpose:** Project-specific policy validation
 - **Implementation:** `scripts/validate-file.js`
 - **Checks:**
@@ -2640,7 +2767,7 @@ Aider serves as both the **autonomous builder** and **automated validator** for 
 
 5. AIDER RUNS VALIDATION
    > npm run validate
-   
+
    Results:
    🔍 TypeScript: ✅ 0 errors
    🔍 ESLint: ✅ 0 errors, 0 warnings
@@ -2655,7 +2782,7 @@ Aider serves as both the **autonomous builder** and **automated validator** for 
 7. AIDER COMMITS
    > git add app/api/alerts/route.ts
    > git commit -m "feat(alerts): add alerts endpoint
-   
+
    - Validation: 0 Critical, 0 High, 0 Medium, 0 Low
    - Pattern: API Route Pattern
    - Model: MiniMax M2"
@@ -2667,6 +2794,7 @@ Aider serves as both the **autonomous builder** and **automated validator** for 
 ### Decision Criteria
 
 #### ✅ AUTO-APPROVE
+
 - 0 Critical issues
 - ≤2 High issues (all auto-fixable)
 - TypeScript passes (0 errors)
@@ -2675,6 +2803,7 @@ Aider serves as both the **autonomous builder** and **automated validator** for 
 - Policy validator passes
 
 #### 🔧 AUTO-FIX
+
 - Formatting issues → `npm run format`
 - ESLint auto-fixable → `npm run lint:fix`
 - Import organization
@@ -2683,19 +2812,20 @@ Aider serves as both the **autonomous builder** and **automated validator** for 
 **Command:** `npm run fix`
 
 #### 🚨 ESCALATE TO HUMAN
-- >0 Critical issues (security, auth, tier bypass)
-- >2 High issues
+
+- > 0 Critical issues (security, auth, tier bypass)
+- > 2 High issues
 - Architectural decisions needed
 - Ambiguous requirements
 
 ### Success Metrics (Target)
 
-| Metric | Target | Indicates |
-|--------|--------|-----------|
-| Auto-Approve Rate | 85-92% | System working well |
-| Auto-Fix Rate | 6-12% | Minor issues caught |
-| Escalation Rate | 2-5% | Major issues flagged |
-| Validation Time | <10 sec/file | Fast validation |
+| Metric            | Target       | Indicates            |
+| ----------------- | ------------ | -------------------- |
+| Auto-Approve Rate | 85-92%       | System working well  |
+| Auto-Fix Rate     | 6-12%        | Minor issues caught  |
+| Escalation Rate   | 2-5%         | Major issues flagged |
+| Validation Time   | <10 sec/file | Fast validation      |
 
 ### Commands
 

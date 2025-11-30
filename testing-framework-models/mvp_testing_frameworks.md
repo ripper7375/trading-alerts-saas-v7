@@ -5,6 +5,7 @@
 ### Gate 1: Local → Development (MVP Focus: Core Logic + Code Quality)
 
 #### **Unit Testing Frameworks**
+
 ```javascript
 // JavaScript/TypeScript
 - Jest (with React Testing Library for React apps)
@@ -25,6 +26,7 @@
 ```
 
 #### **Code Quality Tools**
+
 ```javascript
 // Linting & Formatting
 - ESLint + Prettier (JavaScript/TypeScript)
@@ -38,6 +40,7 @@
 ```
 
 #### **MVP Target**
+
 - **60-70% code coverage** on core business logic only
 - **Zero critical linting errors**
 - **All unit tests passing**
@@ -49,6 +52,7 @@
 ### Gate 2: Development → Staging (MVP Focus: API Testing + Basic Integration)
 
 #### **API Testing Frameworks**
+
 ```javascript
 // Automated API Testing
 - Supertest (Node.js)
@@ -63,6 +67,7 @@
 ```
 
 #### **Integration Testing Tools**
+
 ```javascript
 // Database Testing
 - Testcontainers (Docker-based testing)
@@ -76,6 +81,7 @@
 ```
 
 #### **MVP Essentials**
+
 - **All CRUD operations tested**
 - **Authentication/authorization flows validated**
 - **Request/response format verification**
@@ -88,6 +94,7 @@
 ### Gate 3: Staging → Production (MVP Focus: Critical Paths + Security)
 
 #### **End-to-End Testing Frameworks**
+
 ```javascript
 // E2E Automation (Choose One)
 - Playwright (recommended for MVP - fast, reliable)
@@ -103,6 +110,7 @@
 ```
 
 #### **Load Testing Tools (Basic)**
+
 ```javascript
 // Simple Load Testing
 - Artillery.js (easy to setup)
@@ -117,6 +125,7 @@
 ```
 
 #### **Security Testing Tools**
+
 ```javascript
 // Automated Security Scanning
 - npm audit / yarn audit (dependency vulnerabilities)
@@ -130,6 +139,7 @@
 ```
 
 #### **MVP Simplified Gate 3**
+
 - **Critical user journey E2E tests only** (login → core feature → logout)
 - **Basic load testing** (can handle 10-50 concurrent users)
 - **Essential security scans** (dependencies, input validation)
@@ -142,6 +152,7 @@
 ### Continuous Monitoring (MVP Focus: Uptime + Error Tracking)
 
 #### **Application Monitoring**
+
 ```javascript
 // Error Tracking & Performance
 - Sentry (error tracking)
@@ -161,6 +172,7 @@
 ```
 
 #### **Infrastructure Monitoring**
+
 ```javascript
 // System Monitoring
 - Prometheus + Grafana (open source)
@@ -175,6 +187,7 @@
 ```
 
 #### **Health Check Frameworks**
+
 ```javascript
 // Health Check Endpoints
 - Express.js health check middleware
@@ -193,6 +206,7 @@
 ## 🛠️ MVP-Specific Tool Recommendations
 
 ### **Starter Tech Stack (All-in-One Solutions)**
+
 ```yaml
 Frontend Testing:
   - Jest + React Testing Library (unit)
@@ -215,6 +229,7 @@ Security:
 ```
 
 ### **Budget-Friendly MVP Stack**
+
 ```yaml
 Free Tiers & Open Source:
   - GitHub Actions (CI/CD)
@@ -229,18 +244,19 @@ Free Tiers & Open Source:
 
 ## 📊 MVP Success Criteria by Environment
 
-| Environment | Framework Focus | Acceptance Criteria |
-|-------------|----------------|-------------------|
-| **Local** | Unit tests + linting | 60-70% coverage, 0 critical issues |
-| **Development** | API + integration | All endpoints work, auth flows pass |
-| **Staging** | E2E + security | Critical paths work, basic security OK |
-| **Production** | Monitoring + alerts | >99% uptime, <5% error rate |
+| Environment     | Framework Focus      | Acceptance Criteria                    |
+| --------------- | -------------------- | -------------------------------------- |
+| **Local**       | Unit tests + linting | 60-70% coverage, 0 critical issues     |
+| **Development** | API + integration    | All endpoints work, auth flows pass    |
+| **Staging**     | E2E + security       | Critical paths work, basic security OK |
+| **Production**  | Monitoring + alerts  | >99% uptime, <5% error rate            |
 
 ---
 
 ## 🚀 Post-MVP Expansion Path
 
 ### **After Product-Market Fit**
+
 1. **Increase test coverage** to 90%+
 2. **Add comprehensive E2E suites**
 3. **Implement performance testing**
@@ -249,6 +265,7 @@ Free Tiers & Open Source:
 6. **Implement chaos engineering**
 
 ### **Scaling Indicators**
+
 - More than 1000+ active users
 - Multiple team members
 - Complex feature requirements
@@ -262,12 +279,14 @@ Free Tiers & Open Source:
 **"Test the things that would break your business, ignore the rest until you have users."**
 
 Focus on:
+
 - ✅ Core user flows working
 - ✅ Data integrity
 - ✅ Security basics
 - ✅ Payment processing (if applicable)
 
 Skip temporarily:
+
 - ❌ Perfect test coverage
 - ❌ Complex edge cases
 - ❌ Performance optimization

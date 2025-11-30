@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 /**
  * Database Seed Script for Trading Alerts SaaS
- * 
+ *
  * Creates initial admin user for development and production setup
  * Uses environment variables for configuration
  * Follows security best practices with bcrypt hashing
@@ -21,7 +21,9 @@ async function main() {
 
   // Validate environment variables
   if (!adminEmail || !adminPassword) {
-    throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD environment variables are required');
+    throw new Error(
+      'ADMIN_EMAIL and ADMIN_PASSWORD environment variables are required'
+    );
   }
 
   // Hash password using bcrypt with 10 rounds (industry standard)
@@ -34,9 +36,9 @@ async function main() {
       update: {
         name: adminName,
         password: hashedPassword,
-        tier: 'PRO',  // Admin gets PRO tier
+        tier: 'PRO', // Admin gets PRO tier
         role: 'ADMIN',
-        emailVerified: new Date(),  // Admin email is pre-verified
+        emailVerified: new Date(), // Admin email is pre-verified
         isActive: true,
         hasUsedStripeTrial: false,
         hasUsedThreeDayPlan: false,
@@ -45,9 +47,9 @@ async function main() {
         email: adminEmail,
         name: adminName,
         password: hashedPassword,
-        tier: 'PRO',  // Admin gets PRO tier
+        tier: 'PRO', // Admin gets PRO tier
         role: 'ADMIN',
-        emailVerified: new Date(),  // Admin email is pre-verified
+        emailVerified: new Date(), // Admin email is pre-verified
         isActive: true,
         hasUsedStripeTrial: false,
         hasUsedThreeDayPlan: false,
@@ -174,7 +176,6 @@ async function main() {
     console.log(`   Password: ${adminPassword}`);
     console.log('');
     console.log('⚠️  IMPORTANT: Change these credentials in production!');
-
   } catch (error) {
     console.error('❌ Database seeding failed:', error);
     throw error;

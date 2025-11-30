@@ -83,7 +83,7 @@ Validation requirements shown below (live validation):
 ✅/❌ One uppercase letter
 ✅/❌ One lowercase letter
 ✅/❌ One number
-✅/❌ One special character (!@#$%^&*)
+✅/❌ One special character (!@#$%^&\*)
 Password strength indicator:
 Weak: bg-red-500, w-1/3 of bar
 Medium: bg-yellow-500, w-2/3 of bar
@@ -141,21 +141,21 @@ Message: "Something went wrong. Please try again later."
 
 // Step 1: Email request
 const emailSchema = z.object({
-  email: z.string().email("Invalid email format")
+email: z.string().email("Invalid email format")
 })
 
 // Step 3: Password reset
 const resetPasswordSchema = z.object({
-  password: z.string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(/[!@#$%^&*]/, "Password must contain at least one special character"),
-  confirmPassword: z.string()
+password: z.string()
+.min(8, "Password must be at least 8 characters")
+.regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+.regex(/[a-z]/, "Password must contain at least one lowercase letter")
+.regex(/[0-9]/, "Password must contain at least one number")
+.regex(/[!@#$%^&*]/, "Password must contain at least one special character"),
+confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"]
+message: "Passwords do not match",
+path: ["confirmPassword"]
 })
 
 8. VISUAL POLISH:
@@ -185,6 +185,5 @@ State management for step flow (useState)
 Mock API calls with setTimeout
 URL token parsing (useSearchParams or useParams)
 Export as default component
-
 
 Generate complete, production-ready code with all three steps and state management that I can copy and run immediately.

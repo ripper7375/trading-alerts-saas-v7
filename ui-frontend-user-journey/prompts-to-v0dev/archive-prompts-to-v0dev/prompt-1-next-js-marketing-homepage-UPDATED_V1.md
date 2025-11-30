@@ -4,6 +4,7 @@ PROMPT 1: Homepage / Landing Page (WITH AFFILIATE PROGRAM)
 Create a modern Next.js 15 App Router marketing homepage using TypeScript, Tailwind CSS, and shadcn/ui components.
 
 CRITICAL REQUIREMENTS:
+
 - This MUST be a Client Component (use 'use client' directive at top)
 - Use Next.js 15 App Router patterns
 - Extract URL parameters using useSearchParams from 'next/navigation'
@@ -19,20 +20,20 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
 export default function HomePage() {
-  const searchParams = useSearchParams()
-  const affiliateCode = searchParams.get('ref')
-  const proPrice = affiliateCode ? '$23.20' : '$29'
-  const showDiscount = Boolean(affiliateCode)
+const searchParams = useSearchParams()
+const affiliateCode = searchParams.get('ref')
+const proPrice = affiliateCode ? '$23.20' : '$29'
+const showDiscount = Boolean(affiliateCode)
 
-  const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-  }
+const scrollToSection = (id: string) => {
+document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+}
 
-  return (
-    <div className="min-h-screen">
-      {/* Content sections */}
-    </div>
-  )
+return (
+<div className="min-h-screen">
+{/_ Content sections _/}
+</div>
+)
 }
 
 SECTIONS TO BUILD:
@@ -58,25 +59,25 @@ SECTIONS TO BUILD:
    - Background: bg-gradient-to-b from-blue-50 to-white
    - Layout: Flex flex-col items-center justify-center px-4 py-20
    - Heading: "Never Miss a Trading Setup Again"
-     * Style: text-5xl md:text-6xl font-bold text-center mb-6
-     * Gradient: bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
+     - Style: text-5xl md:text-6xl font-bold text-center mb-6
+     - Gradient: bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
    - Subheading: "Get alerts when price touches key support/resistance levels based on fractal analysis"
-     * Style: text-xl text-gray-600 text-center max-w-3xl mb-8
+     - Style: text-xl text-gray-600 text-center max-w-3xl mb-8
    - CTA Buttons (flex gap-4):
-     * "Get Started Free" - Button size="lg" className="bg-blue-600"
-     * "See Pricing" - Button size="lg" variant="outline"
+     - "Get Started Free" - Button size="lg" className="bg-blue-600"
+     - "See Pricing" - Button size="lg" variant="outline"
    - Below buttons (text-center mt-6 text-sm text-gray-600):
-     * "✨ Trusted by 10,000+ traders • "
-     * Clickable link: "Join our affiliate program" (onClick scrolls to #affiliate-section)
+     - "✨ Trusted by 10,000+ traders • "
+     - Clickable link: "Join our affiliate program" (onClick scrolls to #affiliate-section)
 
 4. FEATURES SECTION (id="features"):
    - Padding: py-20 px-4
    - Background: bg-white
    - Heading: "Professional Trading Tools" (text-4xl font-bold text-center mb-12)
    - Grid: grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto
-   
+
    Three Cards (each Card with className="p-8 hover:shadow-2xl transition-shadow"):
-   
+
    Card 1:
    - Icon: 📊 (text-6xl mb-4)
    - Title: "Real-time Fractal Analysis" (text-2xl font-semibold mb-4)
@@ -121,15 +122,12 @@ SECTIONS TO BUILD:
    - "Most Popular" badge (absolute -top-4 right-4, bg-blue-600 text-white px-3 py-1 rounded-full text-xs)
    - If showDiscount is true, show pulsing badge (absolute -top-4 left-4, bg-green-500 text-white px-3 py-1 rounded-full text-xs animate-pulse): "20% OFF"
    - Badge: "PRO TIER ⭐" (bg-blue-600 text-white rounded-full px-4 py-1 text-sm inline-block mb-4)
-   
    - If showDiscount, show hint banner (bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded mb-4):
-     * "💡 You're getting 20% off with your referral code!" (text-sm font-medium text-yellow-800)
-   
+     - "💡 You're getting 20% off with your referral code!" (text-sm font-medium text-yellow-800)
    - Price section:
-     * Label: "Starting at" (text-sm text-gray-500 uppercase font-semibold)
-     * Price: Show {proPrice} (text-5xl font-bold)
-     * If NOT showDiscount: "(Regular: $29/month)" (text-sm text-gray-500 mt-1)
-   
+     - Label: "Starting at" (text-sm text-gray-500 uppercase font-semibold)
+     - Price: Show {proPrice} (text-5xl font-bold)
+     - If NOT showDiscount: "(Regular: $29/month)" (text-sm text-gray-500 mt-1)
    - Features list (mt-6 space-y-3):
      ✓ 15 Symbols
      ✓ 9 Timeframes (M5-D1)
@@ -143,15 +141,14 @@ SECTIONS TO BUILD:
    - Background: bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50
    - Padding: py-16 px-4
    - Container: max-w-6xl mx-auto text-center
-   
    - Icon: 🤝 (text-6xl mb-4)
    - Heading: "Become an Affiliate Partner"
-     * Style: text-4xl font-bold mb-4
-     * Gradient: bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
+     - Style: text-4xl font-bold mb-4
+     - Gradient: bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
    - Subheading: "Earn 20% commission for every PRO subscriber you refer" (text-xl text-gray-700 mb-8)
-   
+
    Features Grid (grid-cols-1 md:grid-cols-3 gap-8 mb-8):
-   
+
    Column 1:
    - 💰 (text-4xl mb-2)
    - "Generous Commissions" (font-semibold text-lg mb-1)
@@ -175,30 +172,31 @@ SECTIONS TO BUILD:
    Buttons (flex gap-4 justify-center):
    - "Join Affiliate Program" (Button size="lg" bg-blue-600)
    - "Learn More →" (Button size="lg" variant="outline")
-   
+
    Fine print: "Quick signup • No minimum sales • Monthly payouts" (text-sm text-gray-500 mt-6)
 
 7. FOOTER (bg-gray-900 text-white):
    - Padding: py-12 px-4
    - Grid: grid-cols-1 md:grid-cols-4 gap-8 max-w-6xl mx-auto
-   
+
    Column 1:
    - "Trading Alerts" (text-xl font-bold mb-4)
    - "© 2025 Trading Alerts. All rights reserved." (text-sm text-gray-400)
-   
+
    Column 2 - Product:
    - "Product" (font-semibold mb-3)
    - Links: Pricing, Features, FAQ (text-gray-400 hover:text-white)
-   
+
    Column 3 - Partners:
    - "Partners" (font-semibold mb-3)
    - Links: Affiliate Program, Become a Partner (text-gray-400 hover:text-white)
-   
+
    Column 4 - Legal:
    - "Legal" (font-semibold mb-3)
    - Links: Privacy Policy, Terms of Service, Contact (text-gray-400 hover:text-white)
 
 RESPONSIVE BEHAVIOR:
+
 - Mobile: Stack all sections vertically, hamburger menu
 - Tablet: 2-column grids where appropriate
 - Desktop: Full 3-column layouts

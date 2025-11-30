@@ -27,7 +27,7 @@ model User {
   emailVerified DateTime?
   image         String?
   tier          UserTier  @default(FREE)        // 🆕 V5: Defaults to FREE
-  
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   lastLogin     DateTime?
@@ -103,17 +103,17 @@ model Alert {
   id            String      @id @default(cuid())
   userId        String
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   name          String?
   symbol        String
   timeframe     String                          // 🆕 V5: One of 7 timeframes
   alertType     AlertType
   condition     Json        // Flexible JSON for different alert conditions
-  
+
   isActive      Boolean     @default(true)
   lastTriggered DateTime?
   triggerCount  Int         @default(0)
-  
+
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
@@ -136,7 +136,7 @@ model AlertNotification {
   id           String   @id @default(cuid())
   alertId      String
   alert        Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
-  
+
   triggeredAt  DateTime @default(now())
   price        Float
   details      Json
@@ -156,11 +156,11 @@ model WatchlistItem {
   id          String    @id @default(cuid())
   watchlistId String
   watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
-  
+
   symbol      String    // e.g., "XAUUSD"
   timeframe   String    // e.g., "H1" (one of 7 timeframes)
   order       Int       @default(0)
-  
+
   createdAt   DateTime  @default(now())
 
   @@unique([watchlistId, symbol, timeframe])
@@ -173,11 +173,11 @@ model Watchlist {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   name      String
   items     WatchlistItem[]  // 🆕 V5: Changed from symbols String[]
   order     Int      @default(0)
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -192,7 +192,7 @@ model UserPreference {
   id     String @id @default(cuid())
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   category String // e.g., "chart", "alerts", "notifications"
   key      String
   value    Json
@@ -212,15 +212,15 @@ model Subscription {
   id                     String              @id @default(cuid())
   userId                 String              @unique
   user                   User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   stripeCustomerId       String              @unique
   stripeSubscriptionId   String?             @unique
   stripePriceId          String?
   stripeCurrentPeriodEnd DateTime?
-  
+
   status                 SubscriptionStatus  @default(INACTIVE)
   plan                   UserTier           @default(FREE)  // 🆕 V5: FREE or PRO only
-  
+
   createdAt              DateTime            @default(now())
   updatedAt              DateTime            @updatedAt
   canceledAt             DateTime?
@@ -247,15 +247,15 @@ model Notification {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   type      NotificationType
   title     String
   message   String   @db.Text
   data      Json?
-  
+
   isRead    Boolean  @default(false)
   readAt    DateTime?
-  
+
   createdAt DateTime @default(now())
 
   @@index([userId, isRead])
@@ -279,10 +279,10 @@ model IndicatorCache {
   symbol     String
   timeframe  String   // 🆕 V5: One of 7 timeframes (M15, M30, H1, H2, H4, H8, D1)
   timestamp  DateTime
-  
+
   dataType   String   // "horizontal", "diagonal", "fractal"
   data       Json     // Full indicator data
-  
+
   createdAt  DateTime @default(now())
   expiresAt  DateTime // Cache expiry
 
@@ -298,16 +298,16 @@ model ApiUsage {
   id        String   @id @default(cuid())
   userId    String?
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
+
   endpoint  String
   method    String
   status    Int
   duration  Int      // milliseconds
-  
+
   symbol    String?
   timeframe String?  // 🆕 V5: One of 7 timeframes
   tier      String?  // 🆕 V5: Track tier for analytics
-  
+
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
@@ -325,7 +325,7 @@ model SystemLog {
   source    String   // "api", "job", "webhook"
   message   String   @db.Text
   metadata  Json?
-  
+
   createdAt DateTime @default(now())
 
   @@index([level, createdAt])
@@ -478,23 +478,24 @@ NEXT_PUBLIC_PRO_TIER_PRICE="29"
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  
+
   // 🆕 V5: Next.js 15 experimental features
   experimental: {
-    ppr: true,              // Partial Prerendering
-    reactCompiler: true,    // React Compiler (React 19)
+    ppr: true, // Partial Prerendering
+    reactCompiler: true, // React Compiler (React 19)
   },
-  
+
   // Image optimization
   images: {
     domains: ['localhost', 'your-domain.com'],
   },
-  
+
   // Environment variables
   env: {
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    NEXT_PUBLIC_APP_URL:
+      process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   },
-  
+
   // Webpack configuration
   webpack: (config) => {
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
@@ -671,7 +672,7 @@ const prisma = new PrismaClient();
 async function main() {
   // Create test users with different tiers
   const hashedPassword = await bcrypt.hash('password123', 10);
-  
+
   // FREE tier user
   const freeUser = await prisma.user.upsert({
     where: { email: 'free@test.com' },
@@ -684,7 +685,7 @@ async function main() {
       emailVerified: new Date(),
     },
   });
-  
+
   // PRO tier user
   const proUser = await prisma.user.upsert({
     where: { email: 'pro@test.com' },
@@ -697,7 +698,7 @@ async function main() {
       emailVerified: new Date(),
     },
   });
-  
+
   // Create watchlists with symbol+timeframe combinations
   const freeWatchlist = await prisma.watchlist.create({
     data: {
@@ -712,7 +713,7 @@ async function main() {
       },
     },
   });
-  
+
   const proWatchlist = await prisma.watchlist.create({
     data: {
       userId: proUser.id,
@@ -727,7 +728,7 @@ async function main() {
       },
     },
   });
-  
+
   console.log('✅ Seeded database with V5 data');
   console.log('Free User:', freeUser.email, '- Tier:', freeUser.tier);
   console.log('Pro User:', proUser.email, '- Tier:', proUser.tier);
@@ -744,6 +745,7 @@ main()
 ```
 
 Run seeding:
+
 ```bash
 npx prisma db seed
 ```
@@ -783,6 +785,7 @@ ls -la
 ```
 
 **Next Steps:**
+
 - Phase 2: Authentication with NextAuth.js v5
 - Phase 3: Flask MT5 Service Setup
 - Phase 4: API Routes with Tier Validation

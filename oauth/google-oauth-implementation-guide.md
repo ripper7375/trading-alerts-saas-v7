@@ -3,6 +3,7 @@
 ## Project Context
 
 You are working on a **Trading Alerts SaaS** platform built with:
+
 - **Framework:** Next.js 15 (App Router)
 - **Authentication:** NextAuth.js v5 (Auth.js)
 - **Database:** PostgreSQL with Prisma ORM
@@ -211,7 +212,7 @@ export const authOptions: NextAuthOptions = {
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -219,7 +220,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+          where: { email: credentials.email },
         });
 
         if (!user || !user.password) {
@@ -243,8 +244,8 @@ export const authOptions: NextAuthOptions = {
           tier: user.tier,
           role: user.role,
         };
-      }
-    })
+      },
+    }),
   ],
 
   session: {
@@ -262,7 +263,7 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === 'google') {
         // Check if user exists
         const existingUser = await prisma.user.findUnique({
-          where: { email: user.email! }
+          where: { email: user.email! },
         });
 
         // If user exists but signed up with email/password, link accounts
@@ -272,7 +273,7 @@ export const authOptions: NextAuthOptions = {
             data: {
               emailVerified: new Date(),
               image: user.image, // Update with Google profile picture
-            }
+            },
           });
         }
 
@@ -280,7 +281,9 @@ export const authOptions: NextAuthOptions = {
         if (!existingUser) {
           // Prisma adapter will create user, but we want to ensure tier is FREE
           // This is handled by the User model default: tier @default("FREE")
-          console.log(`New Google OAuth user created: ${user.email} with FREE tier`);
+          console.log(
+            `New Google OAuth user created: ${user.email} with FREE tier`
+          );
         }
 
         // If existing PRO user signs in with Google, preserve their tier
@@ -327,7 +330,7 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account, isNewUser }) {
       // Log sign-in events
       console.log(`User ${user.email} signed in via ${account?.provider}`);
-      
+
       // Track new OAuth users
       if (isNewUser && account?.provider === 'google') {
         console.log(`New user registered via Google OAuth: ${user.email}`);
@@ -424,7 +427,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
 
@@ -626,7 +636,14 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from 'lucide-react';
 
@@ -787,7 +804,9 @@ export default function RegisterPage() {
                 type="text"
                 placeholder="John Doe"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 required
                 disabled={isLoading || isGoogleLoading}
               />
@@ -800,7 +819,9 @@ export default function RegisterPage() {
                 type="email"
                 placeholder="you@example.com"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 required
                 disabled={isLoading || isGoogleLoading}
               />
@@ -813,7 +834,9 @@ export default function RegisterPage() {
                 type="password"
                 placeholder="Minimum 8 characters"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 required
                 disabled={isLoading || isGoogleLoading}
               />
@@ -825,7 +848,9 @@ export default function RegisterPage() {
                 id="confirmPassword"
                 type="password"
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, confirmPassword: e.target.value })
+                }
                 required
                 disabled={isLoading || isGoogleLoading}
               />
@@ -883,134 +908,134 @@ export default function RegisterPage() {
 **Add this section to the `paths` object:**
 
 ```yaml
-  # OAuth Authentication Endpoints
-  /api/auth/callback/google:
-    get:
-      summary: Google OAuth Callback
-      description: Handles the OAuth callback from Google after user authorization
-      tags:
-        - Authentication
-      parameters:
-        - name: code
-          in: query
-          required: true
-          schema:
-            type: string
-          description: Authorization code from Google
-        - name: state
-          in: query
-          required: false
-          schema:
-            type: string
-          description: State parameter for CSRF protection
-      responses:
-        '302':
-          description: Redirects to dashboard or error page
-        '401':
-          description: Authentication failed
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "OAuth authentication failed"
+# OAuth Authentication Endpoints
+/api/auth/callback/google:
+  get:
+    summary: Google OAuth Callback
+    description: Handles the OAuth callback from Google after user authorization
+    tags:
+      - Authentication
+    parameters:
+      - name: code
+        in: query
+        required: true
+        schema:
+          type: string
+        description: Authorization code from Google
+      - name: state
+        in: query
+        required: false
+        schema:
+          type: string
+        description: State parameter for CSRF protection
+    responses:
+      '302':
+        description: Redirects to dashboard or error page
+      '401':
+        description: Authentication failed
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: 'OAuth authentication failed'
 
-  /api/auth/providers:
-    get:
-      summary: Get Available Authentication Providers
-      description: Returns list of configured OAuth providers
-      tags:
-        - Authentication
-      responses:
-        '200':
-          description: List of authentication providers
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  providers:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          example: "google"
-                        name:
-                          type: string
-                          example: "Google"
-                        type:
-                          type: string
-                          example: "oauth"
+/api/auth/providers:
+  get:
+    summary: Get Available Authentication Providers
+    description: Returns list of configured OAuth providers
+    tags:
+      - Authentication
+    responses:
+      '200':
+        description: List of authentication providers
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                providers:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: 'google'
+                      name:
+                        type: string
+                        example: 'Google'
+                      type:
+                        type: string
+                        example: 'oauth'
 ```
 
 **Update the existing `/api/auth/register` endpoint:**
 
 ```yaml
-  /api/auth/register:
-    post:
-      summary: Register New User (Email/Password)
-      description: Creates a new user account with email and password
-      tags:
-        - Authentication
-      requestBody:
-        required: true
+/api/auth/register:
+  post:
+    summary: Register New User (Email/Password)
+    description: Creates a new user account with email and password
+    tags:
+      - Authentication
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+              - password
+              - name
+            properties:
+              email:
+                type: string
+                format: email
+                example: 'user@example.com'
+              password:
+                type: string
+                minLength: 8
+                example: 'SecurePass123!'
+              name:
+                type: string
+                example: 'John Doe'
+    responses:
+      '201':
+        description: User created successfully
         content:
           application/json:
             schema:
               type: object
-              required:
-                - email
-                - password
-                - name
               properties:
-                email:
+                success:
+                  type: boolean
+                  example: true
+                user:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    email:
+                      type: string
+                    name:
+                      type: string
+                    tier:
+                      type: string
+                      example: 'FREE'
+      '400':
+        description: Invalid input or email already exists
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
                   type: string
-                  format: email
-                  example: "user@example.com"
-                password:
-                  type: string
-                  minLength: 8
-                  example: "SecurePass123!"
-                name:
-                  type: string
-                  example: "John Doe"
-      responses:
-        '201':
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  user:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                      email:
-                        type: string
-                      name:
-                        type: string
-                      tier:
-                        type: string
-                        example: "FREE"
-        '400':
-          description: Invalid input or email already exists
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    example: "Email already in use"
+                  example: 'Email already in use'
 ```
 
 **Update authentication schema in `components.securitySchemes`:**
@@ -1024,20 +1049,20 @@ components:
       bearerFormat: JWT
       description: |
         JWT token from NextAuth.js session.
-        
+
         **Obtaining a token:**
-        
+
         1. **Email/Password Login:**
            - POST /api/auth/callback/credentials
            - Body: { email, password }
            - Returns session cookie
-        
+
         2. **Google OAuth Login:**
            - GET /api/auth/signin/google
            - Redirects to Google authorization
            - Returns to /api/auth/callback/google
            - Sets session cookie
-        
+
         **Using the token:**
         - Session cookie is automatically included in requests
         - For API calls: Use getServerSession() server-side
@@ -1093,7 +1118,7 @@ components:
           description: User ID from the OAuth provider
         type:
           type: string
-          example: "oauth"
+          example: 'oauth'
       description: OAuth account linked to a user
 ```
 
@@ -1146,8 +1171,8 @@ pnpm add next-auth@^4.24.5 @auth/prisma-adapter@^1.0.12
 ### 6.1 User Registration
 
 **Option A: Email/Password Registration**
-
 ```
+
 1. User fills registration form (/register)
    ↓
 2. POST /api/auth/register
@@ -1163,11 +1188,13 @@ pnpm add next-auth@^4.24.5 @auth/prisma-adapter@^1.0.12
 7. Auto-login with credentials
    ↓
 8. Redirect to /dashboard
+
 ```
 
 **Option B: Google OAuth Registration**
 
 ```
+
 1. User clicks "Sign up with Google" (/register)
    ↓
 2. Redirect to Google OAuth consent screen
@@ -1184,12 +1211,13 @@ pnpm add next-auth@^4.24.5 @auth/prisma-adapter@^1.0.12
    - password: NULL (OAuth-only user)
    - tier: FREE (default) ← IMPORTANT
    - role: USER (default)
-   ↓
+     ↓
 6. Create Account record linking user to Google
    ↓
 7. Create JWT session
    ↓
 8. Redirect to /dashboard (FREE tier)
+
 ```
 
 **Note:** User starts as FREE regardless of authentication method. Tier upgrades happen separately via payment flow.
@@ -1199,6 +1227,7 @@ pnpm add next-auth@^4.24.5 @auth/prisma-adapter@^1.0.12
 **Option A: Email/Password Login**
 
 ```
+
 1. User submits login form (/login)
    ↓
 2. NextAuth.js CredentialsProvider validates
@@ -1210,11 +1239,13 @@ pnpm add next-auth@^4.24.5 @auth/prisma-adapter@^1.0.12
 5. Store session in secure cookie
    ↓
 6. Redirect to /dashboard
+
 ```
 
 **Option B: Google OAuth Login**
 
 ```
+
 1. User clicks "Sign in with Google" (/login)
    ↓
 2. Redirect to Google OAuth consent screen
@@ -1229,10 +1260,11 @@ pnpm add next-auth@^4.24.5 @auth/prisma-adapter@^1.0.12
    - Link Google account (allowDangerousEmailAccountLinking: true)
    - Update emailVerified timestamp
    - Update profile image
-   ↓
+     ↓
 7. Create JWT session
    ↓
 8. Redirect to /dashboard
+
 ```
 
 ### 6.3 Account Linking
@@ -1294,6 +1326,7 @@ User gains PRO access:
 ```
 
 **Key Points:**
+
 - Authentication method (OAuth vs Email) does NOT affect tier
 - Payment provider (Stripe vs dLocal) determines subscription options
 - Stripe: Monthly only, auto-renewal
@@ -1313,36 +1346,38 @@ User gains PRO access:
 
 **Folders & Files:**
 ```
+
 app/(auth)/
 ├── layout.tsx
-├── login/page.tsx                    # UPDATED: Add Google OAuth button
-├── register/page.tsx                 # UPDATED: Add Google OAuth button
+├── login/page.tsx # UPDATED: Add Google OAuth button
+├── register/page.tsx # UPDATED: Add Google OAuth button
 ├── verify-email/page.tsx
 ├── forgot-password/page.tsx
 └── reset-password/page.tsx
 
 app/api/auth/
-├── [...nextauth]/route.ts            # UPDATED: Add GoogleProvider
+├── [...nextauth]/route.ts # UPDATED: Add GoogleProvider
 ├── register/route.ts
 ├── verify-email/route.ts
 ├── forgot-password/route.ts
 └── reset-password/route.ts
 
 components/auth/
-├── register-form.tsx                 # UPDATED: OAuth integration
-├── login-form.tsx                    # UPDATED: OAuth integration
+├── register-form.tsx # UPDATED: OAuth integration
+├── login-form.tsx # UPDATED: OAuth integration
 ├── forgot-password-form.tsx
-└── social-auth-buttons.tsx           # NEW: Reusable OAuth buttons
+└── social-auth-buttons.tsx # NEW: Reusable OAuth buttons
 
 lib/auth/
-├── auth-options.ts                   # UPDATED: Google OAuth config
-├── session.ts                        # UPDATED: Handle OAuth sessions
+├── auth-options.ts # UPDATED: Google OAuth config
+├── session.ts # UPDATED: Handle OAuth sessions
 └── permissions.ts
 
 types/
-└── next-auth.d.ts                    # NEW: NextAuth type extensions
+└── next-auth.d.ts # NEW: NextAuth type extensions
 
-middleware.ts                          # NextAuth + tier checks
+middleware.ts # NextAuth + tier checks
+
 ```
 
 **Key Changes from V4:**
@@ -1362,7 +1397,7 @@ middleware.ts                          # NextAuth + tier checks
 
 ### File: `docs/setup/google-oauth-setup.md` (create new)
 
-```markdown
+````markdown
 # Google OAuth Setup Guide
 
 ## Step 1: Create Google Cloud Project
@@ -1414,6 +1449,7 @@ Add to `.env.local`:
 GOOGLE_CLIENT_ID=your_client_id_here
 GOOGLE_CLIENT_SECRET=your_client_secret_here
 ```
+````
 
 ## Step 6: Test OAuth Flow
 
@@ -1437,24 +1473,29 @@ GOOGLE_CLIENT_SECRET=your_client_secret_here
 ## Troubleshooting
 
 **Error: "redirect_uri_mismatch"**
+
 - Verify redirect URI in Google Console exactly matches `/api/auth/callback/google`
 - Check for trailing slashes
 - Ensure protocol (http/https) matches
 
 **Error: "invalid_client"**
+
 - Verify `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are correct
 - Check for extra spaces or line breaks in `.env.local`
 
 **User not created in database**
+
 - Check Prisma schema has Account, Session, VerificationToken models
 - Run `npx prisma generate` and `npx prisma db push`
 - Check database connection string
 
 **Session not persisting**
+
 - Verify `NEXTAUTH_SECRET` is set
 - Check `NEXTAUTH_URL` matches your domain
 - Clear browser cookies and try again
-```
+
+````
 
 ---
 
@@ -1558,7 +1599,7 @@ GOOGLE_CLIENT_SECRET=your_client_secret_here
 - [ ] NEXTAUTH_SECRET generated and set
 - [ ] HTTPS enforced on production domain
 - [ ] OAuth consent screen published
-```
+````
 
 ---
 
@@ -1584,7 +1625,9 @@ async function main() {
     },
   });
 
-  console.log(`Found ${unverifiedUsers} email/password users without verified emails`);
+  console.log(
+    `Found ${unverifiedUsers} email/password users without verified emails`
+  );
 
   // Optional: Mark all existing email users as verified
   // Uncomment if you want to trust existing users
@@ -1647,7 +1690,7 @@ main()
 ✅ Documentation is updated  
 ✅ All tests pass  
 ✅ **Tier upgrades work identically for both auth methods**  
-✅ **Payment provider selection (Stripe/dLocal) is independent of auth method**  
+✅ **Payment provider selection (Stripe/dLocal) is independent of auth method**
 
 ---
 
@@ -1658,6 +1701,7 @@ main()
 **Cause:** Redirect URI in Google Console doesn't match NextAuth callback URL
 
 **Solution:**
+
 - Verify Google Console redirect URI: `http://localhost:3000/api/auth/callback/google`
 - Ensure no trailing slash
 - Protocol must match (http for local, https for production)
@@ -1667,6 +1711,7 @@ main()
 **Cause:** Prisma schema doesn't allow NULL passwords for OAuth users
 
 **Solution:**
+
 - Update `password String` to `password String?` in schema.prisma
 - Run migration: `npx prisma migrate dev --name allow_null_passwords`
 
@@ -1675,6 +1720,7 @@ main()
 **Cause:** NEXTAUTH_SECRET not set or incorrect
 
 **Solution:**
+
 - Generate secret: `openssl rand -base64 32`
 - Add to `.env.local`: `NEXTAUTH_SECRET=<generated_secret>`
 - Restart dev server
@@ -1684,11 +1730,12 @@ main()
 **Cause:** Email case mismatch
 
 **Solution:**
+
 - Ensure email comparison is case-insensitive
 - Add in NextAuth signIn callback:
   ```typescript
   const existingUser = await prisma.user.findUnique({
-    where: { email: user.email?.toLowerCase() }
+    where: { email: user.email?.toLowerCase() },
   });
   ```
 
@@ -1697,6 +1744,7 @@ main()
 ## Verification Steps After Implementation
 
 1. **Test New User Registration:**
+
    ```bash
    # Visit http://localhost:3000/register
    # Click "Continue with Google"
@@ -1706,6 +1754,7 @@ main()
    ```
 
 2. **Test Existing User Login:**
+
    ```bash
    # Create user with email/password
    # Logout
@@ -1716,6 +1765,7 @@ main()
    ```
 
 3. **Test Database Schema:**
+
    ```bash
    npx prisma studio
    # Check Account table exists
@@ -1748,6 +1798,7 @@ main()
 1. **Preserve Existing Auth:** Do NOT remove email/password authentication. Google OAuth is ADDITIVE.
 
 2. **Database Migrations:** After updating schema, always run:
+
    ```bash
    npx prisma migrate dev --name <migration_name>
    npx prisma generate
@@ -1774,12 +1825,14 @@ This comprehensive guide covers all aspects of adding Google OAuth to your Tradi
 ## CRITICAL REMINDER: Authentication vs Payment Provider
 
 **Authentication (This Guide):**
+
 - Handles user login/registration
 - Google OAuth OR Email/Password
 - ALL new users → FREE tier (default)
 - NO tier upgrades during authentication
 
 **Payment & Tier Upgrades (Separate System):**
+
 - Handled by Part 12 (E-commerce) and Part 18 (dLocal)
 - User visits `/checkout` or `/pricing` AFTER authentication
 - Selects payment provider:
@@ -1788,7 +1841,8 @@ This comprehensive guide covers all aspects of adding Google OAuth to your Tradi
 - Webhook updates `User.tier` to "PRO"
 - Works identically for BOTH Google OAuth and Email/Password users
 
-**Key Principle:** 
+**Key Principle:**
+
 ```
 Authentication Method ≠ Payment Provider
 Google OAuth user → Can use Stripe OR dLocal for PRO upgrade

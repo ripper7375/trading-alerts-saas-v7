@@ -13,21 +13,25 @@
 **Scope:** TypeScript type definitions for the entire V7 application, including tier types, user types, alert types, indicator types, and API types.
 
 **Implementation Guide References:**
+
 - `docs/trading_alerts_openapi.yaml` - Primary source for API type definitions and schemas
 - `docs/flask_mt5_openapi.yaml` - Indicator and MT5-related type definitions
 - `docs/policies/00-tier-specifications.md` - Tier constants and limits
 
 **Key Changes from V4:**
+
 - ✅ New `tier.ts` - Tier-specific types and constants
 - ✅ Updated `user.ts` - Remove ENTERPRISE tier, add tier field
 - ✅ All types aligned with 2-tier system (FREE/PRO)
 - ✅ Types generated from Prisma and OpenAPI schemas
 
 **Dependencies:**
+
 - Requires Part 1 complete (TypeScript configuration)
 - Requires Part 2 complete (Prisma schema for type generation)
 
 **Integration Points:**
+
 - Provides types for ALL subsequent parts (3-18)
 - Referenced by API routes, components, and utilities
 - Ensures type safety across the entire application
@@ -45,24 +49,29 @@ Build these files **in sequence**:
 **Purpose:** Central export file for all type definitions
 
 **From v5-structure-division.md:**
+
 > Main index file exporting all types
 
 **Implementation Details:**
+
 - **Pattern:** Barrel export pattern
 - **Reference Guide:** `docs/policies/05-coding-patterns.md`
 
 **Dependencies:**
+
 - None (this file exports others, but can be created first)
 
 **Build Steps:**
 
 1. **Read Requirements**
+
    ```
    - All type files that will exist in types/ folder
    - Standard TypeScript barrel export pattern
    ```
 
 2. **Generate Code**
+
    ```typescript
    // types/index.ts
 
@@ -84,7 +93,13 @@ Build these files **in sequence**:
    export * from './api';
 
    // Re-export Prisma types
-   export type { User, Alert, Subscription, Watchlist, WatchlistItem } from '@prisma/client';
+   export type {
+     User,
+     Alert,
+     Subscription,
+     Watchlist,
+     WatchlistItem,
+   } from '@prisma/client';
    ```
 
 3. **Validation**
@@ -105,19 +120,23 @@ Build these files **in sequence**:
 **Purpose:** Tier-specific types and constants for 2-tier system
 
 **From v5-structure-division.md:**
+
 > NEW in V5 - Tier types and constants
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/policies/00-tier-specifications.md`
 - **Pattern:** Type definitions with constants
 - **OpenAPI Reference:** `docs/trading_alerts_openapi.yaml` → TierEnum
 
 **Dependencies:**
+
 - None
 
 **Build Steps:**
 
 1. **Read Requirements**
+
    ```
    - 00-tier-specifications.md (FREE vs PRO limits)
    - OpenAPI schema for Tier enum
@@ -125,6 +144,7 @@ Build these files **in sequence**:
    ```
 
 2. **Key Implementation Points**
+
    ```typescript
    // types/tier.ts
 
@@ -178,15 +198,15 @@ Build these files **in sequence**:
     * PRO tier: All 9 timeframes
     */
    export type Timeframe =
-     | 'M5'   // PRO only
-     | 'M15'  // PRO only
-     | 'M30'  // PRO only
-     | 'H1'   // FREE + PRO
-     | 'H2'   // PRO only
-     | 'H4'   // FREE + PRO
-     | 'H8'   // PRO only
-     | 'H12'  // PRO only
-     | 'D1';  // FREE + PRO
+     | 'M5' // PRO only
+     | 'M15' // PRO only
+     | 'M30' // PRO only
+     | 'H1' // FREE + PRO
+     | 'H2' // PRO only
+     | 'H4' // FREE + PRO
+     | 'H8' // PRO only
+     | 'H12' // PRO only
+     | 'D1'; // FREE + PRO
 
    /**
     * Timeframe display labels
@@ -211,27 +231,27 @@ Build these files **in sequence**:
     * FREE tier symbols (5 symbols)
     */
    export const FREE_TIER_SYMBOLS = [
-     'BTCUSD',  // Bitcoin
-     'EURUSD',  // Euro
-     'USDJPY',  // Yen
-     'US30',    // Dow Jones
-     'XAUUSD',  // Gold
+     'BTCUSD', // Bitcoin
+     'EURUSD', // Euro
+     'USDJPY', // Yen
+     'US30', // Dow Jones
+     'XAUUSD', // Gold
    ] as const;
 
    /**
     * PRO tier exclusive symbols (10 additional)
     */
    export const PRO_TIER_EXCLUSIVE_SYMBOLS = [
-     'GBPUSD',  // Pound
-     'AUDUSD',  // Australian Dollar
-     'USDCAD',  // Canadian Dollar
-     'USDCHF',  // Swiss Franc
-     'NZDUSD',  // New Zealand Dollar
-     'EURJPY',  // Euro-Yen
-     'GBPJPY',  // Pound-Yen
-     'AUDJPY',  // Aussie-Yen
-     'NAS100',  // Nasdaq
-     'SPX500',  // S&P 500
+     'GBPUSD', // Pound
+     'AUDUSD', // Australian Dollar
+     'USDCAD', // Canadian Dollar
+     'USDCHF', // Swiss Franc
+     'NZDUSD', // New Zealand Dollar
+     'EURJPY', // Euro-Yen
+     'GBPJPY', // Pound-Yen
+     'AUDJPY', // Aussie-Yen
+     'NAS100', // Nasdaq
+     'SPX500', // S&P 500
    ] as const;
 
    /**
@@ -245,7 +265,7 @@ Build these files **in sequence**:
    /**
     * All available symbols (union type)
     */
-   export type Symbol = typeof PRO_TIER_SYMBOLS[number];
+   export type Symbol = (typeof PRO_TIER_SYMBOLS)[number];
 
    //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    // TIER CONFIGURATION
@@ -356,20 +376,24 @@ Build these files **in sequence**:
 **Purpose:** User-related type definitions
 
 **From v5-structure-division.md:**
+
 > Updated for 2-tier system, remove ENTERPRISE
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/implementation-guides/v5_part_c.md` (User model)
 - **OpenAPI Reference:** `docs/trading_alerts_openapi.yaml` → User schema
 - **Pattern:** Extends Prisma User type
 
 **Dependencies:**
+
 - Part 2 complete (Prisma schema)
 - File 2/6 complete (tier.ts)
 
 **Build Steps:**
 
 1. **Read Requirements**
+
    ```
    - Prisma User model
    - OpenAPI User schema
@@ -377,6 +401,7 @@ Build these files **in sequence**:
    ```
 
 2. **Generate Code**
+
    ```typescript
    // types/user.ts
 
@@ -477,17 +502,20 @@ Build these files **in sequence**:
 **Purpose:** Alert-related type definitions
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/implementation-guides/v5_part_*.md` (Alerts section)
 - **OpenAPI Reference:** `docs/trading_alerts_openapi.yaml` → Alert schema
 - **Pattern:** Type definitions with create/update request types
 
 **Dependencies:**
+
 - Part 2 complete (Prisma Alert model)
 - File 2/6 complete (tier.ts for Symbol and Timeframe)
 
 **Build Steps:**
 
 1. **Generate Code**
+
    ```typescript
    // types/alert.ts
 
@@ -573,15 +601,18 @@ Build these files **in sequence**:
 **Purpose:** Indicator-related type definitions for trading data
 
 **Implementation Details:**
+
 - **Reference Guide:** `docs/flask_mt5_openapi.yaml`
 - **Pattern:** Type definitions for indicator data from Flask MT5 service
 
 **Dependencies:**
+
 - File 2/6 complete (tier.ts for Symbol and Timeframe)
 
 **Build Steps:**
 
 1. **Generate Code**
+
    ```typescript
    // types/indicator.ts
 
@@ -663,15 +694,18 @@ Build these files **in sequence**:
 **Purpose:** API request/response types and error types
 
 **Implementation Details:**
+
 - **OpenAPI Reference:** `docs/trading_alerts_openapi.yaml` (all schemas)
 - **Pattern:** Standard API types for requests, responses, errors
 
 **Dependencies:**
+
 - All previous type files (this imports from them)
 
 **Build Steps:**
 
 1. **Generate Code**
+
    ```typescript
    // types/api.ts
 
@@ -774,12 +808,15 @@ Build these files **in sequence**:
 Once all 6 files are built:
 
 1. **Verify TypeScript Compilation**
+
    ```bash
    npx tsc --noEmit
    ```
+
    Expected: No errors
 
 2. **Check Type Exports**
+
    ```bash
    # Create a test file that imports all types
    cat > test-types.ts << 'EOF'
@@ -837,6 +874,7 @@ Part 3 is complete when:
 ## Next Steps
 
 After Part 3 complete:
+
 - Ready for Part 4: Tier System (uses types from this part)
 - Ready for Part 5: Authentication (uses User and Tier types)
 - Unblocks: All subsequent parts that use type definitions
@@ -846,11 +884,13 @@ After Part 3 complete:
 ## Escalation Scenarios
 
 **Scenario 1: Type conflicts with Prisma**
+
 - Issue: Generated Prisma types conflict with custom types
 - Solution: Use Prisma types as base, extend with custom fields
 - Example: `export interface UserWithStats extends User { stats: UserStats; }`
 
 **Scenario 2: OpenAPI schema mismatch**
+
 - Issue: OpenAPI schema doesn't match type definitions
 - Escalate to: Review OpenAPI spec and update types to match
 - Document: Any intentional deviations from OpenAPI

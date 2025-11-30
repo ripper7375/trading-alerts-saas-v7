@@ -4,6 +4,7 @@ PROMPT 2: Pricing Page Component (WITH AFFILIATE DISCOUNT)
 Create a comprehensive pricing page component for a Next.js 15 app using TypeScript, Tailwind CSS, and shadcn/ui.
 
 REQUIREMENTS:
+
 1. PAGE HEADER:
    - Breadcrumb: "Home > Pricing" (text-sm, text-gray-500)
    - Main heading: "Choose Your Plan" (text-5xl, font-bold, gradient text, centered)
@@ -14,18 +15,18 @@ REQUIREMENTS:
 
    **FREE TIER CARD:**
    - Header:
-     * Badge: "FREE TIER 🆓" (bg-green-500, text-white, rounded-full, px-4, py-2)
-     * Price: "$0" (text-6xl, font-bold, text-gray-900)
-     * Period: "/month" (text-xl, text-gray-500)
+     - Badge: "FREE TIER 🆓" (bg-green-500, text-white, rounded-full, px-4, py-2)
+     - Price: "$0" (text-6xl, font-bold, text-gray-900)
+     - Period: "/month" (text-xl, text-gray-500)
    - Features section (with checkmarks ✅):
-     * "5 Symbols"
+     - "5 Symbols"
        - Small text: "BTCUSD, EURUSD, USDJPY, US30, XAUUSD"
-     * "3 Timeframes"
+     - "3 Timeframes"
        - Small text: "H1, H4, D1 only"
-     * "5 Active Alerts"
-     * "5 Watchlist Items"
-     * "60 API Requests/hour"
-     * "Email & Push Notifications"
+     - "5 Active Alerts"
+     - "5 Watchlist Items"
+     - "60 API Requests/hour"
+     - "Email & Push Notifications"
    - CTA Button: "Start Free" (bg-green-600, hover:bg-green-700, w-full, py-4, text-lg)
    - Note: "No credit card required" (text-sm, text-gray-500, centered)
 
@@ -34,15 +35,15 @@ REQUIREMENTS:
    - Border: border-4 border-blue-600 (highlighted)
 
    - Header (pt-12 to avoid ribbon):
-     * Badge: "PRO TIER ⭐" (bg-blue-600, text-white, rounded-full, px-4, py-2)
+     - Badge: "PRO TIER ⭐" (bg-blue-600, text-white, rounded-full, px-4, py-2)
 
-     * AFFILIATE DISCOUNT BANNER (conditional - show if ?ref=CODE in URL):
+     - AFFILIATE DISCOUNT BANNER (conditional - show if ?ref=CODE in URL):
        - Container: bg-yellow-50, border-l-4 border-yellow-400, p-3, mb-4, rounded-lg
        - Icon: 🎉 (text-xl, inline)
        - Heading: "Affiliate Discount Active!" (font-semibold, text-yellow-800)
        - Subtext: "20% off applied with code: REF-ABC123" (text-sm, text-yellow-700)
 
-     * PRICING DISPLAY (TWO VERSIONS - conditionally render):
+     - PRICING DISPLAY (TWO VERSIONS - conditionally render):
 
        WITHOUT discount (default):
        - Price: "$29" (text-6xl, font-bold, text-gray-900)
@@ -55,38 +56,38 @@ REQUIREMENTS:
        - Period: "/month" (text-xl, text-gray-500)
        - Savings text: "Save $5.80/month with affiliate code!" (text-sm, text-green-600, font-medium, mt-1)
        - Yearly option:
-         * Original: "$290/year" (line-through, text-gray-400)
-         * Discounted: "$232/year" (text-green-600, font-bold)
-         * Total savings: "Save $127.60/year total!" (text-xs, text-green-600)
+         - Original: "$290/year" (line-through, text-gray-400)
+         - Discounted: "$232/year" (text-green-600, font-bold)
+         - Total savings: "Save $127.60/year total!" (text-xs, text-green-600)
 
    - Features section (with checkmarks ✅):
-     * "15 Symbols"
+     - "15 Symbols"
        - Small text: "All major pairs + crypto + indices"
-     * "9 Timeframes"
+     - "9 Timeframes"
        - Small text: "M5, M15, M30, H1, H2, H4, H8, H12, D1"
-     * "20 Active Alerts"
-     * "50 Watchlist Items"
-     * "300 API Requests/hour"
-     * "All notification types (Email, Push, SMS)"
-     * "Priority chart updates (30s)"
-     * "Advanced analytics (Coming Soon)" (with badge: "SOON")
+     - "20 Active Alerts"
+     - "50 Watchlist Items"
+     - "300 API Requests/hour"
+     - "All notification types (Email, Push, SMS)"
+     - "Priority chart updates (30s)"
+     - "Advanced analytics (Coming Soon)" (with badge: "SOON")
 
    - CTA Button (TWO VERSIONS):
-     * WITHOUT discount: "Start 7-Day Trial" (bg-blue-600, hover:bg-blue-700, w-full, py-4, text-lg, pulse animation)
-     * WITH discount: "Start 7-Day Trial (20% Off)" (bg-blue-600, hover:bg-blue-700, w-full, py-4, text-lg, pulse animation)
+     - WITHOUT discount: "Start 7-Day Trial" (bg-blue-600, hover:bg-blue-700, w-full, py-4, text-lg, pulse animation)
+     - WITH discount: "Start 7-Day Trial (20% Off)" (bg-blue-600, hover:bg-blue-700, w-full, py-4, text-lg, pulse animation)
 
    - Note (TWO VERSIONS):
-     * WITHOUT discount: "7-day free trial, then $29/month" (text-sm, text-gray-500, centered)
-     * WITH discount: "7-day free trial, then $23.20/month with affiliate code" (text-sm, text-green-600, centered)
+     - WITHOUT discount: "7-day free trial, then $29/month" (text-sm, text-gray-500, centered)
+     - WITH discount: "7-day free trial, then $23.20/month with affiliate code" (text-sm, text-green-600, centered)
 
 3. AFFILIATE PROGRAM BANNER (BEFORE comparison table):
    - Container: bg-gradient-to-r from-green-50 to-blue-50, border-2 border-green-200, rounded-xl, p-6, mb-12, max-w-4xl, mx-auto
    - Layout: flex items-center gap-4 (stack on mobile)
    - Icon: 🤝 (text-3xl)
    - Content:
-     * Heading: "Have an affiliate code?" (text-2xl, font-bold, mb-2)
-     * Text: "Get 20% off your next PRO subscription payment with a referral code from our partners. New codes available monthly!" (text-gray-700, mb-4)
-     * Link: "Learn about our Affiliate Program →" (text-blue-600, hover:underline, font-medium)
+     - Heading: "Have an affiliate code?" (text-2xl, font-bold, mb-2)
+     - Text: "Get 20% off your next PRO subscription payment with a referral code from our partners. New codes available monthly!" (text-gray-700, mb-4)
+     - Link: "Learn about our Affiliate Program →" (text-blue-600, hover:underline, font-medium)
 
 4. DETAILED COMPARISON TABLE (Below cards):
    - Section heading: "Detailed Feature Comparison" (text-3xl, font-bold, centered, mt-16, mb-8)
@@ -132,8 +133,8 @@ REQUIREMENTS:
    - Heading: "Ready to get started?" (text-3xl, font-bold, mb-4)
    - Subheading: "Join thousands of traders using our platform" (text-xl, text-gray-600, mb-8)
    - Buttons (flex, justify-center, gap-4):
-     * "Start Free" (bg-green-600, hover:bg-green-700, px-8, py-4, text-lg)
-     * "Contact Sales" (border-2, border-gray-300, hover:border-blue-600, px-8, py-4, text-lg)
+     - "Start Free" (bg-green-600, hover:bg-green-700, px-8, py-4, text-lg)
+     - "Contact Sales" (border-2, border-gray-300, hover:border-blue-600, px-8, py-4, text-lg)
 
 7. RESPONSIVE:
    - Cards: Stack vertically on mobile, side-by-side on desktop

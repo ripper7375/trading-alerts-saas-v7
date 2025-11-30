@@ -4,15 +4,16 @@ PROMPT 1: Homepage / Landing Page (WITH AFFILIATE PROGRAM)
 Create a modern Next.js 15 marketing homepage component using TypeScript, Tailwind CSS, and shadcn/ui.
 
 REQUIREMENTS:
+
 1. HERO SECTION (Full viewport height):
    - Large heading: "Never Miss a Trading Setup Again" (text-6xl, font-bold, gradient text blue-600 to purple-600)
    - Subheading: "Get alerts when price touches key support/resistance levels based on fractal analysis" (text-xl, text-gray-600, max-w-3xl, centered)
    - Two CTA buttons side-by-side:
-     * Primary: "Get Started Free" (bg-blue-600, text-white, rounded-xl, px-8, py-4, text-lg, shadow-lg, hover:bg-blue-700)
-     * Secondary: "See Pricing" (border-2, border-gray-300, text-gray-700, rounded-xl, px-8, py-4, text-lg, hover:border-blue-600)
+     - Primary: "Get Started Free" (bg-blue-600, text-white, rounded-xl, px-8, py-4, text-lg, shadow-lg, hover:bg-blue-700)
+     - Secondary: "See Pricing" (border-2, border-gray-300, text-gray-700, rounded-xl, px-8, py-4, text-lg, hover:border-blue-600)
    - Below buttons (text-center, mt-6):
-     * "✨ Trusted by 10,000+ traders • 🤝 Join our affiliate program and earn" (text-sm, text-gray-600)
-     * "affiliate program" is clickable link → scrolls to affiliate section
+     - "✨ Trusted by 10,000+ traders • 🤝 Join our affiliate program and earn" (text-sm, text-gray-600)
+     - "affiliate program" is clickable link → scrolls to affiliate section
    - Background: gradient from blue-50 to white
    - Floating chart mockup image (optional: use placeholder or Icon)
 
@@ -24,25 +25,25 @@ REQUIREMENTS:
      - Icon: 📊 (text-6xl)
      - Title: "Real-time Fractal Analysis" (text-2xl, font-semibold)
      - Features list:
-       * Horizontal Support/Resistance Lines
-       * Diagonal Trendline Detection
-       * Multi-point Validation System
+       - Horizontal Support/Resistance Lines
+       - Diagonal Trendline Detection
+       - Multi-point Validation System
 
      CARD 2: "🔔 Smart Alert System"
      - Icon: 🔔 (text-6xl)
      - Title: "Smart Alert System" (text-2xl, font-semibold)
      - Features list:
-       * Price proximity alerts
-       * Email & Push notifications
-       * Customizable tolerance levels
+       - Price proximity alerts
+       - Email & Push notifications
+       - Customizable tolerance levels
 
      CARD 3: "📈 Professional Tools"
      - Icon: 📈 (text-6xl)
      - Title: "Professional Tools" (text-2xl, font-semibold)
      - Features list:
-       * 15 Major trading symbols
-       * 9 Timeframe options
-       * Watchlist management
+       - 15 Major trading symbols
+       - 9 Timeframe options
+       - Watchlist management
 
    - Each card: bg-white, rounded-xl, shadow-lg, p-8, hover:shadow-2xl transition
 
@@ -54,29 +55,29 @@ REQUIREMENTS:
      - Badge: "FREE TIER 🆓" (bg-green-500, text-white, rounded-full, px-4, py-1, inline-block)
      - Price: "$0/month" (text-5xl, font-bold)
      - Features:
-       * 5 Symbols
-       * 3 Timeframes (H1, H4, D1)
-       * 5 Alerts
-       * 5 Watchlist items
+       - 5 Symbols
+       - 3 Timeframes (H1, H4, D1)
+       - 5 Alerts
+       - 5 Watchlist items
      - CTA: "Start Free" button
 
      CARD 2: PRO TIER (WITH AFFILIATE DISCOUNT OPTION)
      - Badge: "PRO TIER ⭐" (bg-blue-600, text-white, rounded-full, px-4, py-1, inline-block)
      - Discount hint banner (BEFORE price):
-       * Container: bg-yellow-50, border-l-4 border-yellow-400, p-2, rounded-lg, mb-3
-       * Text: "💡 Have a referral code? Get 20% off this month!" (text-sm, font-medium, text-yellow-800)
-       * Link: "Apply code →" (text-yellow-600, text-xs, underline)
+       - Container: bg-yellow-50, border-l-4 border-yellow-400, p-2, rounded-lg, mb-3
+       - Text: "💡 Have a referral code? Get 20% off this month!" (text-sm, font-medium, text-yellow-800)
+       - Link: "Apply code →" (text-yellow-600, text-xs, underline)
      - Pricing:
-       * Label: "Starting at" (text-sm, text-gray-500, uppercase, font-semibold, mb-1)
-       * Price: "from $23.20/month" (text-5xl, font-bold)
-       * Details below: "($29/month without referral code)" (text-sm, text-gray-500)
+       - Label: "Starting at" (text-sm, text-gray-500, uppercase, font-semibold, mb-1)
+       - Price: "from $23.20/month" (text-5xl, font-bold)
+       - Details below: "($29/month without referral code)" (text-sm, text-gray-500)
      - Label: "Most Popular" (text-sm, text-blue-600, font-semibold, absolute badge top-right)
      - Features:
-       * 15 Symbols
-       * 9 Timeframes (M5-D1)
-       * 20 Alerts
-       * 50 Watchlist items
-       * Priority updates
+       - 15 Symbols
+       - 9 Timeframes (M5-D1)
+       - 20 Alerts
+       - 50 Watchlist items
+       - Priority updates
      - CTA: "Start 7-Day Trial" button (highlighted, bg-blue-600)
      - Secondary link below: "Have a referral code? Apply here →" (text-blue-600, text-sm, hover:underline)
 
@@ -147,14 +148,14 @@ REQUIREMENTS:
 
 7. URL PARAMETER SUPPORT (IMPORTANT):
    - If URL contains ?ref=AFFILIATE_CODE parameter:
-     * Show green banner at very top of page:
+     - Show green banner at very top of page:
        - bg-green-500, text-white, py-3, px-4, text-center
        - Text: "🎉 Special Offer! Sign up now with code [CODE] and get 20% off your first month!"
        - Code shown in: bg-white/20, px-2, py-1, rounded, font-mono
-     * Add pulsing badge to PRO card:
+     - Add pulsing badge to PRO card:
        - Position: absolute, top-left
        - Badge: "20% OFF FIRST MONTH" (bg-green-500, text-white, px-3, py-1, rounded-full, text-xs, font-bold, shadow-lg, animate-pulse)
-     * Update pricing to show $23.20 instead of "from $23.20"
+     - Update pricing to show $23.20 instead of "from $23.20"
 
 8. RESPONSIVE:
    - Hero: Stack vertically on mobile

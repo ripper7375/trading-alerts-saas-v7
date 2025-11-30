@@ -23,14 +23,13 @@ export async function GET(request: NextRequest) {
     const notifications = await prisma.notification.findMany({
       where: {
         userId: session.user.id,
-        ...(unreadOnly && { isRead: false })
+        ...(unreadOnly && { isRead: false }),
       },
       orderBy: { createdAt: 'desc' },
-      take: 50
+      take: 50,
     });
 
     return NextResponse.json({ notifications });
-
   } catch (error) {
     console.error('Get notifications error:', error);
     return NextResponse.json(
@@ -62,16 +61,15 @@ export async function PUT(
     await prisma.notification.update({
       where: {
         id: params.id,
-        userId: session.user.id
+        userId: session.user.id,
       },
       data: {
         isRead: true,
-        readAt: new Date()
-      }
+        readAt: new Date(),
+      },
     });
 
     return NextResponse.json({ success: true });
-
   } catch (error) {
     console.error('Mark notification read error:', error);
     return NextResponse.json(
@@ -95,7 +93,7 @@ export class SystemMonitor {
     apiErrorRate: 0.05, // 5%
     responseTime: 1000, // 1 second
     diskUsage: 0.85, // 85%
-    memoryUsage: 0.90 // 90%
+    memoryUsage: 0.9, // 90%
   };
 
   async checkSystemHealth() {
@@ -104,10 +102,10 @@ export class SystemMonitor {
       this.checkDatabaseHealth(),
       this.checkMT5ServiceHealth(),
       this.checkResourceUsage(),
-      this.checkTierDistribution()
+      this.checkTierDistribution(),
     ]);
 
-    const issues = checks.filter(check => !check.healthy);
+    const issues = checks.filter((check) => !check.healthy);
 
     if (issues.length > 0) {
       await this.createSystemNotification(issues);
@@ -115,7 +113,7 @@ export class SystemMonitor {
 
     return {
       healthy: issues.length === 0,
-      checks
+      checks,
     };
   }
 
@@ -123,20 +121,20 @@ export class SystemMonitor {
     const recentErrors = await prisma.apiUsage.count({
       where: {
         createdAt: {
-          gte: new Date(Date.now() - 60 * 60 * 1000) // Last hour
+          gte: new Date(Date.now() - 60 * 60 * 1000), // Last hour
         },
         status: {
-          gte: 500
-        }
-      }
+          gte: 500,
+        },
+      },
     });
 
     const totalRequests = await prisma.apiUsage.count({
       where: {
         createdAt: {
-          gte: new Date(Date.now() - 60 * 60 * 1000)
-        }
-      }
+          gte: new Date(Date.now() - 60 * 60 * 1000),
+        },
+      },
     });
 
     const errorRate = totalRequests > 0 ? recentErrors / totalRequests : 0;
@@ -147,8 +145,8 @@ export class SystemMonitor {
       details: {
         errorRate: `${(errorRate * 100).toFixed(2)}%`,
         recentErrors,
-        totalRequests
-      }
+        totalRequests,
+      },
     };
   }
 
@@ -162,16 +160,16 @@ export class SystemMonitor {
         name: 'Database Health',
         healthy: responseTime < this.thresholds.responseTime,
         details: {
-          responseTime: `${responseTime}ms`
-        }
+          responseTime: `${responseTime}ms`,
+        },
       };
     } catch (error) {
       return {
         name: 'Database Health',
         healthy: false,
         details: {
-          error: 'Database connection failed'
-        }
+          error: 'Database connection failed',
+        },
       };
     }
   }
@@ -179,21 +177,21 @@ export class SystemMonitor {
   private async checkMT5ServiceHealth() {
     try {
       const response = await fetch(`${process.env.MT5_API_URL}/api/health`, {
-        headers: { 'X-API-Key': process.env.MT5_API_KEY! }
+        headers: { 'X-API-Key': process.env.MT5_API_KEY! },
       });
 
       return {
         name: 'MT5 Service Health',
         healthy: response.ok,
-        details: await response.json()
+        details: await response.json(),
       };
     } catch (error) {
       return {
         name: 'MT5 Service Health',
         healthy: false,
         details: {
-          error: 'MT5 service unreachable'
-        }
+          error: 'MT5 service unreachable',
+        },
       };
     }
   }
@@ -205,8 +203,8 @@ export class SystemMonitor {
       name: 'Resource Usage',
       healthy: true,
       details: {
-        message: 'Within normal parameters'
-      }
+        message: 'Within normal parameters',
+      },
     };
   }
 
@@ -214,11 +212,11 @@ export class SystemMonitor {
     // Monitor tier distribution and usage patterns
     const tierStats = await prisma.user.groupBy({
       by: ['tier'],
-      _count: true
+      _count: true,
     });
 
-    const freeUsers = tierStats.find(s => s.tier === 'FREE')?._count || 0;
-    const proUsers = tierStats.find(s => s.tier === 'PRO')?._count || 0;
+    const freeUsers = tierStats.find((s) => s.tier === 'FREE')?._count || 0;
+    const proUsers = tierStats.find((s) => s.tier === 'PRO')?._count || 0;
     const totalUsers = freeUsers + proUsers;
 
     const proPercentage = totalUsers > 0 ? (proUsers / totalUsers) * 100 : 0;
@@ -231,33 +229,33 @@ export class SystemMonitor {
         proUsers,
         totalUsers,
         proPercentage: `${proPercentage.toFixed(1)}%`,
-        message: `${proUsers} PRO users (${proPercentage.toFixed(1)}% conversion)`
-      }
+        message: `${proUsers} PRO users (${proPercentage.toFixed(1)}% conversion)`,
+      },
     };
   }
 
   private async createSystemNotification(issues: any[]) {
     // Get all admin users (PRO tier users with admin flag)
     const admins = await prisma.user.findMany({
-      where: { 
+      where: {
         tier: 'PRO',
         // Add admin flag check if you have one
-      }
+      },
     });
 
-    const message = issues.map(issue => 
-      `${issue.name}: ${JSON.stringify(issue.details)}`
-    ).join('\n');
+    const message = issues
+      .map((issue) => `${issue.name}: ${JSON.stringify(issue.details)}`)
+      .join('\n');
 
     // Create notifications for all admins
     await prisma.notification.createMany({
-      data: admins.map(admin => ({
+      data: admins.map((admin) => ({
         userId: admin.id,
         type: 'SYSTEM',
         title: 'System Health Alert',
         message,
-        data: { issues }
-      }))
+        data: { issues },
+      })),
     });
 
     // Send email alerts
@@ -271,8 +269,8 @@ export class SystemMonitor {
         level: 'ERROR',
         source: 'system-monitor',
         message: 'System health check failed',
-        metadata: { issues }
-      }
+        metadata: { issues },
+      },
     });
   }
 }
@@ -394,11 +392,11 @@ const TIER_SYMBOLS = {
     'USDJPY',
     'XAGUSD',
     'XAUUSD',
-  ]
+  ],
 } as const;
 
 const querySchema = z.object({
-  bars: z.coerce.number().min(100).max(5000).default(1000)
+  bars: z.coerce.number().min(100).max(5000).default(1000),
 });
 
 // V5: Helper to check tier access
@@ -422,23 +420,21 @@ export async function GET(
 
     // 2. Validate params
     const { symbol, timeframe } = params;
-    
+
     // V5: Validate timeframe
     if (!VALID_TIMEFRAMES.includes(timeframe as any)) {
-      return NextResponse.json(
-        { error: 'Invalid timeframe' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid timeframe' }, { status: 400 });
     }
 
     // V5: Validate tier-based symbol access
     if (!canAccessSymbol(tier, symbol)) {
       return NextResponse.json(
-        { 
+        {
           error: 'Symbol not available in your tier',
-          message: tier === 'FREE' 
-            ? 'Upgrade to PRO to access more symbols'
-            : 'Invalid symbol'
+          message:
+            tier === 'FREE'
+              ? 'Upgrade to PRO to access more symbols'
+              : 'Invalid symbol',
         },
         { status: 403 }
       );
@@ -446,7 +442,7 @@ export async function GET(
 
     const searchParams = request.nextUrl.searchParams;
     const validation = querySchema.safeParse({
-      bars: searchParams.get('bars')
+      bars: searchParams.get('bars'),
     });
 
     if (!validation.success) {
@@ -461,7 +457,7 @@ export async function GET(
     // 3. Rate limiting
     const identifier = `indicators:${session.user.id}`;
     const { success } = await rateLimit(identifier, tier);
-    
+
     if (!success) {
       return NextResponse.json(
         { error: 'Rate limit exceeded' },
@@ -472,15 +468,23 @@ export async function GET(
     // 4. Check cache
     const cacheKey = `indicators:${symbol}:${timeframe}:${bars}`;
     const cached = await redis.get(cacheKey);
-    
+
     if (cached) {
       // Log cache hit
-      await logApiUsage(session.user.id, 'indicators', symbol, timeframe, tier, 200, 0);
-      
+      await logApiUsage(
+        session.user.id,
+        'indicators',
+        symbol,
+        timeframe,
+        tier,
+        200,
+        0
+      );
+
       return NextResponse.json({
         success: true,
         data: JSON.parse(cached),
-        cached: true
+        cached: true,
       });
     }
 
@@ -491,15 +495,23 @@ export async function GET(
       {
         headers: {
           'X-API-Key': process.env.MT5_API_KEY!,
-          'X-User-Tier': tier // V5: Pass tier to Flask service
-        }
+          'X-User-Tier': tier, // V5: Pass tier to Flask service
+        },
       }
     );
 
     const duration = Date.now() - startTime;
 
     if (!response.ok) {
-      await logApiUsage(session.user.id, 'indicators', symbol, timeframe, tier, response.status, duration);
+      await logApiUsage(
+        session.user.id,
+        'indicators',
+        symbol,
+        timeframe,
+        tier,
+        response.status,
+        duration
+      );
       throw new Error('MT5 service unavailable');
     }
 
@@ -509,14 +521,21 @@ export async function GET(
     await redis.setex(cacheKey, 300, JSON.stringify(result.data));
 
     // 7. Log usage with tier
-    await logApiUsage(session.user.id, 'indicators', symbol, timeframe, tier, 200, duration);
+    await logApiUsage(
+      session.user.id,
+      'indicators',
+      symbol,
+      timeframe,
+      tier,
+      200,
+      duration
+    );
 
     return NextResponse.json({
       success: true,
       data: result.data,
-      cached: false
+      cached: false,
     });
-
   } catch (error) {
     console.error('Indicators API error:', error);
     return NextResponse.json(
@@ -530,26 +549,26 @@ export async function GET(
 async function rateLimit(identifier: string, tier: 'FREE' | 'PRO') {
   const limits = {
     FREE: { requests: 100, window: 3600 },
-    PRO: { requests: 1000, window: 3600 }
+    PRO: { requests: 1000, window: 3600 },
   };
 
   const limit = limits[tier];
-  
+
   const now = Date.now();
   const windowStart = now - limit.window * 1000;
-  
+
   const key = `ratelimit:${identifier}`;
-  
+
   await redis.zremrangebyscore(key, 0, windowStart);
   const count = await redis.zcard(key);
-  
+
   if (count >= limit.requests) {
     return { success: false };
   }
-  
+
   await redis.zadd(key, now, `${now}`);
   await redis.expire(key, limit.window);
-  
+
   return { success: true };
 }
 
@@ -572,8 +591,8 @@ async function logApiUsage(
       duration,
       symbol,
       timeframe,
-      tier // V5: Track tier in usage logs
-    }
+      tier, // V5: Track tier in usage logs
+    },
   });
 }
 ```
@@ -830,9 +849,12 @@ export function useWebSocket(channel: string) {
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
-    const socket = io(process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001', {
-      transports: ['websocket']
-    });
+    const socket = io(
+      process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001',
+      {
+        transports: ['websocket'],
+      }
+    );
 
     socketRef.current = socket;
 
@@ -890,7 +912,7 @@ export async function sendVerificationEmail(
           <p>This link will expire in 24 hours.</p>
           <p>If you didn't create an account, you can safely ignore this email.</p>
         </div>
-      `
+      `,
     });
   } catch (error) {
     console.error('Failed to send verification email:', error);
@@ -911,7 +933,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
           <p>You can now start using Trading Alerts to monitor your favorite symbols.</p>
           <a href="${process.env.NEXTAUTH_URL}/dashboard">Go to Dashboard</a>
         </div>
-      `
+      `,
     });
   } catch (error) {
     console.error('Failed to send welcome email:', error);
@@ -939,7 +961,7 @@ export async function sendPasswordResetEmail(
           <p>This link will expire in 1 hour.</p>
           <p>If you didn't request a password reset, you can safely ignore this email.</p>
         </div>
-      `
+      `,
     });
   } catch (error) {
     console.error('Failed to send password reset email:', error);
@@ -966,7 +988,7 @@ export async function sendSystemAlert(
           <p>Please check the admin dashboard for more details.</p>
           <a href="${process.env.NEXTAUTH_URL}/admin">Admin Dashboard</a>
         </div>
-      `
+      `,
     });
   } catch (error) {
     console.error('Failed to send system alert email:', error);
@@ -994,7 +1016,7 @@ export async function sendAlertNotification(
           <p><strong>Details:</strong> ${details}</p>
           <a href="${process.env.NEXTAUTH_URL}/alerts">View All Alerts</a>
         </div>
-      `
+      `,
     });
   } catch (error) {
     console.error('Failed to send alert notification:', error);

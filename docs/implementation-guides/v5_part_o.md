@@ -28,30 +28,35 @@ Real-time notification system using WebSockets for instant updates, plus system 
 ### 1. Notification Types
 
 **Alert Triggered:**
+
 - Sent when price alert condition is met
 - Title: "🔔 Alert Triggered: {symbol}"
 - Body: "{symbol} {condition} {targetValue} (Current: {currentPrice})"
 - Priority: High
 
 **Subscription Changed:**
+
 - Sent when tier changes (upgrade/downgrade)
 - Title: "✅ Subscription Updated"
 - Body: "You are now on the {tier} tier"
 - Priority: Medium
 
 **Payment Received:**
+
 - Sent when payment successful
 - Title: "💳 Payment Received"
 - Body: "Thank you for your payment of ${amount}"
 - Priority: Low
 
 **Payment Failed:**
+
 - Sent when payment fails
 - Title: "⚠️ Payment Failed"
 - Body: "Please update your payment method"
 - Priority: High
 
 **System Maintenance:**
+
 - Sent before scheduled maintenance
 - Title: "🔧 Scheduled Maintenance"
 - Body: "System will be down from {startTime} to {endTime}"
@@ -61,22 +66,23 @@ Real-time notification system using WebSockets for instant updates, plus system 
 
 ```typescript
 interface Notification {
-  id: string
-  userId: string
-  type: 'alert' | 'subscription' | 'payment' | 'system'
-  title: string
-  body: string
-  priority: 'low' | 'medium' | 'high'
-  read: boolean
-  link?: string              // Optional link to related resource
-  createdAt: Date
-  readAt?: Date
+  id: string;
+  userId: string;
+  type: 'alert' | 'subscription' | 'payment' | 'system';
+  title: string;
+  body: string;
+  priority: 'low' | 'medium' | 'high';
+  read: boolean;
+  link?: string; // Optional link to related resource
+  createdAt: Date;
+  readAt?: Date;
 }
 ```
 
 ### 3. WebSocket Implementation
 
 **Connection:**
+
 - Client connects to WebSocket server on `/api/ws`
 - Authenticate using session token
 - Maintain connection while user is active
@@ -85,15 +91,18 @@ interface Notification {
 **Events:**
 
 **Client → Server:**
+
 - `authenticate`: Send session token
 - `ping`: Keep-alive
 
 **Server → Client:**
+
 - `notification`: New notification received
 - `notification_read`: Notification marked as read
 - `pong`: Response to ping
 
 **Message Format:**
+
 ```typescript
 {
   type: 'notification',
@@ -111,11 +120,13 @@ interface Notification {
 ### 4. Notification Bell Component
 
 **Display:**
+
 - Bell icon in top navigation
 - Badge with unread count (if > 0)
 - Click to toggle dropdown
 
 **Dropdown Content:**
+
 - Header: "Notifications" + "Mark all as read" button
 - List of last 5 notifications
 - Each notification shows:
@@ -126,6 +137,7 @@ interface Notification {
 - Footer: "View all" link → opens full notification page
 
 **Behavior:**
+
 - Clicking a notification:
   - Marks it as read
   - Navigates to notification link (if provided)
@@ -134,12 +146,14 @@ interface Notification {
 ### 5. Notification List Page
 
 **Display:**
+
 - Full list of all notifications
 - Tabs: All / Unread / Read
 - Pagination: 20 per page
 - Delete button for each notification
 
 **Filters:**
+
 - All notifications
 - Unread only
 - By type (Alert / Subscription / Payment / System)
@@ -147,18 +161,21 @@ interface Notification {
 ### 6. System Monitoring
 
 **Health Metrics:**
+
 - Database connection status
 - Redis connection status
 - MT5 service status
 - WebSocket server status
 
 **Tier-Specific Metrics:**
+
 - API requests per second (split by tier)
 - Average response time (split by tier)
 - Error rate (split by tier)
 - Active connections (split by tier)
 
 **Alerts:**
+
 - Send notification to admin if error rate > 5%
 - Send notification if any service is down
 - Send notification if response time > 2 seconds
@@ -170,11 +187,13 @@ interface Notification {
 ### Notification Bell
 
 **Icon:**
+
 - Bell icon (from lucide-react or similar)
 - Badge: Red circle with white number (unread count)
 - Position: Top-right of navigation bar
 
 **Dropdown:**
+
 - Width: 360px
 - Max height: 400px (scrollable)
 - Position: Below bell icon, right-aligned
@@ -183,18 +202,21 @@ interface Notification {
 ### Toast Notifications
 
 **Types:**
+
 - Success: Green background, checkmark icon
 - Error: Red background, X icon
 - Warning: Yellow background, exclamation icon
 - Info: Blue background, info icon
 
 **Behavior:**
+
 - Appear at top-right of screen
 - Auto-dismiss after 5 seconds
 - User can dismiss manually (X button)
 - Stack multiple toasts vertically
 
 **Use Cases:**
+
 - Success: "Alert created successfully!"
 - Error: "Failed to create alert. Please try again."
 - Warning: "Your subscription expires in 3 days."
@@ -205,20 +227,25 @@ interface Notification {
 ## API Endpoints
 
 ### GET /api/notifications
+
 - Query params: `status` (all/unread/read), `page`
 - Return: Paginated notification list
 
 ### GET /api/notifications/[id]
+
 - Return: Single notification details
 
 ### POST /api/notifications/[id]/read
+
 - Mark notification as read
 - Update readAt timestamp
 
 ### DELETE /api/notifications/[id]
+
 - Delete notification (soft delete)
 
 ### POST /api/notifications/mark-all-read
+
 - Mark all user's notifications as read
 
 ---
@@ -229,33 +256,33 @@ interface Notification {
 
 ```typescript
 // pages/api/ws.ts (for Next.js pages dir) or custom server
-import { Server } from 'socket.io'
+import { Server } from 'socket.io';
 
 export default function handler(req, res) {
   if (!res.socket.server.io) {
-    const io = new Server(res.socket.server)
+    const io = new Server(res.socket.server);
 
     io.on('connection', (socket) => {
       // Authenticate user
       socket.on('authenticate', async (token) => {
-        const session = await verifySessionToken(token)
+        const session = await verifySessionToken(token);
         if (session) {
-          socket.userId = session.user.id
-          socket.join(`user:${socket.userId}`)
+          socket.userId = session.user.id;
+          socket.join(`user:${socket.userId}`);
         } else {
-          socket.disconnect()
+          socket.disconnect();
         }
-      })
+      });
 
       // Handle ping
       socket.on('ping', () => {
-        socket.emit('pong')
-      })
-    })
+        socket.emit('pong');
+      });
+    });
 
-    res.socket.server.io = io
+    res.socket.server.io = io;
   }
-  res.end()
+  res.end();
 }
 ```
 
@@ -263,17 +290,20 @@ export default function handler(req, res) {
 
 ```typescript
 // lib/notifications/send.ts
-export async function sendNotification(userId: string, notification: Notification) {
+export async function sendNotification(
+  userId: string,
+  notification: Notification
+) {
   // Save to database
   await prisma.notification.create({
     data: {
       userId,
-      ...notification
-    }
-  })
+      ...notification,
+    },
+  });
 
   // Send via WebSocket
-  io.to(`user:${userId}`).emit('notification', notification)
+  io.to(`user:${userId}`).emit('notification', notification);
 }
 ```
 
@@ -291,20 +321,23 @@ export async function GET() {
     redis: await checkRedisConnection(),
     mt5Service: await checkMT5ServiceConnection(),
     websocket: await checkWebSocketServer(),
-    tierMetrics: await getTierMetrics()
-  }
+    tierMetrics: await getTierMetrics(),
+  };
 
   const allHealthy = Object.values(checks).every(
-    check => check.status === 'healthy'
-  )
+    (check) => check.status === 'healthy'
+  );
 
-  return Response.json({
-    status: allHealthy ? 'healthy' : 'degraded',
-    checks,
-    timestamp: new Date().toISOString()
-  }, {
-    status: allHealthy ? 200 : 503
-  })
+  return Response.json(
+    {
+      status: allHealthy ? 'healthy' : 'degraded',
+      checks,
+      timestamp: new Date().toISOString(),
+    },
+    {
+      status: allHealthy ? 200 : 503,
+    }
+  );
 }
 ```
 
@@ -312,8 +345,8 @@ export async function GET() {
 
 ```typescript
 async function getTierMetrics() {
-  const freeUsers = await getActiveConnections('FREE')
-  const proUsers = await getActiveConnections('PRO')
+  const freeUsers = await getActiveConnections('FREE');
+  const proUsers = await getActiveConnections('PRO');
 
   return {
     status: 'healthy',
@@ -321,15 +354,15 @@ async function getTierMetrics() {
       FREE: {
         activeConnections: freeUsers,
         avgResponseTime: await getAvgResponseTime('FREE'),
-        errorRate: await getErrorRate('FREE')
+        errorRate: await getErrorRate('FREE'),
       },
       PRO: {
         activeConnections: proUsers,
         avgResponseTime: await getAvgResponseTime('PRO'),
-        errorRate: await getErrorRate('PRO')
-      }
-    }
-  }
+        errorRate: await getErrorRate('PRO'),
+      },
+    },
+  };
 }
 ```
 
@@ -338,6 +371,7 @@ async function getTierMetrics() {
 ## Testing Requirements
 
 **Manual Tests:**
+
 - [ ] WebSocket connection establishes successfully
 - [ ] Notifications appear in bell dropdown
 - [ ] Unread count updates correctly
@@ -348,6 +382,7 @@ async function getTierMetrics() {
 - [ ] System health endpoint returns correct status
 
 **WebSocket Testing:**
+
 - Use browser console to test connection
 - Send test notifications
 - Verify reconnection after disconnect
@@ -357,11 +392,13 @@ async function getTierMetrics() {
 ## Performance Considerations
 
 **WebSocket Connections:**
+
 - Limit concurrent connections per user to 3 (multiple tabs)
 - Close idle connections after 5 minutes
 - Use Redis pub/sub for multi-server deployments
 
 **Notification Storage:**
+
 - Auto-delete read notifications after 30 days
 - Keep unread notifications indefinitely
 - Archive old notifications to separate table

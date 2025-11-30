@@ -74,6 +74,7 @@ trading-alerts-saas/
 ```
 
 **Key Points:**
+
 - **app/api/** = Server-side API routes (Next.js serverless functions)
 - **app/dashboard/** = Dashboard pages (Server Components)
 - **components/** = Reusable React components (mix of Server & Client)
@@ -86,14 +87,14 @@ trading-alerts-saas/
 
 **Principle:** Each folder has a single responsibility.
 
-| Folder | Responsibility | Can Import From | Cannot Import From |
-|--------|---------------|----------------|-------------------|
-| **app/api/** | HTTP endpoints, request/response | lib/, prisma | components/ |
-| **app/dashboard/** | Pages, layouts, Server Components | components/, lib/ | app/api/ (use fetch instead) |
-| **components/** | UI components, presentation logic | lib/utils, lib/hooks | lib/db, app/api |
-| **lib/db/** | Database operations (Prisma) | prisma | components/, app/ |
-| **lib/tier/** | Tier validation logic | - | components/, app/ |
-| **lib/utils/** | Pure utility functions | - | Any domain-specific code |
+| Folder             | Responsibility                    | Can Import From      | Cannot Import From           |
+| ------------------ | --------------------------------- | -------------------- | ---------------------------- |
+| **app/api/**       | HTTP endpoints, request/response  | lib/, prisma         | components/                  |
+| **app/dashboard/** | Pages, layouts, Server Components | components/, lib/    | app/api/ (use fetch instead) |
+| **components/**    | UI components, presentation logic | lib/utils, lib/hooks | lib/db, app/api              |
+| **lib/db/**        | Database operations (Prisma)      | prisma               | components/, app/            |
+| **lib/tier/**      | Tier validation logic             | -                    | components/, app/            |
+| **lib/utils/**     | Pure utility functions            | -                    | Any domain-specific code     |
 
 **Why this matters:** Separation prevents circular dependencies and makes testing easier. Components shouldn't know about database schema. API routes shouldn't import React components.
 
@@ -227,6 +228,7 @@ The application is divided into 5 layers, each with specific responsibilities:
 ```
 
 **Key Rules:**
+
 - ✅ Frontend calls API routes via fetch()
 - ✅ API routes call business logic functions
 - ✅ Business logic calls database operations
@@ -244,10 +246,12 @@ The application is divided into 5 layers, each with specific responsibilities:
 **Why this matters:** OpenAPI specs define the contract between frontend and backend. Auto-generating types from specs ensures frontend and backend always agree on data structures.
 
 **Files:**
+
 - `docs/trading_alerts_openapi.yaml` → Types for Next.js API (`/api/alerts`, `/api/users`, etc.)
 - `docs/flask_mt5_openapi.yaml` → Types for Flask MT5 API (`/api/indicators`, etc.)
 
 **Auto-Generated Types:**
+
 ```bash
 # Generate TypeScript types from Next.js OpenAPI
 sh scripts/openapi/generate-nextjs-types.sh
@@ -259,9 +263,14 @@ sh scripts/openapi/generate-flask-types.sh
 ```
 
 **Usage:**
+
 ```typescript
 // ✅ GOOD - Import types from auto-generated files
-import type { Alert, CreateAlertRequest, AlertResponse } from '@/lib/api-client';
+import type {
+  Alert,
+  CreateAlertRequest,
+  AlertResponse,
+} from '@/lib/api-client';
 
 export async function POST(req: Request): Promise<Response> {
   const body: CreateAlertRequest = await req.json();
@@ -278,7 +287,8 @@ export async function POST(req: Request): Promise<Response> {
 }
 
 // ❌ BAD - Manually defining types that exist in OpenAPI
-interface Alert {  // Don't do this! Use auto-generated type
+interface Alert {
+  // Don't do this! Use auto-generated type
   id: string;
   userId: string;
   // ...
@@ -310,6 +320,7 @@ interface Alert {  // Don't do this! Use auto-generated type
 ```
 
 **Benefits:**
+
 - ✅ Frontend and backend can't drift apart (both use same types)
 - ✅ Changes to API spec automatically flow to TypeScript
 - ✅ Type errors caught at compile time, not runtime
@@ -328,12 +339,14 @@ interface Alert {  // Don't do this! Use auto-generated type
 **Session Strategy:** JWT (serverless-friendly, no database Session model)
 
 > **📖 For Complete OAuth Implementation:** See `docs/policies/08-google-oauth-implementation-rules.md` for:
+>
 > - Google OAuth provider configuration
 > - Verified-only account linking (security)
 > - Account model setup
 > - Nullable password handling for OAuth-only users
 
 **Basic Setup (Email/Password):**
+
 ```typescript
 // app/api/auth/[...nextauth]/route.ts
 import NextAuth from 'next-auth';
@@ -353,8 +366,8 @@ const handler = NextAuth({
     CredentialsProvider({
       name: 'credentials',
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         const user = await prisma.user.findUnique({
@@ -366,18 +379,18 @@ const handler = NextAuth({
           return null;
         }
 
-        if (!await bcrypt.compare(credentials.password, user.password)) {
-          return null;  // Invalid credentials
+        if (!(await bcrypt.compare(credentials.password, user.password))) {
+          return null; // Invalid credentials
         }
 
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-          tier: user.tier,  // Add tier to session
+          tier: user.tier, // Add tier to session
         };
-      }
-    })
+      },
+    }),
   ],
   session: {
     strategy: 'jwt',
@@ -398,7 +411,7 @@ const handler = NextAuth({
         session.user.tier = token.tier;
       }
       return session;
-    }
+    },
   },
 });
 
@@ -415,10 +428,10 @@ export { handler as GET, handler as POST };
 
 **Tier Rules (from docs/policies/00-tier-specifications.md):**
 
-| Tier | Symbols | Timeframes | Chart Combinations |
-|------|---------|------------|-------------------|
-| FREE | 5 (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) | 3 (H1, H4, D1) | 15 |
-| PRO | 15 (all symbols) | 9 (all timeframes) | 135 |
+| Tier | Symbols                                  | Timeframes         | Chart Combinations |
+| ---- | ---------------------------------------- | ------------------ | ------------------ |
+| FREE | 5 (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) | 3 (H1, H4, D1)     | 15                 |
+| PRO  | 15 (all symbols)                         | 9 (all timeframes) | 135                |
 
 **Implementation:**
 
@@ -429,13 +442,35 @@ import { UserTier } from '@/types';
 
 const FREE_SYMBOLS = ['BTCUSD', 'EURUSD', 'USDJPY', 'US30', 'XAUUSD'] as const;
 const PRO_SYMBOLS = [
-  'AUDJPY', 'AUDUSD', 'BTCUSD', 'ETHUSD', 'EURUSD',
-  'GBPJPY', 'GBPUSD', 'NDX100', 'NZDUSD', 'US30',
-  'USDCAD', 'USDCHF', 'USDJPY', 'XAGUSD', 'XAUUSD'
+  'AUDJPY',
+  'AUDUSD',
+  'BTCUSD',
+  'ETHUSD',
+  'EURUSD',
+  'GBPJPY',
+  'GBPUSD',
+  'NDX100',
+  'NZDUSD',
+  'US30',
+  'USDCAD',
+  'USDCHF',
+  'USDJPY',
+  'XAGUSD',
+  'XAUUSD',
 ] as const;
 
 const FREE_TIMEFRAMES = ['H1', 'H4', 'D1'] as const;
-const PRO_TIMEFRAMES = ['M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12', 'D1'] as const;
+const PRO_TIMEFRAMES = [
+  'M5',
+  'M15',
+  'M30',
+  'H1',
+  'H2',
+  'H4',
+  'H8',
+  'H12',
+  'D1',
+] as const;
 
 export class ForbiddenError extends Error {
   constructor(message: string) {
@@ -462,7 +497,10 @@ export function validateSymbolAccess(tier: UserTier, symbol: string): void {
  * Validates if user's tier can access the specified timeframe
  * @throws {ForbiddenError} If tier cannot access timeframe
  */
-export function validateTimeframeAccess(tier: UserTier, timeframe: string): void {
+export function validateTimeframeAccess(
+  tier: UserTier,
+  timeframe: string
+): void {
   const allowedTimeframes = tier === 'PRO' ? PRO_TIMEFRAMES : FREE_TIMEFRAMES;
 
   if (!allowedTimeframes.includes(timeframe as any)) {
@@ -511,10 +549,13 @@ export async function GET(
       validateChartAccess(userTier, params.symbol, params.timeframe);
     } catch (error) {
       if (error instanceof ForbiddenError) {
-        return Response.json({
-          error: error.message,
-          message: 'Upgrade to PRO for access to all symbols and timeframes',
-        }, { status: 403 });
+        return Response.json(
+          {
+            error: error.message,
+            message: 'Upgrade to PRO for access to all symbols and timeframes',
+          },
+          { status: 403 }
+        );
       }
       throw error;
     }
@@ -523,7 +564,6 @@ export async function GET(
     const data = await fetchIndicatorData(params.symbol, params.timeframe);
 
     return Response.json(data);
-
   } catch (error) {
     console.error('GET /api/indicators error:', error);
     return Response.json({ error: 'Failed to fetch data' }, { status: 500 });
@@ -532,6 +572,7 @@ export async function GET(
 ```
 
 **Critical:** Tier validation must happen on BOTH:
+
 1. Next.js API routes (app/api/indicators/...)
 2. Flask MT5 service (before fetching from MT5)
 
@@ -541,12 +582,12 @@ export async function GET(
 
 ### 4.3 Where to Check Auth
 
-| Location | Auth Check | Tier Check | Example |
-|----------|-----------|------------|---------|
-| **middleware.ts** | ✅ Yes (redirect to /login) | ❌ No | Protect /dashboard/* routes |
-| **API routes** | ✅ Yes (return 401) | ✅ Yes (return 403) | All /api/* endpoints |
-| **Server Components** | ✅ Yes (redirect to /login) | ✅ Yes (show upgrade UI) | Dashboard pages |
-| **Client Components** | ❌ No (use useSession) | ✅ Yes (disable UI) | Forms, buttons |
+| Location              | Auth Check                  | Tier Check               | Example                      |
+| --------------------- | --------------------------- | ------------------------ | ---------------------------- |
+| **middleware.ts**     | ✅ Yes (redirect to /login) | ❌ No                    | Protect /dashboard/\* routes |
+| **API routes**        | ✅ Yes (return 401)         | ✅ Yes (return 403)      | All /api/\* endpoints        |
+| **Server Components** | ✅ Yes (redirect to /login) | ✅ Yes (show upgrade UI) | Dashboard pages              |
+| **Client Components** | ❌ No (use useSession)      | ✅ Yes (disable UI)      | Forms, buttons               |
 
 **Example: Middleware**
 
@@ -644,7 +685,7 @@ export async function getAlertById(
   return prisma.alert.findFirst({
     where: {
       id: alertId,
-      userId,  // Security: User can only access their own alerts
+      userId, // Security: User can only access their own alerts
     },
   });
 }
@@ -673,7 +714,7 @@ export async function deleteAlert(
   await prisma.alert.delete({
     where: {
       id: alertId,
-      userId,  // Security: User can only delete their own alerts
+      userId, // Security: User can only delete their own alerts
     },
   });
 }
@@ -741,14 +782,14 @@ export async function GET(req: NextRequest) {
   try {
     // a. Authentication
     const session = await getServerSession();
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session)
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     // b. Business logic
     const data = await fetchData(session.user.id);
 
     // c. Response matching OpenAPI
     return NextResponse.json(data);
-
   } catch (error) {
     // d. Error handling
     console.error('Error:', error);
@@ -781,6 +822,7 @@ See `docs/policies/02-quality-standards.md` section 5 for complete example.
 ### 7.1 Server Components (Default)
 
 **Use Server Components when:**
+
 - No interactivity needed
 - Fetching data from database
 - SEO important
@@ -810,6 +852,7 @@ export default async function DashboardPage() {
 ### 7.2 Client Components ('use client')
 
 **Use Client Components when:**
+
 - Using React hooks (useState, useEffect, etc.)
 - Handling user interactions (onClick, etc.)
 - Using browser APIs (localStorage, window)
@@ -845,12 +888,14 @@ export function AlertForm() {
 **Critical Change:** The Flask MT5 service now manages **15 separate MT5 terminals** (one per symbol) instead of a single terminal.
 
 **Why Multi-Terminal:**
+
 - PRO tier = 15 symbols × 9 timeframes = 135 chart combinations
 - Single MT5 terminal cannot efficiently handle 135 chart windows
 - Solution: 15 terminals × 9 charts each = distributed, manageable load
 - Fault isolation: if one terminal fails, other 14 symbols continue working
 
 **Symbol-to-Terminal Mapping:**
+
 ```
 MT5_01 → AUDJPY     MT5_09 → NZDUSD
 MT5_02 → AUDUSD     MT5_10 → US30
@@ -898,6 +943,7 @@ mt5-service/
 **Rule:** All MT5 terminal connections MUST be managed through the connection pool. Never create direct MT5 connections outside the pool.
 
 **Connection Pool Responsibilities:**
+
 - Initialize and maintain 15 MT5 connections on startup
 - Route requests to correct terminal based on symbol
 - Monitor terminal health every 60 seconds
@@ -1123,6 +1169,7 @@ def get_indicators(symbol: str, timeframe: str):
 ```
 
 **Key Changes for Multi-Terminal:**
+
 1. Get connection pool instance
 2. Route to correct terminal using `pool.get_connection_by_symbol(symbol)`
 3. Check if terminal is connected (return 503 if down)
@@ -1145,7 +1192,7 @@ export async function fetchIndicatorsFromMT5(
 
   const res = await fetch(`${flaskUrl}/api/indicators/${symbol}/${timeframe}`, {
     headers: {
-      'X-User-Tier': userTier,  // Pass tier to Flask for validation
+      'X-User-Tier': userTier, // Pass tier to Flask for validation
       'X-API-Key': process.env.FLASK_API_KEY || '',
     },
   });
@@ -1167,42 +1214,52 @@ export async function fetchIndicatorsFromMT5(
 These dependencies are approved for use without escalation:
 
 **Next.js / React:**
+
 - next (v15)
 - react (v19)
 - react-dom (v19)
 
 **UI Components:**
-- @radix-ui/* (shadcn/ui dependencies)
+
+- @radix-ui/\* (shadcn/ui dependencies)
 - tailwindcss
 - lucide-react (icons)
 
 **Forms & Validation:**
+
 - zod
 - react-hook-form
 - @hookform/resolvers
 
 **Authentication:**
+
 - next-auth
 - bcryptjs
 
 **Database:**
+
 - @prisma/client
 - prisma (dev dependency)
 
 **API Client:**
+
 - axios (for OpenAPI generated clients)
 
 **Date/Time:**
+
 - date-fns
 
 **Charts:**
+
 - recharts or lightweight-charts
 
 **Payments:**
+
 - stripe
 - @stripe/stripe-js
 
 **Flask (Python):**
+
 - Flask
 - MetaTrader5
 - python-dotenv
@@ -1213,6 +1270,7 @@ These dependencies are approved for use without escalation:
 ### 9.2 Require Approval for New Dependencies
 
 **Escalate when you need:**
+
 - New npm packages not in the list above
 - Alternative libraries (e.g., dayjs instead of date-fns)
 - Large dependencies (>100KB bundle size)
@@ -1242,6 +1300,7 @@ These dependencies are approved for use without escalation:
 ```
 
 **Rules:**
+
 1. **Unit tests** for business logic (lib/tier, lib/utils, lib/db functions)
 2. **Integration tests** for API routes (test full request/response cycle)
 3. **E2E tests** for critical flows (registration, creating alert, purchasing PRO)
@@ -1291,8 +1350,8 @@ describe('POST /api/alerts', () => {
       body: JSON.stringify({
         symbol: 'EURUSD',
         timeframe: 'H1',
-        condition: 'RSI > 70'
-      })
+        condition: 'RSI > 70',
+      }),
     });
 
     const response = await POST(mockRequest);
@@ -1348,6 +1407,7 @@ describe('POST /api/alerts', () => {
 ```
 
 **Why this architecture:**
+
 - **Vercel:** Best Next.js hosting, automatic scaling, edge runtime
 - **Railway PostgreSQL:** Easy setup, automatic backups, good free tier
 - **Railway Flask:** Docker support, easy deployment, same provider as DB (low latency)
@@ -1358,6 +1418,7 @@ describe('POST /api/alerts', () => {
 ### 11.2 Environment Variables
 
 **Vercel (.env):**
+
 ```bash
 # Next.js
 NEXTAUTH_URL=https://your-domain.com
@@ -1379,6 +1440,7 @@ RESEND_API_KEY=re_...
 ```
 
 **Railway Flask (.env):**
+
 ```bash
 # MT5 Connection
 MT5_SERVER=your-broker-server
@@ -1404,15 +1466,15 @@ DATABASE_URL=postgresql://user:pass@railway.app/dbname
 
 ```typescript
 const REFRESH_INTERVALS = {
-  M5:  30000,    // 30 seconds (PRO only - scalping)
-  M15: 60000,    // 1 minute
-  M30: 60000,    // 1 minute
-  H1:  120000,   // 2 minutes
-  H2:  120000,   // 2 minutes
-  H4:  300000,   // 5 minutes
-  H8:  300000,   // 5 minutes
-  H12: 600000,   // 10 minutes (PRO only - swing trading)
-  D1:  600000,   // 10 minutes
+  M5: 30000, // 30 seconds (PRO only - scalping)
+  M15: 60000, // 1 minute
+  M30: 60000, // 1 minute
+  H1: 120000, // 2 minutes
+  H2: 120000, // 2 minutes
+  H4: 300000, // 5 minutes
+  H8: 300000, // 5 minutes
+  H12: 600000, // 10 minutes (PRO only - swing trading)
+  D1: 600000, // 10 minutes
 } as const;
 ```
 
@@ -1469,6 +1531,7 @@ export function TradingChart({ symbol, timeframe }: TradingChartProps) {
 ```
 
 **Rate Limiting Consideration:**
+
 - FREE tier: 60 requests/hour = supports ~1 chart polling every minute
 - PRO tier: 300 requests/hour = supports ~5 charts polling every minute
 
@@ -1525,6 +1588,7 @@ export function TradingChart({ symbol, timeframe }: TradingChartProps) {
 **Location:** `prisma/schema.prisma`
 
 **Key Relationships:**
+
 ```
 Affiliate (1) ─┬─── (M) AffiliateCode
                └─── (M) Commission
@@ -1537,6 +1601,7 @@ Subscription (1) ───── (0..1) AffiliateCode (nullable)
 ```
 
 **Critical Fields:**
+
 - `AffiliateCode.status`: Enum `[ACTIVE, USED, EXPIRED, CANCELLED]` - lifecycle management
 - `AffiliateCode.code`: Unique, cryptographically random (>12 chars) using `crypto.randomBytes`
 - `Commission.status`: Enum `[PENDING, PAID]` - payment tracking
@@ -1549,15 +1614,18 @@ Subscription (1) ───── (0..1) AffiliateCode (nullable)
 **Why this matters:** Security isolation prevents affiliates from accessing user dashboards and vice versa.
 
 **Implementation:**
+
 ```typescript
 // lib/auth/affiliate-auth.ts
-export async function generateAffiliateToken(affiliate: Affiliate): Promise<string> {
+export async function generateAffiliateToken(
+  affiliate: Affiliate
+): Promise<string> {
   return jwt.sign(
     {
       id: affiliate.id,
       email: affiliate.email,
       type: 'AFFILIATE', // Critical: type discriminator
-      status: affiliate.status
+      status: affiliate.status,
     },
     process.env.AFFILIATE_JWT_SECRET!, // Separate secret
     { expiresIn: '7d' }
@@ -1575,6 +1643,7 @@ export function validateAffiliateToken(token: string) {
 ```
 
 **DO NOT:**
+
 - ❌ Reuse user authentication for affiliates
 - ❌ Store both affiliate and user in same JWT
 - ❌ Allow affiliate tokens to access user endpoints
@@ -1586,27 +1655,30 @@ export function validateAffiliateToken(token: string) {
 **Why this matters:** Consistent monthly rhythm ensures predictable inventory for affiliates and reduces administrative burden.
 
 **Implementation:**
+
 ```typescript
 // app/api/cron/distribute-codes/route.ts
 export async function GET(req: NextRequest) {
   // Verify Vercel Cron secret
-  if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (
+    req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`
+  ) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const activeAffiliates = await prisma.affiliate.findMany({
-    where: { status: 'ACTIVE' }
+    where: { status: 'ACTIVE' },
   });
 
   // Fetch current config from SystemConfig table
   const discountConfig = await prisma.systemConfig.findUnique({
-    where: { key: 'affiliate_discount_percent' }
+    where: { key: 'affiliate_discount_percent' },
   });
   const commissionConfig = await prisma.systemConfig.findUnique({
-    where: { key: 'affiliate_commission_percent' }
+    where: { key: 'affiliate_commission_percent' },
   });
   const codesConfig = await prisma.systemConfig.findUnique({
-    where: { key: 'affiliate_codes_per_month' }
+    where: { key: 'affiliate_codes_per_month' },
   });
 
   const discountPercent = parseFloat(discountConfig?.value || '20.0');
@@ -1619,9 +1691,9 @@ export async function GET(req: NextRequest) {
       code: generateRandomCode(affiliate.fullName),
       affiliateId: affiliate.id,
       status: 'ACTIVE',
-      discountPercent,      // From SystemConfig
-      commissionPercent,    // From SystemConfig
-      expiresAt: endOfMonth(new Date())
+      discountPercent, // From SystemConfig
+      commissionPercent, // From SystemConfig
+      expiresAt: endOfMonth(new Date()),
     }));
 
     await prisma.affiliateCode.createMany({ data: codes });
@@ -1633,17 +1705,18 @@ export async function GET(req: NextRequest) {
 ```
 
 **Vercel Configuration:**
+
 ```json
 // vercel.json
 {
   "crons": [
     {
       "path": "/api/cron/distribute-codes",
-      "schedule": "0 0 1 * *"  // 00:00 UTC on 1st of month
+      "schedule": "0 0 1 * *" // 00:00 UTC on 1st of month
     },
     {
       "path": "/api/cron/expire-codes",
-      "schedule": "59 23 28-31 * *"  // 23:59 UTC on last day of month
+      "schedule": "59 23 28-31 * *" // 23:59 UTC on last day of month
     }
   ]
 }
@@ -1656,6 +1729,7 @@ export async function GET(req: NextRequest) {
 **Why this matters:** Ensures affiliate sees earned commissions in real-time while admin maintains payment control.
 
 **Flow:**
+
 ```typescript
 // app/api/webhooks/stripe/route.ts
 export async function POST(req: NextRequest) {
@@ -1672,8 +1746,8 @@ export async function POST(req: NextRequest) {
         data: {
           status: 'USED',
           usedAt: new Date(),
-          usedByUserId: session.metadata.userId
-        }
+          usedByUserId: session.metadata.userId,
+        },
       });
 
       // 2. Calculate commission
@@ -1695,14 +1769,14 @@ export async function POST(req: NextRequest) {
           netRevenue,
           commissionPercent: code.commissionPercent,
           commissionAmount: commission,
-          status: 'PENDING'  // Awaits admin payment
-        }
+          status: 'PENDING', // Awaits admin payment
+        },
       });
 
       // 4. Notify affiliate
       await sendEmail(code.affiliate.email, 'Commission Earned', {
         code: affiliateCode,
-        amount: commission
+        amount: commission,
       });
     }
   }
@@ -1718,16 +1792,17 @@ export async function POST(req: NextRequest) {
 **Why this matters:** Provides clear audit trail and matches affiliate's mental model of inventory/earnings.
 
 **Pattern:**
+
 ```typescript
 // Example: Code Inventory Report
 interface CodeInventoryReport {
-  reportMonth: string;  // "2025-11"
-  openingBalance: number;  // (1.0) Codes at start of month
-  received: number;        // (1.1) + Codes distributed
-  used: number;            // (1.2) - Codes used by customers
-  expired: number;         // (1.3) - Codes expired
-  cancelled: number;       // (1.4) - Codes cancelled by admin
-  closingBalance: number;  // (1.5) = Codes remaining
+  reportMonth: string; // "2025-11"
+  openingBalance: number; // (1.0) Codes at start of month
+  received: number; // (1.1) + Codes distributed
+  used: number; // (1.2) - Codes used by customers
+  expired: number; // (1.3) - Codes expired
+  cancelled: number; // (1.4) - Codes cancelled by admin
+  closingBalance: number; // (1.5) = Codes remaining
   movements: {
     received: Array<{ date: string; quantity: number; notes: string }>;
     used: Array<{ date: string; code: string; commission: number }>;
@@ -1737,10 +1812,10 @@ interface CodeInventoryReport {
 // Example: Commission Receivable Report
 interface CommissionReport {
   reportMonth: string;
-  openingBalance: number;  // (2.0) Owed at start of month
-  earned: number;          // (2.1) + Earned this month
-  paid: number;            // (2.2) - Paid by admin
-  closingBalance: number;  // (2.3) = Still owed
+  openingBalance: number; // (2.0) Owed at start of month
+  earned: number; // (2.1) + Earned this month
+  paid: number; // (2.2) - Paid by admin
+  closingBalance: number; // (2.3) = Still owed
   commissions: Array<{
     date: string;
     code: string;
@@ -1781,6 +1856,7 @@ interface CommissionReport {
 **Rule:** 8 email types must be triggered automatically by system events.
 
 **Required Email Templates:**
+
 1. Affiliate registration (verification required)
 2. Welcome email (after verification + 15 codes distributed)
 3. Code usage notification (real-time when code applied)
@@ -1791,6 +1867,7 @@ interface CommissionReport {
 8. Admin: Code request from affiliate
 
 **Implementation:**
+
 ```typescript
 // lib/email/templates.ts
 export const EMAIL_TEMPLATES = {
@@ -1800,15 +1877,15 @@ export const EMAIL_TEMPLATES = {
       <h1>Welcome ${data.fullName}!</h1>
       <p>Your affiliate account is now active. We've distributed ${data.codes} discount codes.</p>
       <a href="https://trading-alerts.com/affiliate/dashboard">Login to Dashboard</a>
-    `
+    `,
   }),
   CODE_USED: (data: { code: string; commission: number }) => ({
     subject: `🎉 Your code was just used! You earned $${data.commission}`,
     html: `
       <h1>Great news!</h1>
       <p>Code <strong>${data.code}</strong> was used. You earned $${data.commission}.</p>
-    `
-  })
+    `,
+  }),
   // ... 6 more templates
 };
 ```
@@ -1816,6 +1893,7 @@ export const EMAIL_TEMPLATES = {
 ### 13.9 Security Considerations
 
 **Critical Rules:**
+
 1. ✅ Affiliates can only view their own codes and commissions
 2. ✅ Discount codes must be validated for:
    - Exists in database
@@ -1828,6 +1906,7 @@ export const EMAIL_TEMPLATES = {
 6. ✅ Payment preferences encrypted at rest (bank account numbers, crypto addresses)
 
 **DO NOT:**
+
 - ❌ Allow affiliates to generate their own codes
 - ❌ Allow manual commission creation by affiliates
 - ❌ Expose admin reports to non-admin users
@@ -1838,6 +1917,7 @@ export const EMAIL_TEMPLATES = {
 **Rule:** Affiliate code validation happens BEFORE payment processing, discount applied to Stripe metadata.
 
 **Modified Checkout Flow:**
+
 ```typescript
 // app/api/checkout/create-session/route.ts
 export async function POST(req: NextRequest) {
@@ -1862,22 +1942,24 @@ export async function POST(req: NextRequest) {
 
   // Create Stripe session with metadata
   const session = await stripe.checkout.sessions.create({
-    line_items: [{
-      price_data: {
-        currency: 'usd',
-        product_data: { name: 'PRO Tier' },
-        unit_amount: Math.round(finalPrice * 100),
-        recurring: { interval: 'month' }
+    line_items: [
+      {
+        price_data: {
+          currency: 'usd',
+          product_data: { name: 'PRO Tier' },
+          unit_amount: Math.round(finalPrice * 100),
+          recurring: { interval: 'month' },
+        },
+        quantity: 1,
       },
-      quantity: 1
-    }],
+    ],
     metadata: {
       affiliateCode: affiliateCode || null,
       affiliateCodeId: affiliateCodeId || null,
       regularPrice: regularPrice.toString(),
       discountPercent: discountPercent.toString(),
-      userId: session.user.id
-    }
+      userId: session.user.id,
+    },
   });
 
   return NextResponse.json({ url: session.url });
@@ -1893,6 +1975,7 @@ export async function POST(req: NextRequest) {
 **Why this matters:** Admin can change affiliate percentages from dashboard. All pages must reflect changes automatically without code deployment.
 
 **Database Schema:**
+
 ```prisma
 model SystemConfig {
   id          String   @id @default(cuid())
@@ -1918,32 +2001,40 @@ model SystemConfigHistory {
 ```
 
 **Backend Pattern (Code Generation):**
+
 ```typescript
 // ALWAYS fetch from SystemConfig when generating affiliate codes
 export async function POST(req: NextRequest) {
   // Fetch current config
   const configs = await prisma.systemConfig.findMany({
     where: {
-      key: { in: ['affiliate_discount_percent', 'affiliate_commission_percent'] }
-    }
+      key: {
+        in: ['affiliate_discount_percent', 'affiliate_commission_percent'],
+      },
+    },
   });
 
-  const configMap = Object.fromEntries(configs.map(c => [c.key, c.value]));
-  const discountPercent = parseFloat(configMap.affiliate_discount_percent || '20.0');
-  const commissionPercent = parseFloat(configMap.affiliate_commission_percent || '20.0');
+  const configMap = Object.fromEntries(configs.map((c) => [c.key, c.value]));
+  const discountPercent = parseFloat(
+    configMap.affiliate_discount_percent || '20.0'
+  );
+  const commissionPercent = parseFloat(
+    configMap.affiliate_commission_percent || '20.0'
+  );
 
   // Use dynamic values
   await prisma.affiliateCode.create({
     data: {
       // ...
-      discountPercent,      // ✅ From SystemConfig
-      commissionPercent,    // ✅ From SystemConfig
-    }
+      discountPercent, // ✅ From SystemConfig
+      commissionPercent, // ✅ From SystemConfig
+    },
   });
 }
 ```
 
 **Frontend Pattern:**
+
 ```typescript
 // ALWAYS use useAffiliateConfig() hook
 import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
@@ -1961,12 +2052,14 @@ export function PricingCard() {
 ```
 
 **API Endpoints:**
+
 - `GET /api/config/affiliate` - Public endpoint (no auth) for fetching current config
 - `GET /api/admin/settings/affiliate` - Admin endpoint for viewing settings
 - `PATCH /api/admin/settings/affiliate` - Admin endpoint for updating settings
 - `GET /api/admin/settings/affiliate/history` - Admin endpoint for viewing change history
 
 **Update Propagation:**
+
 1. Admin changes percentages via dashboard
 2. Backend updates SystemConfig table
 3. Backend creates SystemConfigHistory entry
@@ -1975,6 +2068,7 @@ export function PricingCard() {
 6. Existing codes keep original percentages (no retroactive changes)
 
 **Critical Rules:**
+
 - ✅ NEVER hardcode percentages (20%, 20%, etc.)
 - ✅ ALWAYS fetch from SystemConfig in code generation
 - ✅ ALWAYS use useAffiliateConfig() hook in frontend
@@ -1992,6 +2086,7 @@ export function PricingCard() {
 **Why this matters:** Prevents data duplication, simplifies tier validation logic, and ensures consistent subscription status checks across the application.
 
 **Database Schema:**
+
 ```prisma
 model Subscription {
   id                     String   @id @default(cuid())
@@ -2022,11 +2117,14 @@ model Subscription {
 ```
 
 **Implementation Pattern:**
+
 ```typescript
 // ✅ GOOD - Single unified function for both providers
-export async function getSubscriptionStatus(userId: string): Promise<SubscriptionStatus> {
+export async function getSubscriptionStatus(
+  userId: string
+): Promise<SubscriptionStatus> {
   const subscription = await prisma.subscription.findUnique({
-    where: { userId }
+    where: { userId },
   });
 
   if (!subscription) {
@@ -2036,11 +2134,13 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
   // Provider-specific logic based on paymentProvider field
   if (subscription.paymentProvider === 'STRIPE') {
     // Check Stripe API for real-time status
-    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripeSubscriptionId);
+    const stripeSubscription = await stripe.subscriptions.retrieve(
+      subscription.stripeSubscriptionId
+    );
     return {
       tier: stripeSubscription.status === 'active' ? 'PRO' : 'FREE',
       provider: 'STRIPE',
-      autoRenew: true
+      autoRenew: true,
     };
   } else {
     // dLocal: Check expiresAt field
@@ -2049,7 +2149,7 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
       tier: now < subscription.expiresAt ? 'PRO' : 'FREE',
       provider: 'DLOCAL',
       autoRenew: false,
-      canRenew: true
+      canRenew: true,
     };
   }
 }
@@ -2067,6 +2167,7 @@ export async function getSubscriptionStatus(userId: string): Promise<Subscriptio
 **Why this matters:** Keeps code maintainable. Adding a third payment provider (e.g., PayPal) only requires creating a new strategy, not modifying existing code.
 
 **Directory Structure:**
+
 ```
 lib/
 ├── payments/
@@ -2078,11 +2179,15 @@ lib/
 ```
 
 **Strategy Pattern:**
+
 ```typescript
 // lib/payments/subscription-manager.ts
 
 interface PaymentProvider {
-  createCheckoutSession(userId: string, plan: PlanType): Promise<CheckoutSession>;
+  createCheckoutSession(
+    userId: string,
+    plan: PlanType
+  ): Promise<CheckoutSession>;
   processPaymentCallback(data: unknown): Promise<Subscription>;
   renewSubscription(subscriptionId: string): Promise<Subscription>;
   cancelSubscription(subscriptionId: string): Promise<void>;
@@ -2093,13 +2198,15 @@ class StripeProvider implements PaymentProvider {
     // Stripe-specific logic
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      line_items: [{
-        price: STRIPE_PRICE_IDS[plan],
-        quantity: 1
-      }],
+      line_items: [
+        {
+          price: STRIPE_PRICE_IDS[plan],
+          quantity: 1,
+        },
+      ],
       subscription_data: {
-        trial_period_days: 7  // Stripe has trial
-      }
+        trial_period_days: 7, // Stripe has trial
+      },
     });
     return session;
   }
@@ -2126,7 +2233,9 @@ class DLocalProvider implements PaymentProvider {
 }
 
 // Factory function
-export function getPaymentProvider(provider: 'STRIPE' | 'DLOCAL'): PaymentProvider {
+export function getPaymentProvider(
+  provider: 'STRIPE' | 'DLOCAL'
+): PaymentProvider {
   return provider === 'STRIPE' ? new StripeProvider() : new DLocalProvider();
 }
 
@@ -2150,6 +2259,7 @@ export async function POST(req: NextRequest) {
 **Why this matters:** dLocal does NOT auto-renew. Users must manually renew before expiry. Early renewal allows users to renew without losing remaining days.
 
 **Implementation:**
+
 ```typescript
 // app/api/payments/dlocal/renew/route.ts
 
@@ -2203,6 +2313,7 @@ export async function POST(req: NextRequest) {
 ```
 
 **Critical Rules:**
+
 - ✅ dLocal monthly: Early renewal allowed, stacks days
 - ✅ dLocal 3-day: NO renewal allowed (one-time use)
 - ❌ Stripe: NO manual renewal (auto-renews via Stripe)
@@ -2216,6 +2327,7 @@ export async function POST(req: NextRequest) {
 **Why this matters:** Reporting and analytics need USD values for consistency. Exchange rates fluctuate, so we store the rate used at time of payment.
 
 **Implementation:**
+
 ```typescript
 // lib/payments/currency-converter.ts
 
@@ -2236,7 +2348,7 @@ export async function convertUsdToLocal(
 export async function POST(req: NextRequest) {
   const { country, planType } = await req.json();
 
-  const usdPrice = planType === 'MONTHLY' ? 29.00 : 0.96;
+  const usdPrice = planType === 'MONTHLY' ? 29.0 : 0.96;
   const currency = COUNTRY_CURRENCIES[country]; // IN → INR
 
   if (currency !== 'USD') {
@@ -2246,18 +2358,19 @@ export async function POST(req: NextRequest) {
     const payment = await prisma.payment.create({
       data: {
         provider: 'DLOCAL',
-        amount: amount,           // ✅ Local currency amount (e.g., 2407.00 INR)
-        currency: currency,       // ✅ Local currency code (e.g., "INR")
-        amountUsd: usdPrice,      // ✅ USD equivalent (e.g., 29.00)
-        exchangeRate: rate,       // ✅ Rate used (e.g., 83.00)
+        amount: amount, // ✅ Local currency amount (e.g., 2407.00 INR)
+        currency: currency, // ✅ Local currency code (e.g., "INR")
+        amountUsd: usdPrice, // ✅ USD equivalent (e.g., 29.00)
+        exchangeRate: rate, // ✅ Rate used (e.g., 83.00)
         // ...
-      }
+      },
     });
   }
 }
 ```
 
 **Critical Rules:**
+
 - ✅ Stripe: Always USD, no conversion needed
 - ✅ dLocal: Convert USD → local currency at checkout time
 - ✅ Store BOTH `amount` (local) and `amountUsd` (USD) for all payments
@@ -2274,6 +2387,7 @@ export async function POST(req: NextRequest) {
 **Why this matters:** Prevents abuse where users create multiple accounts to repeatedly purchase cheap 3-day access.
 
 **Database Schema:**
+
 ```prisma
 model User {
   id                  String   @id @default(cuid())
@@ -2290,6 +2404,7 @@ model User {
 ```
 
 **Implementation:**
+
 ```typescript
 // app/api/payments/dlocal/checkout/route.ts
 
@@ -2299,7 +2414,7 @@ export async function POST(req: NextRequest) {
 
   if (planType === 'THREE_DAY') {
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id }
+      where: { id: session.user.id },
     });
 
     // ✅ Check if already used
@@ -2312,14 +2427,18 @@ export async function POST(req: NextRequest) {
           severity: 'MEDIUM',
           description: 'User attempted to purchase 3-day plan more than once',
           ipAddress: req.headers.get('x-forwarded-for'),
-          deviceFingerprint: req.headers.get('x-device-fingerprint')
-        }
+          deviceFingerprint: req.headers.get('x-device-fingerprint'),
+        },
       });
 
-      return NextResponse.json({
-        error: 'The 3-day plan can only be purchased once per account. Please upgrade to monthly plan.',
-        errorCode: '3DAY_PLAN_ALREADY_USED'
-      }, { status: 403 });
+      return NextResponse.json(
+        {
+          error:
+            'The 3-day plan can only be purchased once per account. Please upgrade to monthly plan.',
+          errorCode: '3DAY_PLAN_ALREADY_USED',
+        },
+        { status: 403 }
+      );
     }
 
     // ✅ Check for active subscription
@@ -2327,15 +2446,19 @@ export async function POST(req: NextRequest) {
       where: {
         userId: user.id,
         status: 'active',
-        expiresAt: { gte: new Date() }
-      }
+        expiresAt: { gte: new Date() },
+      },
     });
 
     if (activeSubscription) {
-      return NextResponse.json({
-        error: 'Cannot purchase 3-day plan while you have an active subscription',
-        errorCode: 'ACTIVE_SUBSCRIPTION_EXISTS'
-      }, { status: 403 });
+      return NextResponse.json(
+        {
+          error:
+            'Cannot purchase 3-day plan while you have an active subscription',
+          errorCode: 'ACTIVE_SUBSCRIPTION_EXISTS',
+        },
+        { status: 403 }
+      );
     }
 
     // ✅ All checks passed, process payment
@@ -2344,14 +2467,15 @@ export async function POST(req: NextRequest) {
       where: { id: user.id },
       data: {
         hasUsedThreeDayPlan: true,
-        threeDayPlanUsedAt: new Date()
-      }
+        threeDayPlanUsedAt: new Date(),
+      },
     });
   }
 }
 ```
 
 **Critical Rules:**
+
 - ✅ Check `hasUsedThreeDayPlan` before allowing purchase
 - ✅ Create `FraudAlert` if reuse attempt detected
 - ✅ Block 3-day purchase if active subscription exists
@@ -2368,37 +2492,46 @@ export async function POST(req: NextRequest) {
 **Why this matters:** dLocal 3-day plan is cheap ($0.96 USD), making it attractive for abuse. Fraud detection prevents revenue loss and chargebacks.
 
 **Fraud Patterns:**
+
 ```typescript
 // lib/payments/fraud-detector.ts
 
-export async function detectFraud(userId: string, context: FraudContext): Promise<FraudAlert | null> {
+export async function detectFraud(
+  userId: string,
+  context: FraudContext
+): Promise<FraudAlert | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
       payments: { orderBy: { createdAt: 'desc' }, take: 10 },
-      fraudAlerts: { where: { resolution: null } }
-    }
+      fraudAlerts: { where: { resolution: null } },
+    },
   });
 
   // Pattern 1: Multiple failed payments in short time
   const recentFailedPayments = user.payments.filter(
-    p => p.status === 'failed' && p.createdAt > new Date(Date.now() - 60 * 60 * 1000)
+    (p) =>
+      p.status === 'failed' &&
+      p.createdAt > new Date(Date.now() - 60 * 60 * 1000)
   );
   if (recentFailedPayments.length >= 3) {
     return createFraudAlert(userId, {
       alertType: 'MULTIPLE_FAILED_PAYMENTS',
       severity: 'HIGH',
-      description: `${recentFailedPayments.length} failed payments in last hour`
+      description: `${recentFailedPayments.length} failed payments in last hour`,
     });
   }
 
   // Pattern 2: IP address + device fingerprint mismatch
   if (user.lastLoginIP && user.lastLoginIP !== context.ipAddress) {
-    if (user.deviceFingerprint && user.deviceFingerprint !== context.deviceFingerprint) {
+    if (
+      user.deviceFingerprint &&
+      user.deviceFingerprint !== context.deviceFingerprint
+    ) {
       return createFraudAlert(userId, {
         alertType: 'SUSPICIOUS_IP_CHANGE',
         severity: 'MEDIUM',
-        description: 'IP and device fingerprint both changed'
+        description: 'IP and device fingerprint both changed',
       });
     }
   }
@@ -2413,6 +2546,7 @@ export async function detectFraud(userId: string, context: FraudContext): Promis
 ```
 
 **Admin Dashboard:**
+
 ```typescript
 // app/admin/fraud-alerts/page.tsx
 export default async function FraudAlertsPage() {
@@ -2454,6 +2588,7 @@ export default async function FraudAlertsPage() {
 ```
 
 **Critical Rules:**
+
 - ✅ Create `FraudAlert` for ALL suspicious activity
 - ✅ Include context: ipAddress, deviceFingerprint, additionalData
 - ✅ Admin must review and resolve ALL fraud alerts
@@ -2470,37 +2605,38 @@ export default async function FraudAlertsPage() {
 **Why this matters:** dLocal only supports 8 emerging market countries. International users MUST use Stripe.
 
 **Supported Countries:**
+
 ```typescript
 // lib/payments/provider-selector.ts
 
 export const DLOCAL_COUNTRIES = [
-  'IN',  // India
-  'NG',  // Nigeria
-  'PK',  // Pakistan
-  'VN',  // Vietnam
-  'ID',  // Indonesia
-  'TH',  // Thailand
-  'ZA',  // South Africa
-  'TR',  // Turkey
+  'IN', // India
+  'NG', // Nigeria
+  'PK', // Pakistan
+  'VN', // Vietnam
+  'ID', // Indonesia
+  'TH', // Thailand
+  'ZA', // South Africa
+  'TR', // Turkey
 ] as const;
 
 export const COUNTRY_CURRENCIES: Record<string, string> = {
-  'IN': 'INR',
-  'NG': 'NGN',
-  'PK': 'PKR',
-  'VN': 'VND',
-  'ID': 'IDR',
-  'TH': 'THB',
-  'ZA': 'ZAR',
-  'TR': 'TRY',
+  IN: 'INR',
+  NG: 'NGN',
+  PK: 'PKR',
+  VN: 'VND',
+  ID: 'IDR',
+  TH: 'THB',
+  ZA: 'ZAR',
+  TR: 'TRY',
   // All other countries default to USD (Stripe)
 };
 
 export function getAvailableProviders(countryCode: string): PaymentProvider[] {
   if (DLOCAL_COUNTRIES.includes(countryCode as any)) {
-    return ['STRIPE', 'DLOCAL'];  // Both options
+    return ['STRIPE', 'DLOCAL']; // Both options
   } else {
-    return ['STRIPE'];  // Only Stripe for international
+    return ['STRIPE']; // Only Stripe for international
   }
 }
 
@@ -2512,14 +2648,14 @@ export function getLocalizedPrice(
   planType: 'MONTHLY' | 'THREE_DAY',
   country: string
 ): { amount: number; currency: string; display: string } {
-  const usdPrice = planType === 'MONTHLY' ? 29.00 : 0.96;
+  const usdPrice = planType === 'MONTHLY' ? 29.0 : 0.96;
   const currency = getCurrency(country);
 
   if (currency === 'USD') {
     return {
       amount: usdPrice,
       currency: 'USD',
-      display: `$${usdPrice}`
+      display: `$${usdPrice}`,
     };
   }
 
@@ -2527,25 +2663,26 @@ export function getLocalizedPrice(
   const { amount, rate } = await convertUsdToLocal(usdPrice, currency);
 
   const symbols: Record<string, string> = {
-    'INR': '₹',
-    'NGN': '₦',
-    'PKR': '₨',
-    'VND': '₫',
-    'IDR': 'Rp',
-    'THB': '฿',
-    'ZAR': 'R',
-    'TRY': '₺',
+    INR: '₹',
+    NGN: '₦',
+    PKR: '₨',
+    VND: '₫',
+    IDR: 'Rp',
+    THB: '฿',
+    ZAR: 'R',
+    TRY: '₺',
   };
 
   return {
     amount,
     currency,
-    display: `${symbols[currency] || ''}${amount.toLocaleString()}`
+    display: `${symbols[currency] || ''}${amount.toLocaleString()}`,
   };
 }
 ```
 
 **Frontend Usage:**
+
 ```typescript
 // components/payments/payment-provider-selector.tsx
 'use client';
@@ -2593,6 +2730,7 @@ export function PaymentProviderSelector({ country }: { country: string }) {
 ```
 
 **Critical Rules:**
+
 - ✅ Detect user country via IP geolocation or registration form
 - ✅ Show dLocal option ONLY for supported countries
 - ✅ Show currency in local format (₹, ₦, ₨, etc.)
@@ -2609,13 +2747,16 @@ export function PaymentProviderSelector({ country }: { country: string }) {
 **Why this matters:** dLocal subscriptions do NOT auto-renew. System must check expiry daily and downgrade users to FREE tier.
 
 **Implementation:**
+
 ```typescript
 // Cron job: Runs daily at midnight UTC
 // app/api/cron/check-expirations/route.ts
 
 export async function GET(req: NextRequest) {
   // Verify Vercel Cron secret
-  if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (
+    req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`
+  ) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -2627,47 +2768,49 @@ export async function GET(req: NextRequest) {
       paymentProvider: 'DLOCAL',
       status: 'active',
       OR: [
-        { expiresAt: { lt: now } },  // Already expired
+        { expiresAt: { lt: now } }, // Already expired
         {
-          expiresAt: { lt: addDays(now, 3) },  // Expires within 3 days
-          renewalReminderSent: false
-        }
-      ]
+          expiresAt: { lt: addDays(now, 3) }, // Expires within 3 days
+          renewalReminderSent: false,
+        },
+      ],
     },
-    include: { user: true }
+    include: { user: true },
   });
 
   for (const subscription of expiringSubscriptions) {
-    const daysUntilExpiry = Math.ceil((subscription.expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    const daysUntilExpiry = Math.ceil(
+      (subscription.expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    );
 
     if (daysUntilExpiry <= 0) {
       // ✅ Expired - downgrade to FREE
       await prisma.$transaction([
         prisma.subscription.update({
           where: { id: subscription.id },
-          data: { status: 'expired' }
+          data: { status: 'expired' },
         }),
         prisma.user.update({
           where: { id: subscription.userId },
-          data: { tier: 'FREE' }
-        })
+          data: { tier: 'FREE' },
+        }),
       ]);
 
       await sendEmail(subscription.user.email, 'Subscription Expired', {
-        message: 'Your PRO subscription has expired. Renew now to regain access.',
-        renewUrl: 'https://app.com/dashboard/billing'
+        message:
+          'Your PRO subscription has expired. Renew now to regain access.',
+        renewUrl: 'https://app.com/dashboard/billing',
       });
-
     } else if (daysUntilExpiry <= 3 && !subscription.renewalReminderSent) {
       // ✅ Expiring soon - send reminder
       await prisma.subscription.update({
         where: { id: subscription.id },
-        data: { renewalReminderSent: true }
+        data: { renewalReminderSent: true },
       });
 
       await sendEmail(subscription.user.email, 'Subscription Expiring Soon', {
         message: `Your PRO subscription expires in ${daysUntilExpiry} days. Renew now to avoid interruption.`,
-        renewUrl: 'https://app.com/dashboard/billing'
+        renewUrl: 'https://app.com/dashboard/billing',
       });
     }
   }
@@ -2677,19 +2820,21 @@ export async function GET(req: NextRequest) {
 ```
 
 **Vercel Cron Configuration:**
+
 ```json
 // vercel.json
 {
   "crons": [
     {
       "path": "/api/cron/check-expirations",
-      "schedule": "0 0 * * *"  // Daily at midnight UTC
+      "schedule": "0 0 * * *" // Daily at midnight UTC
     }
   ]
 }
 ```
 
 **Critical Rules:**
+
 - ✅ Run expiry check daily (midnight UTC)
 - ✅ Send reminder 3 days before expiry
 - ✅ Downgrade to FREE tier immediately when expired
@@ -2706,6 +2851,7 @@ export async function GET(req: NextRequest) {
 **Why this matters:** Requiring a card upfront kills conversion rates (drops to ~5-10%). Multi-signal detection maintains high conversion while preventing abuse through IP tracking, device fingerprinting, email pattern detection, and signup velocity monitoring.
 
 **User Model Updates:**
+
 ```prisma
 model User {
   // ... existing fields ...
@@ -2742,41 +2888,45 @@ model User {
    - Indicates automated bot attacks
 
 **Registration Flow with Fraud Detection:**
+
 ```typescript
 // app/api/auth/register/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { detectTrialAbuse } from '@/lib/fraud-detection'
-import bcrypt from 'bcrypt'
-import { z } from 'zod'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { detectTrialAbuse } from '@/lib/fraud-detection';
+import bcrypt from 'bcrypt';
+import { z } from 'zod';
 
 const signupSchema = z.object({
   email: z.string().email('Invalid email format'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  name: z.string().min(1, 'Name is required')
-})
+  name: z.string().min(1, 'Name is required'),
+});
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const body = await req.json()
-    const validated = signupSchema.parse(body)
+    const body = await req.json();
+    const validated = signupSchema.parse(body);
 
     // Extract fraud detection signals
-    const signupIP = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.ip || null
-    const deviceFingerprint = req.headers.get('x-device-fingerprint') || null
+    const signupIP =
+      req.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+      req.ip ||
+      null;
+    const deviceFingerprint = req.headers.get('x-device-fingerprint') || null;
 
     // ✅ Check for trial abuse BEFORE creating account
     const fraudCheck = await detectTrialAbuse({
       email: validated.email,
       signupIP,
-      deviceFingerprint
-    })
+      deviceFingerprint,
+    });
 
     if (fraudCheck) {
       // Create FraudAlert for admin review
       await prisma.fraudAlert.create({
         data: {
-          userId: null,  // No user created yet
+          userId: null, // No user created yet
           alertType: fraudCheck.type,
           severity: fraudCheck.severity,
           description: fraudCheck.description,
@@ -2785,20 +2935,21 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           deviceFingerprint,
           additionalData: {
             email: validated.email,
-            blockedAtRegistration: fraudCheck.severity === 'HIGH'
-          }
-        }
-      })
+            blockedAtRegistration: fraudCheck.severity === 'HIGH',
+          },
+        },
+      });
 
       // ❌ Block HIGH severity attempts immediately
       if (fraudCheck.severity === 'HIGH') {
         return NextResponse.json(
           {
-            error: 'Unable to create account at this time. Please contact support if you believe this is an error.',
-            errorCode: 'REGISTRATION_BLOCKED'
+            error:
+              'Unable to create account at this time. Please contact support if you believe this is an error.',
+            errorCode: 'REGISTRATION_BLOCKED',
           },
           { status: 403 }
-        )
+        );
       }
 
       // ⚠️ Allow MEDIUM severity but flag for admin review
@@ -2806,7 +2957,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(validated.password, 10)
+    const hashedPassword = await bcrypt.hash(validated.password, 10);
 
     // Create user with fraud detection fields
     const user = await prisma.user.create({
@@ -2818,68 +2969,75 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         hasUsedStripeTrial: false,
         signupIP,
         lastLoginIP: signupIP,
-        deviceFingerprint
-      }
-    })
+        deviceFingerprint,
+      },
+    });
 
-    return NextResponse.json({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      tier: user.tier
-    }, { status: 201 })
-
+    return NextResponse.json(
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        tier: user.tier,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.errors[0].message },
         { status: 400 }
-      )
+      );
     }
 
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Email already exists' },
         { status: 409 }
-      )
+      );
     }
 
-    console.error('User registration failed:', error)
+    console.error('User registration failed:', error);
     return NextResponse.json(
       { error: 'Failed to create user' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
 
 **Fraud Detection Utility:**
+
 ```typescript
 // lib/fraud-detection.ts
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/prisma';
 
 const DISPOSABLE_EMAIL_DOMAINS = [
-  'mailinator.com', '10minutemail.com', 'guerrillamail.com',
-  'tempmail.com', 'throwaway.email', 'maildrop.cc'
-]
+  'mailinator.com',
+  '10minutemail.com',
+  'guerrillamail.com',
+  'tempmail.com',
+  'throwaway.email',
+  'maildrop.cc',
+];
 
 interface FraudCheckContext {
-  email: string
-  signupIP: string | null
-  deviceFingerprint: string | null
+  email: string;
+  signupIP: string | null;
+  deviceFingerprint: string | null;
 }
 
 interface FraudCheckResult {
-  type: string
-  severity: 'LOW' | 'MEDIUM' | 'HIGH'
-  description: string
+  type: string;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH';
+  description: string;
 }
 
 export async function detectTrialAbuse(
   context: FraudCheckContext
 ): Promise<FraudCheckResult | null> {
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000)
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
   // Pattern 1: IP-based abuse (≥3 trials from same IP in 30 days)
   if (context.signupIP) {
@@ -2887,16 +3045,16 @@ export async function detectTrialAbuse(
       where: {
         signupIP: context.signupIP,
         hasUsedStripeTrial: true,
-        stripeTrialStartedAt: { gte: thirtyDaysAgo }
-      }
-    })
+        stripeTrialStartedAt: { gte: thirtyDaysAgo },
+      },
+    });
 
     if (recentTrialsFromIP >= 3) {
       return {
         type: 'STRIPE_TRIAL_IP_ABUSE',
         severity: 'HIGH',
-        description: `IP address ${context.signupIP} used for ${recentTrialsFromIP} trial accounts in past 30 days`
-      }
+        description: `IP address ${context.signupIP} used for ${recentTrialsFromIP} trial accounts in past 30 days`,
+      };
     }
   }
 
@@ -2906,27 +3064,27 @@ export async function detectTrialAbuse(
       where: {
         deviceFingerprint: context.deviceFingerprint,
         hasUsedStripeTrial: true,
-        stripeTrialStartedAt: { gte: thirtyDaysAgo }
-      }
-    })
+        stripeTrialStartedAt: { gte: thirtyDaysAgo },
+      },
+    });
 
     if (recentTrialsFromDevice >= 2) {
       return {
         type: 'STRIPE_TRIAL_DEVICE_ABUSE',
         severity: 'HIGH',
-        description: `Device fingerprint used for ${recentTrialsFromDevice} trial accounts in past 30 days`
-      }
+        description: `Device fingerprint used for ${recentTrialsFromDevice} trial accounts in past 30 days`,
+      };
     }
   }
 
   // Pattern 3: Disposable email domain
-  const emailDomain = context.email.split('@')[1].toLowerCase()
+  const emailDomain = context.email.split('@')[1].toLowerCase();
   if (DISPOSABLE_EMAIL_DOMAINS.includes(emailDomain)) {
     return {
       type: 'DISPOSABLE_EMAIL_DETECTED',
       severity: 'MEDIUM',
-      description: `Registration using disposable email domain: ${emailDomain}`
-    }
+      description: `Registration using disposable email domain: ${emailDomain}`,
+    };
   }
 
   // Pattern 4: Rapid signup velocity (≥5 accounts from same IP in 1 hour)
@@ -2934,48 +3092,53 @@ export async function detectTrialAbuse(
     const rapidSignups = await prisma.user.count({
       where: {
         signupIP: context.signupIP,
-        createdAt: { gte: oneHourAgo }
-      }
-    })
+        createdAt: { gte: oneHourAgo },
+      },
+    });
 
     if (rapidSignups >= 5) {
       return {
         type: 'RAPID_SIGNUP_VELOCITY',
         severity: 'HIGH',
-        description: `${rapidSignups} accounts created from IP ${context.signupIP} in past hour (bot attack)`
-      }
+        description: `${rapidSignups} accounts created from IP ${context.signupIP} in past hour (bot attack)`,
+      };
     }
   }
 
-  return null  // No fraud detected
+  return null; // No fraud detected
 }
 ```
 
 **Trial Start Endpoint (No Card Required):**
+
 ```typescript
 // app/api/payments/stripe/start-trial/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // ✅ Check if user already used their trial
     if (session.user.hasUsedStripeTrial) {
-      return NextResponse.json({
-        error: 'You have already used your free trial. Please subscribe to continue.',
-        errorCode: 'TRIAL_ALREADY_USED'
-      }, { status: 403 })
+      return NextResponse.json(
+        {
+          error:
+            'You have already used your free trial. Please subscribe to continue.',
+          errorCode: 'TRIAL_ALREADY_USED',
+        },
+        { status: 403 }
+      );
     }
 
     // Calculate trial end date (7 days from now)
-    const trialEndDate = new Date()
-    trialEndDate.setDate(trialEndDate.getDate() + 7)
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + 7);
 
     // ✅ Grant PRO tier for 7 days WITHOUT payment method
     await prisma.$transaction([
@@ -2984,8 +3147,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         data: {
           tier: 'PRO',
           hasUsedStripeTrial: true,
-          stripeTrialStartedAt: new Date()
-        }
+          stripeTrialStartedAt: new Date(),
+        },
       }),
       prisma.subscription.create({
         data: {
@@ -2994,50 +3157,55 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           planType: 'MONTHLY',
           status: 'trialing',
           expiresAt: trialEndDate,
-          amountUsd: 0  // Free trial
-        }
-      })
-    ])
+          amountUsd: 0, // Free trial
+        },
+      }),
+    ]);
 
-    return NextResponse.json({
-      message: 'Trial started successfully',
-      trialEndsAt: trialEndDate.toISOString(),
-      tier: 'PRO'
-    }, { status: 200 })
-
+    return NextResponse.json(
+      {
+        message: 'Trial started successfully',
+        trialEndsAt: trialEndDate.toISOString(),
+        tier: 'PRO',
+      },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error('Trial start failed:', error)
+    console.error('Trial start failed:', error);
     return NextResponse.json(
       { error: 'Failed to start trial' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
 
 **Trial Expiry Handler (Cron Job):**
+
 ```typescript
 // app/api/cron/stripe-trial-expiry/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   // Verify Vercel Cron secret
-  if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (
+    req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`
+  ) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const now = new Date()
+  const now = new Date();
 
   // Find Stripe trials that have expired
   const expiredTrials = await prisma.subscription.findMany({
     where: {
       paymentProvider: 'STRIPE',
       status: 'trialing',
-      expiresAt: { lt: now }
+      expiresAt: { lt: now },
     },
-    include: { user: true }
-  })
+    include: { user: true },
+  });
 
   for (const subscription of expiredTrials) {
     // Check if user converted to paid subscription
@@ -3046,61 +3214,64 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         userId: subscription.userId,
         paymentProvider: 'STRIPE',
         status: 'active',
-        stripeSubscriptionId: { not: null }  // Has paid subscription
-      }
-    })
+        stripeSubscriptionId: { not: null }, // Has paid subscription
+      },
+    });
 
     if (paidSubscription) {
       // User converted - delete trial subscription
       await prisma.subscription.delete({
-        where: { id: subscription.id }
-      })
+        where: { id: subscription.id },
+      });
     } else {
       // User did NOT convert - downgrade to FREE
       await prisma.$transaction([
         prisma.subscription.update({
           where: { id: subscription.id },
-          data: { status: 'expired' }
+          data: { status: 'expired' },
         }),
         prisma.user.update({
           where: { id: subscription.userId },
-          data: { tier: 'FREE' }
-        })
-      ])
+          data: { tier: 'FREE' },
+        }),
+      ]);
 
       // Send trial expiry email
       await sendEmail(subscription.user.email, 'Trial Expired', {
-        message: 'Your 7-day PRO trial has ended. Subscribe now to continue enjoying PRO features!',
-        ctaUrl: 'https://app.com/dashboard/billing'
-      })
+        message:
+          'Your 7-day PRO trial has ended. Subscribe now to continue enjoying PRO features!',
+        ctaUrl: 'https://app.com/dashboard/billing',
+      });
     }
   }
 
   return NextResponse.json({
     checked: expiredTrials.length,
-    message: 'Trial expiry check completed'
-  })
+    message: 'Trial expiry check completed',
+  });
 }
 ```
 
 **Vercel Cron Configuration:**
+
 ```json
 // vercel.json
 {
   "crons": [
     {
       "path": "/api/cron/stripe-trial-expiry",
-      "schedule": "0 */6 * * *"  // Every 6 hours
+      "schedule": "0 */6 * * *" // Every 6 hours
     },
     {
       "path": "/api/cron/check-expirations",
-      "schedule": "0 0 * * *"  // Daily (dLocal subscriptions)
+      "schedule": "0 0 * * *" // Daily (dLocal subscriptions)
     }
   ]
 }
 ```
 
 **Client-Side Device Fingerprinting:**
+
 ```typescript
 // lib/fingerprint.ts (Client-side)
 export function generateDeviceFingerprint(): string {
@@ -3160,30 +3331,35 @@ export default function RegisterPage() {
 ```
 
 **Admin Fraud Alert Dashboard:**
+
 ```typescript
 // app/api/admin/fraud-alerts/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  const session = await getServerSession()
+  const session = await getServerSession();
 
   // TODO: Verify admin role
   if (!session || session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const { searchParams } = new URL(req.url)
-  const severity = searchParams.get('severity') as 'LOW' | 'MEDIUM' | 'HIGH' | null
-  const reviewed = searchParams.get('reviewed') === 'true'
+  const { searchParams } = new URL(req.url);
+  const severity = searchParams.get('severity') as
+    | 'LOW'
+    | 'MEDIUM'
+    | 'HIGH'
+    | null;
+  const reviewed = searchParams.get('reviewed') === 'true';
 
   const alerts = await prisma.fraudAlert.findMany({
     where: {
       ...(severity && { severity }),
       ...(reviewed !== null && {
-        reviewedBy: reviewed ? { not: null } : null
-      })
+        reviewedBy: reviewed ? { not: null } : null,
+      }),
     },
     include: {
       user: {
@@ -3192,26 +3368,26 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           email: true,
           name: true,
           createdAt: true,
-          hasUsedStripeTrial: true
-        }
-      }
+          hasUsedStripeTrial: true,
+        },
+      },
     },
     orderBy: { detectedAt: 'desc' },
-    take: 100
-  })
+    take: 100,
+  });
 
-  return NextResponse.json(alerts)
+  return NextResponse.json(alerts);
 }
 
 // Mark fraud alert as reviewed
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
-  const session = await getServerSession()
+  const session = await getServerSession();
 
   if (!session || session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const { alertId, resolution, notes } = await req.json()
+  const { alertId, resolution, notes } = await req.json();
 
   const alert = await prisma.fraudAlert.update({
     where: { id: alertId },
@@ -3219,15 +3395,16 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       reviewedBy: session.user.id,
       reviewedAt: new Date(),
       resolution,
-      notes
-    }
-  })
+      notes,
+    },
+  });
 
-  return NextResponse.json(alert)
+  return NextResponse.json(alert);
 }
 ```
 
 **Critical Rules:**
+
 - ✅ NO credit card required for trial start (maximizes conversion)
 - ✅ Capture IP + device fingerprint at registration
 - ✅ Check for fraud patterns BEFORE creating account
@@ -3245,6 +3422,7 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
 - ❌ NEVER use simple patterns (email-only checks are insufficient)
 
 **Fraud Detection Effectiveness:**
+
 - **Conversion Rate:** ~40-60% (vs ~5-10% with card requirement)
 - **Abuse Detection:** 4 independent fraud signals
 - **False Positive Rate:** <5% (admin review for all blocks)
@@ -3259,6 +3437,7 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
 **Why this matters:** Detection without action is useless. Admins need tools to block abusers, warn users, whitelist trusted users, and maintain audit trails.
 
 **Available Admin Actions:**
+
 1. **DISMISS (False Positive)** - Alert was incorrect, no enforcement needed
 2. **SEND_WARNING** - Email user about suspicious activity (soft warning)
 3. **BLOCK_ACCOUNT (Temporary/Permanent)** - Disable user account and downgrade to FREE
@@ -3266,6 +3445,7 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
 5. **WHITELIST_USER** - Mark user as trusted (future fraud checks bypass)
 
 **Admin Enforcement Endpoint:**
+
 ```typescript
 // app/api/admin/fraud-alerts/[id]/actions/route.ts
 import { NextRequest, NextResponse } from 'next/server';
@@ -3273,7 +3453,12 @@ import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
 
-type AdminAction = 'DISMISS' | 'SEND_WARNING' | 'BLOCK_ACCOUNT' | 'UNBLOCK_ACCOUNT' | 'WHITELIST_USER';
+type AdminAction =
+  | 'DISMISS'
+  | 'SEND_WARNING'
+  | 'BLOCK_ACCOUNT'
+  | 'UNBLOCK_ACCOUNT'
+  | 'WHITELIST_USER';
 
 export async function POST(
   req: NextRequest,
@@ -3289,7 +3474,7 @@ export async function POST(
 
   const alert = await prisma.fraudAlert.findUnique({
     where: { id: params.id },
-    include: { user: true }
+    include: { user: true },
   });
 
   switch (action) {
@@ -3298,30 +3483,36 @@ export async function POST(
       await prisma.$transaction([
         prisma.user.update({
           where: { id: alert.userId },
-          data: { isActive: false, tier: 'FREE' }
+          data: { isActive: false, tier: 'FREE' },
         }),
         prisma.subscription.updateMany({
           where: { userId: alert.userId, status: 'active' },
-          data: { status: 'canceled' }
+          data: { status: 'canceled' },
         }),
         prisma.fraudAlert.update({
           where: { id: params.id },
           data: {
-            resolution: blockDuration === 'PERMANENT' ? 'BLOCKED_PERMANENT' : 'BLOCKED_TEMPORARY',
+            resolution:
+              blockDuration === 'PERMANENT'
+                ? 'BLOCKED_PERMANENT'
+                : 'BLOCKED_TEMPORARY',
             reviewedBy: session.user.id,
             reviewedAt: new Date(),
-            notes: `${blockDuration} block. Reason: ${notes}`
-          }
-        })
+            notes: `${blockDuration} block. Reason: ${notes}`,
+          },
+        }),
       ]);
 
       // ✅ Send email notification
       await sendEmail(alert.user.email, 'Account Suspended', {
         subject: '🚫 Your account has been suspended',
-        html: `Account suspended. Reason: ${notes}. Duration: ${blockDuration}.`
+        html: `Account suspended. Reason: ${notes}. Duration: ${blockDuration}.`,
       });
 
-      return NextResponse.json({ success: true, message: `Account blocked (${blockDuration})` });
+      return NextResponse.json({
+        success: true,
+        message: `Account blocked (${blockDuration})`,
+      });
 
     case 'SEND_WARNING':
       // ✅ Email warning + update fraud alert
@@ -3331,16 +3522,19 @@ export async function POST(
           resolution: 'WARNING_SENT',
           reviewedBy: session.user.id,
           reviewedAt: new Date(),
-          notes
-        }
+          notes,
+        },
       });
 
       await sendEmail(alert.user.email, 'Security Alert', {
         subject: '⚠️ Suspicious activity detected',
-        html: `We detected: ${alert.description}. Action required: ${notes}.`
+        html: `We detected: ${alert.description}. Action required: ${notes}.`,
       });
 
-      return NextResponse.json({ success: true, message: 'Warning email sent' });
+      return NextResponse.json({
+        success: true,
+        message: 'Warning email sent',
+      });
 
     // ... other actions (DISMISS, UNBLOCK_ACCOUNT, WHITELIST_USER)
   }
@@ -3348,6 +3542,7 @@ export async function POST(
 ```
 
 **Admin Dashboard UI Requirements:**
+
 - **Filters:** Status (pending/resolved), Severity (HIGH/MEDIUM/LOW), Date range
 - **Alert Details:** User info, fraud type, IP/device data, trial usage history
 - **Action Buttons:** Dismiss, Send Warning, Block (Temp), Block (Perm), Whitelist
@@ -3356,6 +3551,7 @@ export async function POST(
 - **Real-time Updates:** Alerts refresh after action taken
 
 **Critical Rules:**
+
 - ✅ Verify admin role before ANY action (check `session.user.role === 'ADMIN'`)
 - ✅ Block action must downgrade user to FREE tier AND cancel subscriptions
 - ✅ Send email notification for EVERY enforcement action (warning/block/unblock)
@@ -3369,15 +3565,16 @@ export async function POST(
 
 **Enforcement Impact:**
 
-| Action | User Impact | Database Changes | Email Sent |
-|--------|-------------|------------------|------------|
-| **DISMISS** | None | FraudAlert.resolution = 'FALSE_POSITIVE' | No |
-| **SEND_WARNING** | Warning email received | FraudAlert.resolution = 'WARNING_SENT' | Yes |
-| **BLOCK_ACCOUNT** | Login disabled, tier = FREE | User.isActive = false, Subscription.status = 'canceled' | Yes |
-| **UNBLOCK_ACCOUNT** | Access restored | User.isActive = true | Yes |
-| **WHITELIST_USER** | Future alerts bypassed | FraudAlert.resolution = 'WHITELISTED' | No |
+| Action              | User Impact                 | Database Changes                                        | Email Sent |
+| ------------------- | --------------------------- | ------------------------------------------------------- | ---------- |
+| **DISMISS**         | None                        | FraudAlert.resolution = 'FALSE_POSITIVE'                | No         |
+| **SEND_WARNING**    | Warning email received      | FraudAlert.resolution = 'WARNING_SENT'                  | Yes        |
+| **BLOCK_ACCOUNT**   | Login disabled, tier = FREE | User.isActive = false, Subscription.status = 'canceled' | Yes        |
+| **UNBLOCK_ACCOUNT** | Access restored             | User.isActive = true                                    | Yes        |
+| **WHITELIST_USER**  | Future alerts bypassed      | FraudAlert.resolution = 'WHITELISTED'                   | No         |
 
 **Admin Audit Trail:**
+
 ```prisma
 model FraudAlert {
   // ... existing fields
@@ -3406,6 +3603,7 @@ model FraudAlert {
    - CTA: "Login to dashboard"
 
 **Admin Metrics to Track:**
+
 - Total fraud alerts created
 - Alerts by severity (HIGH/MEDIUM/LOW)
 - Resolution breakdown (dismissed/warned/blocked)
@@ -3418,6 +3616,7 @@ model FraudAlert {
 ## Summary of Architecture Rules
 
 ✅ **DO:**
+
 - Follow v5-structure-division.md for all file placements
 - Use OpenAPI specs as source of truth for types
 - Validate authentication + tier on all protected endpoints
@@ -3450,6 +3649,7 @@ model FraudAlert {
 - **Admin Fraud Actions:** Send email notification for warnings, blocks, and unblocks
 
 ❌ **DON'T:**
+
 - Manually define types that exist in OpenAPI
 - Skip tier validation on symbol/timeframe endpoints
 - Use raw SQL (use Prisma instead)

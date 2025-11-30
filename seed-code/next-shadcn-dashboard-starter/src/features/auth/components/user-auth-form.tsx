@@ -59,7 +59,7 @@ export default function UserAuthForm() {
         />
         <Button
           disabled={loading}
-          className='mt-2 ml-auto w-full'
+          className='ml-auto mt-2 w-full'
           type='submit'
         >
           Continue With Email

@@ -31,24 +31,25 @@ If you encounter conflicting information between documents:
 
 ## 📑 Quick Lookup Table
 
-| Issue Category | Jump To | Common Scenarios |
-|---------------|---------|------------------|
-| Authentication | [→ Section 1](#1-authentication-patterns) | Login, signup, OAuth, session management |
-| Dashboard Layout | [→ Section 2](#2-dashboard-layout-patterns) | Dashboard structure, sidebar, navigation |
-| API Routes | [→ Section 3](#3-api-routes-patterns) | REST endpoints, validation, error handling |
-| Forms | [→ Section 4](#4-form-patterns) | Form validation, Zod schemas, React Hook Form |
-| Billing & Subscriptions | [→ Section 5](#5-billing--subscription-patterns) | Stripe, payments, subscriptions, upgrades |
-| UI Components | [→ Section 6](#6-ui-component-patterns) | Buttons, cards, modals, tables |
-| Flask/MT5 Integration | [→ Section 7](#7-flaskmt5-patterns) | Market data, indicators, Python/Flask |
-| Error Handling | [→ Section 8](#8-error-handling-patterns) | Try-catch, error boundaries, user messages |
-| Loading States | [→ Section 9](#9-loading-state-patterns) | Skeletons, spinners, suspense |
-| State Management | [→ Section 10](#10-state-management-patterns) | React state, URL params, server state |
+| Issue Category          | Jump To                                          | Common Scenarios                              |
+| ----------------------- | ------------------------------------------------ | --------------------------------------------- |
+| Authentication          | [→ Section 1](#1-authentication-patterns)        | Login, signup, OAuth, session management      |
+| Dashboard Layout        | [→ Section 2](#2-dashboard-layout-patterns)      | Dashboard structure, sidebar, navigation      |
+| API Routes              | [→ Section 3](#3-api-routes-patterns)            | REST endpoints, validation, error handling    |
+| Forms                   | [→ Section 4](#4-form-patterns)                  | Form validation, Zod schemas, React Hook Form |
+| Billing & Subscriptions | [→ Section 5](#5-billing--subscription-patterns) | Stripe, payments, subscriptions, upgrades     |
+| UI Components           | [→ Section 6](#6-ui-component-patterns)          | Buttons, cards, modals, tables                |
+| Flask/MT5 Integration   | [→ Section 7](#7-flaskmt5-patterns)              | Market data, indicators, Python/Flask         |
+| Error Handling          | [→ Section 8](#8-error-handling-patterns)        | Try-catch, error boundaries, user messages    |
+| Loading States          | [→ Section 9](#9-loading-state-patterns)         | Skeletons, spinners, suspense                 |
+| State Management        | [→ Section 10](#10-state-management-patterns)    | React state, URL params, server state         |
 
 ---
 
 ## 1. Authentication Patterns
 
 ### When to Use
+
 - Implementing login/signup pages (Part 5)
 - Adding OAuth providers
 - Session management
@@ -58,6 +59,7 @@ If you encounter conflicting information between documents:
 ### Seed Files to Check
 
 #### Primary: SaaS Starter Auth
+
 ```
 seed-code/saas-starter/app/(login)/
 ├── actions.ts              # Server actions for login/signup
@@ -66,6 +68,7 @@ seed-code/saas-starter/app/(login)/
 ```
 
 **What you'll find:**
+
 - Complete login/signup forms
 - Server action patterns for authentication
 - Error handling for auth failures
@@ -73,6 +76,7 @@ seed-code/saas-starter/app/(login)/
 - Redirect logic after successful auth
 
 #### Secondary: Dashboard Starter Auth
+
 ```
 seed-code/next-shadcn-dashboard-starter/src/app/auth/
 ├── sign-in/[[...sign-in]]/page.tsx   # Clerk-based login
@@ -80,6 +84,7 @@ seed-code/next-shadcn-dashboard-starter/src/app/auth/
 ```
 
 **What you'll find:**
+
 - OAuth integration patterns (Google, GitHub)
 - Social login buttons
 - Alternative auth provider patterns
@@ -87,6 +92,7 @@ seed-code/next-shadcn-dashboard-starter/src/app/auth/
 ### Key Patterns to Extract
 
 1. **Form Structure:**
+
 ```typescript
 // From sign-in/page.tsx
 <form action={loginAction}>
@@ -97,28 +103,31 @@ seed-code/next-shadcn-dashboard-starter/src/app/auth/
 ```
 
 2. **Server Actions:**
+
 ```typescript
 // From actions.ts
 export async function loginAction(formData: FormData) {
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
   // Auth logic...
 }
 ```
 
 3. **Error Handling:**
+
 ```typescript
 try {
-  await signIn(credentials)
+  await signIn(credentials);
 } catch (error) {
   if (error.type === 'CredentialsSignin') {
-    return { error: 'Invalid credentials' }
+    return { error: 'Invalid credentials' };
   }
-  return { error: 'Something went wrong' }
+  return { error: 'Something went wrong' };
 }
 ```
 
 ### Adaptation Notes
+
 - Replace Clerk patterns with NextAuth if using our auth system
 - Adapt to our OpenAPI spec (`/api/auth/login`, `/api/auth/register`)
 - Add tier selection to signup form (FREE vs PRO)
@@ -129,6 +138,7 @@ try {
 ## 2. Dashboard Layout Patterns
 
 ### When to Use
+
 - Creating dashboard pages (Part 11, 12, 13, 14)
 - Building sidebar navigation
 - Implementing header with user menu
@@ -137,6 +147,7 @@ try {
 ### Seed Files to Check
 
 #### Primary: SaaS Starter Dashboard
+
 ```
 seed-code/saas-starter/app/(dashboard)/
 ├── layout.tsx      # Dashboard shell with sidebar
@@ -144,6 +155,7 @@ seed-code/saas-starter/app/(dashboard)/
 ```
 
 **What you'll find:**
+
 - Complete dashboard layout structure
 - Sidebar with navigation links
 - Header with user menu
@@ -151,6 +163,7 @@ seed-code/saas-starter/app/(dashboard)/
 - Route group patterns
 
 #### Secondary: Dashboard Starter
+
 ```
 seed-code/next-shadcn-dashboard-starter/src/app/dashboard/
 ├── layout.tsx                # Main dashboard layout
@@ -159,12 +172,14 @@ seed-code/next-shadcn-dashboard-starter/src/app/dashboard/
 ```
 
 **What you'll find:**
+
 - Parallel routes patterns
 - Loading states per section
 - Error boundaries
 - Breadcrumb navigation
 
 #### Tertiary: V0 Components
+
 ```
 seed-code/v0-components/layouts/
 ├── dashboard-layout.tsx    # Complete dashboard shell
@@ -172,6 +187,7 @@ seed-code/v0-components/layouts/
 ```
 
 **What you'll find:**
+
 - Modern dashboard UI patterns
 - Responsive sidebar
 - Mobile-friendly navigation
@@ -179,6 +195,7 @@ seed-code/v0-components/layouts/
 ### Key Patterns to Extract
 
 1. **Dashboard Layout Structure:**
+
 ```typescript
 // From layout.tsx
 export default function DashboardLayout({
@@ -199,15 +216,17 @@ export default function DashboardLayout({
 ```
 
 2. **Sidebar Navigation:**
+
 ```typescript
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Alerts', href: '/dashboard/alerts', icon: BellIcon },
   { name: 'Watchlist', href: '/dashboard/watchlist', icon: StarIcon },
-]
+];
 ```
 
 3. **Protected Route:**
+
 ```typescript
 export default async function DashboardLayout({ children }) {
   const session = await getServerSession()
@@ -217,6 +236,7 @@ export default async function DashboardLayout({ children }) {
 ```
 
 ### Adaptation Notes
+
 - Customize navigation items for Trading Alerts (Dashboard, Alerts, Watchlist, Charts, Settings)
 - Add tier badge to sidebar (FREE/PRO indicator)
 - Include notification bell in header
@@ -227,6 +247,7 @@ export default async function DashboardLayout({ children }) {
 ## 3. API Routes Patterns
 
 ### When to Use
+
 - Creating API endpoints (Part 7, 8, 9, 10, 11)
 - Implementing REST endpoints
 - Adding validation and error handling
@@ -244,6 +265,7 @@ seed-code/saas-starter/app/api/
 ```
 
 **What you'll find:**
+
 - Next.js 15 App Router API patterns
 - GET, POST, PATCH, DELETE handlers
 - Request validation
@@ -256,56 +278,58 @@ seed-code/saas-starter/app/api/
 ### Key Patterns to Extract
 
 1. **Basic API Route Structure:**
+
 ```typescript
 // From user/route.ts
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   try {
     // 1. Authentication
-    const session = await getServerSession()
+    const session = await getServerSession();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // 2. Database query
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id }
-    })
+      where: { id: session.user.id },
+    });
 
     // 3. Return response
-    return NextResponse.json(user)
+    return NextResponse.json(user);
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
 
 2. **POST with Validation:**
+
 ```typescript
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
+    const body = await req.json();
 
     // Validation
-    const validated = schema.parse(body)
+    const validated = schema.parse(body);
 
     // Create resource
     const resource = await prisma.resource.create({
-      data: validated
-    })
+      data: validated,
+    });
 
-    return NextResponse.json(resource, { status: 201 })
+    return NextResponse.json(resource, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.errors[0].message },
         { status: 400 }
-      )
+      );
     }
     // ...
   }
@@ -313,38 +337,37 @@ export async function POST(req: NextRequest) {
 ```
 
 3. **Webhook Handling:**
+
 ```typescript
 // From stripe/webhook/route.ts
 export async function POST(req: NextRequest) {
-  const body = await req.text()
-  const signature = req.headers.get('stripe-signature')!
+  const body = await req.text();
+  const signature = req.headers.get('stripe-signature')!;
 
   try {
     const event = stripe.webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
-    )
+    );
 
     // Handle event types
     switch (event.type) {
       case 'checkout.session.completed':
-        await handleCheckoutCompleted(event.data.object)
-        break
+        await handleCheckoutCompleted(event.data.object);
+        break;
       // ...
     }
 
-    return NextResponse.json({ received: true })
+    return NextResponse.json({ received: true });
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Webhook error' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: 'Webhook error' }, { status: 400 });
   }
 }
 ```
 
 ### Adaptation Notes
+
 - Match OpenAPI specs (`trading_alerts_openapi.yaml`)
 - Add tier validation before restricted operations
 - Use generated types from `lib/api-client`
@@ -355,6 +378,7 @@ export async function POST(req: NextRequest) {
 ## 4. Form Patterns
 
 ### When to Use
+
 - Creating forms (login, signup, alert creation, settings)
 - Adding form validation
 - Implementing React Hook Form
@@ -373,6 +397,7 @@ seed-code/next-shadcn-dashboard-starter/src/components/forms/
 ```
 
 **What you'll find:**
+
 - React Hook Form setup
 - Zod schema validation
 - Error message display
@@ -383,6 +408,7 @@ seed-code/next-shadcn-dashboard-starter/src/components/forms/
 ### Key Patterns to Extract
 
 1. **Form Setup:**
+
 ```typescript
 // From demo-form.tsx
 import { useForm } from 'react-hook-form'
@@ -422,6 +448,7 @@ export function MyForm() {
 ```
 
 2. **Form Field Component:**
+
 ```typescript
 // From form-input.tsx
 <FormField
@@ -440,6 +467,7 @@ export function MyForm() {
 ```
 
 3. **Async Form Submission:**
+
 ```typescript
 const { isSubmitting } = form.formState
 
@@ -458,6 +486,7 @@ return (
 ```
 
 ### Adaptation Notes
+
 - Create Zod schemas matching OpenAPI request types
 - Add tier-specific validation (e.g., symbol restrictions)
 - Use shadcn/ui form components
@@ -468,6 +497,7 @@ return (
 ## 5. Billing & Subscription Patterns
 
 ### When to Use
+
 - Implementing Part 15 (Billing & Subscription)
 - Creating pricing page
 - Implementing Stripe checkout
@@ -487,6 +517,7 @@ seed-code/saas-starter/app/api/stripe/
 ```
 
 **What you'll find:**
+
 - Pricing page with FREE/PRO tiers
 - Stripe checkout session creation
 - Subscription webhook handling
@@ -497,6 +528,7 @@ seed-code/saas-starter/app/api/stripe/
 ### Key Patterns to Extract
 
 1. **Pricing Page:**
+
 ```typescript
 // From pricing/page.tsx
 const plans = [
@@ -531,11 +563,12 @@ return (
 ```
 
 2. **Checkout Session Creation:**
+
 ```typescript
 // From stripe/checkout/route.ts
 export async function POST(req: NextRequest) {
-  const session = await getServerSession()
-  const { priceId } = await req.json()
+  const session = await getServerSession();
+  const { priceId } = await req.json();
 
   const checkoutSession = await stripe.checkout.sessions.create({
     customer_email: session.user.email,
@@ -543,18 +576,19 @@ export async function POST(req: NextRequest) {
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard?upgraded=true`,
     cancel_url: `${process.env.NEXT_PUBLIC_URL}/pricing`,
-  })
+  });
 
-  return NextResponse.json({ url: checkoutSession.url })
+  return NextResponse.json({ url: checkoutSession.url });
 }
 ```
 
 3. **Webhook Handling:**
+
 ```typescript
 // From stripe/webhook/route.ts
 switch (event.type) {
   case 'checkout.session.completed':
-    const session = event.data.object
+    const session = event.data.object;
     await prisma.user.update({
       where: { email: session.customer_email },
       data: {
@@ -562,20 +596,21 @@ switch (event.type) {
         stripeCustomerId: session.customer,
         stripeSubscriptionId: session.subscription,
       },
-    })
-    break
+    });
+    break;
 
   case 'customer.subscription.deleted':
-    const subscription = event.data.object
+    const subscription = event.data.object;
     await prisma.user.update({
       where: { stripeCustomerId: subscription.customer },
       data: { tier: 'FREE' },
-    })
-    break
+    });
+    break;
 }
 ```
 
 ### Adaptation Notes
+
 - Match our tier system (FREE: 5 symbols, PRO: 15 symbols)
 - Add dLocal integration for emerging markets
 - Reference `docs/SUBSCRIPTION-MODEL-CLARIFICATION.md`
@@ -586,6 +621,7 @@ switch (event.type) {
 ## 6. UI Component Patterns
 
 ### When to Use
+
 - Building reusable components (Part 2, 3, 4)
 - Creating charts, cards, modals
 - Implementing navigation, headers
@@ -609,6 +645,7 @@ seed-code/next-shadcn-dashboard-starter/src/components/layout/
 ```
 
 **What you'll find:**
+
 - Complete component examples
 - Responsive design patterns
 - Shadcn/ui usage
@@ -619,6 +656,7 @@ seed-code/next-shadcn-dashboard-starter/src/components/layout/
 ### Key Patterns to Extract
 
 1. **Trading Chart Component:**
+
 ```typescript
 // From charts/trading-chart.tsx
 import { useEffect, useRef } from 'react'
@@ -644,6 +682,7 @@ export function TradingChart({ symbol, timeframe }: Props) {
 ```
 
 2. **Alert Card Component:**
+
 ```typescript
 // From alerts/alert-card.tsx
 export function AlertCard({ alert }: { alert: Alert }) {
@@ -671,6 +710,7 @@ export function AlertCard({ alert }: { alert: Alert }) {
 ```
 
 3. **User Menu Dropdown:**
+
 ```typescript
 // From user-nav.tsx
 <DropdownMenu>
@@ -694,6 +734,7 @@ export function AlertCard({ alert }: { alert: Alert }) {
 ```
 
 ### Adaptation Notes
+
 - Use our color scheme and branding
 - Add tier indicators to components
 - Reference `docs/ui-components-map.md` for production mapping
@@ -704,6 +745,7 @@ export function AlertCard({ alert }: { alert: Alert }) {
 ## 7. Flask/MT5 Patterns
 
 ### When to Use
+
 - Implementing Part 6 (Flask MT5 Service)
 - Fetching market data from MT5
 - Implementing indicator calculations
@@ -717,6 +759,7 @@ seed-code/market_ai_engine.py     # Complete Flask + MT5 example
 ```
 
 **What you'll find:**
+
 - Flask app structure
 - MetaTrader 5 initialization
 - Market data fetching
@@ -728,6 +771,7 @@ seed-code/market_ai_engine.py     # Complete Flask + MT5 example
 ### Key Patterns to Extract
 
 1. **MT5 Initialization:**
+
 ```python
 # From market_ai_engine.py
 import MetaTrader5 as mt5
@@ -740,6 +784,7 @@ def initialize_mt5():
 ```
 
 2. **Fetch Market Data:**
+
 ```python
 def get_symbol_data(symbol, timeframe, bars=100):
     try:
@@ -767,6 +812,7 @@ def get_symbol_data(symbol, timeframe, bars=100):
 ```
 
 3. **Calculate Indicators:**
+
 ```python
 def calculate_rsi(df, period=14):
     delta = df['close'].diff()
@@ -784,6 +830,7 @@ def calculate_indicators(df):
 ```
 
 4. **Flask API Endpoint:**
+
 ```python
 from flask import Flask, jsonify, request
 
@@ -811,6 +858,7 @@ def get_chart_data():
 ```
 
 ### Adaptation Notes
+
 - Match our OpenAPI spec (`docs/flask_mt5_openapi.yaml`)
 - Add multi-MT5 terminal support (reference `docs/flask-multi-mt5-implementation.md`)
 - Implement health checks for MT5 connections
@@ -822,6 +870,7 @@ def get_chart_data():
 ## 8. Error Handling Patterns
 
 ### When to Use
+
 - Adding try-catch blocks
 - Implementing error boundaries
 - Showing user-friendly error messages
@@ -831,20 +880,21 @@ def get_chart_data():
 ### Key Patterns from Seed Code
 
 1. **API Route Error Handling:**
+
 ```typescript
 // From seed-code/saas-starter/app/api/user/route.ts
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const user = await prisma.user.create({ data: body })
-    return NextResponse.json(user, { status: 201 })
+    const body = await req.json();
+    const user = await prisma.user.create({ data: body });
+    return NextResponse.json(user, { status: 201 });
   } catch (error) {
     // Prisma specific errors
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Email already exists' },
         { status: 409 }
-      )
+      );
     }
 
     // Validation errors
@@ -852,20 +902,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: error.errors[0].message },
         { status: 400 }
-      )
+      );
     }
 
     // Generic error
-    console.error('Error creating user:', error)
+    console.error('Error creating user:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
 
 2. **Frontend Error Handling:**
+
 ```typescript
 // From form patterns
 async function onSubmit(data: FormData) {
@@ -873,24 +924,25 @@ async function onSubmit(data: FormData) {
     const res = await fetch('/api/endpoint', {
       method: 'POST',
       body: JSON.stringify(data),
-    })
+    });
 
     if (!res.ok) {
-      const error = await res.json()
-      throw new Error(error.error || 'Request failed')
+      const error = await res.json();
+      throw new Error(error.error || 'Request failed');
     }
 
-    const result = await res.json()
-    toast.success('Success!')
-    router.push('/dashboard')
+    const result = await res.json();
+    toast.success('Success!');
+    router.push('/dashboard');
   } catch (error) {
-    toast.error(error.message || 'Something went wrong')
-    console.error('Submission error:', error)
+    toast.error(error.message || 'Something went wrong');
+    console.error('Submission error:', error);
   }
 }
 ```
 
 ### Adaptation Notes
+
 - Always log errors to console for debugging
 - Use user-friendly error messages (not technical details)
 - Return appropriate HTTP status codes
@@ -901,6 +953,7 @@ async function onSubmit(data: FormData) {
 ## 9. Loading State Patterns
 
 ### When to Use
+
 - Adding loading spinners
 - Implementing skeleton screens
 - Using React Suspense
@@ -909,6 +962,7 @@ async function onSubmit(data: FormData) {
 ### Key Patterns from Seed Code
 
 1. **Button Loading State:**
+
 ```typescript
 const [isLoading, setIsLoading] = useState(false)
 
@@ -925,6 +979,7 @@ const [isLoading, setIsLoading] = useState(false)
 ```
 
 2. **Skeleton Loading:**
+
 ```typescript
 // From dashboard patterns
 {isLoading ? (
@@ -939,6 +994,7 @@ const [isLoading, setIsLoading] = useState(false)
 ```
 
 3. **Suspense Boundaries:**
+
 ```typescript
 // From dashboard patterns
 import { Suspense } from 'react'
@@ -957,6 +1013,7 @@ export default function Page() {
 ## 10. State Management Patterns
 
 ### When to Use
+
 - Managing client state
 - Syncing state with URLs
 - Server state with React Query
@@ -965,40 +1022,42 @@ export default function Page() {
 ### Key Patterns from Seed Code
 
 1. **URL State Management:**
+
 ```typescript
 // From dashboard patterns
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation';
 
-const searchParams = useSearchParams()
-const router = useRouter()
+const searchParams = useSearchParams();
+const router = useRouter();
 
-const currentTab = searchParams.get('tab') || 'all'
+const currentTab = searchParams.get('tab') || 'all';
 
 function setTab(tab: string) {
-  const params = new URLSearchParams(searchParams)
-  params.set('tab', tab)
-  router.push(`?${params.toString()}`)
+  const params = new URLSearchParams(searchParams);
+  params.set('tab', tab);
+  router.push(`?${params.toString()}`);
 }
 ```
 
 2. **React State:**
+
 ```typescript
-const [alerts, setAlerts] = useState<Alert[]>([])
-const [isLoading, setIsLoading] = useState(true)
+const [alerts, setAlerts] = useState<Alert[]>([]);
+const [isLoading, setIsLoading] = useState(true);
 
 useEffect(() => {
   async function fetchAlerts() {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const res = await fetch('/api/alerts')
-      const data = await res.json()
-      setAlerts(data)
+      const res = await fetch('/api/alerts');
+      const data = await res.json();
+      setAlerts(data);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
-  fetchAlerts()
-}, [])
+  fetchAlerts();
+}, []);
 ```
 
 ---

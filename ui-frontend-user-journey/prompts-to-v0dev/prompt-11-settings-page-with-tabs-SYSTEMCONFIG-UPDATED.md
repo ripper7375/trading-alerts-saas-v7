@@ -5,6 +5,7 @@
 Create a settings page layout with tabbed navigation for Next.js 15 using TypeScript, Tailwind CSS, and shadcn/ui.
 
 **CRITICAL: Use SystemConfig for Dynamic Percentages**
+
 - DO NOT hardcode discount percentages (e.g., "20%")
 - DO NOT hardcode commission percentages (e.g., "20%")
 - DO NOT hardcode prices (e.g., "$23.20", "$5.80", "$17.40")
@@ -16,6 +17,7 @@ REQUIREMENTS:
 1. PAGE LAYOUT (Full width dashboard layout):
 
 Header Section:
+
 - Breadcrumb: "Dashboard > Settings" (text-sm, text-gray-500, mb-4)
 - Heading: "⚙️ Settings" (text-3xl, font-bold, text-gray-900, mb-2)
 - Subheading: "Manage your account settings and preferences" (text-gray-600, mb-8)
@@ -23,15 +25,17 @@ Header Section:
 2. TABS NAVIGATION (Left sidebar on desktop, horizontal on mobile):
 
 Desktop Layout (>= 1024px):
+
 - Two-column layout: Tabs (250px fixed width) + Content (flex-1)
 - Tabs sidebar: bg-white, rounded-xl, shadow-md, p-4, sticky top-4
 - Tab Items (Vertical list): Each tab button:
-  * Layout: w-full, text-left, px-4, py-3, rounded-lg, transition-all duration-200
-  * Default state: text-gray-700, hover:bg-gray-100
-  * Active state: bg-blue-50, text-blue-600, border-l-4 border-blue-600, font-semibold
-  * Icon + Label layout: flex, items-center, gap-3
+  - Layout: w-full, text-left, px-4, py-3, rounded-lg, transition-all duration-200
+  - Default state: text-gray-700, hover:bg-gray-100
+  - Active state: bg-blue-50, text-blue-600, border-l-4 border-blue-600, font-semibold
+  - Icon + Label layout: flex, items-center, gap-3
 
 Tab list:
+
 - "👤 Profile" - Personal information
 - "🔒 Security" - Password and authentication
 - "🔔 Notifications" - Email and push preferences
@@ -41,12 +45,14 @@ Tab list:
 - "❓ Help & Support" - FAQs and contact
 
 Mobile Layout (< 1024px):
+
 - Horizontal scrollable tabs: overflow-x-auto, flex, gap-2, pb-4, mb-6
 - Each tab: Compact button with icon + label
 - Active tab: bg-blue-600, text-white, rounded-lg, px-4, py-2
 - Inactive tabs: bg-white, border-2 border-gray-200, text-gray-700, rounded-lg, px-4, py-2
 
 3. CONTENT AREA (Right side, flex-1):
+
 - Container: bg-white, rounded-xl, shadow-md, p-8, min-h-[600px]
 - Each section has its own heading and content
 - Smooth transitions when switching tabs
@@ -54,56 +60,61 @@ Mobile Layout (< 1024px):
 4. TAB CONTENTS (7 sections):
 
 TAB 1: PROFILE (Default active):
+
 - Section heading: "Profile Information" (text-2xl, font-bold, mb-6)
 - Form with fields:
-  * Profile photo upload: Avatar (circular, 96px) with "Change Photo" button overlay on hover
-  * Full Name input
-  * Email input (with "Verified ✓" badge)
-  * Username input (with availability check)
-  * Bio textarea (optional)
-  * Company/Organization (optional)
-  * Save button: "Save Changes" (bg-blue-600, px-6, py-2, rounded-lg, float right)
-  * Cancel button: "Cancel" (border-2, border-gray-300, px-6, py-2, rounded-lg, mr-3)
+  - Profile photo upload: Avatar (circular, 96px) with "Change Photo" button overlay on hover
+  - Full Name input
+  - Email input (with "Verified ✓" badge)
+  - Username input (with availability check)
+  - Bio textarea (optional)
+  - Company/Organization (optional)
+  - Save button: "Save Changes" (bg-blue-600, px-6, py-2, rounded-lg, float right)
+  - Cancel button: "Cancel" (border-2, border-gray-300, px-6, py-2, rounded-lg, mr-3)
 
 TAB 2: SECURITY:
+
 - Section heading: "Security Settings" (text-2xl, font-bold, mb-6)
 - Change Password section:
-  * Current password input
-  * New password input (with strength meter)
-  * Confirm new password input
-  * "Update Password" button
+  - Current password input
+  - New password input (with strength meter)
+  - Confirm new password input
+  - "Update Password" button
 - Two-Factor Authentication section:
-  * Status: Enabled/Disabled toggle
-  * "Enable 2FA" button if disabled
-  * QR code and setup instructions if enabling
+  - Status: Enabled/Disabled toggle
+  - "Enable 2FA" button if disabled
+  - QR code and setup instructions if enabling
 - Active Sessions section:
-  * List of active sessions (device, location, last active)
-  * "Sign out all devices" button
+  - List of active sessions (device, location, last active)
+  - "Sign out all devices" button
 
 TAB 3: NOTIFICATIONS:
+
 - Section heading: "Notification Preferences" (text-2xl, font-bold, mb-6)
 - Alert Notifications section:
-  * ☑ Email notifications (toggle)
-  * ☑ Push notifications (toggle)
-  * ☐ SMS notifications (PRO only, with 🔒 icon)
+  - ☑ Email notifications (toggle)
+  - ☑ Push notifications (toggle)
+  - ☐ SMS notifications (PRO only, with 🔒 icon)
 - Newsletter section:
-  * ☑ Trading tips & market insights
-  * ☑ Product updates
-  * ☐ Promotional offers
+  - ☑ Trading tips & market insights
+  - ☑ Product updates
+  - ☐ Promotional offers
 - Frequency dropdown: "Instant" | "Daily digest" | "Weekly summary"
 - "Save Preferences" button
 
 TAB 4: BILLING (ENHANCED WITH SYSTEMCONFIG):
+
 - Section heading: "Billing & Subscription" (text-2xl, font-bold, mb-6)
 
 CURRENT PLAN CARD (Enhanced):
+
 - Card: border-2 border-blue-600, rounded-xl, p-6
 - Header:
-  * Badges (flex gap-2):
+  - Badges (flex gap-2):
     - "Current Plan" (bg-blue-100, text-blue-800)
     - "🎉 {discountPercent}% AFFILIATE DISCOUNT" (bg-green-100, text-green-800) - CONDITIONAL
       → Use dynamic discountPercent from useAffiliateConfig()
-  * Plan name: "Pro Plan" (text-2xl, font-bold, mt-4)
+  - Plan name: "Pro Plan" (text-2xl, font-bold, mt-4)
 
 - PRICING DISPLAY (TWO VERSIONS):
 
@@ -125,14 +136,15 @@ CURRENT PLAN CARD (Enhanced):
     → Use dynamic price
 
   - AFFILIATE DISCOUNT DETAILS (conditional box):
-    * Container: bg-green-50, border-l-4 border-green-500, p-3, rounded-lg, mt-4
-    * Icon: ℹ️
-    * Heading: "Discount Applied This Month" (font-semibold, text-green-800, text-sm)
-    * Details: "Applied with code: {appliedCode}" (text-green-700, text-xs, mt-1)
-    * Notice: "Your code gave you {discountPercent}% off this payment. Find new codes on social media monthly to keep saving!" (text-green-600, text-xs, italic, mt-1)
+    - Container: bg-green-50, border-l-4 border-green-500, p-3, rounded-lg, mt-4
+    - Icon: ℹ️
+    - Heading: "Discount Applied This Month" (font-semibold, text-green-800, text-sm)
+    - Details: "Applied with code: {appliedCode}" (text-green-700, text-xs, mt-1)
+    - Notice: "Your code gave you {discountPercent}% off this payment. Find new codes on social media monthly to keep saving!" (text-green-600, text-xs, italic, mt-1)
       → Use dynamic discountPercent
 
 AFFILIATE BENEFITS CARD (NEW - conditional section):
+
 - Position: AFTER Current Plan, BEFORE Payment Method
 - Section subheading: "🎁 Your Affiliate Benefits" (text-lg, font-semibold, mb-4)
 - Card: bg-gradient-to-r from-green-50 to-blue-50, rounded-xl, p-6, border-2 border-green-200
@@ -158,17 +170,20 @@ AFFILIATE BENEFITS CARD (NEW - conditional section):
   - Subtext: "Find new codes on social media for next month's discount" (text-xs, text-gray-500, mt-1)
 
 PAYMENT METHOD:
+
 - Card with payment details:
-  * Icon: 💳
-  * "Visa ending in ****4242"
-  * "Expires: 12/2026"
-  * "Update Card" button
+  - Icon: 💳
+  - "Visa ending in \*\*\*\*4242"
+  - "Expires: 12/2026"
+  - "Update Card" button
 
 USAGE STATISTICS:
+
 - API Calls: 8,456 / 10,000 (progress bar)
 - Alerts Sent: 234 / Unlimited (progress bar)
 
 BILLING HISTORY TABLE (Enhanced with Dynamic Discount):
+
 - Table with discount amounts if applicable
 
 WITHOUT discount:
@@ -178,7 +193,7 @@ WITHOUT discount:
 WITH discount:
 | Dec 15, 2024 | Pro Plan ({discountPercent}% off) ℹ️ | ${calculateDiscountedPrice(29)} | Paid | Download |
 | Nov 15, 2024 | Pro Plan ({discountPercent}% off) ℹ️ | ${calculateDiscountedPrice(29)} | Paid | Download |
-  → Use dynamic discountPercent and calculateDiscountedPrice()
+→ Use dynamic discountPercent and calculateDiscountedPrice()
 
 - Info icon tooltip: "Original: $29.00 | Discount: -${29 - calculateDiscountedPrice(29)} | Paid: ${calculateDiscountedPrice(29)}"
   → Calculate discount amount dynamically
@@ -186,27 +201,29 @@ WITH discount:
 "Manage Subscription" button → links to full billing page
 
 TAB 5: APPEARANCE:
+
 - Section heading: "Appearance Settings" (text-2xl, font-bold, mb-6)
 - Theme selector:
-  * Three cards: Light | Dark | System (auto)
-  * Each card: Preview image + radio button
-  * Active: border-2 border-blue-600, bg-blue-50
+  - Three cards: Light | Dark | System (auto)
+  - Each card: Preview image + radio button
+  - Active: border-2 border-blue-600, bg-blue-50
 - Color scheme selector (optional):
-  * Color swatches: Blue (default) | Purple | Green | Orange
+  - Color swatches: Blue (default) | Purple | Green | Orange
 - Chart preferences:
-  * Candlestick colors (customize)
-  * Grid line opacity slider
+  - Candlestick colors (customize)
+  - Grid line opacity slider
 - "Apply Changes" button
 
 TAB 6: LANGUAGE:
+
 - Section heading: "Language & Region" (text-2xl, font-bold, mb-6)
 - Language dropdown:
-  * 🇺🇸 English (US)
-  * 🇬🇧 English (UK)
-  * 🇪🇸 Español
-  * 🇫🇷 Français
-  * 🇩🇪 Deutsch
-  * 🇯🇵 日本語
+  - 🇺🇸 English (US)
+  - 🇬🇧 English (UK)
+  - 🇪🇸 Español
+  - 🇫🇷 Français
+  - 🇩🇪 Deutsch
+  - 🇯🇵 日本語
 - Timezone dropdown (auto-detected)
 - Date format selector: MM/DD/YYYY | DD/MM/YYYY | YYYY-MM-DD
 - Time format: 12-hour | 24-hour
@@ -214,39 +231,44 @@ TAB 6: LANGUAGE:
 - "Save Settings" button
 
 TAB 7: HELP & SUPPORT:
+
 - Section heading: "Help & Support" (text-2xl, font-bold, mb-6)
 - Quick links section:
-  * "📖 Documentation" → External link
-  * "💬 Live Chat" → Opens chat widget
-  * "📧 Email Support" → Opens email form
-  * "🐛 Report a Bug" → Bug report form
+  - "📖 Documentation" → External link
+  - "💬 Live Chat" → Opens chat widget
+  - "📧 Email Support" → Opens email form
+  - "🐛 Report a Bug" → Bug report form
 - FAQ section (Accordion):
-  * "How do I upgrade to PRO?"
-  * "How do alerts work?"
-  * "Can I change my email?"
-  * "How do I cancel my subscription?"
+  - "How do I upgrade to PRO?"
+  - "How do alerts work?"
+  - "Can I change my email?"
+  - "How do I cancel my subscription?"
 - Contact form:
-  * Subject dropdown
-  * Message textarea
-  * "Send Message" button
+  - Subject dropdown
+  - Message textarea
+  - "Send Message" button
 
 5. COMMON ELEMENTS (All tabs):
 
 Unsaved Changes Warning:
+
 - When user modifies any field and tries to switch tabs:
-  * Modal: "You have unsaved changes. Do you want to save them before leaving?"
-  * Buttons: [Save & Continue] [Discard Changes] [Cancel]
+  - Modal: "You have unsaved changes. Do you want to save them before leaving?"
+  - Buttons: [Save & Continue] [Discard Changes] [Cancel]
 
 Save Success Toast:
+
 - Appears top-right after saving: bg-green-500, text-white, rounded-lg, p-4, shadow-lg
 - Message: "✓ Settings saved successfully"
 - Auto-dismiss after 3 seconds
 
 Error Toast:
+
 - Appears top-right on error: bg-red-500, text-white, rounded-lg, p-4, shadow-lg
 - Message: "⚠️ Failed to save settings. Please try again."
 
 6. NAVIGATION STATE MANAGEMENT:
+
 - Use URL query params to track active tab: /settings?tab=profile
 - Browser back/forward buttons work correctly
 - Deep linking support: /settings?tab=billing directly opens billing tab
@@ -255,15 +277,18 @@ Error Toast:
 7. RESPONSIVE DESIGN:
 
 Desktop (>= 1024px):
+
 - Two-column layout (tabs + content)
 - Fixed width sidebar
 - Content area takes remaining space
 
 Tablet (768px - 1023px):
+
 - Tabs collapse to horizontal scrollable bar at top
 - Content takes full width below
 
 Mobile (< 768px):
+
 - Compact horizontal tabs with icons only (labels on active tab)
 - Full-width content
 - Form inputs stack vertically
@@ -271,6 +296,7 @@ Mobile (< 768px):
 - Affiliate benefits grid: 3 columns → 1 column
 
 8. VISUAL POLISH:
+
 - Smooth tab transitions (fade in/out)
 - Loading states for API calls
 - Skeleton loaders while fetching data
@@ -279,6 +305,7 @@ Mobile (< 768px):
 - Proper spacing and alignment
 
 9. ACCESSIBILITY:
+
 - Keyboard navigation between tabs (arrow keys)
 - Focus management when switching tabs
 - ARIA labels for tabs and panels
@@ -286,6 +313,7 @@ Mobile (< 768px):
 - Proper heading hierarchy
 
 10. TECHNICAL:
+
 - Export as default component
 - TypeScript with proper types
 - Props: initialTab (string, optional, default: 'profile'), affiliateDiscount (optional)
@@ -656,6 +684,7 @@ export default function SettingsPage({
 ```
 
 **SYSTEMCONFIG INTEGRATION CHECKLIST:**
+
 - ✅ Imported useAffiliateConfig hook
 - ✅ No hardcoded "20%" or "20.0" anywhere
 - ✅ No hardcoded "$23.20", "$5.80", "$17.40" anywhere

@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/login-form"
+import { LoginForm } from '@/components/login-form';
 
 export default function LoginPage() {
   return (
@@ -6,13 +6,13 @@ export default function LoginPage() {
       <LoginForm
         onSuccess={() => {
           // Handle successful login
-          console.log("Login successful!")
+          console.log('Login successful!');
         }}
         onForgotPassword={() => {
           // Handle forgot password
-          console.log("Forgot password clicked")
+          console.log('Forgot password clicked');
         }}
       />
     </div>
-  )
+  );
 }

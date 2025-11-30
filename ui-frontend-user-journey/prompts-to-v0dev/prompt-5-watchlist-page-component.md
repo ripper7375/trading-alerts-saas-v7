@@ -142,5 +142,4 @@ State for: selected symbol, selected timeframe, dropdown menus
 Validation: Check if symbol+timeframe combo already exists, check tier limits
 Mock data for demonstration
 
-
 Generate complete, production-ready code with sample data that I can copy and run immediately.

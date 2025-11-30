@@ -34,24 +34,27 @@ Enable external affiliates to promote the Trading Alerts SaaS, earn commissions 
 ### 1. Affiliate System Overview
 
 **What is an Affiliate?**
+
 - External partner who promotes Trading Alerts to earn commissions
 - Can be existing SaaS user or dedicated affiliate (dual roles supported)
 - Receives monthly allocation of discount codes (15 codes)
 - Earns $5 USD commission per PRO subscription via their code
-- Accesses affiliate portal at /affiliate/* routes (same login as SaaS users)
+- Accesses affiliate portal at /affiliate/\* routes (same login as SaaS users)
 - Gets paid monthly when commission balance ≥ $50 USD
 
 **Commission Structure:**
+
 ```typescript
 const COMMISSION = {
-  perUpgrade: 5.00,        // $5 per PRO subscription
-  minimumPayout: 50.00,    // Must have ≥$50 to request payment
+  perUpgrade: 5.0, // $5 per PRO subscription
+  minimumPayout: 50.0, // Must have ≥$50 to request payment
   paymentMethods: ['BANK_TRANSFER', 'PAYPAL', 'CRYPTOCURRENCY', 'WISE'],
-  paymentFrequency: 'MONTHLY'
-}
+  paymentFrequency: 'MONTHLY',
+};
 ```
 
 **Code Distribution:**
+
 - New affiliates: 15 codes upon email verification
 - Monthly: 15 codes on 1st of each month (00:00 UTC)
 - Bonus: Admin can manually distribute additional codes
@@ -90,6 +93,7 @@ const COMMISSION = {
    - Redirects to `/affiliate/dashboard`
 
 **Validation Rules:**
+
 - Email must be unique (no existing affiliate or user with same email)
 - Password: min 8 chars, at least 1 uppercase, 1 lowercase, 1 number
 - Country: must be from allowed list
@@ -102,24 +106,27 @@ const COMMISSION = {
 **Dashboard Layout (app/affiliate/dashboard/page.tsx)**
 
 **Quick Stats Cards:**
+
 ```typescript
 interface DashboardStats {
-  totalCodesDistributed: number    // All-time codes received
-  activeCodesCount: number          // Current month unused codes
-  usedCodesCount: number            // All-time codes used
-  totalEarnings: number             // All-time commissions (USD)
-  pendingCommissions: number        // Unpaid commissions (USD)
-  paidCommissions: number           // Paid commissions (USD)
-  currentMonthEarnings: number      // This month's commissions
-  conversionRate: number            // usedCodes / totalCodes * 100
+  totalCodesDistributed: number; // All-time codes received
+  activeCodesCount: number; // Current month unused codes
+  usedCodesCount: number; // All-time codes used
+  totalEarnings: number; // All-time commissions (USD)
+  pendingCommissions: number; // Unpaid commissions (USD)
+  paidCommissions: number; // Paid commissions (USD)
+  currentMonthEarnings: number; // This month's commissions
+  conversionRate: number; // usedCodes / totalCodes * 100
 }
 ```
 
 **Recent Activity Table:**
+
 - Last 10 code uses
 - Columns: Date | Code | User Email (masked) | Commission | Status
 
 **Action Buttons:**
+
 - View Code Inventory Report
 - View Commission Report
 - Update Payment Method
@@ -132,29 +139,31 @@ interface DashboardStats {
 
 ```typescript
 interface CodeInventoryReport {
-  period: { start: Date, end: Date }      // Current month
-  openingBalance: number                   // Codes at start of month
+  period: { start: Date; end: Date }; // Current month
+  openingBalance: number; // Codes at start of month
   additions: {
-    monthlyDistribution: number            // 15 codes on 1st
-    bonusDistribution: number              // Admin manual distribution
-    total: number
-  }
+    monthlyDistribution: number; // 15 codes on 1st
+    bonusDistribution: number; // Admin manual distribution
+    total: number;
+  };
   reductions: {
-    used: number                           // Codes redeemed by users
-    expired: number                        // Codes expired end-of-month
-    cancelled: number                      // Admin cancelled codes
-    total: number
-  }
-  closingBalance: number                   // Current active codes
+    used: number; // Codes redeemed by users
+    expired: number; // Codes expired end-of-month
+    cancelled: number; // Admin cancelled codes
+    total: number;
+  };
+  closingBalance: number; // Current active codes
 }
 ```
 
 **Reconciliation Formula:**
+
 ```
 closingBalance = openingBalance + additions.total - reductions.total
 ```
 
 **Drill-Down:**
+
 - Click on any number → see individual transactions
 - Example: Click "Used: 3" → shows 3 codes with dates, users, commissions
 
@@ -166,36 +175,37 @@ closingBalance = openingBalance + additions.total - reductions.total
 
 ```typescript
 interface CommissionReport {
-  period: { start: Date, end: Date }      // Month selector
-  openingBalance: number                   // Unpaid balance from previous month
+  period: { start: Date; end: Date }; // Month selector
+  openingBalance: number; // Unpaid balance from previous month
   earned: {
-    codes: CodeCommission[]                // Each code that earned commission
-    subtotal: number                       // Total earned this period
-  }
+    codes: CodeCommission[]; // Each code that earned commission
+    subtotal: number; // Total earned this period
+  };
   payments: {
-    transactions: Payment[]                // Each payment received
-    subtotal: number                       // Total paid this period
-  }
-  closingBalance: number                   // Current unpaid balance
+    transactions: Payment[]; // Each payment received
+    subtotal: number; // Total paid this period
+  };
+  closingBalance: number; // Current unpaid balance
 }
 
 interface CodeCommission {
-  date: Date
-  code: string
-  userEmail: string                        // Masked: "u***@example.com"
-  amount: number                           // $5.00
-  status: 'PENDING' | 'PAID'
+  date: Date;
+  code: string;
+  userEmail: string; // Masked: "u***@example.com"
+  amount: number; // $5.00
+  status: 'PENDING' | 'PAID';
 }
 
 interface Payment {
-  date: Date
-  method: string                           // "Bank Transfer", "PayPal", etc.
-  amount: number                           // Payment amount
-  reference: string                        // Transaction ID
+  date: Date;
+  method: string; // "Bank Transfer", "PayPal", etc.
+  amount: number; // Payment amount
+  reference: string; // Transaction ID
 }
 ```
 
 **Reconciliation Formula:**
+
 ```
 closingBalance = openingBalance + earned.subtotal - payments.subtotal
 ```
@@ -207,6 +217,7 @@ closingBalance = openingBalance + earned.subtotal - payments.subtotal
 **Critical:** Affiliates use the **same NextAuth authentication system** as SaaS users with unified RBAC.
 
 **Unified Auth Approach:**
+
 - Users can be both SaaS users AND affiliates (dual roles)
 - Single NextAuth session with `session.user.isAffiliate: boolean` flag
 - Affiliate status grants access to affiliate portal routes
@@ -395,21 +406,29 @@ export async function GET(req: NextRequest) {
   });
 
   if (!profile) {
-    return NextResponse.json({ error: 'Affiliate profile not found' }, { status: 404 });
+    return NextResponse.json(
+      { error: 'Affiliate profile not found' },
+      { status: 404 }
+    );
   }
 
   // Calculate stats from profile data
   const stats = {
     totalCodesDistributed: profile.codesDistributed,
-    activeCodesCount: profile.affiliateCodes.filter(c => c.status === 'ACTIVE').length,
+    activeCodesCount: profile.affiliateCodes.filter(
+      (c) => c.status === 'ACTIVE'
+    ).length,
     usedCodesCount: profile.codesUsed,
     totalEarnings: profile.totalEarnings,
     pendingCommissions: profile.commissions
-      .filter(c => c.status === 'PENDING')
+      .filter((c) => c.status === 'PENDING')
       .reduce((sum, c) => sum + Number(c.amount), 0),
     paidCommissions: profile.paidCommissions,
     currentMonthEarnings: calculateCurrentMonthEarnings(profile.commissions),
-    conversionRate: calculateConversionRate(profile.codesDistributed, profile.codesUsed),
+    conversionRate: calculateConversionRate(
+      profile.codesDistributed,
+      profile.codesUsed
+    ),
   };
 
   return NextResponse.json(stats);
@@ -466,6 +485,7 @@ User Flow:
 ### 7. Code Generation (Crypto-Secure)
 
 **Requirements:**
+
 - Codes must be cryptographically secure (NO Math.random())
 - Codes must be unique (check before creation)
 - Format: 8-12 alphanumeric characters, uppercase
@@ -476,60 +496,57 @@ User Flow:
 ```typescript
 // lib/affiliate/code-generator.ts
 
-import crypto from 'crypto'
+import crypto from 'crypto';
 
 async function generateUniqueCode(): Promise<string> {
-  const maxAttempts = 10
+  const maxAttempts = 10;
 
   for (let i = 0; i < maxAttempts; i++) {
     // Generate 16 random bytes
-    const bytes = crypto.randomBytes(6)
+    const bytes = crypto.randomBytes(6);
 
     // Convert to base36 (0-9, A-Z) and take first 8 chars
-    const code = bytes
-      .toString('hex')
-      .toUpperCase()
-      .slice(0, 8)
+    const code = bytes.toString('hex').toUpperCase().slice(0, 8);
 
     // Check uniqueness
     const exists = await prisma.affiliateCode.findUnique({
-      where: { code }
-    })
+      where: { code },
+    });
 
     if (!exists) {
-      return code
+      return code;
     }
   }
 
-  throw new Error('Failed to generate unique code after 10 attempts')
+  throw new Error('Failed to generate unique code after 10 attempts');
 }
 
 // Distribute codes to affiliate
 async function distributeCodes(
-  affiliateProfileId: string,  // Links to AffiliateProfile (NOT affiliateId)
+  affiliateProfileId: string, // Links to AffiliateProfile (NOT affiliateId)
   count: number,
   reason: 'MONTHLY' | 'INITIAL' | 'BONUS'
 ): Promise<AffiliateCode[]> {
-  const codes: AffiliateCode[] = []
+  const codes: AffiliateCode[] = [];
 
   for (let i = 0; i < count; i++) {
-    const code = await generateUniqueCode()
+    const code = await generateUniqueCode();
 
     const affiliateCode = await prisma.affiliateCode.create({
       data: {
         code,
-        affiliateProfileId,  // Uses unified auth schema
+        affiliateProfileId, // Uses unified auth schema
         status: 'ACTIVE',
         distributedAt: new Date(),
         distributionReason: reason,
-        expiresAt: getEndOfMonth()          // Last day of month, 23:59:59 UTC
-      }
-    })
+        expiresAt: getEndOfMonth(), // Last day of month, 23:59:59 UTC
+      },
+    });
 
-    codes.push(affiliateCode)
+    codes.push(affiliateCode);
   }
 
-  return codes
+  return codes;
 }
 ```
 
@@ -540,6 +557,7 @@ async function distributeCodes(
 **Critical:** Commissions can **ONLY** be created via Stripe webhook. NO manual API creation allowed.
 
 **Why?**
+
 - Prevents fraud (affiliates can't create fake commissions)
 - Ensures commissions tied to real payments
 - Single source of truth (Stripe)
@@ -547,21 +565,22 @@ async function distributeCodes(
 **Flow:**
 
 1. **User Checkout with Code**
+
    ```typescript
    // app/api/checkout/create-session/route.ts
 
    // Validate code
    const affiliateCode = await prisma.affiliateCode.findUnique({
      where: { code },
-     include: { affiliateProfile: true }  // Unified auth: includes profile
-   })
+     include: { affiliateProfile: true }, // Unified auth: includes profile
+   });
 
    if (!affiliateCode || affiliateCode.status !== 'ACTIVE') {
-     return NextResponse.json({ error: 'Invalid code' }, { status: 400 })
+     return NextResponse.json({ error: 'Invalid code' }, { status: 400 });
    }
 
    if (new Date() > affiliateCode.expiresAt) {
-     return NextResponse.json({ error: 'Code expired' }, { status: 400 })
+     return NextResponse.json({ error: 'Code expired' }, { status: 400 });
    }
 
    // Create Stripe checkout session
@@ -570,42 +589,45 @@ async function distributeCodes(
      metadata: {
        userId: user.id,
        tier: 'PRO',
-       affiliateCodeId: affiliateCode.id,                     // ← Store code ID
-       affiliateProfileId: affiliateCode.affiliateProfileId   // ← Store affiliate profile ID (unified auth)
+       affiliateCodeId: affiliateCode.id, // ← Store code ID
+       affiliateProfileId: affiliateCode.affiliateProfileId, // ← Store affiliate profile ID (unified auth)
      },
-     discounts: [{
-       coupon: '10PERCENTOFF'                   // $29 → $26.10
-     }]
-   })
+     discounts: [
+       {
+         coupon: '10PERCENTOFF', // $29 → $26.10
+       },
+     ],
+   });
    ```
 
 2. **Stripe Webhook Handler**
+
    ```typescript
    // app/api/webhooks/stripe/route.ts
 
    if (event.type === 'checkout.session.completed') {
-     const session = event.data.object
-     const { userId, affiliateCodeId, affiliateProfileId } = session.metadata  // Unified auth
+     const session = event.data.object;
+     const { userId, affiliateCodeId, affiliateProfileId } = session.metadata; // Unified auth
 
      if (affiliateCodeId && affiliateProfileId) {
        // Calculate commission
-       const netRevenue = 26.10                  // $29 - $2.90 discount
-       const commissionAmount = 5.00             // Fixed $5 per upgrade
+       const netRevenue = 26.1; // $29 - $2.90 discount
+       const commissionAmount = 5.0; // Fixed $5 per upgrade
 
        // Create commission
        await prisma.commission.create({
          data: {
-           affiliateProfileId,  // Unified auth: links to AffiliateProfile
+           affiliateProfileId, // Unified auth: links to AffiliateProfile
            affiliateCodeId,
            userId,
            amount: commissionAmount,
            netRevenue,
-           discount: 2.90,
+           discount: 2.9,
            status: 'PENDING',
            earnedAt: new Date(),
-           stripePaymentId: session.payment_intent
-         }
-       })
+           stripePaymentId: session.payment_intent,
+         },
+       });
 
        // Mark code as USED
        await prisma.affiliateCode.update({
@@ -613,31 +635,31 @@ async function distributeCodes(
          data: {
            status: 'USED',
            usedAt: new Date(),
-           usedBy: userId
-         }
-       })
+           usedBy: userId,
+         },
+       });
 
        // Update affiliate profile total earnings
        await prisma.affiliateProfile.update({
-         where: { id: affiliateProfileId },  // Unified auth: update profile
+         where: { id: affiliateProfileId }, // Unified auth: update profile
          data: {
            totalEarnings: { increment: commissionAmount },
-           codesUsed: { increment: 1 }
-         }
-       })
+           codesUsed: { increment: 1 },
+         },
+       });
 
        // Get user email for notification (unified auth: profile.user.email)
        const affiliateProfile = await prisma.affiliateProfile.findUnique({
          where: { id: affiliateProfileId },
-         include: { user: true }  // Get user for email
-       })
+         include: { user: true }, // Get user for email
+       });
 
        // Send notification email
        await sendEmail({
-         to: affiliateProfile.user.email,  // Unified auth: user email
+         to: affiliateProfile.user.email, // Unified auth: user email
          template: 'code-used',
-         data: { code, commission: commissionAmount }
-       })
+         data: { code, commission: commissionAmount },
+       });
      }
    }
    ```
@@ -651,6 +673,7 @@ async function distributeCodes(
 Admins use the **same NextAuth authentication system** as SaaS users and affiliates, with role-based access control (RBAC).
 
 **Admin Accounts:**
+
 - **2 fixed admin accounts** (pre-seeded via Prisma seed)
   - Admin 1: Pure admin (`role='ADMIN'`, `isAffiliate=false`, `tier='FREE'`)
     - Email: `admin@tradingalerts.com`
@@ -661,6 +684,7 @@ Admins use the **same NextAuth authentication system** as SaaS users and affilia
     - Has `AffiliateProfile` with ACTIVE status
 
 **Admin Login:**
+
 - Dedicated admin login page: `/admin/login`
 - Credentials only (no Google OAuth for security)
 - Post-login verification: checks `session.user.role === 'ADMIN'`
@@ -668,6 +692,7 @@ Admins use the **same NextAuth authentication system** as SaaS users and affilia
 - Non-admin users see error: "Admin credentials required"
 
 **Admin Access Control:**
+
 ```typescript
 // lib/auth/session.ts (Part 5)
 export async function requireAdmin(): Promise<Session> {
@@ -695,15 +720,18 @@ export async function GET(req: NextRequest) {
 #### 9.1 Affiliate List (app/admin/affiliates/page.tsx)
 
 **Filters:**
+
 - Status: ACTIVE | SUSPENDED | PENDING_VERIFICATION
 - Country
 - Payment method
 - Date registered
 
 **Columns:**
+
 - Name | Email | Country | Codes (Active/Total) | Earnings (Pending/Total) | Status | Actions
 
 **Actions:**
+
 - View details
 - Distribute codes (bonus)
 - Suspend account
@@ -712,22 +740,26 @@ export async function GET(req: NextRequest) {
 #### 9.2 Affiliate Details (app/admin/affiliates/[id]/page.tsx)
 
 **Overview Card:**
+
 - Name, email, country, payment method
 - Registration date, verification date
 - Status badge
 
 **Performance Metrics:**
+
 - Total codes distributed
 - Codes used (with conversion rate)
 - Total earnings, pending commissions, paid commissions
 - Last code use date
 
 **Recent Activity:**
+
 - Code uses (last 20)
 - Commission payments (last 10)
 - Code distributions (all)
 
 **Actions:**
+
 - Distribute bonus codes (modal)
 - Suspend account (modal with reason)
 - Process commission payment (if balance ≥ $50)
@@ -736,18 +768,20 @@ export async function GET(req: NextRequest) {
 #### 9.3 Manual Code Distribution
 
 **Use Cases:**
+
 - Bonus codes for high-performing affiliates
 - Make up for technical issues
 - Special promotions
 
 **Modal:**
+
 ```typescript
 interface DistributeCodesModal {
-  affiliateId: string
-  affiliateName: string
-  count: number                              // Input 1-50
-  reason: string                             // Textarea
-  expiresAt: Date                            // Date picker (default: end of month)
+  affiliateId: string;
+  affiliateName: string;
+  count: number; // Input 1-50
+  reason: string; // Textarea
+  expiresAt: Date; // Date picker (default: end of month)
 }
 ```
 
@@ -756,11 +790,13 @@ interface DistributeCodesModal {
 #### 9.4 Account Suspension
 
 **Reasons:**
+
 - Fraud detection
 - Terms of service violation
 - Spam/abuse
 
 **Effects:**
+
 - Affiliate can't login
 - All ACTIVE codes become SUSPENDED
 - No new codes distributed
@@ -776,22 +812,22 @@ interface DistributeCodesModal {
 
 ```typescript
 interface ProfitLossReport {
-  period: { start: Date, end: Date }
+  period: { start: Date; end: Date };
   revenue: {
-    grossRevenue: number                     // All PRO subscriptions ($29 each)
-    discounts: number                        // Total discounts given via codes
-    netRevenue: number                       // Gross - Discounts
-  }
+    grossRevenue: number; // All PRO subscriptions ($29 each)
+    discounts: number; // Total discounts given via codes
+    netRevenue: number; // Gross - Discounts
+  };
   costs: {
-    commissionsPaid: number                  // Commissions paid to affiliates
-    commissionsPending: number               // Unpaid commissions
-    totalCommissions: number                 // Paid + Pending
-  }
+    commissionsPaid: number; // Commissions paid to affiliates
+    commissionsPending: number; // Unpaid commissions
+    totalCommissions: number; // Paid + Pending
+  };
   profit: {
-    beforeCommissions: number                // Net revenue
-    afterCommissions: number                 // Net revenue - Total commissions
-    margin: number                           // (After / Net) * 100
-  }
+    beforeCommissions: number; // Net revenue
+    afterCommissions: number; // Net revenue - Total commissions
+    margin: number; // (After / Net) * 100
+  };
 }
 ```
 
@@ -802,21 +838,23 @@ interface ProfitLossReport {
 **Time Range:** Current month (default), custom
 
 **Table:**
+
 ```typescript
 interface AffiliateSalesRow {
-  rank: number
-  affiliateName: string
-  affiliateEmail: string
-  codesUsed: number
-  commissionsEarned: number
-  conversionRate: number                     // (Used / Distributed) * 100
-  averageOrderValue: number                  // Net revenue per code used
+  rank: number;
+  affiliateName: string;
+  affiliateEmail: string;
+  codesUsed: number;
+  commissionsEarned: number;
+  conversionRate: number; // (Used / Distributed) * 100
+  averageOrderValue: number; // Net revenue per code used
 }
 ```
 
 **Sorted by:** Codes used (descending)
 
 **Filters:**
+
 - Country
 - Payment method
 - Min codes used
@@ -826,25 +864,28 @@ interface AffiliateSalesRow {
 **Purpose:** Track unpaid commissions for payment processing
 
 **Table:**
+
 ```typescript
 interface CommissionOwingRow {
-  affiliateId: string
-  affiliateName: string
-  affiliateEmail: string
-  paymentMethod: string
-  paymentDetails: string                     // Bank account, PayPal, etc.
-  pendingCommissions: number                 // Total unpaid amount
-  oldestUnpaidDate: Date                     // Earliest unpaid commission
-  paymentEligible: boolean                   // pendingCommissions >= $50
+  affiliateId: string;
+  affiliateName: string;
+  affiliateEmail: string;
+  paymentMethod: string;
+  paymentDetails: string; // Bank account, PayPal, etc.
+  pendingCommissions: number; // Total unpaid amount
+  oldestUnpaidDate: Date; // Earliest unpaid commission
+  paymentEligible: boolean; // pendingCommissions >= $50
 }
 ```
 
 **Filters:**
+
 - Payment eligible only
 - Payment method
 - Country
 
 **Bulk Actions:**
+
 - Select affiliates
 - Mark selected as paid (with payment reference)
 
@@ -853,22 +894,23 @@ interface CommissionOwingRow {
 **Purpose:** System-wide code distribution overview
 
 **Aggregate Stats:**
+
 ```typescript
 interface SystemCodeInventory {
-  totalAffiliates: number
-  activeAffiliates: number
+  totalAffiliates: number;
+  activeAffiliates: number;
   currentMonth: {
-    totalCodesDistributed: number            // All affiliates
-    activeCodesCount: number                 // Unused
-    usedCodesCount: number                   // Redeemed
-    expiredCodesCount: number                // Expired
-    conversionRate: number                   // (Used / Distributed) * 100
-  }
+    totalCodesDistributed: number; // All affiliates
+    activeCodesCount: number; // Unused
+    usedCodesCount: number; // Redeemed
+    expiredCodesCount: number; // Expired
+    conversionRate: number; // (Used / Distributed) * 100
+  };
   allTime: {
-    totalCodesDistributed: number
-    usedCodesCount: number
-    conversionRate: number
-  }
+    totalCodesDistributed: number;
+    usedCodesCount: number;
+    conversionRate: number;
+  };
 }
 ```
 
@@ -885,16 +927,17 @@ interface SystemCodeInventory {
 **File:** `app/api/cron/distribute-codes/route.ts`
 
 **Process:**
+
 ```typescript
 async function monthlyDistribution() {
   // Get all ACTIVE affiliates
   const affiliates = await prisma.affiliate.findMany({
-    where: { status: 'ACTIVE' }
-  })
+    where: { status: 'ACTIVE' },
+  });
 
   for (const affiliate of affiliates) {
     // Distribute 15 codes
-    await distributeCodes(affiliate.id, 15, 'MONTHLY')
+    await distributeCodes(affiliate.id, 15, 'MONTHLY');
 
     // Send email notification
     await sendEmail({
@@ -903,16 +946,17 @@ async function monthlyDistribution() {
       data: {
         count: 15,
         month: currentMonth,
-        expiryDate: endOfMonth
-      }
-    })
+        expiryDate: endOfMonth,
+      },
+    });
   }
 
-  console.log(`Distributed codes to ${affiliates.length} affiliates`)
+  console.log(`Distributed codes to ${affiliates.length} affiliates`);
 }
 ```
 
 **Vercel Cron Config:**
+
 ```json
 {
   "path": "/api/cron/distribute-codes",
@@ -927,26 +971,28 @@ async function monthlyDistribution() {
 **File:** `app/api/cron/expire-codes/route.ts`
 
 **Process:**
+
 ```typescript
 async function monthlyExpiry() {
   // Get all ACTIVE codes expiring today
-  const today = new Date()
+  const today = new Date();
 
   const expiredCodes = await prisma.affiliateCode.updateMany({
     where: {
       status: 'ACTIVE',
-      expiresAt: { lte: today }
+      expiresAt: { lte: today },
     },
     data: {
-      status: 'EXPIRED'
-    }
-  })
+      status: 'EXPIRED',
+    },
+  });
 
-  console.log(`Expired ${expiredCodes.count} codes`)
+  console.log(`Expired ${expiredCodes.count} codes`);
 }
 ```
 
 **Vercel Cron Config:**
+
 ```json
 {
   "path": "/api/cron/expire-codes",
@@ -963,9 +1009,10 @@ async function monthlyExpiry() {
 **File:** `app/api/cron/send-monthly-reports/route.ts`
 
 **Process:**
+
 ```typescript
 async function sendMonthlyReports() {
-  const lastMonth = getPreviousMonth()
+  const lastMonth = getPreviousMonth();
 
   const affiliates = await prisma.affiliate.findMany({
     where: { status: 'ACTIVE' },
@@ -974,29 +1021,29 @@ async function sendMonthlyReports() {
         where: {
           distributedAt: {
             gte: lastMonth.start,
-            lte: lastMonth.end
-          }
-        }
+            lte: lastMonth.end,
+          },
+        },
       },
       commissions: {
         where: {
           earnedAt: {
             gte: lastMonth.start,
-            lte: lastMonth.end
-          }
-        }
-      }
-    }
-  })
+            lte: lastMonth.end,
+          },
+        },
+      },
+    },
+  });
 
   for (const affiliate of affiliates) {
-    const report = generateMonthlyReport(affiliate, lastMonth)
+    const report = generateMonthlyReport(affiliate, lastMonth);
 
     await sendEmail({
       to: affiliate.email,
       template: 'monthly-report',
-      data: report
-    })
+      data: report,
+    });
   }
 }
 ```
@@ -1195,6 +1242,7 @@ enum CommissionStatus {
 ```
 
 **Database Relationships:**
+
 - Affiliate → AffiliateCode (1:many)
 - Affiliate → Commission (1:many)
 - AffiliateCode → Commission (1:many)
@@ -1202,6 +1250,7 @@ enum CommissionStatus {
 - User → Commission (1:many)
 
 **Subscription Model Update:**
+
 ```prisma
 model Subscription {
   // ... existing fields ...
@@ -1217,6 +1266,7 @@ model Subscription {
 ### 14. API Endpoints Summary
 
 **Affiliate Portal (11 endpoints):**
+
 - `POST /api/affiliate/auth/register` - Register new affiliate
 - `POST /api/affiliate/auth/verify-email` - Verify email, activate account
 - `POST /api/affiliate/auth/login` - Login (returns JWT)
@@ -1230,6 +1280,7 @@ model Subscription {
 - `PUT /api/affiliate/profile/payment` - Update payment method
 
 **Admin Portal (14 endpoints):**
+
 - `GET /api/admin/affiliates` - List all affiliates (paginated, filtered)
 - `POST /api/admin/affiliates` - Manually create affiliate
 - `GET /api/admin/affiliates/[id]` - Get affiliate details
@@ -1246,11 +1297,13 @@ model Subscription {
 - `POST /api/admin/commissions/bulk-pay` - Mark multiple as paid
 
 **User Integration (2 endpoints - MODIFIED):**
+
 - `POST /api/checkout/validate-code` - NEW: Validate affiliate code before checkout
 - `POST /api/checkout/create-session` - MODIFIED: Accept affiliateCode parameter
 - `POST /api/webhooks/stripe` - MODIFIED: Create commission on checkout.session.completed
 
 **Cron Jobs (3 endpoints):**
+
 - `POST /api/cron/distribute-codes` - Monthly distribution (1st, 00:00 UTC)
 - `POST /api/cron/expire-codes` - Monthly expiry (last day, 23:59 UTC)
 - `POST /api/cron/send-monthly-reports` - Monthly emails (1st, 06:00 UTC)
@@ -1297,6 +1350,7 @@ model Subscription {
 ### 16. Testing Checklist
 
 **Affiliate Portal:**
+
 - [ ] Registration creates affiliate with PENDING_VERIFICATION status
 - [ ] Email verification activates affiliate and distributes 15 codes
 - [ ] Login returns JWT with correct structure
@@ -1307,6 +1361,7 @@ model Subscription {
 - [ ] Suspended affiliate can't login
 
 **Code Usage Flow:**
+
 - [ ] User can apply affiliate code at checkout
 - [ ] Invalid/expired/used code is rejected
 - [ ] Stripe checkout includes code in metadata
@@ -1316,6 +1371,7 @@ model Subscription {
 - [ ] Notification emails sent
 
 **Admin Portal:**
+
 - [ ] Affiliate list displays with correct filters
 - [ ] Affiliate details show accurate stats
 - [ ] Manual code distribution works
@@ -1324,6 +1380,7 @@ model Subscription {
 - [ ] Bulk commission payment works
 
 **Cron Jobs:**
+
 - [ ] Monthly distribution runs on 1st of month
 - [ ] 15 codes distributed to all ACTIVE affiliates
 - [ ] Code expiry runs on last day of month
@@ -1331,6 +1388,7 @@ model Subscription {
 - [ ] Monthly report emails sent
 
 **Security:**
+
 - [ ] User JWT rejected by affiliate routes
 - [ ] Affiliate JWT rejected by user routes
 - [ ] Can't create commission via API (only webhook)
@@ -1378,6 +1436,7 @@ model Subscription {
    - Add 3 cron job configurations
 
 **No Breaking Changes:**
+
 - Existing user flows unaffected
 - Checkout works without affiliate code (optional)
 - No changes to existing API contracts

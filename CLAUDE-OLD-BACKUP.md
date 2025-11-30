@@ -69,12 +69,14 @@ Phase 3: Building phase
 ### Why It's Critical:
 
 Without Claude Code validation:
+
 - ❌ Manual code review for 170+ files (40+ hours)
 - ❌ Inconsistent quality standards
 - ❌ Type errors slip through
 - ❌ Policy violations undetected
 
 With Claude Code validation:
+
 - ✅ Automatic validation for 170+ files (0 hours manual work)
 - ✅ Consistent quality across entire codebase
 - ✅ Type errors caught immediately
@@ -123,9 +125,9 @@ Claude Code is **embedded within Aider's workflow**. You don't call it directly;
 
 ```yaml
 # Aider loads Claude Code automatically
-model: anthropic/MiniMax-M2          # Model for code generation
-editor-model: anthropic/MiniMax-M2   # Model for code editing
-weak-model: anthropic/MiniMax-M2     # Model for simple tasks
+model: anthropic/MiniMax-M2 # Model for code generation
+editor-model: anthropic/MiniMax-M2 # Model for code editing
+weak-model: anthropic/MiniMax-M2 # Model for simple tasks
 
 # These files are loaded for validation context
 read:
@@ -186,18 +188,21 @@ Claude Code now works with the **Macro-to-Micro ordering system** that guides Ai
 ### Role Clarification
 
 **Build-Order Files** (`docs/build-orders/part-XX-*.md`)
+
 - **Purpose:** File-by-file build sequence instructions
 - **Contains:** WHAT to build, WHEN to build it, HOW to build it
 - **Usage:** Aider's PRIMARY instruction for building each part
 - **Example:** "File 3/12: app/api/alerts/route.ts, depends on files 1-2, use Pattern 5"
 
 **Implementation Guides** (`docs/implementation-guides/v5_part_*.md`)
+
 - **Purpose:** Business logic and requirements reference
 - **Contains:** WHY this logic, WHAT business rules apply
 - **Usage:** Aider's REFERENCE for understanding requirements
 - **Example:** "Alerts must validate tier restrictions: FREE users get 5 symbols"
 
 **Claude Code validates BOTH:**
+
 - ✅ File built in correct sequence (from build-orders)
 - ✅ Business logic implemented correctly (from implementation guides)
 - ✅ API contracts followed (from OpenAPI specs)
@@ -212,6 +217,7 @@ Claude Code performs comprehensive quality checks on every file Aider generates.
 ### 1️⃣ **TypeScript Type Safety**
 
 **What it checks:**
+
 - ✅ No `any` types used
 - ✅ All function parameters typed
 - ✅ All return types specified
@@ -222,15 +228,16 @@ Claude Code performs comprehensive quality checks on every file Aider generates.
 
 ```typescript
 // ❌ REJECTED by Claude Code
-export async function createUser(data) {  // No type!
-  const user = await prisma.user.create({ data })
-  return user  // No return type!
+export async function createUser(data) {
+  // No type!
+  const user = await prisma.user.create({ data });
+  return user; // No return type!
 }
 
 // ✅ APPROVED by Claude Code
 export async function createUser(data: CreateUserRequest): Promise<User> {
-  const user: User = await prisma.user.create({ data })
-  return user
+  const user: User = await prisma.user.create({ data });
+  return user;
 }
 ```
 
@@ -239,6 +246,7 @@ export async function createUser(data: CreateUserRequest): Promise<User> {
 ### 2️⃣ **Policy Compliance**
 
 **What it checks:**
+
 - ✅ Follows approval policies (01-approval-policies.md)
 - ✅ Meets quality standards (02-quality-standards.md)
 - ✅ Adheres to architecture rules (03-architecture-rules.md)
@@ -249,25 +257,25 @@ export async function createUser(data: CreateUserRequest): Promise<User> {
 ```typescript
 // ❌ REJECTED - Missing tier validation (violates 00-tier-specifications.md)
 export async function POST(req: NextRequest) {
-  const alert = await prisma.alert.create({ data: req.body })
-  return NextResponse.json(alert)
+  const alert = await prisma.alert.create({ data: req.body });
+  return NextResponse.json(alert);
 }
 
 // ✅ APPROVED - Includes tier validation
 export async function POST(req: NextRequest) {
-  const session = await getServerSession()
-  const userTier = session.user.tier
+  const session = await getServerSession();
+  const userTier = session.user.tier;
 
   // Validate tier restrictions
   if (!isSymbolAllowedForTier(symbol, userTier)) {
     return NextResponse.json(
       { error: 'Symbol not allowed for your tier' },
       { status: 403 }
-    )
+    );
   }
 
-  const alert = await prisma.alert.create({ data: req.body })
-  return NextResponse.json(alert)
+  const alert = await prisma.alert.create({ data: req.body });
+  return NextResponse.json(alert);
 }
 ```
 
@@ -276,6 +284,7 @@ export async function POST(req: NextRequest) {
 ### 3️⃣ **Error Handling**
 
 **What it checks:**
+
 - ✅ Try-catch blocks present
 - ✅ Specific error types caught
 - ✅ User-friendly error messages
@@ -287,27 +296,27 @@ export async function POST(req: NextRequest) {
 ```typescript
 // ❌ REJECTED - No error handling
 export async function POST(req: NextRequest) {
-  const user = await prisma.user.create({ data: req.body })
-  return NextResponse.json(user)
+  const user = await prisma.user.create({ data: req.body });
+  return NextResponse.json(user);
 }
 
 // ✅ APPROVED - Comprehensive error handling
 export async function POST(req: NextRequest) {
   try {
-    const user = await prisma.user.create({ data: req.body })
-    return NextResponse.json(user, { status: 201 })
+    const user = await prisma.user.create({ data: req.body });
+    return NextResponse.json(user, { status: 201 });
   } catch (error) {
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'Email already exists' },
         { status: 409 }
-      )
+      );
     }
-    console.error('User creation failed:', error)
+    console.error('User creation failed:', error);
     return NextResponse.json(
       { error: 'Failed to create user' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
@@ -317,6 +326,7 @@ export async function POST(req: NextRequest) {
 ### 4️⃣ **API Contract Compliance**
 
 **What it checks:**
+
 - ✅ Request types match OpenAPI spec
 - ✅ Response types match OpenAPI spec
 - ✅ HTTP methods correct
@@ -328,14 +338,14 @@ export async function POST(req: NextRequest) {
 ```typescript
 // ❌ REJECTED - Wrong return type
 export async function GET(req: NextRequest): Promise<NextResponse<string>> {
-  const alerts = await prisma.alert.findMany()
-  return NextResponse.json(alerts)  // Should return Alert[]
+  const alerts = await prisma.alert.findMany();
+  return NextResponse.json(alerts); // Should return Alert[]
 }
 
 // ✅ APPROVED - Matches OpenAPI spec
 export async function GET(req: NextRequest): Promise<NextResponse<Alert[]>> {
-  const alerts: Alert[] = await prisma.alert.findMany()
-  return NextResponse.json(alerts)
+  const alerts: Alert[] = await prisma.alert.findMany();
+  return NextResponse.json(alerts);
 }
 ```
 
@@ -344,6 +354,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<Alert[]>> {
 ### 5️⃣ **Code Patterns**
 
 **What it checks:**
+
 - ✅ Uses patterns from 05-coding-patterns.md
 - ✅ Consistent file structure
 - ✅ Import organization
@@ -369,6 +380,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 ### 6️⃣ **Security Standards**
 
 **What it checks:**
+
 - ✅ Authentication checks present
 - ✅ Authorization logic correct
 - ✅ Input validation included
@@ -380,27 +392,27 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 ```typescript
 // ❌ REJECTED - Missing authentication
 export async function DELETE(req: NextRequest) {
-  await prisma.alert.delete({ where: { id: req.params.id } })
-  return NextResponse.json({ success: true })
+  await prisma.alert.delete({ where: { id: req.params.id } });
+  return NextResponse.json({ success: true });
 }
 
 // ✅ APPROVED - Includes authentication and ownership check
 export async function DELETE(req: NextRequest) {
-  const session = await getServerSession()
+  const session = await getServerSession();
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const alert = await prisma.alert.findUnique({
-    where: { id: req.params.id }
-  })
+    where: { id: req.params.id },
+  });
 
   if (alert.userId !== session.user.id) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  await prisma.alert.delete({ where: { id: req.params.id } })
-  return NextResponse.json({ success: true })
+  await prisma.alert.delete({ where: { id: req.params.id } });
+  return NextResponse.json({ success: true });
 }
 ```
 
@@ -778,12 +790,14 @@ A file is **automatically approved** if:
 Claude Code triggers **auto-fix** when:
 
 1. **🔧 Minor type errors**
+
    ```typescript
    // Fixable: Missing return type
-   async function getUser(id: string)  // ← Missing Promise<User>
+   async function getUser(id: string); // ← Missing Promise<User>
    ```
 
 2. **🔧 Incomplete error handling**
+
    ```typescript
    // Fixable: Generic error message
    catch (error) {
@@ -792,22 +806,24 @@ Claude Code triggers **auto-fix** when:
    ```
 
 3. **🔧 Missing imports**
+
    ```typescript
    // Fixable: Forgot to import type
-   function create(data: CreateAlertRequest)  // ← Import missing
+   function create(data: CreateAlertRequest); // ← Import missing
    ```
 
 4. **🔧 Incorrect HTTP status codes**
+
    ```typescript
    // Fixable: Wrong status code
-   return NextResponse.json(user, { status: 200 })  // ← Should be 201
+   return NextResponse.json(user, { status: 200 }); // ← Should be 201
    ```
 
 5. **🔧 Pattern deviations (minor)**
    ```typescript
    // Fixable: Import order wrong
-   import { prisma } from '@/lib/prisma'
-   import { NextRequest } from 'next/server'  // ← Should be first
+   import { prisma } from '@/lib/prisma';
+   import { NextRequest } from 'next/server'; // ← Should be first
    ```
 
 ---
@@ -857,12 +873,14 @@ Follow these practices to maximize Claude Code's effectiveness.
 **Why:** Claude Code validates against YOUR policies
 
 **Do:**
+
 - ✅ Write specific, actionable policies
 - ✅ Include code examples in 05-coding-patterns.md
 - ✅ Define clear escalation triggers
 - ✅ Document edge cases
 
 **Don't:**
+
 - ❌ Write vague policies ("code should be good")
 - ❌ Skip examples
 - ❌ Leave ambiguities
@@ -873,6 +891,7 @@ Follow these practices to maximize Claude Code's effectiveness.
 ## Error Handling Standard
 
 ALL API routes must include:
+
 1. Try-catch block wrapping database operations
 2. Specific error handling for Prisma errors (P2002, P2025, etc.)
 3. User-friendly error messages (no technical details)
@@ -888,6 +907,7 @@ Example:
 ### 2️⃣ **Keep Policies Updated**
 
 **When to update:**
+
 - 🔄 After each escalation that reveals a gap
 - 🔄 When you make an architectural decision
 - 🔄 When you notice repeated issues
@@ -914,16 +934,19 @@ git push
 ### 3️⃣ **Trust Claude Code's Decisions**
 
 **Statistics from V6 testing:**
+
 - ✅ 90% of approvals are correct
 - ✅ 95% of fixes resolve issues
 - ✅ 98% of escalations are necessary
 
 **Do:**
+
 - ✅ Trust auto-approvals (Claude Code checked everything)
 - ✅ Review escalations carefully (they're important)
 - ✅ Learn from fixes (understand why code was changed)
 
 **Don't:**
+
 - ❌ Second-guess every approval (wastes time)
 - ❌ Ignore escalations (defeats the purpose)
 - ❌ Skip understanding fixes (miss learning opportunity)
@@ -935,6 +958,7 @@ git push
 **Why:** Aider is waiting for your decision
 
 **Best practice:**
+
 - ⏱️ Review escalations within 15 minutes
 - 📝 Document your decision reasoning
 - 🔄 Update policies if escalation reveals gap
@@ -960,17 +984,20 @@ Policy Update Needed:
 ### 5️⃣ **Monitor Validation Patterns**
 
 **Track these metrics:**
+
 - 📊 Approval rate (should be ~90%)
 - 📊 Fix rate (should be ~8%)
 - 📊 Escalation rate (should be ~2%)
 
 **If approval rate is low (<80%):**
+
 - ⚠️ Policies may be too strict
 - ⚠️ Coding patterns may be unclear
 - ⚠️ Requirements may be ambiguous
 - 🔧 **Action:** Review and simplify policies
 
 **If escalation rate is high (>5%):**
+
 - ⚠️ Requirements may be incomplete
 - ⚠️ Architectural decisions not documented
 - 🔧 **Action:** Add more examples to policies
@@ -997,6 +1024,7 @@ Policy Update Needed:
 Claude Code approved on first try! ✅
 
 What I did right:
+
 - Included comprehensive error handling
 - Validated tier restrictions before DB operation
 - Used types from OpenAPI-generated files
@@ -1020,11 +1048,13 @@ Common issues and solutions when using Claude Code validation.
 ### Issue 1: Claude Code Not Validating
 
 **Symptoms:**
+
 - Aider commits files without validation
 - No validation reports shown
 - Files approved instantly
 
 **Causes:**
+
 - `.aider.conf.yml` misconfigured
 - Policy files not loaded
 - API key issues
@@ -1052,11 +1082,13 @@ py -3.11 -m aider --model anthropic/MiniMax-M2 --verbose
 ### Issue 2: Too Many Escalations
 
 **Symptoms:**
-- >10% of files escalated
+
+- > 10% of files escalated
 - Same questions asked repeatedly
 - Validation feels too strict
 
 **Causes:**
+
 - Incomplete policies
 - Ambiguous requirements
 - Missing architectural decisions
@@ -1089,11 +1121,13 @@ git commit -m "docs: clarify notification strategy"
 ### Issue 3: Validation Too Slow
 
 **Symptoms:**
+
 - Each file takes >30 seconds to validate
 - Aider feels sluggish
 - API timeouts
 
 **Causes:**
+
 - Too many files in `read:` section
 - Network latency to API
 - Large policy files
@@ -1116,7 +1150,7 @@ read:
 # If a policy file is >5000 lines, split it
 
 # 3. Use faster model for validation
-weak-model: anthropic/MiniMax-M2  # Faster, cheaper for simple checks
+weak-model: anthropic/MiniMax-M2 # Faster, cheaper for simple checks
 ```
 
 ---
@@ -1124,11 +1158,13 @@ weak-model: anthropic/MiniMax-M2  # Faster, cheaper for simple checks
 ### Issue 4: False Positives (Good Code Rejected)
 
 **Symptoms:**
+
 - Claude Code rejects correct code
 - Validation errors don't make sense
 - Fixes make code worse
 
 **Causes:**
+
 - Policy conflicts
 - Outdated patterns
 - Unclear standards
@@ -1161,11 +1197,13 @@ vi docs/policies/05-coding-patterns.md
 ### Issue 5: API Rate Limiting
 
 **Symptoms:**
+
 - "Rate limit exceeded" errors
 - Validation randomly fails
 - Aider pauses frequently
 
 **Causes:**
+
 - Too many API calls
 - Exceeding MiniMax M2 rate limits
 - Concurrent Aider sessions
@@ -1205,29 +1243,29 @@ Let's see Claude Code validation in action with real scenarios from Phase 3.
 **Aider's Generated Code:**
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import bcrypt from 'bcrypt'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import bcrypt from 'bcrypt';
 
 export async function POST(req: NextRequest) {
-  const { email, password, name } = await req.json()
+  const { email, password, name } = await req.json();
 
-  const hashedPassword = await bcrypt.hash(password, 10)
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.create({
     data: {
       email,
       password: hashedPassword,
       name,
-      tier: 'FREE'
-    }
-  })
+      tier: 'FREE',
+    },
+  });
 
   return NextResponse.json({
     id: user.id,
     email: user.email,
-    name: user.name
-  })
+    name: user.name,
+  });
 }
 ```
 
@@ -1267,29 +1305,29 @@ Action: Regenerating with corrections...
 **Aider's Fixed Code:**
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { CreateUserRequest, User } from '@/lib/api-client'
-import bcrypt from 'bcrypt'
-import { z } from 'zod'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { CreateUserRequest, User } from '@/lib/api-client';
+import bcrypt from 'bcrypt';
+import { z } from 'zod';
 
 // Validation schema
 const signupSchema = z.object({
   email: z.string().email('Invalid email format'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  name: z.string().min(1, 'Name is required')
-})
+  name: z.string().min(1, 'Name is required'),
+});
 
 export async function POST(
   req: NextRequest
 ): Promise<NextResponse<User | { error: string }>> {
   try {
     // Parse and validate request body
-    const body = await req.json()
-    const validated = signupSchema.parse(body)
+    const body = await req.json();
+    const validated = signupSchema.parse(body);
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(validated.password, 10)
+    const hashedPassword = await bcrypt.hash(validated.password, 10);
 
     // Create user
     const user = await prisma.user.create({
@@ -1297,9 +1335,9 @@ export async function POST(
         email: validated.email,
         password: hashedPassword,
         name: validated.name,
-        tier: 'FREE'
-      }
-    })
+        tier: 'FREE',
+      },
+    });
 
     // Return user data (exclude password)
     const userResponse: User = {
@@ -1308,18 +1346,17 @@ export async function POST(
       name: user.name,
       tier: user.tier,
       createdAt: user.createdAt.toISOString(),
-      subscription: null
-    }
+      subscription: null,
+    };
 
-    return NextResponse.json(userResponse, { status: 201 })
-
+    return NextResponse.json(userResponse, { status: 201 });
   } catch (error) {
     // Handle validation errors
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.errors[0].message },
         { status: 400 }
-      )
+      );
     }
 
     // Handle duplicate email
@@ -1327,15 +1364,15 @@ export async function POST(
       return NextResponse.json(
         { error: 'Email already exists' },
         { status: 409 }
-      )
+      );
     }
 
     // Handle unexpected errors
-    console.error('User signup failed:', error)
+    console.error('User signup failed:', error);
     return NextResponse.json(
       { error: 'Failed to create user' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
@@ -1373,21 +1410,21 @@ Action: Committing file...
 **Aider's Generated Code:**
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { prisma } from '@/lib/prisma'
-import { CreateAlertRequest, Alert } from '@/lib/api-client'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { prisma } from '@/lib/prisma';
+import { CreateAlertRequest, Alert } from '@/lib/api-client';
 
 export async function POST(
   req: NextRequest
 ): Promise<NextResponse<Alert | { error: string }>> {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body: CreateAlertRequest = await req.json()
+    const body: CreateAlertRequest = await req.json();
 
     // Should we validate tier restrictions here?
     // Requirements say FREE users can only use certain symbols
@@ -1396,18 +1433,17 @@ export async function POST(
     const alert = await prisma.alert.create({
       data: {
         ...body,
-        userId: session.user.id
-      }
-    })
+        userId: session.user.id,
+      },
+    });
 
-    return NextResponse.json(alert, { status: 201 })
-
+    return NextResponse.json(alert, { status: 201 });
   } catch (error) {
-    console.error('Alert creation failed:', error)
+    console.error('Alert creation failed:', error);
     return NextResponse.json(
       { error: 'Failed to create alert' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
@@ -1479,75 +1515,71 @@ Then use it in all relevant route handlers.
 
 ```typescript
 // lib/tier-validation.ts
-import { Tier, TIER_LIMITS } from '@/lib/constants'
+import { Tier, TIER_LIMITS } from '@/lib/constants';
 
 export function validateTierAccess(
   symbol: string,
   timeframe: string,
   tier: Tier
 ): { allowed: boolean; reason?: string } {
-  const limits = TIER_LIMITS[tier]
+  const limits = TIER_LIMITS[tier];
 
   if (!limits.allowedSymbols.includes(symbol)) {
     return {
       allowed: false,
-      reason: `Symbol ${symbol} not allowed for ${tier} tier. Upgrade to PRO.`
-    }
+      reason: `Symbol ${symbol} not allowed for ${tier} tier. Upgrade to PRO.`,
+    };
   }
 
   if (!limits.allowedTimeframes.includes(timeframe)) {
     return {
       allowed: false,
-      reason: `Timeframe ${timeframe} not allowed for ${tier} tier. Upgrade to PRO.`
-    }
+      reason: `Timeframe ${timeframe} not allowed for ${tier} tier. Upgrade to PRO.`,
+    };
   }
 
-  return { allowed: true }
+  return { allowed: true };
 }
 
 // app/api/alerts/route.ts (revised)
-import { validateTierAccess } from '@/lib/tier-validation'
+import { validateTierAccess } from '@/lib/tier-validation';
 
 export async function POST(
   req: NextRequest
 ): Promise<NextResponse<Alert | { error: string }>> {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession();
     if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body: CreateAlertRequest = await req.json()
+    const body: CreateAlertRequest = await req.json();
 
     // Validate tier access
     const accessCheck = validateTierAccess(
       body.symbol,
       body.timeframe,
       session.user.tier
-    )
+    );
 
     if (!accessCheck.allowed) {
-      return NextResponse.json(
-        { error: accessCheck.reason },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: accessCheck.reason }, { status: 403 });
     }
 
     const alert = await prisma.alert.create({
       data: {
         ...body,
-        userId: session.user.id
-      }
-    })
+        userId: session.user.id,
+      },
+    });
 
-    return NextResponse.json(alert, { status: 201 })
-
+    return NextResponse.json(alert, { status: 201 });
   } catch (error) {
-    console.error('Alert creation failed:', error)
+    console.error('Alert creation failed:', error);
     return NextResponse.json(
       { error: 'Failed to create alert' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
@@ -1605,13 +1637,13 @@ Track these metrics to ensure Claude Code is working optimally.
 
 ### Target Metrics (from V6 data):
 
-| Metric | Target | Indicates |
-|--------|--------|-----------|
-| **Approval Rate** | 85-92% | Policies are clear and achievable |
-| **Fix Rate** | 6-12% | Minor issues caught early |
-| **Escalation Rate** | 2-5% | Major decisions flagged appropriately |
-| **Re-Fix Rate** | <2% | Fixes are effective first time |
-| **False Positive Rate** | <1% | Validation criteria are accurate |
+| Metric                  | Target | Indicates                             |
+| ----------------------- | ------ | ------------------------------------- |
+| **Approval Rate**       | 85-92% | Policies are clear and achievable     |
+| **Fix Rate**            | 6-12%  | Minor issues caught early             |
+| **Escalation Rate**     | 2-5%   | Major decisions flagged appropriately |
+| **Re-Fix Rate**         | <2%    | Fixes are effective first time        |
+| **False Positive Rate** | <1%    | Validation criteria are accurate      |
 
 ### How to Track:
 
@@ -1681,6 +1713,7 @@ High-Quality Codebase Built Autonomously! 🎉
 Use this checklist to ensure Claude Code is configured correctly:
 
 ### Phase 1 Preparation:
+
 - [ ] All 9 policy files created and comprehensive (00-08)
 - [ ] All 18 build-order files created (part-01 through part-18)
 - [ ] Coding patterns include complete examples
@@ -1689,6 +1722,7 @@ Use this checklist to ensure Claude Code is configured correctly:
 - [ ] Build orders aligned with v5-structure-division.md
 
 ### Phase 2 Setup:
+
 - [ ] `.aider.conf.yml` created and configured
 - [ ] All 9 policy files listed in `read:` section
 - [ ] All 18 build-order files listed in `read:` section
@@ -1699,6 +1733,7 @@ Use this checklist to ensure Claude Code is configured correctly:
 - [ ] Build-order files load successfully
 
 ### Phase 3 Validation:
+
 - [ ] Aider loads all policy files (✓ checkmarks)
 - [ ] Claude Code validation reports appear after each file
 - [ ] Approval rate between 85-92%
@@ -1707,6 +1742,7 @@ Use this checklist to ensure Claude Code is configured correctly:
 - [ ] Escalations are meaningful (not false alarms)
 
 ### Ongoing Optimization:
+
 - [ ] Policies updated after escalations
 - [ ] Validation patterns monitored
 - [ ] Learning log maintained

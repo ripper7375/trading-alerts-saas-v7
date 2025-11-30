@@ -12,14 +12,14 @@
 
 ### dLocal vs Stripe Differences
 
-| Feature | Stripe | dLocal |
-|---------|--------|--------|
-| Auto-Renewal | ✅ Yes | ❌ NO - Manual renewal required |
-| Free Trial | ✅ 7 days | ❌ NO trial period |
-| Plans | Monthly only | **3-day** + Monthly |
-| Discount Codes | ✅ All plans | ❌ Monthly ONLY (not 3-day) |
-| Renewal Notifications | Stripe manages | **We send** 3 days before expiry |
-| Expiry Handling | Stripe auto-downgrades | **We downgrade** manually via cron |
+| Feature               | Stripe                 | dLocal                             |
+| --------------------- | ---------------------- | ---------------------------------- |
+| Auto-Renewal          | ✅ Yes                 | ❌ NO - Manual renewal required    |
+| Free Trial            | ✅ 7 days              | ❌ NO trial period                 |
+| Plans                 | Monthly only           | **3-day** + Monthly                |
+| Discount Codes        | ✅ All plans           | ❌ Monthly ONLY (not 3-day)        |
+| Renewal Notifications | Stripe manages         | **We send** 3 days before expiry   |
+| Expiry Handling       | Stripe auto-downgrades | **We downgrade** manually via cron |
 
 **CRITICAL:** Never apply Stripe auto-renewal logic to dLocal subscriptions!
 
@@ -31,14 +31,42 @@
 
 ```typescript
 const DLOCAL_COUNTRIES = {
-  IN: { name: 'India', currency: 'INR', methods: ['UPI', 'Paytm', 'PhonePe', 'Net Banking'] },
-  NG: { name: 'Nigeria', currency: 'NGN', methods: ['Bank Transfer', 'USSD', 'Paystack', 'Verve'] },
+  IN: {
+    name: 'India',
+    currency: 'INR',
+    methods: ['UPI', 'Paytm', 'PhonePe', 'Net Banking'],
+  },
+  NG: {
+    name: 'Nigeria',
+    currency: 'NGN',
+    methods: ['Bank Transfer', 'USSD', 'Paystack', 'Verve'],
+  },
   PK: { name: 'Pakistan', currency: 'PKR', methods: ['JazzCash', 'Easypaisa'] },
-  VN: { name: 'Vietnam', currency: 'VND', methods: ['VNPay', 'MoMo', 'ZaloPay'] },
-  ID: { name: 'Indonesia', currency: 'IDR', methods: ['GoPay', 'OVO', 'Dana', 'ShopeePay'] },
-  TH: { name: 'Thailand', currency: 'THB', methods: ['TrueMoney', 'Rabbit LINE Pay', 'Thai QR'] },
-  ZA: { name: 'South Africa', currency: 'ZAR', methods: ['Instant EFT', 'EFT'] },
-  TR: { name: 'Turkey', currency: 'TRY', methods: ['Bank Transfer', 'Local Cards'] }
+  VN: {
+    name: 'Vietnam',
+    currency: 'VND',
+    methods: ['VNPay', 'MoMo', 'ZaloPay'],
+  },
+  ID: {
+    name: 'Indonesia',
+    currency: 'IDR',
+    methods: ['GoPay', 'OVO', 'Dana', 'ShopeePay'],
+  },
+  TH: {
+    name: 'Thailand',
+    currency: 'THB',
+    methods: ['TrueMoney', 'Rabbit LINE Pay', 'Thai QR'],
+  },
+  ZA: {
+    name: 'South Africa',
+    currency: 'ZAR',
+    methods: ['Instant EFT', 'EFT'],
+  },
+  TR: {
+    name: 'Turkey',
+    currency: 'TRY',
+    methods: ['Bank Transfer', 'Local Cards'],
+  },
 } as const;
 ```
 
@@ -49,13 +77,13 @@ const DLOCAL_PRICING = {
   THREE_DAY: {
     usd: 1.99,
     duration: 3,
-    discountAllowed: false  // ❌ NO discount codes
+    discountAllowed: false, // ❌ NO discount codes
   },
   MONTHLY: {
-    usd: 29.00,
+    usd: 29.0,
     duration: 30,
-    discountAllowed: true   // ✅ Discount codes allowed
-  }
+    discountAllowed: true, // ✅ Discount codes allowed
+  },
 } as const;
 ```
 
@@ -232,11 +260,32 @@ npx prisma migrate dev --name add_dlocal_support
 **File:** `types/dlocal.ts` (NEW)
 
 ```typescript
-export type DLocalCountry = 'IN' | 'NG' | 'PK' | 'VN' | 'ID' | 'TH' | 'ZA' | 'TR';
-export type DLocalCurrency = 'INR' | 'NGN' | 'PKR' | 'VND' | 'IDR' | 'THB' | 'ZAR' | 'TRY';
+export type DLocalCountry =
+  | 'IN'
+  | 'NG'
+  | 'PK'
+  | 'VN'
+  | 'ID'
+  | 'TH'
+  | 'ZA'
+  | 'TR';
+export type DLocalCurrency =
+  | 'INR'
+  | 'NGN'
+  | 'PKR'
+  | 'VND'
+  | 'IDR'
+  | 'THB'
+  | 'ZAR'
+  | 'TRY';
 export type PlanType = 'THREE_DAY' | 'MONTHLY';
 export type PaymentProvider = 'STRIPE' | 'DLOCAL';
-export type PaymentMethodType = 'WALLET' | 'BANK_TRANSFER' | 'CARD' | 'USSD' | 'TICKET';
+export type PaymentMethodType =
+  | 'WALLET'
+  | 'BANK_TRANSFER'
+  | 'CARD'
+  | 'USSD'
+  | 'TICKET';
 export type PaymentFlow = 'REDIRECT' | 'DIRECT';
 
 export interface PaymentMethod {
@@ -306,11 +355,14 @@ export interface CurrencyConversion {
 ```typescript
 import { DLocalCountry, DLocalCurrency } from '@/types/dlocal';
 
-export const DLOCAL_SUPPORTED_COUNTRIES: Record<DLocalCountry, {
-  name: string;
-  currency: DLocalCurrency;
-  locale: string;
-}> = {
+export const DLOCAL_SUPPORTED_COUNTRIES: Record<
+  DLocalCountry,
+  {
+    name: string;
+    currency: DLocalCurrency;
+    locale: string;
+  }
+> = {
   IN: { name: 'India', currency: 'INR', locale: 'en-IN' },
   NG: { name: 'Nigeria', currency: 'NGN', locale: 'en-NG' },
   PK: { name: 'Pakistan', currency: 'PKR', locale: 'en-PK' },
@@ -318,20 +370,20 @@ export const DLOCAL_SUPPORTED_COUNTRIES: Record<DLocalCountry, {
   ID: { name: 'Indonesia', currency: 'IDR', locale: 'id-ID' },
   TH: { name: 'Thailand', currency: 'THB', locale: 'th-TH' },
   ZA: { name: 'South Africa', currency: 'ZAR', locale: 'en-ZA' },
-  TR: { name: 'Turkey', currency: 'TRY', locale: 'tr-TR' }
+  TR: { name: 'Turkey', currency: 'TRY', locale: 'tr-TR' },
 } as const;
 
 export const DLOCAL_PRICING = {
   THREE_DAY: {
     usd: 1.99,
     duration: 3,
-    discountAllowed: false
+    discountAllowed: false,
   },
   MONTHLY: {
-    usd: 29.00,
+    usd: 29.0,
     duration: 30,
-    discountAllowed: true
-  }
+    discountAllowed: true,
+  },
 } as const;
 
 export const FALLBACK_EXCHANGE_RATES: Record<string, number> = {
@@ -342,14 +394,17 @@ export const FALLBACK_EXCHANGE_RATES: Record<string, number> = {
   'USD-IDR': 15500,
   'USD-THB': 35,
   'USD-ZAR': 18,
-  'USD-TRY': 34
+  'USD-TRY': 34,
 } as const;
 
 export function isDLocalCountry(code: string): code is DLocalCountry {
   return code in DLOCAL_SUPPORTED_COUNTRIES;
 }
 
-export function canApplyDiscountCode(planType: PlanType, provider: PaymentProvider): boolean {
+export function canApplyDiscountCode(
+  planType: PlanType,
+  provider: PaymentProvider
+): boolean {
   if (provider === 'STRIPE') return true;
   if (provider === 'DLOCAL' && planType === 'MONTHLY') return true;
   return false;
@@ -365,7 +420,11 @@ export function canApplyDiscountCode(planType: PlanType, provider: PaymentProvid
 **File:** `lib/dlocal/currency-converter.service.ts` (NEW)
 
 ```typescript
-import { DLocalCurrency, ExchangeRate, CurrencyConversion } from '@/types/dlocal';
+import {
+  DLocalCurrency,
+  ExchangeRate,
+  CurrencyConversion,
+} from '@/types/dlocal';
 import { FALLBACK_EXCHANGE_RATES } from './constants';
 
 class CurrencyConverterService {
@@ -383,7 +442,7 @@ class CurrencyConverterService {
       amountUSD,
       amountLocal,
       currency: targetCurrency,
-      exchangeRate: rate
+      exchangeRate: rate,
     };
   }
 
@@ -399,7 +458,7 @@ class CurrencyConverterService {
       const response = await fetch(
         `${process.env.DLOCAL_API_URL}/exchange-rates?from=${from}&to=${to}`,
         {
-          headers: this.getDLocalHeaders()
+          headers: this.getDLocalHeaders(),
         }
       );
 
@@ -407,11 +466,10 @@ class CurrencyConverterService {
 
       this.cache.set(cacheKey, {
         rate: data.rate,
-        expires: Date.now() + this.CACHE_DURATION
+        expires: Date.now() + this.CACHE_DURATION,
       });
 
       return data.rate;
-
     } catch (error) {
       console.error('Exchange rate fetch failed:', error);
       return this.getFallbackRate(from, to);
@@ -427,7 +485,7 @@ class CurrencyConverterService {
       'X-Date': new Date().toISOString(),
       'X-Login': process.env.DLOCAL_API_LOGIN!,
       'X-Trans-Key': process.env.DLOCAL_API_KEY!,
-      'X-Version': '2.1'
+      'X-Version': '2.1',
     };
   }
 
@@ -436,7 +494,7 @@ class CurrencyConverterService {
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(amount);
   }
 }
@@ -482,19 +540,21 @@ class PaymentMethodsService {
       icon: '💳',
       description: 'Visa, Mastercard, Amex',
       processingTime: 'Instant',
-      recommended: !isDLocalCountry(country)
+      recommended: !isDLocalCountry(country),
     });
 
     this.cache.set(country, methods);
     return methods;
   }
 
-  private async fetchDLocalMethods(country: DLocalCountry): Promise<PaymentMethod[]> {
+  private async fetchDLocalMethods(
+    country: DLocalCountry
+  ): Promise<PaymentMethod[]> {
     try {
       const response = await fetch(
         `${process.env.DLOCAL_API_URL}/payment-methods?country=${country}`,
         {
-          headers: this.getDLocalHeaders()
+          headers: this.getDLocalHeaders(),
         }
       );
 
@@ -506,9 +566,8 @@ class PaymentMethodsService {
 
       return data.map((method: any) => ({
         ...method,
-        provider: 'dlocal' as const
+        provider: 'dlocal' as const,
       }));
-
     } catch (error) {
       console.error('Failed to fetch dLocal methods:', error);
       return [];
@@ -520,7 +579,7 @@ class PaymentMethodsService {
       'X-Date': new Date().toISOString(),
       'X-Login': process.env.DLOCAL_API_LOGIN!,
       'X-Trans-Key': process.env.DLOCAL_API_KEY!,
-      'X-Version': '2.1'
+      'X-Version': '2.1',
     };
   }
 }
@@ -537,23 +596,22 @@ import crypto from 'crypto';
 import { DLocalPaymentRequest, DLocalPaymentResponse } from '@/types/dlocal';
 
 class DLocalPaymentService {
-  async createPayment(request: DLocalPaymentRequest): Promise<DLocalPaymentResponse> {
+  async createPayment(
+    request: DLocalPaymentRequest
+  ): Promise<DLocalPaymentResponse> {
     try {
-      const response = await fetch(
-        `${process.env.DLOCAL_API_URL}/payments`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Date': new Date().toISOString(),
-            'X-Login': process.env.DLOCAL_API_LOGIN!,
-            'X-Trans-Key': process.env.DLOCAL_API_KEY!,
-            'X-Version': '2.1',
-            'Authorization': this.generateSignature(request)
-          },
-          body: JSON.stringify(request)
-        }
-      );
+      const response = await fetch(`${process.env.DLOCAL_API_URL}/payments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Date': new Date().toISOString(),
+          'X-Login': process.env.DLOCAL_API_LOGIN!,
+          'X-Trans-Key': process.env.DLOCAL_API_KEY!,
+          'X-Version': '2.1',
+          Authorization: this.generateSignature(request),
+        },
+        body: JSON.stringify(request),
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -562,7 +620,6 @@ class DLocalPaymentService {
 
       const data: DLocalPaymentResponse = await response.json();
       return data;
-
     } catch (error) {
       console.error('dLocal payment creation failed:', error);
       throw error;
@@ -622,27 +679,30 @@ class ThreeDayValidatorService {
   /**
    * PRIMARY DEFENSE: Check if user has already used 3-day plan
    */
-  async canPurchaseThreeDayPlan(userId: string): Promise<ThreeDayValidationResult> {
+  async canPurchaseThreeDayPlan(
+    userId: string
+  ): Promise<ThreeDayValidationResult> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
         hasUsedThreeDayPlan: true,
-        threeDayPlanUsedAt: true
-      }
+        threeDayPlanUsedAt: true,
+      },
     });
 
     if (!user) {
       return {
         allowed: false,
-        reason: 'User not found'
+        reason: 'User not found',
       };
     }
 
     if (user.hasUsedThreeDayPlan) {
       return {
         allowed: false,
-        reason: '3-day plan is a one-time introductory offer. Please select monthly plan.',
-        usedAt: user.threeDayPlanUsedAt || undefined
+        reason:
+          '3-day plan is a one-time introductory offer. Please select monthly plan.',
+        usedAt: user.threeDayPlanUsedAt || undefined,
       };
     }
 
@@ -662,15 +722,15 @@ class ThreeDayValidatorService {
       where: {
         planType: 'THREE_DAY',
         paymentMethodHash: hash,
-        status: 'COMPLETED'
+        status: 'COMPLETED',
       },
       include: {
         user: {
           select: {
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     });
 
     if (existingPurchase && existingPurchase.user.email !== email) {
@@ -679,8 +739,8 @@ class ThreeDayValidatorService {
         pattern: 'SAME_PAYMENT_METHOD_DIFFERENT_EMAIL',
         metadata: {
           previousEmail: existingPurchase.user.email,
-          previousPurchaseDate: existingPurchase.completedAt
-        }
+          previousPurchaseDate: existingPurchase.completedAt,
+        },
       };
     }
 
@@ -699,8 +759,8 @@ class ThreeDayValidatorService {
       where: { id: userId },
       select: {
         createdAt: true,
-        email: true
-      }
+        email: true,
+      },
     });
 
     if (!user) {
@@ -719,8 +779,8 @@ class ThreeDayValidatorService {
         pattern: 'FRESH_ACCOUNT_PURCHASE',
         metadata: {
           accountAgeMinutes: Math.floor(accountAge / (1000 * 60)),
-          email: user.email
-        }
+          email: user.email,
+        },
       });
     }
 
@@ -732,12 +792,12 @@ class ThreeDayValidatorService {
         purchaseIP: purchaseIP,
         status: 'COMPLETED',
         completedAt: {
-          gte: thirtyDaysAgo
+          gte: thirtyDaysAgo,
         },
         userId: {
-          not: userId
-        }
-      }
+          not: userId,
+        },
+      },
     });
 
     if (recentPurchasesFromIP >= 2) {
@@ -747,8 +807,8 @@ class ThreeDayValidatorService {
         metadata: {
           ip: purchaseIP,
           count: recentPurchasesFromIP + 1,
-          window: '30 days'
-        }
+          window: '30 days',
+        },
       });
     }
 
@@ -760,12 +820,12 @@ class ThreeDayValidatorService {
           deviceFingerprint: deviceFingerprint,
           status: 'COMPLETED',
           completedAt: {
-            gte: thirtyDaysAgo
+            gte: thirtyDaysAgo,
           },
           userId: {
-            not: userId
-          }
-        }
+            not: userId,
+          },
+        },
       });
 
       if (sameDevicePurchases >= 2) {
@@ -775,8 +835,8 @@ class ThreeDayValidatorService {
           metadata: {
             deviceFingerprint,
             count: sameDevicePurchases + 1,
-            window: '30 days'
-          }
+            window: '30 days',
+          },
         });
       }
     }
@@ -799,8 +859,8 @@ class ThreeDayValidatorService {
         pattern,
         metadata,
         severity,
-        status: 'PENDING_REVIEW'
-      }
+        status: 'PENDING_REVIEW',
+      },
     });
 
     // Send email notification for HIGH severity
@@ -817,8 +877,8 @@ class ThreeDayValidatorService {
       where: { id: userId },
       data: {
         hasUsedThreeDayPlan: true,
-        threeDayPlanUsedAt: new Date()
-      }
+        threeDayPlanUsedAt: new Date(),
+      },
     });
   }
 
@@ -837,7 +897,7 @@ class ThreeDayValidatorService {
   async getAccountAge(userId: string): Promise<number> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { createdAt: true }
+      select: { createdAt: true },
     });
 
     if (!user) return 0;
@@ -859,7 +919,7 @@ class ThreeDayValidatorService {
       userId,
       pattern,
       metadata,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 }
@@ -894,7 +954,6 @@ export async function GET(request: NextRequest) {
     const methods = await paymentMethodsService.getMethodsForCountry(country);
 
     return NextResponse.json(methods);
-
   } catch (error) {
     console.error('Failed to fetch payment methods:', error);
     return NextResponse.json(
@@ -931,9 +990,8 @@ export async function GET(request: NextRequest) {
       from: 'USD',
       to: to,
       rate: rate,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Failed to fetch exchange rate:', error);
     return NextResponse.json(
@@ -966,10 +1024,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const conversion = await currencyConverter.convertUSDToLocal(amount, currency);
+    const conversion = await currencyConverter.convertUSDToLocal(
+      amount,
+      currency
+    );
 
     return NextResponse.json(conversion);
-
   } catch (error) {
     console.error('Currency conversion failed:', error);
     return NextResponse.json(
@@ -1004,8 +1064,8 @@ const createPaymentSchema = z.object({
     name: z.string(),
     email: z.string().email(),
     document: z.string().optional(),
-    phone: z.string().optional()
-  })
+    phone: z.string().optional(),
+  }),
 });
 
 export async function POST(request: NextRequest) {
@@ -1013,10 +1073,7 @@ export async function POST(request: NextRequest) {
     // 1. Verify authentication
     const session = await getServerSession();
     if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // 2. Validate request body
@@ -1025,15 +1082,19 @@ export async function POST(request: NextRequest) {
 
     // 3. Validate 3-day plan eligibility (using anti-abuse validator)
     if (validated.planType === 'THREE_DAY') {
-      const { threeDayValidator } = await import('@/lib/dlocal/three-day-validator.service');
-      const validation = await threeDayValidator.canPurchaseThreeDayPlan(session.user.id);
+      const { threeDayValidator } = await import(
+        '@/lib/dlocal/three-day-validator.service'
+      );
+      const validation = await threeDayValidator.canPurchaseThreeDayPlan(
+        session.user.id
+      );
 
       if (!validation.allowed) {
         return NextResponse.json(
           {
             error: validation.reason,
             code: 'THREE_DAY_PLAN_NOT_ALLOWED',
-            usedAt: validation.usedAt
+            usedAt: validation.usedAt,
           },
           { status: 403 }
         );
@@ -1053,7 +1114,9 @@ export async function POST(request: NextRequest) {
       }
 
       // Validate discount code (implement this function)
-      const discountValidation = await validateDiscountCode(validated.discountCode);
+      const discountValidation = await validateDiscountCode(
+        validated.discountCode
+      );
       if (!discountValidation.valid) {
         return NextResponse.json(
           { error: discountValidation.reason },
@@ -1073,10 +1136,11 @@ export async function POST(request: NextRequest) {
       order_id: orderId,
       description: `Trading Alerts PRO - ${validated.planType}`,
       notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/dlocal`,
-      callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success`
+      callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success`,
     };
 
-    const dlocalPayment = await dlocalPaymentService.createPayment(paymentRequest);
+    const dlocalPayment =
+      await dlocalPaymentService.createPayment(paymentRequest);
 
     // 6. Create Payment record in database
     await prisma.payment.create({
@@ -1096,21 +1160,23 @@ export async function POST(request: NextRequest) {
         status: 'PENDING',
         metadata: {
           orderId,
-          dlocalPaymentId: dlocalPayment.id
-        }
-      }
+          dlocalPaymentId: dlocalPayment.id,
+        },
+      },
     });
 
     // 7. Return payment response
-    return NextResponse.json({
-      id: dlocalPayment.id,
-      status: dlocalPayment.status,
-      amount: dlocalPayment.amount,
-      currency: dlocalPayment.currency,
-      redirectUrl: dlocalPayment.redirect_url,
-      paymentMethodFlow: dlocalPayment.payment_method_flow
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        id: dlocalPayment.id,
+        status: dlocalPayment.status,
+        amount: dlocalPayment.amount,
+        currency: dlocalPayment.currency,
+        redirectUrl: dlocalPayment.redirect_url,
+        paymentMethodFlow: dlocalPayment.payment_method_flow,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -1146,27 +1212,21 @@ export async function POST(request: NextRequest) {
 
     if (!dlocalPaymentService.verifyWebhookSignature(body, signature)) {
       console.error('Invalid dLocal webhook signature');
-      return NextResponse.json(
-        { error: 'Invalid signature' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     // 2. Find payment record
     const payment = await prisma.payment.findFirst({
       where: {
         providerPaymentId: body.id,
-        provider: 'DLOCAL'
+        provider: 'DLOCAL',
       },
-      include: { user: true }
+      include: { user: true },
     });
 
     if (!payment) {
       console.error('Payment not found:', body.id);
-      return NextResponse.json(
-        { error: 'Payment not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Payment not found' }, { status: 404 });
     }
 
     // 3. Process based on status
@@ -1179,7 +1239,6 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ received: true });
-
   } catch (error) {
     console.error('Webhook processing failed:', error);
     return NextResponse.json(
@@ -1192,16 +1251,18 @@ export async function POST(request: NextRequest) {
 async function handlePaymentSuccess(payment: any, webhookData: any) {
   // Check for existing active subscription (for early renewal calculation)
   const existingSubscription = await prisma.subscription.findUnique({
-    where: { userId: payment.userId }
+    where: { userId: payment.userId },
   });
 
   let expiryDate: Date;
   const now = new Date();
 
   // EARLY RENEWAL LOGIC: Extend from current expiry if still active
-  if (existingSubscription &&
-      existingSubscription.expiresAt &&
-      existingSubscription.expiresAt > now) {
+  if (
+    existingSubscription &&
+    existingSubscription.expiresAt &&
+    existingSubscription.expiresAt > now
+  ) {
     // User has active subscription - extend from current expiry
     // Example: 10 days remaining + 30 days new = 40 days total
     expiryDate = addDays(existingSubscription.expiresAt, payment.duration);
@@ -1217,8 +1278,8 @@ async function handlePaymentSuccess(payment: any, webhookData: any) {
       data: {
         status: 'COMPLETED',
         completedAt: now,
-        providerStatus: 'PAID'
-      }
+        providerStatus: 'PAID',
+      },
     }),
 
     // Create or update subscription
@@ -1240,16 +1301,16 @@ async function handlePaymentSuccess(payment: any, webhookData: any) {
         amount: payment.amount,
         amountUSD: payment.amountUSD,
         currency: payment.currency,
-        discountCode: payment.discountCode
+        discountCode: payment.discountCode,
       },
       update: {
         paymentProvider: 'DLOCAL',
         dlocalPaymentId: payment.providerPaymentId,
         status: 'ACTIVE',
         tier: 'PRO',
-        expiresAt: expiryDate,  // Extended date (early renewal support)
-        renewalReminderSent: false  // Reset reminder flag
-      }
+        expiresAt: expiryDate, // Extended date (early renewal support)
+        renewalReminderSent: false, // Reset reminder flag
+      },
     }),
 
     // Upgrade user tier
@@ -1260,10 +1321,10 @@ async function handlePaymentSuccess(payment: any, webhookData: any) {
         // Mark 3-day plan as used if this was a 3-day purchase
         ...(payment.planType === 'THREE_DAY' && {
           hasUsedThreeDayPlan: true,
-          threeDayPlanUsedAt: now
-        })
-      }
-    })
+          threeDayPlanUsedAt: now,
+        }),
+      },
+    }),
   ]);
 
   // Send confirmation email with new expiry date
@@ -1277,8 +1338,8 @@ async function handlePaymentFailure(payment: any, webhookData: any) {
       status: 'FAILED',
       failedAt: new Date(),
       failureReason: webhookData.failure_reason,
-      providerStatus: 'REJECTED'
-    }
+      providerStatus: 'REJECTED',
+    },
   });
 
   // Send failure email
@@ -1290,8 +1351,8 @@ async function handlePaymentCancellation(payment: any) {
     where: { id: payment.id },
     data: {
       status: 'CANCELLED',
-      providerStatus: 'CANCELLED'
-    }
+      providerStatus: 'CANCELLED',
+    },
   });
 }
 ```
@@ -1317,11 +1378,11 @@ export async function checkExpiringSubscriptions() {
       status: 'ACTIVE',
       expiresAt: {
         gte: new Date(),
-        lte: addDays(new Date(), 3)
+        lte: addDays(new Date(), 3),
       },
-      renewalReminderSent: false
+      renewalReminderSent: false,
     },
-    include: { user: true }
+    include: { user: true },
   });
 
   for (const subscription of expiringIn3Days) {
@@ -1331,13 +1392,13 @@ export async function checkExpiringSubscriptions() {
       name: subscription.user.name,
       expiryDate: subscription.expiresAt!,
       planType: subscription.planType,
-      renewalLink: `${process.env.NEXT_PUBLIC_APP_URL}/checkout?renew=${subscription.id}`
+      renewalLink: `${process.env.NEXT_PUBLIC_APP_URL}/checkout?renew=${subscription.id}`,
     });
 
     // Mark reminder sent
     await prisma.subscription.update({
       where: { id: subscription.id },
-      data: { renewalReminderSent: true }
+      data: { renewalReminderSent: true },
     });
 
     console.log(`Sent renewal reminder to user ${subscription.userId}`);
@@ -1362,10 +1423,10 @@ export async function downgradeExpiredSubscriptions() {
       paymentProvider: 'DLOCAL',
       status: 'ACTIVE',
       expiresAt: {
-        lte: new Date()
-      }
+        lte: new Date(),
+      },
     },
-    include: { user: true }
+    include: { user: true },
   });
 
   for (const subscription of expired) {
@@ -1375,20 +1436,20 @@ export async function downgradeExpiredSubscriptions() {
         where: { id: subscription.id },
         data: {
           status: 'EXPIRED',
-          tier: 'FREE'
-        }
+          tier: 'FREE',
+        },
       }),
       prisma.user.update({
         where: { id: subscription.userId },
-        data: { tier: 'FREE' }
-      })
+        data: { tier: 'FREE' },
+      }),
     ]);
 
     // Send expiry notification
     await sendSubscriptionExpiredEmail({
       to: subscription.user.email,
       name: subscription.user.name,
-      renewalLink: `${process.env.NEXT_PUBLIC_APP_URL}/checkout`
+      renewalLink: `${process.env.NEXT_PUBLIC_APP_URL}/checkout`,
     });
 
     console.log(`Downgraded user ${subscription.userId} to FREE tier`);
@@ -1411,25 +1472,18 @@ export async function GET(request: NextRequest) {
     // Verify cron secret
     const authHeader = request.headers.get('authorization');
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const result = await checkExpiringSubscriptions();
 
     return NextResponse.json({
       success: true,
-      ...result
+      ...result,
     });
-
   } catch (error) {
     console.error('Cron job failed:', error);
-    return NextResponse.json(
-      { error: 'Cron job failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Cron job failed' }, { status: 500 });
   }
 }
 ```
@@ -1445,25 +1499,18 @@ export async function GET(request: NextRequest) {
     // Verify cron secret
     const authHeader = request.headers.get('authorization');
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const result = await downgradeExpiredSubscriptions();
 
     return NextResponse.json({
       success: true,
-      ...result
+      ...result,
     });
-
   } catch (error) {
     console.error('Cron job failed:', error);
-    return NextResponse.json(
-      { error: 'Cron job failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Cron job failed' }, { status: 500 });
   }
 }
 ```
@@ -2185,33 +2232,30 @@ export async function GET(req: NextRequest) {
             email: true,
             name: true,
             createdAt: true,
-            hasUsedThreeDayPlan: true
-          }
-        }
+            hasUsedThreeDayPlan: true,
+          },
+        },
       },
-      orderBy: [
-        { severity: 'desc' },
-        { createdAt: 'desc' }
-      ],
+      orderBy: [{ severity: 'desc' }, { createdAt: 'desc' }],
       take: limit,
-      skip: offset
+      skip: offset,
     });
 
     // Get stats
     const stats = {
       pending: await prisma.fraudAlert.count({
-        where: { status: 'PENDING_REVIEW' }
+        where: { status: 'PENDING_REVIEW' },
       }),
       high: await prisma.fraudAlert.count({
-        where: { status: 'PENDING_REVIEW', severity: 'HIGH' }
+        where: { status: 'PENDING_REVIEW', severity: 'HIGH' },
       }),
       total: await prisma.fraudAlert.count({
         where: {
           createdAt: {
-            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
-          }
-        }
-      })
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Last 30 days
+          },
+        },
+      }),
     };
 
     return NextResponse.json({
@@ -2220,10 +2264,9 @@ export async function GET(req: NextRequest) {
       pagination: {
         limit,
         offset,
-        total: await prisma.fraudAlert.count({ where })
-      }
+        total: await prisma.fraudAlert.count({ where }),
+      },
     });
-
   } catch (error) {
     console.error('Fraud alerts fetch failed:', error);
     return NextResponse.json(
@@ -2265,14 +2308,14 @@ export async function GET(
               where: {
                 planType: 'THREE_DAY',
                 createdAt: {
-                  gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000) // Last 60 days
-                }
+                  gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000), // Last 60 days
+                },
               },
-              orderBy: { createdAt: 'desc' }
-            }
-          }
-        }
-      }
+              orderBy: { createdAt: 'desc' },
+            },
+          },
+        },
+      },
     });
 
     if (!alert) {
@@ -2280,7 +2323,6 @@ export async function GET(
     }
 
     return NextResponse.json({ alert });
-
   } catch (error) {
     console.error('Fraud alert fetch failed:', error);
     return NextResponse.json(
@@ -2310,12 +2352,11 @@ export async function PATCH(
         status: decision,
         reviewedAt: new Date(),
         reviewedBy: session.user.email,
-        reviewNotes: notes
-      }
+        reviewNotes: notes,
+      },
     });
 
     return NextResponse.json({ alert });
-
   } catch (error) {
     console.error('Fraud alert review failed:', error);
     return NextResponse.json(

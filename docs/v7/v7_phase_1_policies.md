@@ -1,5 +1,7 @@
 ## PHASE 1: DOCUMENTATION & POLICY CREATION
+
 ### Timeline: Week 1, Days 3-7 (14 hours)
+
 ### Goal: Create policies that guide Aider
 
 💡 BEGINNER TIP: This is the MOST IMPORTANT phase! You're creating the "AI constitution" - the rules Aider follows. Quality here = quality later!
@@ -23,78 +25,84 @@
    - **This is your actual SaaS application**
 
 **Think of it like this:**
+
 - 📦 Resources = The blueprint, tools, and reference materials
 - 🏗️ Code = The actual house you build using the blueprint
 
 💡 **Don't worry!** Phase 3 will guide you to create the code structure. For now, focus on organizing resources!
 
 ---☐ STEP 1: Create GitHub Repository (15 minutes)
-   What: Online home for your project
-   Why: Store code, enable deployment
-   How:
-   1. Go to GitHub.com
-   2. Click "+ New repository"
-   3. Name: trading-alerts-saas-v7
-   4. Description: "Trading Alerts SaaS with MiniMax M2 AI Development"
-   5. Public or Private (your choice)
-   6. ✅ Initialize with README
-   7. Click "Create repository"
-   
-   Verify: Can see repo on GitHub ✓
+What: Online home for your project
+Why: Store code, enable deployment
+How:
+
+1.  Go to GitHub.com
+2.  Click "+ New repository"
+3.  Name: trading-alerts-saas-v7
+4.  Description: "Trading Alerts SaaS with MiniMax M2 AI Development"
+5.  Public or Private (your choice)
+6.  ✅ Initialize with README
+7.  Click "Create repository"
+
+Verify: Can see repo on GitHub ✓
 
 ☐ STEP 2: Clone Repository Locally (5 minutes)
-   What: Download to your computer
-   Why: Work on it locally
-   How:
-   ```
-   git clone https://github.com/YOUR-USERNAME/trading-alerts-saas-v7.git
-   cd trading-alerts-saas-v7
-   ```
-   
-   Verify: Folder exists with README.md ✓
+What: Download to your computer
+Why: Work on it locally
+How:
+
+```
+git clone https://github.com/YOUR-USERNAME/trading-alerts-saas-v7.git
+cd trading-alerts-saas-v7
+```
+
+Verify: Folder exists with README.md ✓
 
 ☐ STEP 3: Create Folder Structure (10 minutes)
-   What: Organize documentation and seed code
-   Why: Keep everything organized
-   How:
-   ```
-   mkdir -p docs
-   mkdir -p docs/diagrams
-   mkdir -p docs/policies
-   mkdir -p docs/architecture
-   mkdir -p postman
-   mkdir -p scripts/openapi
-   mkdir -p seed-code
-   ```
-   
-   Verify: Run `ls -la` and see all folders ✓
+What: Organize documentation and seed code
+Why: Keep everything organized
+How:
+
+```
+mkdir -p docs
+mkdir -p docs/diagrams
+mkdir -p docs/policies
+mkdir -p docs/architecture
+mkdir -p postman
+mkdir -p scripts/openapi
+mkdir -p seed-code
+```
+
+Verify: Run `ls -la` and see all folders ✓
 
 ☐ STEP 4: REMOVED
 
 ☐ STEP 5: Copy Essential Documents (20 minutes)
-   What: Add your existing docs
-   Why: Aider needs these to build
-   How: Copy these files to docs/:
-   - v5_part_a.md through v5_part_j.md
-   - v5-structure-division.md
-   - trading_alerts_openapi.yaml
-   - flask_mt5_openapi.yaml
-   - phase_milestones_v7_minimax_m2.txt (this file!)
-   - All 12 mermaid diagrams to docs/diagrams/
-   
-   Verify: Run `ls docs/` and see all files ✓
+What: Add your existing docs
+Why: Aider needs these to build
+How: Copy these files to docs/:
+
+- v5_part_a.md through v5_part_j.md
+- v5-structure-division.md
+- trading_alerts_openapi.yaml
+- flask_mt5_openapi.yaml
+- phase_milestones_v7_minimax_m2.txt (this file!)
+- All 12 mermaid diagrams to docs/diagrams/
+
+Verify: Run `ls docs/` and see all files ✓
 
 ☐ STEP 6: Initial Commit (10 minutes)
-   What: Save everything to GitHub
-   Why: Backup + share with AI tools
-   How:
-   ```
-   git add docs/ seed-code/
-   git commit -m "Add project documentation and 3 seed code repositories"
-   git push
-   ```
-   
-   Verify: See files on GitHub ✓
+What: Save everything to GitHub
+Why: Backup + share with AI tools
+How:
+
+```
+git add docs/ seed-code/
+git commit -m "Add project documentation and 3 seed code repositories"
+git push
+```
+
+Verify: See files on GitHub ✓
 
 ✅ CHECKPOINT: Repository ready
 
@@ -117,39 +125,43 @@ You'll create 6 policy documents with Claude Chat (me!). These become Aider's "i
 Before creating policies, understand what seed code you have and when to use each:
 
 **1. market_ai_engine.py (Flask/MT5 Service)**
-   - **What:** Python Flask server that connects to MetaTrader 5
-   - **When Aider uses it:** Building Part 6 (Flask MT5 Service)
-   - **Reference for:** Flask routes, MT5 connection, indicator fetching
-   - **Location:** seed-code/market_ai_engine.py
+
+- **What:** Python Flask server that connects to MetaTrader 5
+- **When Aider uses it:** Building Part 6 (Flask MT5 Service)
+- **Reference for:** Flask routes, MT5 connection, indicator fetching
+- **Location:** seed-code/market_ai_engine.py
 
 **2. nextjs/saas-starter (Backend/API Foundation)**
-   - **What:** Next.js SaaS template with auth, database, payments
-   - **When Aider uses it:** Parts 5 (Auth), 7 (API Routes), 12 (E-commerce), **Part 17 (Affiliate Marketing)**
-   - **Reference for:**
-     - NextAuth.js configuration
-     - Prisma database patterns
-     - Stripe payment integration
-     - API route structure
-     - Middleware patterns
-     - **Stripe webhook handling (critical for commission calculation)**
-   - **Location:** seed-code/saas-starter/
+
+- **What:** Next.js SaaS template with auth, database, payments
+- **When Aider uses it:** Parts 5 (Auth), 7 (API Routes), 12 (E-commerce), **Part 17 (Affiliate Marketing)**
+- **Reference for:**
+  - NextAuth.js configuration
+  - Prisma database patterns
+  - Stripe payment integration
+  - API route structure
+  - Middleware patterns
+  - **Stripe webhook handling (critical for commission calculation)**
+- **Location:** seed-code/saas-starter/
 
 **3. next-shadcn-dashboard-starter (Frontend/UI Foundation)**
-   - **What:** Next.js dashboard with shadcn/ui components
-   - **When Aider uses it:** Parts 8-14 (All UI components), **Part 17 (Affiliate Portal & Admin Dashboard)**
-   - **Reference for:**
-     - Dashboard layouts
-     - shadcn/ui component usage
-     - Chart components
-     - Form patterns
-     - Navigation structure
-     - Responsive design
-     - **Analytics dashboards (for affiliate earnings tracking)**
-     - **Admin management interfaces (for affiliate approval)**
-   - **Location:** seed-code/next-shadcn-dashboard-starter/
+
+- **What:** Next.js dashboard with shadcn/ui components
+- **When Aider uses it:** Parts 8-14 (All UI components), **Part 17 (Affiliate Portal & Admin Dashboard)**
+- **Reference for:**
+  - Dashboard layouts
+  - shadcn/ui component usage
+  - Chart components
+  - Form patterns
+  - Navigation structure
+  - Responsive design
+  - **Analytics dashboards (for affiliate earnings tracking)**
+  - **Admin management interfaces (for affiliate approval)**
+- **Location:** seed-code/next-shadcn-dashboard-starter/
 
 💡 **How Aider Uses Seed Code:**
 When you tell Aider "Build Part 8: Dashboard", it will:
+
 1. Read the part requirements from v5_part_h.md
 2. Check coding patterns from policy 05-coding-patterns.md
 3. **Look at seed-code/next-shadcn-dashboard-starter/ for reference**
@@ -216,7 +228,7 @@ Create a comprehensive approval-policies.md that defines:
    - >3 High severity issues from Claude Code validation
    - Unclear requirements from specs
 
-Include specific examples for each condition. Write it for someone with little 
+Include specific examples for each condition. Write it for someone with little
 coding experience - explain WHY each rule matters.
 
 Format it clearly with sections and subsections.
@@ -230,6 +242,7 @@ Format it clearly with sections and subsections.
 8. Save file
 
 Commit:
+
 ```
 git add docs/policies/01-approval-policies.md
 git commit -m "Add approval policies for Aider with MiniMax M2"
@@ -251,7 +264,7 @@ git push
 Ask Claude Chat:
 
 ```
-Create quality-standards.md for my Aider system using MiniMax M2. 
+Create quality-standards.md for my Aider system using MiniMax M2.
 I'm a beginner, so explain WHY each standard matters, not just WHAT it is.
 
 Define standards for:
@@ -307,6 +320,7 @@ Make it practical with lots of code examples showing right vs wrong way!
 ```
 
 Follow same process:
+
 1. Claude Chat generates
 2. You review
 3. Create `docs/policies/02-quality-standards.md`
@@ -324,7 +338,7 @@ Follow same process:
 Ask Claude Chat:
 
 ```
-Create architecture-rules.md for my Aider system using MiniMax M2. 
+Create architecture-rules.md for my Aider system using MiniMax M2.
 Explain the architecture like I'm new to SaaS development.
 
 Define:
@@ -412,14 +426,14 @@ Same process: generate → review → create file → commit
 Ask Claude Chat:
 
 ```
-Create escalation-triggers.md for my Aider system using MiniMax M2. 
+Create escalation-triggers.md for my Aider system using MiniMax M2.
 Define exactly when Aider should stop and notify me.
 
 Define 10 escalation categories:
 
 1. CRITICAL SECURITY ISSUES
    - SQL injection vulnerabilities
-   - XSS vulnerabilities  
+   - XSS vulnerabilities
    - Authentication bypass
    - Exposed secrets/API keys
    - Examples of each
@@ -502,7 +516,7 @@ Same process ✓
 Ask Claude Chat:
 
 ```
-Create coding-patterns.md for my Aider system using MiniMax M2. 
+Create coding-patterns.md for my Aider system using MiniMax M2.
 Provide COMPLETE, working code examples that Aider can copy directly.
 
 Provide these patterns:
@@ -633,7 +647,7 @@ This one takes longer because it's detailed. Review carefully!
 Ask Claude Chat:
 
 ```
-Create aider-instructions.md - this is Aider's "operating manual" for 
+Create aider-instructions.md - this is Aider's "operating manual" for
 working with MiniMax M2 API that tells it HOW to work.
 
 Include:
@@ -648,12 +662,12 @@ Include:
 
 2. SEED CODE USAGE
    When to reference each seed code repository:
-   
+
    **market_ai_engine.py:**
    - Use for: Part 6 (Flask MT5 Service)
    - Reference: Flask route patterns, MT5 API usage, indicator fetching
    - Adapt, don't copy: Use as pattern reference, customize for our OpenAPI spec
-   
+
    **seed-code/saas-starter/:**
    - Use for: Parts 5 (Auth), 7 (API Routes), 12 (E-commerce), **Part 17 (Affiliate Marketing)**
    - Reference: NextAuth config, Prisma patterns, Stripe integration, middleware, **Stripe webhook handling**
@@ -674,7 +688,7 @@ Include:
      * lib/utils.ts
      * **Dashboard analytics patterns (for affiliate earnings)**
      * **Admin management table patterns (for affiliate approval)**
-   
+
    **Important:** Seed code is REFERENCE only. Always:
    - Adapt to our OpenAPI contracts
    - Follow our tier system (FREE: 5 symbols × 3 timeframes, PRO: 15 symbols × 9 timeframes)
@@ -683,130 +697,135 @@ Include:
 
 3. WORKFLOW FOR EACH FILE
    Step-by-step process:
-   
+
    Step 1: READ REQUIREMENTS
    - Read v5-structure-division.md for file location
    - Read OpenAPI spec for API contract
    - Read v5_part_X.md for implementation details
    - Read 05-coding-patterns.md for code template
    - CHECK RELEVANT SEED CODE (see "Seed Code Usage" above)
-   
+
    Step 2: PLAN IMPLEMENTATION
    - Choose appropriate pattern from seed code
    - Adapt for specific endpoint/component
    - Ensure matches OpenAPI contract
    - List all requirements
-   
+
    Step 3: GENERATE CODE
    - Use seed code pattern as inspiration
    - Customize for our requirements
    - Include all required elements
    - Follow quality standards
-   
+
    Step 4: VALIDATE
    - Run: claude code "validate [filename]"
    - Parse validation output
    - Categorize issues by severity
-   
+
    Step 5: DECIDE
    - Check 01-approval-policies.md
    - If all conditions met → APPROVE
    - If fixable issues → AUTO-FIX (max 3 attempts)
    - If stuck/unclear → ESCALATE
-   
+
    Step 6: ACT
    - APPROVE: Commit with detailed message
    - AUTO-FIX: Fix issues, re-validate, retry
    - ESCALATE: Format message, notify human, WAIT
-   
+
    Step 7: UPDATE PROGRESS
    - Update PROGRESS.md
    - Report status every 3 files
 
 3. COMMIT MESSAGE FORMAT
    Use conventional commits:
-   ```
-   feat(scope): description
-   
-   - Validation: X Critical, Y High, Z Medium issues
-   - All approval conditions met: yes/no
-   - Pattern used: [pattern name]
-   - Model: MiniMax M2
-   ```
+```
+
+feat(scope): description
+
+- Validation: X Critical, Y High, Z Medium issues
+- All approval conditions met: yes/no
+- Pattern used: [pattern name]
+- Model: MiniMax M2
+
+```
 
 4. ERROR HANDLING
-   How to categorize Claude Code errors:
-   - Critical: Security, contract violations → ESCALATE
-   - High: Missing error handling, wrong types → AUTO-FIX
-   - Medium: Missing JSDoc, formatting → AUTO-FIX
-   - Low: Style issues → AUTO-FIX
-   
-   Auto-fix strategies:
-   - Add missing types
-   - Add try/catch blocks
-   - Add JSDoc comments
-   - Run prettier
-   
-   Decision logic:
-   - 0 Critical + ≤2 High → APPROVE
-   - Fixable issues + <3 tries → AUTO-FIX
-   - Otherwise → ESCALATE
+How to categorize Claude Code errors:
+- Critical: Security, contract violations → ESCALATE
+- High: Missing error handling, wrong types → AUTO-FIX
+- Medium: Missing JSDoc, formatting → AUTO-FIX
+- Low: Style issues → AUTO-FIX
+
+Auto-fix strategies:
+- Add missing types
+- Add try/catch blocks
+- Add JSDoc comments
+- Run prettier
+
+Decision logic:
+- 0 Critical + ≤2 High → APPROVE
+- Fixable issues + <3 tries → AUTO-FIX
+- Otherwise → ESCALATE
 
 5. INTERACTION WITH HUMAN
-   When to notify:
-   - Starting new part
-   - Every 3 files completed
-   - Escalations
-   - Part completed
-   
-   Escalation message format:
-   ```
-   ⚠️ ESCALATION REQUIRED ⚠️
-   
-   Issue Type: [category]
-   File: [filename]
-   Feature: [what you're building]
-   
-   Problem:
-   [Clear explanation]
-   
-   Policy Gap:
-   [Which policy is unclear]
-   
-   Suggested Solutions:
-   1. [Option 1]
-   2. [Option 2]
-   
-   Awaiting human decision...
-   ```
+When to notify:
+- Starting new part
+- Every 3 files completed
+- Escalations
+- Part completed
+
+Escalation message format:
+```
+
+⚠️ ESCALATION REQUIRED ⚠️
+
+Issue Type: [category]
+File: [filename]
+Feature: [what you're building]
+
+Problem:
+[Clear explanation]
+
+Policy Gap:
+[Which policy is unclear]
+
+Suggested Solutions:
+
+1.  [Option 1]
+2.  [Option 2]
+
+Awaiting human decision...
+
+```
 
 6. PROGRESS TRACKING
-   Update PROGRESS.md after each file:
-   - Part name
-   - Files completed
-   - Issues found/fixed
-   - Escalations raised
-   - Time spent
+Update PROGRESS.md after each file:
+- Part name
+- Files completed
+- Issues found/fixed
+- Escalations raised
+- Time spent
 
 7. TESTING PROTOCOL
-   After building files:
-   - Suggest manual testing steps
-   - List Postman requests to test
-   - Remind to test in browser
+After building files:
+- Suggest manual testing steps
+- List Postman requests to test
+- Remind to test in browser
 
 8. SELF-IMPROVEMENT
-   - Learn from escalation resolutions
-   - Note policy updates
-   - Apply learnings to future files
+- Learn from escalation resolutions
+- Note policy updates
+- Apply learnings to future files
 
 9. MINIMAX M2 OPTIMIZATION
-   - Use MiniMax M2 efficiently
-   - Batch related operations
-   - Minimize API calls where possible
-   - Cost-conscious coding patterns
+- Use MiniMax M2 efficiently
+- Batch related operations
+- Minimize API calls where possible
+- Cost-conscious coding patterns
 
 10. EXAMPLE SESSION
-    Show complete workflow for building one file from start to finish.
+ Show complete workflow for building one file from start to finish.
 
 Write it like a detailed instruction manual for an AI assistant using MiniMax M2!
 ```
@@ -854,7 +873,7 @@ git push
 
 ✅ CHECKPOINT: All 6 policies created, reviewed, committed
 
-💡 BEGINNER INSIGHT: You just created the "AI constitution"! These 6 documents 
+💡 BEGINNER INSIGHT: You just created the "AI constitution"! These 6 documents
 will guide 170 files of code. Quality here = quality everywhere!
 
 ---
@@ -865,76 +884,81 @@ will guide 170 files of code. Quality here = quality everywhere!
 **Why:** Type safety - catch errors before runtime!
 
 ☐ STEP 1: Install OpenAPI Generator (10 minutes)
-   ```
-   npm install -g @openapitools/openapi-generator-cli
-   openapi-generator-cli version
-   ```
-   
-   Verify: Shows version number ✓
+
+```
+npm install -g @openapitools/openapi-generator-cli
+openapi-generator-cli version
+```
+
+Verify: Shows version number ✓
 
 ☐ STEP 2: Create Next.js Type Generation Script (15 minutes)
-   Create: `scripts/openapi/generate-nextjs-types.sh`
-   
-   ```bash
-   #!/bin/bash
-   echo "📄 Generating TypeScript types from Next.js OpenAPI spec..."
-   
-   openapi-generator-cli generate \
-     -i docs/trading_alerts_openapi.yaml \
-     -g typescript-axios \
-     -o lib/api-client \
-     --additional-properties=supportsES6=true,npmVersion=8.0.0
-   
-   echo "✅ Next.js API types generated in lib/api-client/"
-   echo "📝 Import types: import { UserProfile, Alert } from '@/lib/api-client'"
-   ```
-   
-   Make executable:
-   ```
-   chmod +x scripts/openapi/generate-nextjs-types.sh
-   ```
+Create: `scripts/openapi/generate-nextjs-types.sh`
+
+```bash
+#!/bin/bash
+echo "📄 Generating TypeScript types from Next.js OpenAPI spec..."
+
+openapi-generator-cli generate \
+  -i docs/trading_alerts_openapi.yaml \
+  -g typescript-axios \
+  -o lib/api-client \
+  --additional-properties=supportsES6=true,npmVersion=8.0.0
+
+echo "✅ Next.js API types generated in lib/api-client/"
+echo "📝 Import types: import { UserProfile, Alert } from '@/lib/api-client'"
+```
+
+Make executable:
+
+```
+chmod +x scripts/openapi/generate-nextjs-types.sh
+```
 
 ☐ STEP 3: Create Flask Type Generation Script (15 minutes)
-   Create: `scripts/openapi/generate-flask-types.sh`
-   
-   ```bash
-   #!/bin/bash
-   echo "📄 Generating TypeScript types from Flask MT5 OpenAPI spec..."
-   
-   openapi-generator-cli generate \
-     -i docs/flask_mt5_openapi.yaml \
-     -g typescript-axios \
-     -o lib/mt5-client \
-     --additional-properties=supportsES6=true,npmVersion=8.0.0
-   
-   echo "✅ Flask MT5 types generated in lib/mt5-client/"
-   echo "📝 Import types: import { IndicatorData } from '@/lib/mt5-client'"
-   ```
-   
-   Make executable:
-   ```
-   chmod +x scripts/openapi/generate-flask-types.sh
-   ```
+Create: `scripts/openapi/generate-flask-types.sh`
+
+```bash
+#!/bin/bash
+echo "📄 Generating TypeScript types from Flask MT5 OpenAPI spec..."
+
+openapi-generator-cli generate \
+  -i docs/flask_mt5_openapi.yaml \
+  -g typescript-axios \
+  -o lib/mt5-client \
+  --additional-properties=supportsES6=true,npmVersion=8.0.0
+
+echo "✅ Flask MT5 types generated in lib/mt5-client/"
+echo "📝 Import types: import { IndicatorData } from '@/lib/mt5-client'"
+```
+
+Make executable:
+
+```
+chmod +x scripts/openapi/generate-flask-types.sh
+```
 
 ☐ STEP 4: Test (Will Fail - That's OK!) (5 minutes)
-   ```
-   sh scripts/openapi/generate-nextjs-types.sh
-   ```
-   
-   Expected: Error (Next.js project doesn't exist yet)
-   
-   💡 BEGINNER NOTE: This is normal! You'll run these in Phase 3.
+
+```
+sh scripts/openapi/generate-nextjs-types.sh
+```
+
+Expected: Error (Next.js project doesn't exist yet)
+
+💡 BEGINNER NOTE: This is normal! You'll run these in Phase 3.
 
 ☐ STEP 5: Commit (5 minutes)
-   ```
-   git add scripts/
-   git commit -m "Add OpenAPI type generation scripts"
-   git push
-   ```
+
+```
+git add scripts/
+git commit -m "Add OpenAPI type generation scripts"
+git push
+```
 
 ✅ CHECKPOINT: Type generation ready for Phase 3
 
-💡 BEGINNER TIP: These scripts turn your OpenAPI specs into TypeScript types 
+💡 BEGINNER TIP: These scripts turn your OpenAPI specs into TypeScript types
 automatically. When you change the API spec, regenerate types - they stay in sync!
 
 ---
@@ -945,57 +969,62 @@ automatically. When you change the API spec, regenerate types - they stay in syn
 **Why:** Test your API as you build it!
 
 ☐ STEP 1: Download Postman (10 minutes)
-   - Go to postman.com
-   - Download for your OS
-   - Install and launch
-   - Create account (free)
+
+- Go to postman.com
+- Download for your OS
+- Install and launch
+- Create account (free)
 
 ☐ STEP 2: Import Next.js API Collection (10 minutes)
-   1. Click "Import" button (top-left)
-   2. Click "files" tab
-   3. Select: docs/trading_alerts_openapi.yaml
-   4. Click "Import"
-   
-   Result: Postman creates collection with ALL 38 endpoints! 🎉
-   
-   💡 BEGINNER TIP: You didn't write any tests - OpenAPI did it for you!
+
+1.  Click "Import" button (top-left)
+2.  Click "files" tab
+3.  Select: docs/trading_alerts_openapi.yaml
+4.  Click "Import"
+
+Result: Postman creates collection with ALL 38 endpoints! 🎉
+
+💡 BEGINNER TIP: You didn't write any tests - OpenAPI did it for you!
 
 ☐ STEP 3: Configure Variables (5 minutes)
-   1. Click the collection name
-   2. Click "Variables" tab
-   3. Add these:
-   
-   | Variable | Initial Value | Current Value |
-   |----------|--------------|---------------|
-   | baseUrl | http://localhost:3000 | http://localhost:3000 |
-   | authToken | (leave empty) | (leave empty) |
-   
-   4. Save
+
+1.  Click the collection name
+2.  Click "Variables" tab
+3.  Add these:
+
+| Variable  | Initial Value         | Current Value         |
+| --------- | --------------------- | --------------------- |
+| baseUrl   | http://localhost:3000 | http://localhost:3000 |
+| authToken | (leave empty)         | (leave empty)         |
+
+4.  Save
 
 ☐ STEP 4: Import Flask MT5 Collection (10 minutes)
-   Repeat import process for: docs/flask_mt5_openapi.yaml
-   
-   Configure variables:
-   | Variable | Value |
-   |----------|-------|
-   | baseUrl | http://localhost:5001 |
-   | userTier | FREE |
+Repeat import process for: docs/flask_mt5_openapi.yaml
+
+Configure variables:
+| Variable | Value |
+|----------|-------|
+| baseUrl | http://localhost:5001 |
+| userTier | FREE |
 
 ☐ STEP 5: Export Collections (10 minutes)
-   For each collection:
-   1. Right-click collection name
-   2. Export
-   3. Choose "Collection v2.1"
-   4. Save to:
-      - postman/nextjs-api.postman_collection.json
-      - postman/flask-mt5.postman_collection.json
+For each collection:
+
+1.  Right-click collection name
+2.  Export
+3.  Choose "Collection v2.1"
+4.  Save to:
+    - postman/nextjs-api.postman_collection.json
+    - postman/flask-mt5.postman_collection.json
 
 ☐ STEP 6: Commit (5 minutes)
-   ```
-   git add postman/
-   git commit -m "Add Postman test collections from OpenAPI specs"
-   git push
-   ```
+
+```
+git add postman/
+git commit -m "Add Postman test collections from OpenAPI specs"
+git push
+```
 
 ✅ CHECKPOINT: Testing ready!
 
@@ -1106,41 +1135,49 @@ Create: `PROGRESS.md`
 # Trading Alerts SaaS - Development Progress (MiniMax M2)
 
 ## Timeline
+
 - Start Date: [TODAY]
 - Target Completion: [11 weeks from today]
 
 ## Phase Status
 
 ### Phase 0: Local Environment Setup ✅
+
 - Completed: [DATE]
 - Time: 4 hours
 - All tools installed and verified
 - MiniMax M2 API configured
 
 ### Phase 1: Documentation & Policies ✅
+
 - Completed: [DATE]
 - Time: 14 hours
 - All 6 policies created
 
 ### Phase 2: Foundation (In Progress)
+
 - Started: [DATE]
 - Target: 5 hours
 
 ### Phase 3: Implementation (Not Started)
+
 - Target: 38 hours
 - Using MiniMax M2 for autonomous building
 
 ### Phase 4: Deployment (Not Started)
+
 - Target: 6 hours
 
 ## Part Completion
 
 ### Part 1: Foundation - ⏳ Not Started
+
 - Files: 0/12
 - Escalations: 0
 - Status: Waiting
 
 ### Part 2: Database - ⏳ Not Started
+
 - Files: 0/4
 - Escalations: 0
 - Status: Waiting
@@ -1150,39 +1187,43 @@ Create: `PROGRESS.md`
 ## Escalations Log
 
 ### Escalation #1
-- Date: 
-- Part: 
-- Issue: 
-- Resolution: 
-- Policy Updated: 
+
+- Date:
+- Part:
+- Issue:
+- Resolution:
+- Policy Updated:
 
 ## Time Tracking
 
-| Phase | Estimated | Actual | Notes |
-|-------|-----------|--------|-------|
-| Phase 0 | 4h | 4h | ✅ Complete |
-| Phase 1 | 14h | [?] | In progress |
-| Phase 2 | 5h | - | - |
-| Phase 3 | 38h | - | MiniMax M2 autonomous |
-| Phase 4 | 6h | - | - |
-| **Total** | **67h** | **[?]** | - |
+| Phase     | Estimated | Actual  | Notes                 |
+| --------- | --------- | ------- | --------------------- |
+| Phase 0   | 4h        | 4h      | ✅ Complete           |
+| Phase 1   | 14h       | [?]     | In progress           |
+| Phase 2   | 5h        | -       | -                     |
+| Phase 3   | 38h       | -       | MiniMax M2 autonomous |
+| Phase 4   | 6h        | -       | -                     |
+| **Total** | **67h**   | **[?]** | -                     |
 
 ## MiniMax M2 Cost Tracking
 
-| Phase | Estimated API Calls | Estimated Cost | Actual Cost |
-|-------|---------------------|----------------|-------------|
-| Phase 3 | ~200 files | $[estimate] | $[actual] |
+| Phase   | Estimated API Calls | Estimated Cost | Actual Cost |
+| ------- | ------------------- | -------------- | ----------- |
+| Phase 3 | ~200 files          | $[estimate]    | $[actual]   |
 
 ## Learnings
 
 ### Week 1
+
 - [Note what you learned]
 - MiniMax M2 setup experience
 
 ### Week 2
+
 - [Continue noting learnings]
 
 ---
+
 Last Updated: [DATE]
 ```
 
@@ -1207,11 +1248,12 @@ Keep it beginner-friendly!
 Save to: `DOCKER.md`
 
 ☐ STEP 5: Commit All Documentation (10 minutes)
-   ```
-   git add *.md
-   git commit -m "Add complete V7 architecture and implementation documentation for MiniMax M2"
-   git push
-   ```
+
+```
+git add *.md
+git commit -m "Add complete V7 architecture and implementation documentation for MiniMax M2"
+git push
+```
 
 ✅ CHECKPOINT: Documentation complete
 
@@ -1242,21 +1284,21 @@ read:
   - docs/policies/04-escalation-triggers.md
   - docs/policies/05-coding-patterns.md
   - docs/policies/06-aider-instructions.md
-  
+
   # V7 workflow guides
   - docs/v7/v7_overview.md
-  - docs/v7/v7_phase_3_building.md  # Building instructions
-  
+  - docs/v7/v7_phase_3_building.md # Building instructions
+
   # Project structure
   - docs/v5-structure-division.md
-  
+
   # API contracts
   - docs/trading_alerts_openapi.yaml
   - docs/flask_mt5_openapi.yaml
-  
+
   # Seed code references
   - seed-code/market_ai_engine.py
-  
+
   # Progress tracking
   - PROGRESS.md
 
@@ -1270,10 +1312,10 @@ lint: true
 commit-prompt: |
   Write a conventional commit message.
   Include Claude Code validation results.
-  
+
   Format:
   <type>(<scope>): <description>
-  
+
   - Validation: X Critical, Y High, Z Medium issues
   - All approval conditions met: [yes/no]
   - Pattern used: [which pattern from 05-coding-patterns.md]
@@ -1281,6 +1323,7 @@ commit-prompt: |
 ```
 
 Commit:
+
 ```
 git add .aider.conf.yml
 git commit -m "Add Aider configuration for MiniMax M2 policy-driven development"
@@ -1343,6 +1386,7 @@ Thumbs.db
 ```
 
 Commit:
+
 ```
 git add .gitignore
 git commit -m "Add .gitignore"
@@ -1356,6 +1400,7 @@ py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
 
 You should see:
+
 ```
 Aider v0.x.x
 Model: anthropic/MiniMax-M2
@@ -1389,6 +1434,7 @@ Exit: `/exit`
 **Why:** Catch issues before autonomous building
 
 Launch Aider:
+
 ```
 py -3.11 -m aider --model anthropic/MiniMax-M2
 ```
@@ -1438,6 +1484,7 @@ If correct ✅ → Good!
 You: `Plan the implementation for app/api/alerts/route.ts. Don't create it yet, just describe what it should contain.`
 
 Expected: Aider outlines:
+
 - Imports
 - Authentication check
 - Input validation
@@ -1452,7 +1499,7 @@ Exit: `/exit`
 
 ✅ CHECKPOINT: All 6 tests passed!
 
-💡 BEGINNER INSIGHT: Aider just demonstrated it understands your project! 
+💡 BEGINNER INSIGHT: Aider just demonstrated it understands your project!
 This is why Phase 1 is so important - you built the foundation of knowledge.
 
 ---
@@ -1483,7 +1530,8 @@ This is why Phase 1 is so important - you built the foundation of knowledge.
 ### Time Invested: 14 hours
 
 ### Value Created:
-These policies will guide 170 files. Your 14-hour investment will save 
+
+These policies will guide 170 files. Your 14-hour investment will save
 100+ hours in Phase 3!
 
 ### Readiness Check:
@@ -1497,10 +1545,11 @@ These policies will guide 170 files. Your 14-hour investment will save
 
 If all checked ✅ → **READY FOR PHASE 2!** 🚀
 
-💡 BEGINNER VICTORY: You just built the "AI constitution" for your project! 
+💡 BEGINNER VICTORY: You just built the "AI constitution" for your project!
 Everything from here builds on this foundation.
 
 ---
+
 ---
 
 ## Phase 2: Validation System Setup (COMPLETE)
@@ -1515,6 +1564,7 @@ Phase 2 established a complete automated validation system that enables Aider to
 ### Validation Tools Configured
 
 #### 1. TypeScript Configuration (tsconfig.json)
+
 - **Purpose:** Type safety validation
 - **Features:**
   - Strict mode enabled
@@ -1524,6 +1574,7 @@ Phase 2 established a complete automated validation system that enables Aider to
   - Parameter types required
 
 #### 2. ESLint Configuration (.eslintrc.json)
+
 - **Purpose:** Code quality validation
 - **Features:**
   - Next.js + TypeScript rules
@@ -1533,6 +1584,7 @@ Phase 2 established a complete automated validation system that enables Aider to
   - Unused variable detection
 
 #### 3. Prettier Configuration (.prettierrc)
+
 - **Purpose:** Code formatting validation
 - **Features:**
   - Single quotes
@@ -1542,6 +1594,7 @@ Phase 2 established a complete automated validation system that enables Aider to
   - Trailing commas (ES5)
 
 #### 4. Custom Policy Validator (scripts/validate-file.js)
+
 - **Purpose:** Project-specific policy validation
 - **Checks:**
   - Authentication (protected routes check session)
@@ -1555,6 +1608,7 @@ Phase 2 established a complete automated validation system that enables Aider to
   - API contract compliance
 
 #### 5. Jest Test Framework
+
 - **Purpose:** Unit and integration testing
 - **Configuration:** jest.config.js
 - **Features:**
@@ -1584,6 +1638,7 @@ Phase 2 established a complete automated validation system that enables Aider to
 ### Aider Configuration Updates
 
 #### .aider.conf.yml
+
 - **Updated:** 2025-11-24
 - **Role:** Autonomous Builder & Validator
 - **Responsibilities:**
@@ -1596,7 +1651,9 @@ Phase 2 established a complete automated validation system that enables Aider to
   - Git commits
 
 #### Policies Loaded
+
 All 9 policy files automatically loaded:
+
 1. 00-tier-specifications.md
 2. 01-approval-policies-compress.md
 3. 02-quality-standards.md
@@ -1638,12 +1695,12 @@ All 9 policy files automatically loaded:
 
 ### Success Metrics (Target)
 
-| Metric | Target | Purpose |
-|--------|--------|---------|
-| Auto-Approve Rate | 85-92% | Files pass first time |
-| Auto-Fix Rate | 6-12% | Minor issues fixed automatically |
-| Escalation Rate | 2-5% | Major issues requiring human input |
-| Validation Time | <10 sec/file | Fast feedback loop |
+| Metric            | Target       | Purpose                            |
+| ----------------- | ------------ | ---------------------------------- |
+| Auto-Approve Rate | 85-92%       | Files pass first time              |
+| Auto-Fix Rate     | 6-12%        | Minor issues fixed automatically   |
+| Escalation Rate   | 2-5%         | Major issues requiring human input |
+| Validation Time   | <10 sec/file | Fast feedback loop                 |
 
 ### Ready for Phase 3
 
@@ -1666,6 +1723,7 @@ All 9 policy files automatically loaded:
 This section documents the complete configuration for successfully integrating MiniMax M2 with Aider for autonomous code generation.
 
 **Final Working Configuration:**
+
 - ✅ Model string: `openai/MiniMax-M2`
 - ✅ API endpoint: `https://api.minimax.io/v1`
 - ✅ API variables: `OPENAI_API_KEY` and `OPENAI_API_BASE`
@@ -1682,6 +1740,7 @@ OPENAI_API_BASE=https://api.minimax.io/v1
 ```
 
 **Key Points:**
+
 - ✅ Use `OPENAI_API_KEY` (NOT `ANTHROPIC_API_KEY`)
 - ✅ Use `OPENAI_API_BASE` (NOT `ANTHROPIC_API_BASE`)
 - ✅ Endpoint is `/v1` (OpenAI-compatible)
@@ -1716,12 +1775,12 @@ read:
   - docs/v5-structure-division.md
   - docs/build-orders/README.md
   - PROGRESS.md
-
 # Total base load: ~129,000 tokens
 # Available for rotation: ~75,000 tokens
 ```
 
 **Critical Settings:**
+
 - ✅ Model prefix: `openai/` (NOT `anthropic/` or `minimax/`)
 - ✅ Map tokens: `512` (reduced from 2048)
 - ✅ Compressed files: Use `-compress.md` versions
@@ -1730,13 +1789,13 @@ read:
 
 #### MiniMax M2 Specifications
 
-| Specification | Value |
-|--------------|-------|
-| **Total Context Window** | 204,800 tokens |
-| **Base Load** | ~129,000 tokens (63%) |
-| **Available for Rotation** | ~75,000 tokens (37%) |
-| **System Overhead** | ~5,000 tokens |
-| **Repo-map** | 512 tokens |
+| Specification              | Value                 |
+| -------------------------- | --------------------- |
+| **Total Context Window**   | 204,800 tokens        |
+| **Base Load**              | ~129,000 tokens (63%) |
+| **Available for Rotation** | ~75,000 tokens (37%)  |
+| **System Overhead**        | ~5,000 tokens         |
+| **Repo-map**               | 512 tokens            |
 
 #### Token Budget Breakdown
 
@@ -1754,21 +1813,22 @@ Total Context: 204,800 tokens
 
 Conservative compression was performed on the 6 largest files to reduce token usage:
 
-| File | Original | Compressed | Saved | Reduction |
-|------|----------|-----------|-------|-----------|
-| 01-approval-policies.md | 18,529 | 9,491 | 9,038 | 49% |
-| 03-architecture-rules.md | 29,324 | 11,326 | 17,998 | 61% |
-| 04-escalation-triggers.md | 22,484 | 7,430 | 15,054 | 67% |
-| 05-coding-patterns.md | 26,686 | 20,999 | 5,687 | 21% |
-| 07-dlocal-integration-rules.md | 15,296 | 6,870 | 8,426 | 55% |
-| trading_alerts_openapi.yaml | 24,060 | 21,690 | 2,370 | 10% |
-| **TOTAL** | **136,379** | **77,806** | **58,573** | **43%** |
+| File                           | Original    | Compressed | Saved      | Reduction |
+| ------------------------------ | ----------- | ---------- | ---------- | --------- |
+| 01-approval-policies.md        | 18,529      | 9,491      | 9,038      | 49%       |
+| 03-architecture-rules.md       | 29,324      | 11,326     | 17,998     | 61%       |
+| 04-escalation-triggers.md      | 22,484      | 7,430      | 15,054     | 67%       |
+| 05-coding-patterns.md          | 26,686      | 20,999     | 5,687      | 21%       |
+| 07-dlocal-integration-rules.md | 15,296      | 6,870      | 8,426      | 55%       |
+| trading_alerts_openapi.yaml    | 24,060      | 21,690     | 2,370      | 10%       |
+| **TOTAL**                      | **136,379** | **77,806** | **58,573** | **43%**   |
 
 ### Common Issues and Solutions
 
 #### Issue 1: "LLM Provider NOT provided"
 
 **Symptoms:**
+
 ```
 litellm.BadRequestError: LLM Provider NOT provided.
 You passed model=minimax/MiniMax-M2
@@ -1782,11 +1842,13 @@ Change model string from `minimax/MiniMax-M2` to `openai/MiniMax-M2`
 #### Issue 2: "Context window exceeds limit"
 
 **Symptoms:**
+
 ```
 OpenAIException - invalid params, context window exceeds limit
 ```
 
 **Solution:**
+
 1. Reduce `map-tokens` to 512
 2. Use compressed policy files
 3. Implement rotation strategy with `/read-only` and `/drop`
@@ -1797,6 +1859,7 @@ OpenAIException - invalid params, context window exceeds limit
 #### Issue 3: Wrong API Variables
 
 **Symptoms:**
+
 ```
 Error: ANTHROPIC_API_KEY not found
 ```
@@ -1805,12 +1868,14 @@ Error: ANTHROPIC_API_KEY not found
 Use `OPENAI_API_KEY` and `OPENAI_API_BASE`, NOT Anthropic variables.
 
 **Correct:**
+
 ```bash
 OPENAI_API_KEY=eyJhbGci...
 OPENAI_API_BASE=https://api.minimax.io/v1
 ```
 
 **Incorrect:**
+
 ```bash
 ANTHROPIC_API_KEY=eyJhbGci...  ❌
 ```
@@ -1876,6 +1941,7 @@ Before starting autonomous development, verify:
 ### Success Metrics
 
 **Verified Working Configuration:**
+
 - ✅ API connection successful
 - ✅ Aider starts without errors
 - ✅ Model responds to queries
@@ -1887,4 +1953,3 @@ Before starting autonomous development, verify:
 
 **Phase 1 Complete!** ✅  
 **Ready for Phase 3 autonomous building with Aider + MiniMax M2!** 🚀
-

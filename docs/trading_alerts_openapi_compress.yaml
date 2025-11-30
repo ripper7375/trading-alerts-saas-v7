@@ -2166,7 +2166,12 @@ paths:
           in: query
           schema:
             type: string
-            enum: [affiliate_discount_percent, affiliate_commission_percent, affiliate_codes_per_month]
+            enum:
+              [
+                affiliate_discount_percent,
+                affiliate_commission_percent,
+                affiliate_codes_per_month,
+              ]
       responses:
         '200':
           description: Settings change history retrieved

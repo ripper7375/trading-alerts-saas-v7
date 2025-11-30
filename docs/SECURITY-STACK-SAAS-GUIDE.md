@@ -1,4 +1,5 @@
 # COMPREHENSIVE SECURITY STACK GUIDE FOR SAAS
+
 ## Trading Alerts Platform - Enterprise Security Implementation
 
 **Version:** 1.0.0
@@ -134,12 +135,12 @@
 
 ```typescript
 // lib/auth/auth-config.ts
-import NextAuth, { NextAuthOptions } from 'next-auth'
-import GoogleProvider from 'next-auth/providers/google'
-import CredentialsProvider from 'next-auth/providers/credentials'
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
-import { prisma } from '@/lib/db/prisma'
-import bcrypt from 'bcryptjs'
+import NextAuth, { NextAuthOptions } from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { prisma } from '@/lib/db/prisma';
+import bcrypt from 'bcryptjs';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -175,7 +176,7 @@ export const authOptions: NextAuthOptions = {
           image: profile.picture,
           role: 'USER',
           tier: 'FREE',
-        }
+        };
       },
     }),
 
@@ -188,42 +189,42 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Invalid credentials')
+          throw new Error('Invalid credentials');
         }
 
         // Find user
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
-        })
+        });
 
         if (!user || !user.password) {
-          throw new Error('Invalid credentials')
+          throw new Error('Invalid credentials');
         }
 
         // Verify password
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.password
-        )
+        );
 
         if (!isPasswordValid) {
           // Log failed attempt
-          await logFailedLogin(user.id, 'invalid_password')
-          throw new Error('Invalid credentials')
+          await logFailedLogin(user.id, 'invalid_password');
+          throw new Error('Invalid credentials');
         }
 
         // Check if email verified
         if (!user.emailVerified) {
-          throw new Error('Email not verified')
+          throw new Error('Email not verified');
         }
 
         // Check if account active
         if (!user.isActive) {
-          throw new Error('Account suspended')
+          throw new Error('Account suspended');
         }
 
         // Log successful login
-        await logSuccessfulLogin(user.id)
+        await logSuccessfulLogin(user.id);
 
         return {
           id: user.id,
@@ -231,7 +232,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           role: user.role,
           tier: user.tier,
-        }
+        };
       },
     }),
   ],
@@ -241,42 +242,42 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account, trigger, session }) {
       // Initial sign in
       if (user) {
-        token.id = user.id
-        token.role = user.role
-        token.tier = user.tier
-        token.emailVerified = user.emailVerified
+        token.id = user.id;
+        token.role = user.role;
+        token.tier = user.tier;
+        token.emailVerified = user.emailVerified;
       }
 
       // Update token on session update
       if (trigger === 'update' && session) {
-        token.tier = session.user.tier
-        token.name = session.user.name
+        token.tier = session.user.tier;
+        token.name = session.user.name;
       }
 
       // OAuth provider info
       if (account?.provider) {
-        token.provider = account.provider
+        token.provider = account.provider;
       }
 
-      return token
+      return token;
     },
 
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string
-        session.user.role = token.role as string
-        session.user.tier = token.tier as string
-        session.user.emailVerified = token.emailVerified as Date | null
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.tier = token.tier as string;
+        session.user.emailVerified = token.emailVerified as Date | null;
       }
-      return session
+      return session;
     },
 
     // Redirect after authentication
     async redirect({ url, baseUrl }) {
       // Prevent open redirect vulnerability
-      if (url.startsWith('/')) return `${baseUrl}${url}`
-      if (url.startsWith(baseUrl)) return url
-      return baseUrl
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      if (url.startsWith(baseUrl)) return url;
+      return baseUrl;
     },
   },
 
@@ -304,22 +305,23 @@ export const authOptions: NextAuthOptions = {
         provider: account?.provider,
         isNewUser,
         timestamp: new Date(),
-      })
+      });
     },
     async signOut({ token }) {
       await logAuditEvent({
         event: 'user_signout',
         userId: token.id,
         timestamp: new Date(),
-      })
+      });
     },
   },
-}
+};
 ```
 
 #### Security Features Explained
 
 **1. JWT Token Security**
+
 - **Signed tokens**: Prevents tampering (HS256/RS256)
 - **Encrypted cookies**: Prevents token theft
 - **Short expiration**: Reduces attack window
@@ -327,6 +329,7 @@ export const authOptions: NextAuthOptions = {
 - **Secure transmission**: HTTPS only
 
 **2. OAuth 2.0 Best Practices**
+
 - **PKCE (Proof Key for Code Exchange)**: Prevents authorization code interception
 - **State parameter**: CSRF protection
 - **Nonce**: Replay attack prevention
@@ -334,6 +337,7 @@ export const authOptions: NextAuthOptions = {
 - **Token validation**: Verify issuer and audience
 
 **3. Password Security**
+
 - **bcrypt hashing**: Adaptive hash function (10+ rounds)
 - **Salt**: Unique per password
 - **No password exposure**: Never log or transmit plaintext
@@ -404,14 +408,11 @@ const rolePermissions: Record<UserRole, Permission[]> = {
     Permission.MANAGE_SETTINGS,
     Permission.VIEW_AUDIT_LOGS,
   ],
-}
+};
 
 // Check permission
-export function hasPermission(
-  role: UserRole,
-  permission: Permission
-): boolean {
-  return rolePermissions[role]?.includes(permission) ?? false
+export function hasPermission(role: UserRole, permission: Permission): boolean {
+  return rolePermissions[role]?.includes(permission) ?? false;
 }
 
 // Check multiple permissions (AND logic)
@@ -419,7 +420,7 @@ export function hasAllPermissions(
   role: UserRole,
   permissions: Permission[]
 ): boolean {
-  return permissions.every(p => hasPermission(role, p))
+  return permissions.every((p) => hasPermission(role, p));
 }
 
 // Check multiple permissions (OR logic)
@@ -427,7 +428,7 @@ export function hasAnyPermission(
   role: UserRole,
   permissions: Permission[]
 ): boolean {
-  return permissions.some(p => hasPermission(role, p))
+  return permissions.some((p) => hasPermission(role, p));
 }
 ```
 
@@ -435,9 +436,9 @@ export function hasAnyPermission(
 
 ```typescript
 // middleware.ts (Next.js Edge Middleware)
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
 // Define protected routes
 const protectedRoutes = [
@@ -446,67 +447,66 @@ const protectedRoutes = [
   '/watchlist',
   '/settings',
   '/billing',
-]
+];
 
-const adminRoutes = [
-  '/admin',
-]
+const adminRoutes = ['/admin'];
 
-const affiliateRoutes = [
-  '/affiliate',
-]
+const affiliateRoutes = ['/affiliate'];
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname } = request.nextUrl;
 
   // Get session token
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
-  })
+  });
 
   // Check if route is protected
-  const isProtectedRoute = protectedRoutes.some(route =>
+  const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
-  )
-  const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
-  const isAffiliateRoute = affiliateRoutes.some(route =>
+  );
+  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
+  const isAffiliateRoute = affiliateRoutes.some((route) =>
     pathname.startsWith(route)
-  )
+  );
 
   // Redirect unauthenticated users
   if (isProtectedRoute && !token) {
-    const url = new URL('/auth/login', request.url)
-    url.searchParams.set('callbackUrl', pathname)
-    return NextResponse.redirect(url)
+    const url = new URL('/auth/login', request.url);
+    url.searchParams.set('callbackUrl', pathname);
+    return NextResponse.redirect(url);
   }
 
   // Check admin access
   if (isAdminRoute && token?.role !== 'ADMIN') {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   // Check affiliate access
-  if (isAffiliateRoute && !['AFFILIATE', 'ADMIN'].includes(token?.role as string)) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  if (
+    isAffiliateRoute &&
+    !['AFFILIATE', 'ADMIN'].includes(token?.role as string)
+  ) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   // Add security headers
-  const response = NextResponse.next()
+  const response = NextResponse.next();
 
   // Security headers (OWASP recommendations)
-  response.headers.set('X-Frame-Options', 'DENY')
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('X-XSS-Protection', '1; mode=block')
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set(
     'Strict-Transport-Security',
     'max-age=31536000; includeSubDomains'
-  )
+  );
   response.headers.set(
     'Permissions-Policy',
     'camera=(), microphone=(), geolocation=()'
-  )
+  );
 
   // Content Security Policy
   response.headers.set(
@@ -520,9 +520,9 @@ export async function middleware(request: NextRequest) {
       "connect-src 'self' https://api.stripe.com https://api.minimaxi.com",
       "frame-src 'self' https://js.stripe.com",
     ].join('; ')
-  )
+  );
 
-  return response
+  return response;
 }
 
 // Configure which routes use middleware
@@ -537,7 +537,7 @@ export const config = {
      */
     '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
-}
+};
 ```
 
 ---
@@ -548,8 +548,8 @@ export const config = {
 
 ```typescript
 // lib/auth/mfa.ts
-import * as speakeasy from 'speakeasy'
-import * as QRCode from 'qrcode'
+import * as speakeasy from 'speakeasy';
+import * as QRCode from 'qrcode';
 
 export async function generateMFASecret(userId: string, email: string) {
   // Generate secret
@@ -557,10 +557,10 @@ export async function generateMFASecret(userId: string, email: string) {
     name: `Trading Alerts (${email})`,
     issuer: 'Trading Alerts',
     length: 32,
-  })
+  });
 
   // Generate QR code
-  const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url!)
+  const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url!);
 
   // Store secret in database (encrypted)
   await prisma.user.update({
@@ -569,12 +569,12 @@ export async function generateMFASecret(userId: string, email: string) {
       mfaSecret: encryptSecret(secret.base32),
       mfaEnabled: false, // Enable after verification
     },
-  })
+  });
 
   return {
     secret: secret.base32,
     qrCode: qrCodeUrl,
-  }
+  };
 }
 
 export function verifyMFAToken(secret: string, token: string): boolean {
@@ -583,25 +583,25 @@ export function verifyMFAToken(secret: string, token: string): boolean {
     encoding: 'base32',
     token,
     window: 2, // Allow 2 time steps (±60 seconds)
-  })
+  });
 }
 
 export async function enableMFA(userId: string, token: string) {
-  const user = await prisma.user.findUnique({ where: { id: userId } })
+  const user = await prisma.user.findUnique({ where: { id: userId } });
 
   if (!user?.mfaSecret) {
-    throw new Error('MFA not configured')
+    throw new Error('MFA not configured');
   }
 
-  const decryptedSecret = decryptSecret(user.mfaSecret)
-  const isValid = verifyMFAToken(decryptedSecret, token)
+  const decryptedSecret = decryptSecret(user.mfaSecret);
+  const isValid = verifyMFAToken(decryptedSecret, token);
 
   if (!isValid) {
-    throw new Error('Invalid MFA token')
+    throw new Error('Invalid MFA token');
   }
 
   // Generate backup codes
-  const backupCodes = generateBackupCodes()
+  const backupCodes = generateBackupCodes();
 
   await prisma.user.update({
     where: { id: userId },
@@ -609,19 +609,17 @@ export async function enableMFA(userId: string, token: string) {
       mfaEnabled: true,
       mfaBackupCodes: encryptBackupCodes(backupCodes),
     },
-  })
+  });
 
-  return backupCodes
+  return backupCodes;
 }
 
 function generateBackupCodes(): string[] {
-  const codes: string[] = []
+  const codes: string[] = [];
   for (let i = 0; i < 10; i++) {
-    codes.push(
-      Math.random().toString(36).substring(2, 10).toUpperCase()
-    )
+    codes.push(Math.random().toString(36).substring(2, 10).toUpperCase());
   }
-  return codes
+  return codes;
 }
 ```
 
@@ -631,10 +629,10 @@ function generateBackupCodes(): string[] {
 // lib/auth/mfa-policies.ts
 
 export interface MFAPolicy {
-  enforceForRole: UserRole[]
-  enforceAfterDays?: number
-  allowedMethods: ('totp' | 'sms' | 'email')[]
-  gracePeriodDays: number
+  enforceForRole: UserRole[];
+  enforceAfterDays?: number;
+  allowedMethods: ('totp' | 'sms' | 'email')[];
+  gracePeriodDays: number;
 }
 
 export const MFA_POLICIES: Record<string, MFAPolicy> = {
@@ -653,41 +651,43 @@ export const MFA_POLICIES: Record<string, MFAPolicy> = {
     allowedMethods: ['totp', 'email'],
     gracePeriodDays: 7,
   },
-}
+};
 
 export async function checkMFARequirement(userId: string) {
-  const user = await prisma.user.findUnique({ where: { id: userId } })
+  const user = await prisma.user.findUnique({ where: { id: userId } });
 
-  if (!user) return { required: false }
+  if (!user) return { required: false };
 
   // Check if MFA already enabled
   if (user.mfaEnabled) {
-    return { required: false, enabled: true }
+    return { required: false, enabled: true };
   }
 
   // Check policies
-  const policy = MFA_POLICIES[user.role.toLowerCase()] || MFA_POLICIES.admin
+  const policy = MFA_POLICIES[user.role.toLowerCase()] || MFA_POLICIES.admin;
 
   if (!policy.enforceForRole.includes(user.role as UserRole)) {
-    return { required: false }
+    return { required: false };
   }
 
   // Check grace period
-  const accountAge = Date.now() - user.createdAt.getTime()
-  const gracePeriodMs = policy.gracePeriodDays * 24 * 60 * 60 * 1000
+  const accountAge = Date.now() - user.createdAt.getTime();
+  const gracePeriodMs = policy.gracePeriodDays * 24 * 60 * 60 * 1000;
 
   if (accountAge < gracePeriodMs) {
     return {
       required: true,
       gracePeriod: true,
-      daysRemaining: Math.ceil((gracePeriodMs - accountAge) / (24 * 60 * 60 * 1000)),
-    }
+      daysRemaining: Math.ceil(
+        (gracePeriodMs - accountAge) / (24 * 60 * 60 * 1000)
+      ),
+    };
   }
 
   return {
     required: true,
     gracePeriod: false,
-  }
+  };
 }
 ```
 
@@ -701,13 +701,13 @@ export async function checkMFARequirement(userId: string) {
 
 ```typescript
 // lib/api/rate-limit.ts
-import { Ratelimit } from '@upstash/ratelimit'
-import { Redis } from '@upstash/redis'
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL!,
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-})
+});
 
 // Define rate limits per tier
 export const RATE_LIMITS = {
@@ -746,7 +746,7 @@ export const RATE_LIMITS = {
     requests: 10,
     window: '1 h', // 10 requests per hour
   },
-}
+};
 
 // Create rate limiters
 export const rateLimiters = {
@@ -809,15 +809,15 @@ export const rateLimiters = {
     analytics: true,
     prefix: 'ratelimit:payment',
   }),
-}
+};
 
 // Rate limit middleware
 export async function checkRateLimit(
   identifier: string,
   tier: 'anonymous' | 'free' | 'pro' | 'admin' | 'auth' | 'payment'
 ) {
-  const limiter = rateLimiters[tier]
-  const { success, limit, reset, remaining } = await limiter.limit(identifier)
+  const limiter = rateLimiters[tier];
+  const { success, limit, reset, remaining } = await limiter.limit(identifier);
 
   return {
     success,
@@ -825,11 +825,13 @@ export async function checkRateLimit(
     remaining,
     reset,
     retryAfter: reset - Date.now(),
-  }
+  };
 }
 
 // Helper to get rate limit headers
-export function getRateLimitHeaders(result: Awaited<ReturnType<typeof checkRateLimit>>) {
+export function getRateLimitHeaders(
+  result: Awaited<ReturnType<typeof checkRateLimit>>
+) {
   return {
     'X-RateLimit-Limit': result.limit.toString(),
     'X-RateLimit-Remaining': result.remaining.toString(),
@@ -837,7 +839,7 @@ export function getRateLimitHeaders(result: Awaited<ReturnType<typeof checkRateL
     ...(result.retryAfter > 0 && {
       'Retry-After': Math.ceil(result.retryAfter / 1000).toString(),
     }),
-  }
+  };
 }
 ```
 
@@ -845,21 +847,25 @@ export function getRateLimitHeaders(result: Awaited<ReturnType<typeof checkRateL
 
 ```typescript
 // app/api/alerts/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { checkRateLimit, getRateLimitHeaders } from '@/lib/api/rate-limit'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { checkRateLimit, getRateLimitHeaders } from '@/lib/api/rate-limit';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession()
+    const session = await getServerSession();
 
     // Determine rate limit tier
-    const identifier = session?.user?.id || req.ip || 'anonymous'
-    const tier = session?.user?.tier === 'PRO' ? 'pro' :
-                 session?.user?.tier === 'FREE' ? 'free' : 'anonymous'
+    const identifier = session?.user?.id || req.ip || 'anonymous';
+    const tier =
+      session?.user?.tier === 'PRO'
+        ? 'pro'
+        : session?.user?.tier === 'FREE'
+          ? 'free'
+          : 'anonymous';
 
     // Check rate limit
-    const rateLimitResult = await checkRateLimit(identifier, tier)
+    const rateLimitResult = await checkRateLimit(identifier, tier);
 
     if (!rateLimitResult.success) {
       return NextResponse.json(
@@ -871,21 +877,20 @@ export async function GET(req: NextRequest) {
           status: 429,
           headers: getRateLimitHeaders(rateLimitResult),
         }
-      )
+      );
     }
 
     // Process request...
-    const data = await fetchData()
+    const data = await fetchData();
 
     return NextResponse.json(data, {
       headers: getRateLimitHeaders(rateLimitResult),
-    })
-
+    });
   } catch (error) {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
@@ -898,10 +903,10 @@ export async function GET(req: NextRequest) {
 
 ```typescript
 // lib/validation/schemas.ts
-import { z } from 'zod'
+import { z } from 'zod';
 
 // Common patterns
-const emailSchema = z.string().email().toLowerCase().trim()
+const emailSchema = z.string().email().toLowerCase().trim();
 const passwordSchema = z
   .string()
   .min(8, 'Password must be at least 8 characters')
@@ -909,35 +914,49 @@ const passwordSchema = z
   .regex(/[A-Z]/, 'Password must contain uppercase letter')
   .regex(/[a-z]/, 'Password must contain lowercase letter')
   .regex(/[0-9]/, 'Password must contain number')
-  .regex(/[^A-Za-z0-9]/, 'Password must contain special character')
+  .regex(/[^A-Za-z0-9]/, 'Password must contain special character');
 
-const uuidSchema = z.string().uuid()
+const uuidSchema = z.string().uuid();
 
 // User registration
 export const registerSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
   name: z.string().min(2).max(100).trim(),
-  acceptTerms: z.boolean().refine(val => val === true, {
+  acceptTerms: z.boolean().refine((val) => val === true, {
     message: 'You must accept terms and conditions',
   }),
-})
+});
 
 // Alert creation
 export const createAlertSchema = z.object({
   symbol: z.enum([
-    'BTCUSD', 'ETHUSD', 'EURUSD', 'GBPUSD', 'USDJPY',
-    'AUDUSD', 'USDCAD', 'NZDUSD', 'EURGBP', 'EURJPY',
-    'US30', 'US500', 'US100', 'XAUUSD', 'XAGUSD'
+    'BTCUSD',
+    'ETHUSD',
+    'EURUSD',
+    'GBPUSD',
+    'USDJPY',
+    'AUDUSD',
+    'USDCAD',
+    'NZDUSD',
+    'EURGBP',
+    'EURJPY',
+    'US30',
+    'US500',
+    'US100',
+    'XAUUSD',
+    'XAGUSD',
   ]),
   timeframe: z.enum(['M5', 'M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'H12', 'D1']),
   condition: z.enum(['above', 'below', 'cross_above', 'cross_below']),
   value: z.number().positive().finite(),
-  notification: z.object({
-    email: z.boolean().default(true),
-    push: z.boolean().default(false),
-  }).optional(),
-})
+  notification: z
+    .object({
+      email: z.boolean().default(true),
+      push: z.boolean().default(false),
+    })
+    .optional(),
+});
 
 // Pagination
 export const paginationSchema = z.object({
@@ -945,7 +964,7 @@ export const paginationSchema = z.object({
   limit: z.coerce.number().int().positive().max(100).default(20),
   sortBy: z.string().optional(),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
-})
+});
 
 // Sanitization helpers
 export function sanitizeHtml(input: string): string {
@@ -953,18 +972,18 @@ export function sanitizeHtml(input: string): string {
   return input
     .replace(/<[^>]*>/g, '')
     .replace(/[<>\"\']/g, '')
-    .trim()
+    .trim();
 }
 
 export function sanitizeFilename(filename: string): string {
   // Only allow alphanumeric, dash, underscore, dot
-  return filename.replace(/[^a-zA-Z0-9._-]/g, '_').substring(0, 255)
+  return filename.replace(/[^a-zA-Z0-9._-]/g, '_').substring(0, 255);
 }
 
 // SQL injection prevention (additional layer with Prisma)
 export function escapeSqlString(input: string): string {
   // Prisma handles this, but additional validation
-  return input.replace(/'/g, "''")
+  return input.replace(/'/g, "''");
 }
 ```
 
@@ -972,46 +991,46 @@ export function escapeSqlString(input: string): string {
 
 ```typescript
 // lib/api/validate.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { ZodSchema, ZodError } from 'zod'
+import { NextRequest, NextResponse } from 'next/server';
+import { ZodSchema, ZodError } from 'zod';
 
 export function validateRequest<T>(schema: ZodSchema<T>) {
   return async (req: NextRequest): Promise<{ data: T } | NextResponse> => {
     try {
-      const body = await req.json()
-      const validated = schema.parse(body)
-      return { data: validated }
+      const body = await req.json();
+      const validated = schema.parse(body);
+      return { data: validated };
     } catch (error) {
       if (error instanceof ZodError) {
         return NextResponse.json(
           {
             error: 'Validation failed',
-            details: error.errors.map(err => ({
+            details: error.errors.map((err) => ({
               field: err.path.join('.'),
               message: err.message,
             })),
           },
           { status: 400 }
-        )
+        );
       }
 
       return NextResponse.json(
         { error: 'Invalid request body' },
         { status: 400 }
-      )
+      );
     }
-  }
+  };
 }
 
 // Usage
 export async function POST(req: NextRequest) {
-  const result = await validateRequest(createAlertSchema)(req)
+  const result = await validateRequest(createAlertSchema)(req);
 
   if (result instanceof NextResponse) {
-    return result // Validation error
+    return result; // Validation error
   }
 
-  const { data } = result
+  const { data } = result;
   // Process validated data...
 }
 ```
@@ -1022,15 +1041,15 @@ export async function POST(req: NextRequest) {
 
 ```typescript
 // lib/api/cors.ts
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
 
 export interface CorsOptions {
-  origin: string | string[] | ((origin: string) => boolean)
-  methods?: string[]
-  allowedHeaders?: string[]
-  exposedHeaders?: string[]
-  credentials?: boolean
-  maxAge?: number
+  origin: string | string[] | ((origin: string) => boolean);
+  methods?: string[];
+  allowedHeaders?: string[];
+  exposedHeaders?: string[];
+  credentials?: boolean;
+  maxAge?: number;
 }
 
 const defaultOptions: CorsOptions = {
@@ -1049,62 +1068,71 @@ const defaultOptions: CorsOptions = {
   ],
   credentials: true,
   maxAge: 86400, // 24 hours
-}
+};
 
 export function cors(options: CorsOptions = defaultOptions) {
   return (req: NextRequest, res: NextResponse) => {
-    const origin = req.headers.get('origin')
+    const origin = req.headers.get('origin');
 
     // Check if origin is allowed
-    let allowedOrigin: string | null = null
+    let allowedOrigin: string | null = null;
 
     if (typeof options.origin === 'string') {
-      allowedOrigin = options.origin
+      allowedOrigin = options.origin;
     } else if (Array.isArray(options.origin)) {
       if (origin && options.origin.includes(origin)) {
-        allowedOrigin = origin
+        allowedOrigin = origin;
       }
     } else if (typeof options.origin === 'function') {
       if (origin && options.origin(origin)) {
-        allowedOrigin = origin
+        allowedOrigin = origin;
       }
     }
 
     if (allowedOrigin) {
-      res.headers.set('Access-Control-Allow-Origin', allowedOrigin)
+      res.headers.set('Access-Control-Allow-Origin', allowedOrigin);
     }
 
     if (options.credentials) {
-      res.headers.set('Access-Control-Allow-Credentials', 'true')
+      res.headers.set('Access-Control-Allow-Credentials', 'true');
     }
 
     if (options.methods) {
-      res.headers.set('Access-Control-Allow-Methods', options.methods.join(', '))
+      res.headers.set(
+        'Access-Control-Allow-Methods',
+        options.methods.join(', ')
+      );
     }
 
     if (options.allowedHeaders) {
-      res.headers.set('Access-Control-Allow-Headers', options.allowedHeaders.join(', '))
+      res.headers.set(
+        'Access-Control-Allow-Headers',
+        options.allowedHeaders.join(', ')
+      );
     }
 
     if (options.exposedHeaders) {
-      res.headers.set('Access-Control-Expose-Headers', options.exposedHeaders.join(', '))
+      res.headers.set(
+        'Access-Control-Expose-Headers',
+        options.exposedHeaders.join(', ')
+      );
     }
 
     if (options.maxAge) {
-      res.headers.set('Access-Control-Max-Age', options.maxAge.toString())
+      res.headers.set('Access-Control-Max-Age', options.maxAge.toString());
     }
 
-    return res
-  }
+    return res;
+  };
 }
 
 // Handle preflight requests
 export function handlePreflight(req: NextRequest) {
   if (req.method === 'OPTIONS') {
-    const response = new NextResponse(null, { status: 204 })
-    return cors()(req, response)
+    const response = new NextResponse(null, { status: 204 });
+    return cors()(req, response);
   }
-  return null
+  return null;
 }
 ```
 
@@ -1114,19 +1142,19 @@ export function handlePreflight(req: NextRequest) {
 
 ```typescript
 // lib/api/api-keys.ts
-import crypto from 'crypto'
-import { prisma } from '@/lib/db/prisma'
+import crypto from 'crypto';
+import { prisma } from '@/lib/db/prisma';
 
 export interface ApiKey {
-  id: string
-  userId: string
-  name: string
-  key: string // Hashed
-  prefix: string // First 8 chars for identification
-  permissions: string[]
-  expiresAt: Date | null
-  lastUsedAt: Date | null
-  createdAt: Date
+  id: string;
+  userId: string;
+  name: string;
+  key: string; // Hashed
+  prefix: string; // First 8 chars for identification
+  permissions: string[];
+  expiresAt: Date | null;
+  lastUsedAt: Date | null;
+  createdAt: Date;
 }
 
 export async function generateApiKey(
@@ -1136,20 +1164,17 @@ export async function generateApiKey(
   expiresInDays?: number
 ): Promise<{ key: string; prefix: string }> {
   // Generate random key (32 bytes = 256 bits)
-  const rawKey = crypto.randomBytes(32).toString('hex')
-  const prefix = `sk_${rawKey.substring(0, 8)}`
-  const fullKey = `${prefix}_${rawKey.substring(8)}`
+  const rawKey = crypto.randomBytes(32).toString('hex');
+  const prefix = `sk_${rawKey.substring(0, 8)}`;
+  const fullKey = `${prefix}_${rawKey.substring(8)}`;
 
   // Hash key for storage
-  const hashedKey = crypto
-    .createHash('sha256')
-    .update(fullKey)
-    .digest('hex')
+  const hashedKey = crypto.createHash('sha256').update(fullKey).digest('hex');
 
   // Calculate expiration
   const expiresAt = expiresInDays
     ? new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
-    : null
+    : null;
 
   // Store in database
   await prisma.apiKey.create({
@@ -1161,23 +1186,18 @@ export async function generateApiKey(
       permissions,
       expiresAt,
     },
-  })
+  });
 
   // Return unhashed key (only time it's visible)
-  return { key: fullKey, prefix }
+  return { key: fullKey, prefix };
 }
 
-export async function validateApiKey(
-  key: string
-): Promise<ApiKey | null> {
+export async function validateApiKey(key: string): Promise<ApiKey | null> {
   // Extract prefix
-  const prefix = key.substring(0, 11) // sk_xxxxxxxx
+  const prefix = key.substring(0, 11); // sk_xxxxxxxx
 
   // Hash provided key
-  const hashedKey = crypto
-    .createHash('sha256')
-    .update(key)
-    .digest('hex')
+  const hashedKey = crypto.createHash('sha256').update(key).digest('hex');
 
   // Find key in database
   const apiKey = await prisma.apiKey.findFirst({
@@ -1186,24 +1206,24 @@ export async function validateApiKey(
       key: hashedKey,
       revokedAt: null,
     },
-  })
+  });
 
   if (!apiKey) {
-    return null
+    return null;
   }
 
   // Check expiration
   if (apiKey.expiresAt && apiKey.expiresAt < new Date()) {
-    return null
+    return null;
   }
 
   // Update last used timestamp
   await prisma.apiKey.update({
     where: { id: apiKey.id },
     data: { lastUsedAt: new Date() },
-  })
+  });
 
-  return apiKey as ApiKey
+  return apiKey as ApiKey;
 }
 
 export async function revokeApiKey(apiKeyId: string, userId: string) {
@@ -1215,7 +1235,7 @@ export async function revokeApiKey(apiKeyId: string, userId: string) {
     data: {
       revokedAt: new Date(),
     },
-  })
+  });
 }
 ```
 
@@ -1223,37 +1243,34 @@ export async function revokeApiKey(apiKeyId: string, userId: string) {
 
 ```typescript
 // lib/api/auth-api-key.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { validateApiKey } from './api-keys'
+import { NextRequest, NextResponse } from 'next/server';
+import { validateApiKey } from './api-keys';
 
 export async function authenticateApiKey(req: NextRequest) {
-  const apiKey = req.headers.get('x-api-key')
+  const apiKey = req.headers.get('x-api-key');
 
   if (!apiKey) {
-    return NextResponse.json(
-      { error: 'API key required' },
-      { status: 401 }
-    )
+    return NextResponse.json({ error: 'API key required' }, { status: 401 });
   }
 
-  const validKey = await validateApiKey(apiKey)
+  const validKey = await validateApiKey(apiKey);
 
   if (!validKey) {
     return NextResponse.json(
       { error: 'Invalid or expired API key' },
       { status: 401 }
-    )
+    );
   }
 
-  return validKey
+  return validKey;
 }
 
 // Usage in API routes
 export async function GET(req: NextRequest) {
-  const apiKey = await authenticateApiKey(req)
+  const apiKey = await authenticateApiKey(req);
 
   if (apiKey instanceof NextResponse) {
-    return apiKey // Error response
+    return apiKey; // Error response
   }
 
   // Check permissions
@@ -1261,7 +1278,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       { error: 'Insufficient permissions' },
       { status: 403 }
-    )
+    );
   }
 
   // Process request with apiKey.userId
@@ -1322,19 +1339,19 @@ $$ LANGUAGE plpgsql;
 
 ```typescript
 // lib/encryption/crypto.ts
-import crypto from 'crypto'
+import crypto from 'crypto';
 
 // Use strong encryption algorithm
-const ALGORITHM = 'aes-256-gcm'
-const IV_LENGTH = 16
-const AUTH_TAG_LENGTH = 16
-const KEY_LENGTH = 32
+const ALGORITHM = 'aes-256-gcm';
+const IV_LENGTH = 16;
+const AUTH_TAG_LENGTH = 16;
+const KEY_LENGTH = 32;
 
 // Get encryption key from environment (rotated regularly)
 function getEncryptionKey(): Buffer {
-  const key = process.env.ENCRYPTION_KEY
+  const key = process.env.ENCRYPTION_KEY;
   if (!key) {
-    throw new Error('ENCRYPTION_KEY not configured')
+    throw new Error('ENCRYPTION_KEY not configured');
   }
 
   // Derive key using PBKDF2
@@ -1344,51 +1361,48 @@ function getEncryptionKey(): Buffer {
     100000,
     KEY_LENGTH,
     'sha256'
-  )
+  );
 }
 
 export function encrypt(plaintext: string): string {
-  const key = getEncryptionKey()
-  const iv = crypto.randomBytes(IV_LENGTH)
+  const key = getEncryptionKey();
+  const iv = crypto.randomBytes(IV_LENGTH);
 
-  const cipher = crypto.createCipheriv(ALGORITHM, key, iv)
+  const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
 
-  let encrypted = cipher.update(plaintext, 'utf8', 'hex')
-  encrypted += cipher.final('hex')
+  let encrypted = cipher.update(plaintext, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
 
-  const authTag = cipher.getAuthTag()
+  const authTag = cipher.getAuthTag();
 
   // Return: iv:authTag:encrypted
-  return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`
+  return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
 }
 
 export function decrypt(ciphertext: string): string {
-  const key = getEncryptionKey()
-  const [ivHex, authTagHex, encrypted] = ciphertext.split(':')
+  const key = getEncryptionKey();
+  const [ivHex, authTagHex, encrypted] = ciphertext.split(':');
 
-  const iv = Buffer.from(ivHex, 'hex')
-  const authTag = Buffer.from(authTagHex, 'hex')
+  const iv = Buffer.from(ivHex, 'hex');
+  const authTag = Buffer.from(authTagHex, 'hex');
 
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv)
-  decipher.setAuthTag(authTag)
+  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+  decipher.setAuthTag(authTag);
 
-  let decrypted = decipher.update(encrypted, 'hex', 'utf8')
-  decrypted += decipher.final('utf8')
+  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
 
-  return decrypted
+  return decrypted;
 }
 
 // Hash sensitive data (one-way)
 export function hash(data: string): string {
-  return crypto
-    .createHash('sha256')
-    .update(data)
-    .digest('hex')
+  return crypto.createHash('sha256').update(data).digest('hex');
 }
 
 // Secure random token generation
 export function generateToken(bytes: number = 32): string {
-  return crypto.randomBytes(bytes).toString('hex')
+  return crypto.randomBytes(bytes).toString('hex');
 }
 ```
 
@@ -1396,16 +1410,13 @@ export function generateToken(bytes: number = 32): string {
 
 ```typescript
 // lib/db/encrypted-fields.ts
-import { encrypt, decrypt } from '@/lib/encryption/crypto'
-import { Prisma } from '@prisma/client'
+import { encrypt, decrypt } from '@/lib/encryption/crypto';
+import { Prisma } from '@prisma/client';
 
 // Middleware to encrypt/decrypt fields
-export const encryptionMiddleware: Prisma.Middleware = async (
-  params,
-  next
-) => {
+export const encryptionMiddleware: Prisma.Middleware = async (params, next) => {
   // Fields to encrypt
-  const encryptedFields = ['phone', 'ssn', 'bankAccount']
+  const encryptedFields = ['phone', 'ssn', 'bankAccount'];
 
   // Encrypt on create/update
   if (params.action === 'create' || params.action === 'update') {
@@ -1414,36 +1425,40 @@ export const encryptionMiddleware: Prisma.Middleware = async (
         if (params.args.data[field]) {
           params.args.data[`${field}Encrypted`] = encrypt(
             params.args.data[field]
-          )
-          delete params.args.data[field]
+          );
+          delete params.args.data[field];
         }
       }
     }
   }
 
-  const result = await next(params)
+  const result = await next(params);
 
   // Decrypt on read
-  if (params.action === 'findUnique' || params.action === 'findFirst' || params.action === 'findMany') {
+  if (
+    params.action === 'findUnique' ||
+    params.action === 'findFirst' ||
+    params.action === 'findMany'
+  ) {
     if (result) {
-      const items = Array.isArray(result) ? result : [result]
+      const items = Array.isArray(result) ? result : [result];
 
       for (const item of items) {
         for (const field of encryptedFields) {
           if (item[`${field}Encrypted`]) {
-            item[field] = decrypt(item[`${field}Encrypted`])
-            delete item[`${field}Encrypted`]
+            item[field] = decrypt(item[`${field}Encrypted`]);
+            delete item[`${field}Encrypted`];
           }
         }
       }
     }
   }
 
-  return result
-}
+  return result;
+};
 
 // Apply middleware
-prisma.$use(encryptionMiddleware)
+prisma.$use(encryptionMiddleware);
 ```
 
 ---
@@ -1467,7 +1482,7 @@ module.exports = {
           },
         ],
       },
-    ]
+    ];
   },
 
   // Redirect HTTP to HTTPS
@@ -1485,9 +1500,9 @@ module.exports = {
         destination: 'https://tradingalerts.com/:path*',
         permanent: true,
       },
-    ]
+    ];
   },
-}
+};
 ```
 
 #### TLS Configuration (Nginx)
@@ -1552,11 +1567,11 @@ server {
 import {
   SecretsManagerClient,
   GetSecretValueCommand,
-} from '@aws-sdk/client-secrets-manager'
+} from '@aws-sdk/client-secrets-manager';
 
 const client = new SecretsManagerClient({
   region: process.env.AWS_REGION || 'us-east-1',
-})
+});
 
 export async function getSecret(secretName: string): Promise<string> {
   try {
@@ -1564,44 +1579,44 @@ export async function getSecret(secretName: string): Promise<string> {
       new GetSecretValueCommand({
         SecretId: secretName,
       })
-    )
+    );
 
     if (response.SecretString) {
-      return response.SecretString
+      return response.SecretString;
     }
 
-    throw new Error('Secret not found')
+    throw new Error('Secret not found');
   } catch (error) {
-    console.error(`Failed to retrieve secret ${secretName}:`, error)
-    throw error
+    console.error(`Failed to retrieve secret ${secretName}:`, error);
+    throw error;
   }
 }
 
 export async function getSecretJson<T = Record<string, any>>(
   secretName: string
 ): Promise<T> {
-  const secret = await getSecret(secretName)
-  return JSON.parse(secret)
+  const secret = await getSecret(secretName);
+  return JSON.parse(secret);
 }
 
 // Cache secrets for performance
-const secretCache = new Map<string, { value: string; expiresAt: number }>()
-const CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+const secretCache = new Map<string, { value: string; expiresAt: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 export async function getCachedSecret(secretName: string): Promise<string> {
-  const cached = secretCache.get(secretName)
+  const cached = secretCache.get(secretName);
 
   if (cached && cached.expiresAt > Date.now()) {
-    return cached.value
+    return cached.value;
   }
 
-  const value = await getSecret(secretName)
+  const value = await getSecret(secretName);
   secretCache.set(secretName, {
     value,
     expiresAt: Date.now() + CACHE_TTL,
-  })
+  });
 
-  return value
+  return value;
 }
 ```
 
@@ -1937,9 +1952,7 @@ Resources:
     {
       "Sid": "AllowSecretsAccess",
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
+      "Action": ["secretsmanager:GetSecretValue"],
       "Resource": [
         "arn:aws:secretsmanager:us-east-1:123456789:secret:trading-alerts/*"
       ]
@@ -1947,13 +1960,8 @@ Resources:
     {
       "Sid": "AllowS3Upload",
       "Effect": "Allow",
-      "Action": [
-        "s3:PutObject",
-        "s3:GetObject"
-      ],
-      "Resource": [
-        "arn:aws:s3:::trading-alerts-assets/*"
-      ]
+      "Action": ["s3:PutObject", "s3:GetObject"],
+      "Resource": ["arn:aws:s3:::trading-alerts-assets/*"]
     },
     {
       "Sid": "AllowCloudWatchLogs",
@@ -2033,13 +2041,14 @@ SELECT pg_reload_conf();
 
 ```typescript
 // lib/db/prisma.ts
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client';
 
 const prismaClientSingleton = () => {
   return new PrismaClient({
-    log: process.env.NODE_ENV === 'development'
-      ? ['query', 'error', 'warn']
-      : ['error'],
+    log:
+      process.env.NODE_ENV === 'development'
+        ? ['query', 'error', 'warn']
+        : ['error'],
 
     datasources: {
       db: {
@@ -2055,25 +2064,25 @@ const prismaClientSingleton = () => {
         connection_limit: 9,
       },
     },
-  })
-}
+  });
+};
 
-type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>
+type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClientSingleton | undefined
-}
+  prisma: PrismaClientSingleton | undefined;
+};
 
-export const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
+export const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
 
 if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma
+  globalForPrisma.prisma = prisma;
 }
 
 // Graceful shutdown
 process.on('beforeExit', async () => {
-  await prisma.$disconnect()
-})
+  await prisma.$disconnect();
+});
 ```
 
 ---
@@ -2084,7 +2093,7 @@ process.on('beforeExit', async () => {
 
 ```typescript
 // lib/payment/stripe.ts
-import Stripe from 'stripe'
+import Stripe from 'stripe';
 
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16',
@@ -2095,7 +2104,7 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     version: '1.0.0',
     url: 'https://tradingalerts.com',
   },
-})
+});
 
 // Create checkout session with security measures
 export async function createCheckoutSession(
@@ -2144,12 +2153,12 @@ export async function createCheckoutSession(
         },
         trial_period_days: 7,
       },
-    })
+    });
 
-    return session
+    return session;
   } catch (error) {
-    console.error('Stripe session creation failed:', error)
-    throw error
+    console.error('Stripe session creation failed:', error);
+    throw error;
   }
 }
 
@@ -2163,12 +2172,12 @@ export async function verifyStripeWebhook(
       payload,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET!
-    )
+    );
 
-    return event
+    return event;
   } catch (error) {
-    console.error('Webhook signature verification failed:', error)
-    return null
+    console.error('Webhook signature verification failed:', error);
+    return null;
   }
 }
 ```
@@ -2177,83 +2186,76 @@ export async function verifyStripeWebhook(
 
 ```typescript
 // app/api/webhooks/stripe/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { verifyStripeWebhook } from '@/lib/payment/stripe'
-import { prisma } from '@/lib/db/prisma'
+import { NextRequest, NextResponse } from 'next/server';
+import { verifyStripeWebhook } from '@/lib/payment/stripe';
+import { prisma } from '@/lib/db/prisma';
 
 export async function POST(req: NextRequest) {
   try {
     // Get raw body (required for signature verification)
-    const payload = await req.text()
-    const signature = req.headers.get('stripe-signature')
+    const payload = await req.text();
+    const signature = req.headers.get('stripe-signature');
 
     if (!signature) {
-      return NextResponse.json(
-        { error: 'Missing signature' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
     }
 
     // Verify webhook signature
-    const event = await verifyStripeWebhook(payload, signature)
+    const event = await verifyStripeWebhook(payload, signature);
 
     if (!event) {
-      return NextResponse.json(
-        { error: 'Invalid signature' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     // Handle events
     switch (event.type) {
       case 'checkout.session.completed': {
-        const session = event.data.object as Stripe.Checkout.Session
+        const session = event.data.object as Stripe.Checkout.Session;
 
-        await handleCheckoutCompleted(session)
-        break
+        await handleCheckoutCompleted(session);
+        break;
       }
 
       case 'customer.subscription.updated': {
-        const subscription = event.data.object as Stripe.Subscription
+        const subscription = event.data.object as Stripe.Subscription;
 
-        await handleSubscriptionUpdated(subscription)
-        break
+        await handleSubscriptionUpdated(subscription);
+        break;
       }
 
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object as Stripe.Subscription
+        const subscription = event.data.object as Stripe.Subscription;
 
-        await handleSubscriptionCanceled(subscription)
-        break
+        await handleSubscriptionCanceled(subscription);
+        break;
       }
 
       case 'invoice.payment_failed': {
-        const invoice = event.data.object as Stripe.Invoice
+        const invoice = event.data.object as Stripe.Invoice;
 
-        await handlePaymentFailed(invoice)
-        break
+        await handlePaymentFailed(invoice);
+        break;
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`)
+        console.log(`Unhandled event type: ${event.type}`);
     }
 
-    return NextResponse.json({ received: true })
-
+    return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('Webhook error:', error)
+    console.error('Webhook error:', error);
     return NextResponse.json(
       { error: 'Webhook processing failed' },
       { status: 500 }
-    )
+    );
   }
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-  const userId = session.client_reference_id
+  const userId = session.client_reference_id;
 
   if (!userId) {
-    throw new Error('Missing user ID')
+    throw new Error('Missing user ID');
   }
 
   // Update user to PRO tier
@@ -2264,7 +2266,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       stripeCustomerId: session.customer as string,
       stripeSubscriptionId: session.subscription as string,
     },
-  })
+  });
 
   // Log event
   await logAuditEvent({
@@ -2275,7 +2277,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       sessionId: session.id,
       amount: session.amount_total,
     },
-  })
+  });
 }
 ```
 
@@ -2290,6 +2292,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
    - Tokenization for all card transactions
 
 2. **Use Stripe Elements (PCI-compliant UI)**
+
    ```typescript
    // components/payment/CheckoutForm.tsx
    import { Elements } from '@stripe/react-stripe-js'
@@ -2331,7 +2334,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
 ```typescript
 // lib/monitoring/sentry.ts
-import * as Sentry from '@sentry/nextjs'
+import * as Sentry from '@sentry/nextjs';
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
@@ -2344,18 +2347,18 @@ Sentry.init({
   beforeSend(event, hint) {
     // Remove sensitive headers
     if (event.request?.headers) {
-      delete event.request.headers['authorization']
-      delete event.request.headers['cookie']
-      delete event.request.headers['x-api-key']
+      delete event.request.headers['authorization'];
+      delete event.request.headers['cookie'];
+      delete event.request.headers['x-api-key'];
     }
 
     // Remove sensitive context
     if (event.contexts) {
-      delete event.contexts.password
-      delete event.contexts.token
+      delete event.contexts.password;
+      delete event.contexts.token;
     }
 
-    return event
+    return event;
   },
 
   // Ignore certain errors
@@ -2363,14 +2366,14 @@ Sentry.init({
     'ResizeObserver loop limit exceeded',
     'Non-Error promise rejection',
   ],
-})
+});
 ```
 
 #### Datadog APM Integration
 
 ```typescript
 // lib/monitoring/datadog.ts
-import tracer from 'dd-trace'
+import tracer from 'dd-trace';
 
 tracer.init({
   service: 'trading-alerts-api',
@@ -2386,9 +2389,9 @@ tracer.init({
     team: 'platform',
     tier: 'production',
   },
-})
+});
 
-export default tracer
+export default tracer;
 ```
 
 ---
@@ -2397,19 +2400,19 @@ export default tracer
 
 ```typescript
 // lib/logging/audit.ts
-import { prisma } from '@/lib/db/prisma'
+import { prisma } from '@/lib/db/prisma';
 
 export interface AuditLogEntry {
-  event: string
-  userId?: string
-  ipAddress?: string
-  userAgent?: string
-  resource?: string
-  resourceId?: string
-  action?: string
-  status: 'success' | 'failure'
-  metadata?: Record<string, any>
-  timestamp: Date
+  event: string;
+  userId?: string;
+  ipAddress?: string;
+  userAgent?: string;
+  resource?: string;
+  resourceId?: string;
+  action?: string;
+  status: 'success' | 'failure';
+  metadata?: Record<string, any>;
+  timestamp: Date;
 }
 
 export async function logAuditEvent(entry: Omit<AuditLogEntry, 'timestamp'>) {
@@ -2420,13 +2423,13 @@ export async function logAuditEvent(entry: Omit<AuditLogEntry, 'timestamp'>) {
         metadata: entry.metadata ? JSON.stringify(entry.metadata) : null,
         timestamp: new Date(),
       },
-    })
+    });
   } catch (error) {
     // Critical: Audit logging failure
-    console.error('AUDIT LOG FAILURE:', error)
+    console.error('AUDIT LOG FAILURE:', error);
 
     // Fallback: Write to file
-    await writeToFile('/var/log/audit/fallback.log', JSON.stringify(entry))
+    await writeToFile('/var/log/audit/fallback.log', JSON.stringify(entry));
   }
 }
 
@@ -2439,11 +2442,11 @@ export async function logSecurityEvent(
     event: `security.${type}`,
     status: 'failure',
     metadata: details,
-  })
+  });
 
   // Alert security team for critical events
   if (type === 'suspicious_activity') {
-    await alertSecurityTeam(details)
+    await alertSecurityTeam(details);
   }
 }
 ```
@@ -2478,52 +2481,49 @@ model AuditLog {
 
 ```typescript
 // lib/security/intrusion-detection.ts
-import { redis } from '@/lib/db/redis'
+import { redis } from '@/lib/db/redis';
 
 export interface SecurityThreshold {
-  failedLogins: number
-  failedApiCalls: number
-  timeWindowSeconds: number
+  failedLogins: number;
+  failedApiCalls: number;
+  timeWindowSeconds: number;
 }
 
 const THRESHOLDS: SecurityThreshold = {
   failedLogins: 5,
   failedApiCalls: 100,
   timeWindowSeconds: 300, // 5 minutes
-}
+};
 
 export async function trackFailedLogin(
   identifier: string, // email or IP
   type: 'email' | 'ip'
 ) {
-  const key = `failed_login:${type}:${identifier}`
+  const key = `failed_login:${type}:${identifier}`;
 
   // Increment counter
-  await redis.incr(key)
-  await redis.expire(key, THRESHOLDS.timeWindowSeconds)
+  await redis.incr(key);
+  await redis.expire(key, THRESHOLDS.timeWindowSeconds);
 
   // Check threshold
-  const count = await redis.get(key)
+  const count = await redis.get(key);
 
   if (Number(count) >= THRESHOLDS.failedLogins) {
     await handleSuspiciousActivity({
       type: 'brute_force_login',
       identifier,
       count: Number(count),
-    })
+    });
   }
 }
 
-export async function trackFailedApiCall(
-  userId: string,
-  endpoint: string
-) {
-  const key = `failed_api:${userId}:${endpoint}`
+export async function trackFailedApiCall(userId: string, endpoint: string) {
+  const key = `failed_api:${userId}:${endpoint}`;
 
-  await redis.incr(key)
-  await redis.expire(key, THRESHOLDS.timeWindowSeconds)
+  await redis.incr(key);
+  await redis.expire(key, THRESHOLDS.timeWindowSeconds);
 
-  const count = await redis.get(key)
+  const count = await redis.get(key);
 
   if (Number(count) >= THRESHOLDS.failedApiCalls) {
     await handleSuspiciousActivity({
@@ -2531,33 +2531,33 @@ export async function trackFailedApiCall(
       userId,
       endpoint,
       count: Number(count),
-    })
+    });
   }
 }
 
 async function handleSuspiciousActivity(details: Record<string, any>) {
   // Log to audit
-  await logSecurityEvent('suspicious_activity', details)
+  await logSecurityEvent('suspicious_activity', details);
 
   // Temporarily block
-  await blockIdentifier(details.identifier || details.userId, 3600) // 1 hour
+  await blockIdentifier(details.identifier || details.userId, 3600); // 1 hour
 
   // Alert security team
   await alertSecurityTeam({
     subject: 'Suspicious Activity Detected',
     details,
-  })
+  });
 }
 
 async function blockIdentifier(identifier: string, durationSeconds: number) {
-  const key = `blocked:${identifier}`
-  await redis.set(key, '1', 'EX', durationSeconds)
+  const key = `blocked:${identifier}`;
+  await redis.set(key, '1', 'EX', durationSeconds);
 }
 
 export async function isBlocked(identifier: string): Promise<boolean> {
-  const key = `blocked:${identifier}`
-  const blocked = await redis.get(key)
-  return blocked === '1'
+  const key = `blocked:${identifier}`;
+  const blocked = await redis.get(key);
+  return blocked === '1';
 }
 ```
 
@@ -2571,8 +2571,8 @@ export async function isBlocked(identifier: string): Promise<boolean> {
 
 ```typescript
 // lib/compliance/gdpr.ts
-import { prisma } from '@/lib/db/prisma'
-import { generatePDF } from '@/lib/utils/pdf'
+import { prisma } from '@/lib/db/prisma';
+import { generatePDF } from '@/lib/utils/pdf';
 
 // Right to Access (Article 15)
 export async function exportUserData(userId: string) {
@@ -2584,29 +2584,29 @@ export async function exportUserData(userId: string) {
       subscriptions: true,
       auditLogs: true,
     },
-  })
+  });
 
   if (!user) {
-    throw new Error('User not found')
+    throw new Error('User not found');
   }
 
   // Remove sensitive data
-  const {password, mfaSecret, ...userData} = user
+  const { password, mfaSecret, ...userData } = user;
 
   // Generate PDF
   const pdf = await generatePDF({
     title: 'Your Personal Data',
     data: userData,
-  })
+  });
 
   // Log data export
   await logAuditEvent({
     event: 'gdpr.data_export',
     userId,
     status: 'success',
-  })
+  });
 
-  return pdf
+  return pdf;
 }
 
 // Right to Erasure (Article 17)
@@ -2623,11 +2623,11 @@ export async function deleteUserData(userId: string, reason: string) {
       deletedAt: new Date(),
       deletionReason: reason,
     },
-  })
+  });
 
   // Delete associated data
-  await prisma.alert.deleteMany({ where: { userId } })
-  await prisma.watchlist.deleteMany({ where: { userId } })
+  await prisma.alert.deleteMany({ where: { userId } });
+  await prisma.watchlist.deleteMany({ where: { userId } });
 
   // Log deletion
   await logAuditEvent({
@@ -2635,7 +2635,7 @@ export async function deleteUserData(userId: string, reason: string) {
     userId,
     status: 'success',
     metadata: { reason },
-  })
+  });
 }
 
 // Right to Portability (Article 20)
@@ -2646,9 +2646,9 @@ export async function exportUserDataJSON(userId: string) {
       alerts: true,
       watchlists: true,
     },
-  })
+  });
 
-  return JSON.stringify(data, null, 2)
+  return JSON.stringify(data, null, 2);
 }
 
 // Right to Rectification (Article 16)
@@ -2662,7 +2662,7 @@ export async function restrictUserProcessing(userId: string) {
       processingRestricted: true,
       restrictedAt: new Date(),
     },
-  })
+  });
 }
 ```
 
@@ -2747,77 +2747,77 @@ export function CookieConsent() {
 // lib/security/incident-response.ts
 
 export enum IncidentSeverity {
-  CRITICAL = 'critical',   // Data breach, system compromise
-  HIGH = 'high',           // Unauthorized access, DDoS
-  MEDIUM = 'medium',       // Suspicious activity, failed attacks
-  LOW = 'low',            // Minor policy violations
+  CRITICAL = 'critical', // Data breach, system compromise
+  HIGH = 'high', // Unauthorized access, DDoS
+  MEDIUM = 'medium', // Suspicious activity, failed attacks
+  LOW = 'low', // Minor policy violations
 }
 
 export interface SecurityIncident {
-  id: string
-  severity: IncidentSeverity
-  type: string
-  description: string
-  detectedAt: Date
-  detectedBy: 'automated' | 'manual'
-  affectedSystems: string[]
-  affectedUsers: string[]
-  status: 'detected' | 'investigating' | 'contained' | 'resolved'
-  assignedTo?: string
-  resolvedAt?: Date
+  id: string;
+  severity: IncidentSeverity;
+  type: string;
+  description: string;
+  detectedAt: Date;
+  detectedBy: 'automated' | 'manual';
+  affectedSystems: string[];
+  affectedUsers: string[];
+  status: 'detected' | 'investigating' | 'contained' | 'resolved';
+  assignedTo?: string;
+  resolvedAt?: Date;
 }
 
 export async function reportIncident(
   incident: Omit<SecurityIncident, 'id' | 'detectedAt' | 'status'>
 ) {
-  const incidentId = generateIncidentId()
+  const incidentId = generateIncidentId();
 
   const fullIncident: SecurityIncident = {
     ...incident,
     id: incidentId,
     detectedAt: new Date(),
     status: 'detected',
-  }
+  };
 
   // Store incident
   await prisma.securityIncident.create({
     data: fullIncident,
-  })
+  });
 
   // Alert based on severity
   if (incident.severity === IncidentSeverity.CRITICAL) {
-    await alertSecurityTeam(fullIncident)
-    await alertExecutiveTeam(fullIncident)
+    await alertSecurityTeam(fullIncident);
+    await alertExecutiveTeam(fullIncident);
   } else if (incident.severity === IncidentSeverity.HIGH) {
-    await alertSecurityTeam(fullIncident)
+    await alertSecurityTeam(fullIncident);
   }
 
   // Execute automated response
-  await executeIncidentPlaybook(fullIncident)
+  await executeIncidentPlaybook(fullIncident);
 
-  return incidentId
+  return incidentId;
 }
 
 async function executeIncidentPlaybook(incident: SecurityIncident) {
   switch (incident.type) {
     case 'brute_force_attack':
-      await blockAttackerIPs(incident.affectedSystems)
-      await enforceRateLimit(incident.affectedSystems)
-      break
+      await blockAttackerIPs(incident.affectedSystems);
+      await enforceRateLimit(incident.affectedSystems);
+      break;
 
     case 'data_breach':
-      await isolateAffectedSystems(incident.affectedSystems)
-      await notifyAffectedUsers(incident.affectedUsers)
-      await escalateToLegal()
-      break
+      await isolateAffectedSystems(incident.affectedSystems);
+      await notifyAffectedUsers(incident.affectedUsers);
+      await escalateToLegal();
+      break;
 
     case 'unauthorized_access':
-      await revokeUserSessions(incident.affectedUsers)
-      await forcePasswordReset(incident.affectedUsers)
-      break
+      await revokeUserSessions(incident.affectedUsers);
+      await forcePasswordReset(incident.affectedUsers);
+      break;
 
     default:
-      console.log(`No automated playbook for ${incident.type}`)
+      console.log(`No automated playbook for ${incident.type}`);
   }
 }
 ```
@@ -2830,39 +2830,39 @@ async function executeIncidentPlaybook(incident: SecurityIncident) {
 
 #### 1. Application Security
 
-| Tool | Purpose | Cost |
-|------|---------|------|
-| **Snyk** | Dependency vulnerability scanning | Free tier available |
-| **SonarQube** | Code quality & security analysis | Free (self-hosted) |
-| **OWASP ZAP** | Dynamic application security testing | Free |
-| **GitGuardian** | Secret detection in code | Free tier available |
+| Tool            | Purpose                              | Cost                |
+| --------------- | ------------------------------------ | ------------------- |
+| **Snyk**        | Dependency vulnerability scanning    | Free tier available |
+| **SonarQube**   | Code quality & security analysis     | Free (self-hosted)  |
+| **OWASP ZAP**   | Dynamic application security testing | Free                |
+| **GitGuardian** | Secret detection in code             | Free tier available |
 
 #### 2. Infrastructure Security
 
-| Tool | Purpose | Cost |
-|------|---------|------|
-| **AWS GuardDuty** | Threat detection for AWS | Pay per GB |
-| **Cloudflare** | WAF, DDoS protection, CDN | Free tier available |
-| **Terraform Sentinel** | Infrastructure policy as code | Enterprise feature |
-| **Trivy** | Container security scanning | Free |
+| Tool                   | Purpose                       | Cost                |
+| ---------------------- | ----------------------------- | ------------------- |
+| **AWS GuardDuty**      | Threat detection for AWS      | Pay per GB          |
+| **Cloudflare**         | WAF, DDoS protection, CDN     | Free tier available |
+| **Terraform Sentinel** | Infrastructure policy as code | Enterprise feature  |
+| **Trivy**              | Container security scanning   | Free                |
 
 #### 3. Monitoring & Logging
 
-| Tool | Purpose | Cost |
-|------|---------|------|
-| **Datadog** | APM, logging, monitoring | $15/host/month |
-| **Sentry** | Error tracking | Free tier available |
-| **LogRocket** | Session replay & monitoring | $99/month |
-| **PagerDuty** | Incident management | $21/user/month |
+| Tool          | Purpose                     | Cost                |
+| ------------- | --------------------------- | ------------------- |
+| **Datadog**   | APM, logging, monitoring    | $15/host/month      |
+| **Sentry**    | Error tracking              | Free tier available |
+| **LogRocket** | Session replay & monitoring | $99/month           |
+| **PagerDuty** | Incident management         | $21/user/month      |
 
 #### 4. Access Management
 
-| Tool | Purpose | Cost |
-|------|---------|------|
-| **Auth0** | Authentication service | Free tier available |
-| **Okta** | Enterprise identity management | $2/user/month |
-| **AWS IAM** | Cloud access management | Free |
-| **HashiCorp Vault** | Secrets management | Free (self-hosted) |
+| Tool                | Purpose                        | Cost                |
+| ------------------- | ------------------------------ | ------------------- |
+| **Auth0**           | Authentication service         | Free tier available |
+| **Okta**            | Enterprise identity management | $2/user/month       |
+| **AWS IAM**         | Cloud access management        | Free                |
+| **HashiCorp Vault** | Secrets management             | Free (self-hosted)  |
 
 ---
 
@@ -2920,6 +2920,7 @@ async function executeIncidentPlaybook(incident: SecurityIncident) {
 ### Pre-Launch Security Audit
 
 #### Authentication & Authorization
+
 - [ ] All passwords hashed with bcrypt (10+ rounds)
 - [ ] JWT tokens signed and encrypted
 - [ ] Session expiration configured
@@ -2928,6 +2929,7 @@ async function executeIncidentPlaybook(incident: SecurityIncident) {
 - [ ] OAuth properly configured
 
 #### API Security
+
 - [ ] Rate limiting on all endpoints
 - [ ] Input validation with Zod
 - [ ] CORS properly configured
@@ -2936,6 +2938,7 @@ async function executeIncidentPlaybook(incident: SecurityIncident) {
 - [ ] Error messages don't leak info
 
 #### Data Protection
+
 - [ ] Database encrypted at rest
 - [ ] TLS 1.3 for all connections
 - [ ] Sensitive fields encrypted
@@ -2944,6 +2947,7 @@ async function executeIncidentPlaybook(incident: SecurityIncident) {
 - [ ] Secrets in vault (not code)
 
 #### Infrastructure
+
 - [ ] VPC/network isolation
 - [ ] Security groups configured
 - [ ] Minimal IAM permissions
@@ -2952,6 +2956,7 @@ async function executeIncidentPlaybook(incident: SecurityIncident) {
 - [ ] Firewalls configured
 
 #### Monitoring
+
 - [ ] Audit logging enabled
 - [ ] Error tracking (Sentry)
 - [ ] APM configured
@@ -2960,6 +2965,7 @@ async function executeIncidentPlaybook(incident: SecurityIncident) {
 - [ ] Regular security scans
 
 #### Compliance
+
 - [ ] GDPR features implemented
 - [ ] Privacy policy published
 - [ ] Cookie consent added

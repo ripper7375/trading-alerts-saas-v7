@@ -24,13 +24,13 @@ info:
     - Single MT5 cannot efficiently handle 135 chart windows
     - Solution: 15 terminals × 9 charts each = distributed load
     - Fault isolation: if one terminal fails, others continue working
-    
+
     **Tier-Based Access Control:**
     - FREE tier: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1)
     - PRO tier: 15 symbols × 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
 
     **Timeframes:** M5 (PRO only), M15, M30, H1, H2, H4, H8, H12 (PRO only), D1
-    
+
     **Authentication:** API key via X-API-Key header (called by Next.js backend only)
   contact:
     name: MT5 Service Support
@@ -89,21 +89,96 @@ paths:
                     total_terminals: 15
                     connected_terminals: 15
                     terminals:
-                      AUDJPY: { connected: true, terminal_id: MT5_01, last_check: '2025-11-17T10:30:00Z' }
-                      AUDUSD: { connected: true, terminal_id: MT5_02, last_check: '2025-11-17T10:30:00Z' }
-                      BTCUSD: { connected: true, terminal_id: MT5_03, last_check: '2025-11-17T10:30:00Z' }
-                      ETHUSD: { connected: true, terminal_id: MT5_04, last_check: '2025-11-17T10:30:00Z' }
-                      EURUSD: { connected: true, terminal_id: MT5_05, last_check: '2025-11-17T10:30:00Z' }
-                      GBPJPY: { connected: true, terminal_id: MT5_06, last_check: '2025-11-17T10:30:00Z' }
-                      GBPUSD: { connected: true, terminal_id: MT5_07, last_check: '2025-11-17T10:30:00Z' }
-                      NDX100: { connected: true, terminal_id: MT5_08, last_check: '2025-11-17T10:30:00Z' }
-                      NZDUSD: { connected: true, terminal_id: MT5_09, last_check: '2025-11-17T10:30:00Z' }
-                      US30: { connected: true, terminal_id: MT5_10, last_check: '2025-11-17T10:30:00Z' }
-                      USDCAD: { connected: true, terminal_id: MT5_11, last_check: '2025-11-17T10:30:00Z' }
-                      USDCHF: { connected: true, terminal_id: MT5_12, last_check: '2025-11-17T10:30:00Z' }
-                      USDJPY: { connected: true, terminal_id: MT5_13, last_check: '2025-11-17T10:30:00Z' }
-                      XAGUSD: { connected: true, terminal_id: MT5_14, last_check: '2025-11-17T10:30:00Z' }
-                      XAUUSD: { connected: true, terminal_id: MT5_15, last_check: '2025-11-17T10:30:00Z' }
+                      AUDJPY:
+                        {
+                          connected: true,
+                          terminal_id: MT5_01,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      AUDUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_02,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      BTCUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_03,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      ETHUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_04,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      EURUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_05,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      GBPJPY:
+                        {
+                          connected: true,
+                          terminal_id: MT5_06,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      GBPUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_07,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      NDX100:
+                        {
+                          connected: true,
+                          terminal_id: MT5_08,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      NZDUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_09,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      US30:
+                        {
+                          connected: true,
+                          terminal_id: MT5_10,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      USDCAD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_11,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      USDCHF:
+                        {
+                          connected: true,
+                          terminal_id: MT5_12,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      USDJPY:
+                        {
+                          connected: true,
+                          terminal_id: MT5_13,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      XAGUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_14,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      XAUUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_15,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
                 partial_outage:
                   summary: Some terminals disconnected
                   value:
@@ -112,21 +187,97 @@ paths:
                     total_terminals: 15
                     connected_terminals: 14
                     terminals:
-                      AUDJPY: { connected: true, terminal_id: MT5_01, last_check: '2025-11-17T10:30:00Z' }
-                      AUDUSD: { connected: true, terminal_id: MT5_02, last_check: '2025-11-17T10:30:00Z' }
-                      BTCUSD: { connected: false, terminal_id: MT5_03, last_check: '2025-11-17T10:30:00Z', error: 'Connection timeout' }
-                      ETHUSD: { connected: true, terminal_id: MT5_04, last_check: '2025-11-17T10:30:00Z' }
-                      EURUSD: { connected: true, terminal_id: MT5_05, last_check: '2025-11-17T10:30:00Z' }
-                      GBPJPY: { connected: true, terminal_id: MT5_06, last_check: '2025-11-17T10:30:00Z' }
-                      GBPUSD: { connected: true, terminal_id: MT5_07, last_check: '2025-11-17T10:30:00Z' }
-                      NDX100: { connected: true, terminal_id: MT5_08, last_check: '2025-11-17T10:30:00Z' }
-                      NZDUSD: { connected: true, terminal_id: MT5_09, last_check: '2025-11-17T10:30:00Z' }
-                      US30: { connected: true, terminal_id: MT5_10, last_check: '2025-11-17T10:30:00Z' }
-                      USDCAD: { connected: true, terminal_id: MT5_11, last_check: '2025-11-17T10:30:00Z' }
-                      USDCHF: { connected: true, terminal_id: MT5_12, last_check: '2025-11-17T10:30:00Z' }
-                      USDJPY: { connected: true, terminal_id: MT5_13, last_check: '2025-11-17T10:30:00Z' }
-                      XAGUSD: { connected: true, terminal_id: MT5_14, last_check: '2025-11-17T10:30:00Z' }
-                      XAUUSD: { connected: true, terminal_id: MT5_15, last_check: '2025-11-17T10:30:00Z' }
+                      AUDJPY:
+                        {
+                          connected: true,
+                          terminal_id: MT5_01,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      AUDUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_02,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      BTCUSD:
+                        {
+                          connected: false,
+                          terminal_id: MT5_03,
+                          last_check: '2025-11-17T10:30:00Z',
+                          error: 'Connection timeout',
+                        }
+                      ETHUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_04,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      EURUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_05,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      GBPJPY:
+                        {
+                          connected: true,
+                          terminal_id: MT5_06,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      GBPUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_07,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      NDX100:
+                        {
+                          connected: true,
+                          terminal_id: MT5_08,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      NZDUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_09,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      US30:
+                        {
+                          connected: true,
+                          terminal_id: MT5_10,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      USDCAD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_11,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      USDCHF:
+                        {
+                          connected: true,
+                          terminal_id: MT5_12,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      USDJPY:
+                        {
+                          connected: true,
+                          terminal_id: MT5_13,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      XAGUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_14,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
+                      XAUUSD:
+                        {
+                          connected: true,
+                          terminal_id: MT5_15,
+                          last_check: '2025-11-17T10:30:00Z',
+                        }
         '503':
           description: Service unavailable (all terminals disconnected)
           content:
@@ -246,13 +397,13 @@ paths:
       summary: Get indicator data from MT5
       description: |
         Retrieves indicator data from custom MQL5 indicators running on centralized MT5 terminal.
-        
+
         **Access Control:**
         - Validates tier access to BOTH symbol AND timeframe before reading data
         - FREE tier: 5 symbols (BTCUSD, EURUSD, USDJPY, US30, XAUUSD) × 3 timeframes (H1, H4, D1)
         - PRO tier: 15 symbols × 9 timeframes (M5, M15, M30, H1, H2, H4, H8, H12, D1)
         - Timeframe restrictions: M5 and H12 are PRO-only
-        
+
         **Data Sources:**
         - OHLC: Direct from MT5 terminal (via CopyRates)
         - Horizontal lines: Fractal Horizontal Line_V5.mq5 indicator (buffers 4-9)
@@ -261,7 +412,7 @@ paths:
 
         **Note:** The OHLC Download_V4.mq5 tool is included in seed-code for reference but is NOT used by this service.
         It's a standalone utility for exporting OHLC data to files.
-        
+
         **Requirements:**
         - Both indicators must be compiled and attached to chart in MT5
         - MT5 terminal must be running
@@ -564,18 +715,18 @@ components:
     Symbol:
       type: string
       enum:
-        - AUDJPY    # NEW - Forex
+        - AUDJPY # NEW - Forex
         - AUDUSD
         - BTCUSD
         - ETHUSD
         - EURUSD
-        - GBPJPY    # NEW - Forex
+        - GBPJPY # NEW - Forex
         - GBPUSD
         - NDX100
-        - NZDUSD    # NEW - Forex
+        - NZDUSD # NEW - Forex
         - US30
-        - USDCAD    # NEW - Forex
-        - USDCHF    # NEW - Forex
+        - USDCAD # NEW - Forex
+        - USDCHF # NEW - Forex
         - USDJPY
         - XAGUSD
         - XAUUSD
@@ -588,14 +739,14 @@ components:
     Timeframe:
       type: string
       enum:
-        - M5     # NEW - PRO only (scalping)
+        - M5 # NEW - PRO only (scalping)
         - M15
         - M30
         - H1
         - H2
         - H4
         - H8
-        - H12    # NEW - PRO only (swing trading)
+        - H12 # NEW - PRO only (swing trading)
         - D1
       description: |
         Chart timeframes (V7 - 9 timeframes).

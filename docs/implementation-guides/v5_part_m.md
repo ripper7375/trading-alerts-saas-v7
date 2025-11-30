@@ -29,11 +29,13 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 ### 1. Profile Settings
 
 **Editable Fields:**
+
 - Name (required, 2-50 characters)
 - Email (required, valid email format)
 - Profile image (optional, upload or URL)
 
 **Validation:**
+
 - Email must be unique across all users
 - If email changed, send verification email to new address
 - Profile image max size: 5MB, formats: JPG, PNG, GIF
@@ -43,11 +45,13 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 ### 2. Appearance Settings
 
 **Theme Options:**
+
 - Light mode
 - Dark mode
 - System (follows OS preference)
 
 **Storage:**
+
 - Save preference in user preferences table
 - Apply immediately without page reload
 
@@ -56,11 +60,13 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 ### 3. Account Settings
 
 **Change Password:**
+
 - Require current password
 - New password min 8 characters, must include: uppercase, lowercase, number
 - Send email notification after password change
 
 **Delete Account:**
+
 - Two-step confirmation process:
   1. Request deletion (send confirmation email with link)
   2. Confirm deletion via email link (account deleted within 24 hours)
@@ -68,6 +74,7 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 - Delete all user data (GDPR compliance)
 
 **APIs:**
+
 - POST /api/user/password
 - POST /api/user/account/deletion-request
 - POST /api/user/account/deletion-confirm
@@ -76,12 +83,14 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 ### 4. Privacy Settings
 
 **Data Export:**
+
 - User can request full data export (JSON format)
 - Includes: profile, alerts, watchlists, subscription history
 - Generated within 24 hours, download link sent via email
 - Link expires in 7 days
 
 **Account Visibility:**
+
 - Public: Profile visible in leaderboards/social features (future)
 - Private: Profile not visible to other users
 
@@ -90,12 +99,14 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 ### 5. Billing Settings
 
 **Display:**
+
 - Current tier (FREE or PRO)
 - If PRO: Next billing date, payment method (last 4 digits)
 - Invoice history (last 12 months)
 - Upgrade/cancel buttons
 
 **Actions:**
+
 - Upgrade to PRO → Redirect to checkout
 - Cancel subscription → Immediate downgrade to FREE
 - Update payment method → Open Stripe customer portal
@@ -105,11 +116,13 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 ### 6. Language Settings
 
 **Supported Languages (V5):**
+
 - English (default)
 - Spanish (future)
 - French (future)
 
 **Implementation:**
+
 - Use next-intl or similar i18n library
 - Store language preference in user preferences
 - Apply to UI, emails, notifications
@@ -119,12 +132,14 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 ### 7. Help Page
 
 **Content:**
+
 - Link to documentation
 - Contact support form
 - FAQ section
 - Video tutorials (future)
 
 **Support Form:**
+
 - Name (pre-filled from profile)
 - Email (pre-filled from profile)
 - Subject (required)
@@ -139,6 +154,7 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 ### Settings Layout
 
 **Sidebar Navigation:**
+
 - Profile
 - Appearance
 - Account
@@ -148,18 +164,21 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 - Help
 
 **Active State:**
+
 - Highlight current page
 - Mobile: Collapsible sidebar
 
 ### Profile Page
 
 **Form:**
+
 - Avatar upload (drag-and-drop or click to browse)
 - Name input
 - Email input
 - Save button (disabled if no changes)
 
 **Validation:**
+
 - Real-time validation on blur
 - Show error messages below fields
 - Disable save until valid
@@ -167,6 +186,7 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 ### Appearance Page
 
 **Theme Selector:**
+
 - Three radio buttons with icons
 - Preview of theme
 - Apply immediately on selection (no save button needed)
@@ -174,6 +194,7 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 ### Account Page
 
 **Change Password Section:**
+
 - Current password input (password field)
 - New password input (password field)
 - Confirm password input (password field)
@@ -181,6 +202,7 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 - Change Password button
 
 **Delete Account Section:**
+
 - Warning message: "This action cannot be undone"
 - Request Deletion button (red, secondary)
 - Confirmation modal before proceeding
@@ -188,11 +210,13 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 ### Privacy Page
 
 **Data Export:**
+
 - Description: "Download all your data"
 - Request Export button
 - Status: "No pending requests" or "Export in progress"
 
 **Account Visibility:**
+
 - Toggle switch: Public/Private
 - Description of what visibility means
 
@@ -209,6 +233,7 @@ User settings system for managing profile, appearance, privacy, billing, and acc
 **Subject:** Verify your new email address
 
 **Body:**
+
 ```
 Hi {name},
 
@@ -226,6 +251,7 @@ Trading Alerts Team
 **Subject:** Your password was changed
 
 **Body:**
+
 ```
 Hi {name},
 
@@ -241,6 +267,7 @@ Trading Alerts Team
 **Subject:** Account deletion requested - Confirm to proceed
 
 **Body:**
+
 ```
 Hi {name},
 
@@ -260,6 +287,7 @@ Trading Alerts Team
 **Subject:** Your data export is ready
 
 **Body:**
+
 ```
 Hi {name},
 
@@ -277,33 +305,40 @@ Trading Alerts Team
 ## API Endpoints
 
 ### PATCH /api/user/profile
+
 - Update name, email, profile image
 - Return updated user object
 
 ### PUT /api/user/preferences
+
 - Update theme, language, privacy settings
 - Return updated preferences
 
 ### POST /api/user/password
+
 - Validate current password
 - Update to new password
 - Send notification email
 
 ### POST /api/user/account/deletion-request
+
 - Create deletion request
 - Send confirmation email
 - Return request ID
 
 ### POST /api/user/account/deletion-confirm
+
 - Verify token from email
 - Schedule account deletion (24 hours)
 - Return success
 
 ### POST /api/user/account/deletion-cancel
+
 - Cancel pending deletion request
 - Return success
 
 ### POST /api/user/data-export
+
 - Create export job
 - Generate JSON file (background job)
 - Send email when ready
@@ -313,6 +348,7 @@ Trading Alerts Team
 ## Testing Requirements
 
 **Manual Tests:**
+
 - [ ] Update profile information saves correctly
 - [ ] Email change sends verification email
 - [ ] Password change works and sends notification

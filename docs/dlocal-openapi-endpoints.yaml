@@ -123,7 +123,7 @@ paths:
                 from: USD
                 to: INR
                 rate: 83
-                timestamp: "2025-11-16T10:30:00Z"
+                timestamp: '2025-11-16T10:30:00Z'
         '400':
           description: Invalid currency code
           content:
@@ -207,7 +207,7 @@ paths:
                 paymentMethodId: UP
                 paymentMethodFlow: REDIRECT
                 redirectUrl: https://checkout.dlocal.com/pay/xyz
-                expiresAt: "2025-11-16T11:00:00Z"
+                expiresAt: '2025-11-16T11:00:00Z'
         '400':
           description: Validation error
           content:
@@ -274,11 +274,11 @@ paths:
                     status: COMPLETED
                     amount: 2407
                     currency: INR
-                    completedAt: "2025-11-16T10:45:00Z"
+                    completedAt: '2025-11-16T10:45:00Z'
                     subscription:
                       id: sub_xyz
                       tier: PRO
-                      expiresAt: "2025-12-16T10:45:00Z"
+                      expiresAt: '2025-12-16T10:45:00Z'
         '404':
           description: Payment not found
           content:
@@ -298,7 +298,7 @@ paths:
         Receives payment status updates from dLocal.
         Verifies signature before processing.
         Updates subscription and user tier on successful payment.
-      security: []  # Uses webhook signature verification instead
+      security: [] # Uses webhook signature verification instead
       requestBody:
         required: true
         content:
@@ -568,7 +568,7 @@ components:
             document:
               type: string
               description: Tax ID (required for some countries)
-              example: "123456789"
+              example: '123456789'
               nullable: true
             phone:
               type: string
@@ -844,9 +844,9 @@ components:
     SubscriptionStatus:
       type: string
       enum:
-        - ACTIVE           # Subscription is active
-        - CANCELLED        # User cancelled subscription
-        - PAST_DUE         # Payment failed (Stripe only)
-        - EXPIRED          # Subscription expired (dLocal)
-        - PENDING          # Awaiting payment confirmation
+        - ACTIVE # Subscription is active
+        - CANCELLED # User cancelled subscription
+        - PAST_DUE # Payment failed (Stripe only)
+        - EXPIRED # Subscription expired (dLocal)
+        - PENDING # Awaiting payment confirmation
       description: Current status of the subscription

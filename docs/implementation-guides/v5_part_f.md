@@ -19,12 +19,13 @@ import { generateVerificationToken } from '@/lib/tokens';
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
-  password: z.string()
+  password: z
+    .string()
     .min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Password must contain uppercase letter')
     .regex(/[a-z]/, 'Password must contain lowercase letter')
     .regex(/[0-9]/, 'Password must contain number'),
-  acceptTerms: z.boolean().refine(val => val === true, 'Must accept terms')
+  acceptTerms: z.boolean().refine((val) => val === true, 'Must accept terms'),
 });
 
 export async function POST(request: NextRequest) {
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existingUser) {
@@ -62,9 +63,9 @@ export async function POST(request: NextRequest) {
         name,
         email,
         passwordHash,
-        tier: 'FREE',  // V5: Default to FREE tier
-        isActive: false // Will be activated after email verification
-      }
+        tier: 'FREE', // V5: Default to FREE tier
+        isActive: false, // Will be activated after email verification
+      },
     });
 
     // Generate verification token
@@ -73,8 +74,8 @@ export async function POST(request: NextRequest) {
       data: {
         identifier: email,
         token,
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-      }
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+      },
     });
 
     // Send verification email with tier info
@@ -86,27 +87,27 @@ export async function POST(request: NextRequest) {
         level: 'INFO',
         source: 'auth',
         message: `New user registered: ${email} (FREE tier)`,
-        metadata: { userId: user.id, tier: 'FREE' }
-      }
+        metadata: { userId: user.id, tier: 'FREE' },
+      },
     });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Registration successful. Please check your email to verify your account.',
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        tier: user.tier
-      }
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        success: true,
+        message:
+          'Registration successful. Please check your email to verify your account.',
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          tier: user.tier,
+        },
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Registration error:', error);
-    return NextResponse.json(
-      { error: 'Registration failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Registration failed' }, { status: 500 });
   }
 }
 ```
@@ -134,7 +135,7 @@ export async function GET(request: NextRequest) {
   try {
     // Find verification token
     const verificationToken = await prisma.verificationToken.findUnique({
-      where: { token }
+      where: { token },
     });
 
     if (!verificationToken) {
@@ -156,13 +157,13 @@ export async function GET(request: NextRequest) {
       where: { email: verificationToken.identifier },
       data: {
         emailVerified: new Date(),
-        isActive: true
-      }
+        isActive: true,
+      },
     });
 
     // Delete verification token
     await prisma.verificationToken.delete({
-      where: { token }
+      where: { token },
     });
 
     // Send welcome email with tier information
@@ -171,9 +172,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Email verified successfully',
-      tier: user.tier
+      tier: user.tier,
     });
-
   } catch (error) {
     console.error('Email verification error:', error);
     return NextResponse.json(
@@ -239,7 +239,7 @@ export function RegisterForm() {
 
   async function onSubmit(data: RegisterFormData) {
     setError('');
-    
+
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -363,7 +363,7 @@ export function RegisterForm() {
           <Checkbox
             id="terms"
             checked={form.watch('acceptTerms')}
-            onCheckedChange={(checked) => 
+            onCheckedChange={(checked) =>
               form.setValue('acceptTerms', checked as boolean)
             }
           />
@@ -598,7 +598,7 @@ export default function LoginPage() {
         {/* Tier Benefits Reminder */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 text-center">
           <p className="text-sm text-gray-700">
-            <span className="font-semibold">FREE users:</span> XAUUSD access • 
+            <span className="font-semibold">FREE users:</span> XAUUSD access •
             <span className="font-semibold ml-2">PRO users:</span> 10 symbols
           </p>
         </div>

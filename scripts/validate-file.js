@@ -189,7 +189,10 @@ class PolicyValidator {
       }
 
       // Check if session is validated before use
-      if (content.includes('session.user') && !content.includes('if (!session)')) {
+      if (
+        content.includes('session.user') &&
+        !content.includes('if (!session)')
+      ) {
         this.addIssue(
           SEVERITY.HIGH,
           filePath,
@@ -264,7 +267,10 @@ class PolicyValidator {
     });
 
     // Check for SQL injection risks (raw queries)
-    if (content.includes('prisma.$executeRaw') || content.includes('prisma.$queryRaw')) {
+    if (
+      content.includes('prisma.$executeRaw') ||
+      content.includes('prisma.$queryRaw')
+    ) {
       if (!content.includes('sql`') && !content.includes('Prisma.sql`')) {
         this.addIssue(
           SEVERITY.CRITICAL,
@@ -288,7 +294,8 @@ class PolicyValidator {
       const hasPut = content.includes('export async function PUT');
 
       if (hasPost || hasPatch || hasPut) {
-        const hasZodValidation = content.includes('z.object') || content.includes('.parse(');
+        const hasZodValidation =
+          content.includes('z.object') || content.includes('.parse(');
 
         if (!hasZodValidation) {
           this.addIssue(
@@ -311,9 +318,13 @@ class PolicyValidator {
     console.log('📊 VALIDATION REPORT');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    const criticalIssues = this.issues.filter((i) => i.severity === SEVERITY.CRITICAL);
+    const criticalIssues = this.issues.filter(
+      (i) => i.severity === SEVERITY.CRITICAL
+    );
     const highIssues = this.issues.filter((i) => i.severity === SEVERITY.HIGH);
-    const mediumIssues = this.issues.filter((i) => i.severity === SEVERITY.MEDIUM);
+    const mediumIssues = this.issues.filter(
+      (i) => i.severity === SEVERITY.MEDIUM
+    );
     const lowIssues = this.issues.filter((i) => i.severity === SEVERITY.LOW);
 
     console.log(`\nFiles Checked: ${this.filesChecked}`);
@@ -330,33 +341,35 @@ class PolicyValidator {
     }
 
     // Print issues by severity
-    [SEVERITY.CRITICAL, SEVERITY.HIGH, SEVERITY.MEDIUM, SEVERITY.LOW].forEach((severity) => {
-      const severityIssues = this.issues.filter((i) => i.severity === severity);
-      if (severityIssues.length === 0) return;
+    [SEVERITY.CRITICAL, SEVERITY.HIGH, SEVERITY.MEDIUM, SEVERITY.LOW].forEach(
+      (severity) => {
+        const severityIssues = this.issues.filter(
+          (i) => i.severity === severity
+        );
+        if (severityIssues.length === 0) return;
 
-      const icon = {
-        Critical: '🔴',
-        High: '🟠',
-        Medium: '🟡',
-        Low: '🟢',
-      }[severity];
+        const icon = {
+          Critical: '🔴',
+          High: '🟠',
+          Medium: '🟡',
+          Low: '🟢',
+        }[severity];
 
-      console.log(`\n${icon} ${severity} Issues (${severityIssues.length}):`);
-      console.log('─'.repeat(60));
+        console.log(`\n${icon} ${severity} Issues (${severityIssues.length}):`);
+        console.log('─'.repeat(60));
 
-      severityIssues.forEach((issue, idx) => {
-        console.log(`\n${idx + 1}. ${issue.file}:${issue.line}`);
-        console.log(`   Rule: ${issue.rule}`);
-        console.log(`   ${issue.message}`);
-      });
-    });
+        severityIssues.forEach((issue, idx) => {
+          console.log(`\n${idx + 1}. ${issue.file}:${issue.line}`);
+          console.log(`   Rule: ${issue.rule}`);
+          console.log(`   ${issue.message}`);
+        });
+      }
+    );
 
     console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     // Approval decision based on 01-approval-policies.md
-    const canApprove =
-      criticalIssues.length === 0 &&
-      highIssues.length <= 2;
+    const canApprove = criticalIssues.length === 0 && highIssues.length <= 2;
 
     if (canApprove) {
       console.log('\n✅ DECISION: APPROVE (with auto-fixes needed)');
@@ -366,10 +379,14 @@ class PolicyValidator {
     } else {
       console.log('\n🚨 DECISION: ESCALATE');
       if (criticalIssues.length > 0) {
-        console.log(`   - ${criticalIssues.length} Critical issues (must be 0)`);
+        console.log(
+          `   - ${criticalIssues.length} Critical issues (must be 0)`
+        );
       }
       if (highIssues.length > 2) {
-        console.log(`   - ${highIssues.length} High issues (exceeds threshold of 2)`);
+        console.log(
+          `   - ${highIssues.length} High issues (exceeds threshold of 2)`
+        );
       }
       console.log('\n   Next step: Review and fix issues manually');
     }
@@ -396,7 +413,14 @@ function main() {
     // Validate all TypeScript files (excluding node_modules, .next, etc.)
     const glob = require('glob');
     const files = glob.sync('**/*.{ts,tsx}', {
-      ignore: ['node_modules/**', '.next/**', 'out/**', 'dist/**', 'build/**', 'seed-code/**'],
+      ignore: [
+        'node_modules/**',
+        '.next/**',
+        'out/**',
+        'dist/**',
+        'build/**',
+        'seed-code/**',
+      ],
     });
 
     files.forEach((file) => validator.validateFile(file));

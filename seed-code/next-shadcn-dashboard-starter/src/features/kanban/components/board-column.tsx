@@ -121,7 +121,7 @@ export function BoardContainer({ children }: { children: React.ReactNode }) {
   });
 
   return (
-    <ScrollArea className='w-full rounded-md whitespace-nowrap'>
+    <ScrollArea className='w-full whitespace-nowrap rounded-md'>
       <div
         className={variations({
           dragging: dndContext.active ? 'active' : 'default'

@@ -99,6 +99,11 @@ model User {
   lastLoginIP       String?
   deviceFingerprint String?
   
+  // Email verification and password reset
+  verificationToken String? @unique
+  resetToken        String? @unique
+  resetTokenExpiry  DateTime?
+  
   accounts          Account[]
   alerts            Alert[]
   watchlists        Watchlist[]

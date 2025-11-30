@@ -41,16 +41,20 @@ Execute thorough discovery of actual repository structure and report findings:
 bash
 
 # Root structure
+
 ls -la
 
 # Find all package.json files
+
 find . -name "package.json" -type f
 
 # Find all Python requirements files
-find . -name "requirements*.txt" -type f
+
+find . -name "requirements\*.txt" -type f
 
 # Find all config files
-find . -name "*.config.js" -o -name "*.config.ts" -o -name "*.config.json" | grep -v node_modules | head -20
+
+find . -name "_.config.js" -o -name "_.config.ts" -o -name "\*.config.json" | grep -v node_modules | head -20
 
 Report:
 
@@ -64,18 +68,22 @@ What are the top-level directories?
 bash
 
 # Check Next.js directory structure
+
 ls -la app/ 2>/dev/null || echo "No app/ directory found"
 ls -la pages/ 2>/dev/null || echo "No pages/ directory found"
 ls -la src/ 2>/dev/null || echo "No src/ directory found"
 
 # Check Next.js configuration
+
 cat next.config.js 2>/dev/null || cat next.config.ts 2>/dev/null || echo "No next.config found"
 
 # Check TypeScript configuration
+
 cat tsconfig.json 2>/dev/null || echo "No tsconfig.json found"
 
 # Find React/Next.js files
-find . -name "*.tsx" -o -name "*.jsx" | grep -v node_modules | head -20
+
+find . -name "_.tsx" -o -name "_.jsx" | grep -v node_modules | head -20
 
 Report:
 
@@ -89,18 +97,22 @@ What .tsx/.jsx files exist and where?
 bash
 
 # Check Python application structure
+
 ls -la mt5-service/ 2>/dev/null || ls -la backend/ 2>/dev/null || ls -la api/ 2>/dev/null
 
 # Find Python files
-find . -name "*.py" | grep -v node_modules | grep -v __pycache__ | head -20
+
+find . -name "\*.py" | grep -v node_modules | grep -v **pycache** | head -20
 
 # Check requirements files
+
 cat mt5-service/requirements.txt 2>/dev/null || find . -name "requirements.txt" -exec cat {} \;
 cat mt5-service/requirements-dev.txt 2>/dev/null || echo "No requirements-dev.txt found"
 
 # Check for tests
-find . -name "tests" -type d | grep -v node_modules
-find . -name "test_*.py" -o -name "*_test.py" | grep -v node_modules | head -10
+
+find . -name "tests" -type d | grep -v node*modules
+find . -name "test*_.py" -o -name "_\_test.py" | grep -v node_modules | head -10
 
 Report:
 
@@ -115,17 +127,21 @@ Do test files exist? Where exactly?
 bash
 
 # Check ESLint configuration
+
 cat .eslintrc.json 2>/dev/null || cat .eslintrc.js 2>/dev/null || cat eslint.config.js 2>/dev/null || echo "No ESLint config found"
 
 # Check Prettier configuration
+
 cat .prettierrc 2>/dev/null || cat .prettierrc.json 2>/dev/null || echo "No Prettier config found"
 
 # Check Python quality tools
+
 cat pyproject.toml 2>/dev/null || echo "No pyproject.toml found"
 cat pytest.ini 2>/dev/null || echo "No pytest.ini found"
 cat .flake8 2>/dev/null || echo "No .flake8 found"
 
 # Check package.json for linting
+
 grep -A 5 "eslint\|prettier\|lint" package.json 2>/dev/null || echo "No linting packages in package.json"
 
 Report:
@@ -140,13 +156,16 @@ What linting/formatting tools are installed?
 bash
 
 # Check Node.js dependencies
+
 cat package.json | grep -A 100 '"dependencies"' | head -50
 cat package.json | grep -A 100 '"devDependencies"' | head -50
 
 # Check scripts
+
 cat package.json | grep -A 30 '"scripts"'
 
 # Check specific problematic packages
+
 grep -i "sentry\|nodemailer\|swagger" package.json
 
 Report:
@@ -162,10 +181,11 @@ bash# List all workflow files
 ls -la .github/workflows/
 
 # Show first 50 lines of each workflow
-for file in .github/workflows/*.yml .github/workflows/*.yaml; do
-  echo "=== $file ==="
+
+for file in .github/workflows/_.yml .github/workflows/_.yaml; do
+echo "=== $file ==="
   head -50 "$file" 2>/dev/null
-  echo ""
+echo ""
 done
 
 Report:
@@ -174,7 +194,6 @@ How many workflow files exist?
 What jobs do they define?
 What directories/paths do they reference?
 What tools/commands do they use?
-
 
 PHASE 2: MISMATCH ANALYSIS
 
@@ -198,7 +217,6 @@ What assumptions were wrong
 How this will break autonomous development
 What needs to be rebuilt from scratch
 
-
 PHASE 3: DELETE BROKEN WORKFLOWS
 
 Delete all existing CI/CD workflows:
@@ -206,13 +224,16 @@ Delete all existing CI/CD workflows:
 bash
 
 # Remove all workflow files
-rm -f .github/workflows/*.yml
-rm -f .github/workflows/*.yaml
+
+rm -f .github/workflows/_.yml
+rm -f .github/workflows/_.yaml
 
 # Verify deletion
+
 ls -la .github/workflows/
 
 # Commit deletion
+
 git add .github/workflows/
 git commit -m "remove: delete all broken CI/CD workflows - rebuilding from scratch based on actual repository structure"
 git push
@@ -243,26 +264,26 @@ yaml
 name: Next.js CI
 
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main, 'claude/**']
+pull_request:
+branches: [main]
+push:
+branches: [main, 'claude/**']
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
+validate:
+runs-on: ubuntu-latest
+timeout-minutes: 10
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: |
           # Handle lock file sync issues gracefully
@@ -271,7 +292,7 @@ jobs:
             rm -f package-lock.json
             npm install
           }
-      
+
       - name: Type checking (if TypeScript configured)
         run: |
           if [ -f "tsconfig.json" ]; then
@@ -284,7 +305,7 @@ jobs:
             echo "✓ No TypeScript configuration - skipping type check"
           fi
         continue-on-error: true
-      
+
       - name: Linting (if configured)
         run: |
           if grep -q '"lint"' package.json; then
@@ -297,14 +318,14 @@ jobs:
             echo "✓ No lint script configured - skipping"
           fi
         continue-on-error: true
-      
+
       - name: Build application
         id: build
         run: |
           echo "Building application..."
           npm run build 2>&1 | tee build.log
           BUILD_EXIT_CODE=${PIPESTATUS[0]}
-          
+
           if [ $BUILD_EXIT_CODE -ne 0 ]; then
             echo "❌ BUILD FAILED - This is a blocking issue for autonomous development"
             echo "Build errors:"
@@ -313,7 +334,7 @@ jobs:
           else
             echo "✅ Build successful"
           fi
-      
+
       - name: CI Summary
         if: always()
         run: |
@@ -323,6 +344,7 @@ jobs:
           if [ "${{ steps.build.outcome }}" = "failure" ]; then
             echo "❌ Build failed - code changes needed"
           fi
+
 4.2 Python/Flask CI Workflow (if Python app exists)
 
 File: .github/workflows/python-ci.yml
@@ -331,41 +353,41 @@ yaml
 name: Python CI
 
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main, 'claude/**']
+pull_request:
+branches: [main]
+push:
+branches: [main, 'claude/**']
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
+validate:
+runs-on: ubuntu-latest
+timeout-minutes: 10
+
     # Determine working directory from audit
     env:
       PYTHON_APP_DIR: ./mt5-service  # ADJUST THIS based on Phase 1 audit
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
-      
+
       - name: Install dependencies
         working-directory: ${{ env.PYTHON_APP_DIR }}
         run: |
           pip install --upgrade pip
-          
+
           if [ -f requirements.txt ]; then
             echo "Installing dependencies from requirements.txt..."
-            
+
             # Create CI-friendly requirements (exclude packages unavailable on Linux/CI)
             grep -v "MetaTrader5" requirements.txt > requirements-ci.txt 2>/dev/null || cp requirements.txt requirements-ci.txt
-            
+
             # Install with error handling
             pip install -r requirements-ci.txt 2>&1 || {
               echo "⚠️  Some dependencies failed to install"
@@ -376,7 +398,7 @@ jobs:
           else
             echo "✓ No requirements.txt found - skipping dependency installation"
           fi
-      
+
       - name: Python syntax validation
         working-directory: ${{ env.PYTHON_APP_DIR }}
         run: |
@@ -386,7 +408,7 @@ jobs:
             exit 1
           }
           echo "✅ All Python files have valid syntax"
-      
+
       - name: Run tests (if configured)
         working-directory: ${{ env.PYTHON_APP_DIR }}
         run: |
@@ -400,7 +422,7 @@ jobs:
             echo "✓ No tests configured - skipping test execution"
           fi
         continue-on-error: true
-      
+
       - name: Import validation (if Flask app exists)
         working-directory: ${{ env.PYTHON_APP_DIR }}
         run: |
@@ -412,13 +434,14 @@ jobs:
             }
           fi
         continue-on-error: true
-      
+
       - name: CI Summary
         if: always()
         run: |
           echo "## Python CI Summary"
           echo "✅ Dependencies installed (CI-adjusted)"
           echo "✅ Syntax validated"
+
 4.3 Quick Validation Workflow (for fast feedback)
 
 File: .github/workflows/quick-check.yml
@@ -428,18 +451,18 @@ yaml
 name: Quick Check
 
 on:
-  push:
-    branches: ['claude/**']  # Only on AI feature branches for fast feedback
+push:
+branches: ['claude/**'] # Only on AI feature branches for fast feedback
 
 jobs:
-  quick-validation:
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    
+quick-validation:
+runs-on: ubuntu-latest
+timeout-minutes: 3
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: JSON syntax validation
         run: |
           echo "Validating JSON files..."
@@ -448,7 +471,7 @@ jobs:
             exit 1
           }
           echo "✅ All JSON files valid"
-      
+
       - name: Check for merge conflicts
         run: |
           echo "Checking for merge conflict markers..."
@@ -458,7 +481,7 @@ jobs:
             exit 1
           }
           echo "✅ No merge conflicts"
-      
+
       - name: Check for debugging code
         run: |
           echo "Checking for common debugging artifacts..."
@@ -478,43 +501,38 @@ yaml
 name: API Validation
 
 on:
-  pull_request:
-    paths:
-      - '**/*.yaml'
-      - '**/*.yml'
-      - '**/openapi/**'
-  push:
-    branches: [main]
-    paths:
-      - '**/*.yaml'
-      - '**/*.yml'
+pull_request:
+paths: - '**/\*.yaml' - '**/_.yml' - '**/openapi/**'
+push:
+branches: [main]
+paths: - '\*\*/_.yaml' - '\*_/_.yml'
 
 jobs:
-  validate-openapi:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    
+validate-openapi:
+runs-on: ubuntu-latest
+timeout-minutes: 5
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+
       - name: Install OpenAPI validator
         run: npm install -g @redocly/cli
-      
+
       - name: Validate OpenAPI specs
         run: |
           # Find all OpenAPI spec files
           SPEC_FILES=$(find . -name "*openapi*.yaml" -o -name "*openapi*.yml" | grep -v node_modules)
-          
+
           if [ -z "$SPEC_FILES" ]; then
             echo "✓ No OpenAPI specs found - skipping validation"
             exit 0
           fi
-          
+
           for spec in $SPEC_FILES; do
             echo "Validating $spec..."
             redocly lint "$spec" || {
@@ -551,26 +569,30 @@ This directory contains GitHub Actions workflows designed for autonomous develop
 ## Workflows
 
 ### next js-ci.yml
+
 - **Purpose**: Validate Next.js application build and code quality
-- **Triggers**: Push to main, claude/** branches, and pull requests
+- **Triggers**: Push to main, claude/\*\* branches, and pull requests
 - **Duration**: ~5-10 minutes
 - **Failure Criteria**: Build failures only (not linting or type errors during development)
 
 ### python-ci.yml
+
 - **Purpose**: Validate Python/Flask application syntax and tests
-- **Triggers**: Push to main, claude/** branches, and pull requests
+- **Triggers**: Push to main, claude/\*\* branches, and pull requests
 - **Duration**: ~5-10 minutes
 - **Failure Criteria**: Syntax errors only (not test failures during development)
 
 ### quick-check.yml
+
 - **Purpose**: Fast validation for autonomous development iterations
-- **Triggers**: Push to claude/** branches only
+- **Triggers**: Push to claude/\*\* branches only
 - **Duration**: ~2-3 minutes
 - **Failure Criteria**: JSON syntax errors, merge conflicts
 
 ## Design for Autonomous Development
 
 These workflows are optimized for:
+
 - **Fast feedback** (<10 min execution)
 - **Clear signals** (build failures = real issues)
 - **Graceful degradation** (warnings don't block)
@@ -592,16 +614,19 @@ PHASE 6: COMMIT, PUSH & VALIDATE
 bash
 
 # Add all new workflow files
+
 git add .github/workflows/
 
 # Add README updates
+
 git add README.md
 
 # Commit with descriptive message
+
 git commit -m "feat: rebuild CI/CD from scratch for autonomous development
 
 - Comprehensive repository audit identified mismatches
-- Deleted broken workflows fighting against repository structure  
+- Deleted broken workflows fighting against repository structure
 - Created minimal, autonomous-friendly CI/CD workflows
 - Fast feedback (<10min), clear signals, graceful degradation
 - Supports Aider autonomous development in Phase 3
@@ -610,6 +635,7 @@ git commit -m "feat: rebuild CI/CD from scratch for autonomous development
 Based on actual repository structure, not assumptions."
 
 # Push changes
+
 git push origin claude/update-api-docs-indicators-61H2UNwRxCDBPysN6M6FX81M
 
 6.2 Monitor First CI Run
@@ -632,7 +658,6 @@ Error messages are clear and actionable
 Warnings are informative but don't block
 Build status badges show correctly in README
 Ready for Phase 3 autonomous development
-
 
 DELIVERABLES SUMMARY
 
@@ -661,7 +686,6 @@ Any remaining issues to address
 Confirmation CI/CD is ready for autonomous development
 Any limitations or caveats
 Recommended next steps
-
 
 EXECUTION INSTRUCTIONS
 

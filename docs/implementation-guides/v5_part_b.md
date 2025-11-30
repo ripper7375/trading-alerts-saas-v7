@@ -3,20 +3,20 @@
 ### 4.1 Frontend
 
 ```yaml
-Framework: Next.js 15.0 (App Router)           # 🆕 V5: Upgraded from 14
+Framework: Next.js 15.0 (App Router) # 🆕 V5: Upgraded from 14
 Language: TypeScript 5.x
-UI Library: React 19                            # 🆕 V5: Upgraded from 18
+UI Library: React 19 # 🆕 V5: Upgraded from 18
 Styling: Tailwind CSS 3.x
 Component Library: shadcn/ui (Radix UI)
 Charts: TradingView Lightweight Charts 4.x
-State Management: 
+State Management:
   - Zustand (client state)
   - React Query / TanStack Query (server state)
 Forms: React Hook Form + Zod validation
 Real-time: Socket.IO Client
 Icons: Lucide React
 PWA: next-pwa
-Features:                                       # 🆕 V5: New Next.js 15 features
+Features: # 🆕 V5: New Next.js 15 features
   - Partial Prerendering (PPR)
   - React Compiler
   - Turbopack (dev server)
@@ -32,9 +32,9 @@ Validation: Zod
 Background Jobs: BullMQ
 Rate Limiting: upstash/ratelimit
 Email: Resend
-Payments: Stripe SDK (2-tier system)          # 🆕 V5: FREE + PRO only
+Payments: Stripe SDK (2-tier system) # 🆕 V5: FREE + PRO only
 WebSocket: Socket.IO
-Tier Management: Custom middleware             # 🆕 V5: Tier-based access control
+Tier Management: Custom middleware # 🆕 V5: Tier-based access control
 ```
 
 ### 4.3 MT5 Microservice
@@ -46,13 +46,13 @@ MT5 Integration: MetaTrader5 library
 CORS: Flask-CORS
 Logging: Loguru
 Deployment: Docker
-Access Control: Tier-based validation          # 🆕 V5: Validates symbol access
+Access Control: Tier-based validation # 🆕 V5: Validates symbol access
 
 CRITICAL: Reads from YOUR custom indicators
   - Fractal Horizontal Line_V5.mq5 (ATTACH IN NEXT CHAT)
   - Fractal Diagonal Line_V4.mq5 (ATTACH IN NEXT CHAT)
 
-COMMERCIAL MODEL:                              # 🆕 V5: Centralized data source
+COMMERCIAL MODEL: # 🆕 V5: Centralized data source
   - YOUR MT5 terminal = ONLY data source
   - Users subscribe to access YOUR data
   - Users CANNOT connect their own MT5
@@ -65,7 +65,7 @@ Primary Database: PostgreSQL 15
 Cache & Queue: Redis 7
 ORM: Prisma (TypeScript)
 Migrations: Prisma Migrate
-Schema Changes:                                # 🆕 V5: New models
+Schema Changes: # 🆕 V5: New models
   - WatchlistItem model (symbol+timeframe)
   - 2-tier UserTier enum (FREE, PRO)
   - Removed ENTERPRISE tier
@@ -96,7 +96,7 @@ API Testing: Postman / Thunder Client
 Database GUI: Prisma Studio / TablePlus
 Git Client: GitHub Desktop / GitKraken
 Package Manager: pnpm (recommended)
-Node Version: 18+ (required for Next.js 15)   # 🆕 V5: Updated requirement
+Node Version: 18+ (required for Next.js 15) # 🆕 V5: Updated requirement
 ```
 
 ### 4.7 Constants & Configuration
@@ -109,9 +109,9 @@ export const TIMEFRAMES = {
   M15: 'M15',
   M30: 'M30',
   H1: 'H1',
-  H2: 'H2',   // 🆕 V5: Added
+  H2: 'H2', // 🆕 V5: Added
   H4: 'H4',
-  H8: 'H8',   // 🆕 V5: Added
+  H8: 'H8', // 🆕 V5: Added
   D1: 'D1',
 } as const;
 
@@ -122,9 +122,9 @@ export const MT5_TIMEFRAMES: Record<Timeframe, number> = {
   M15: 15,
   M30: 30,
   H1: 16385,
-  H2: 16386,   // 🆕 V5: Added
+  H2: 16386, // 🆕 V5: Added
   H4: 16388,
-  H8: 16392,   // 🆕 V5: Added
+  H8: 16392, // 🆕 V5: Added
   D1: 16408,
 };
 
@@ -133,9 +133,9 @@ export const TIMEFRAME_LABELS: Record<Timeframe, string> = {
   M15: '15 Minutes',
   M30: '30 Minutes',
   H1: '1 Hour',
-  H2: '2 Hours',    // 🆕 V5: Added
+  H2: '2 Hours', // 🆕 V5: Added
   H4: '4 Hours',
-  H8: '8 Hours',    // 🆕 V5: Added
+  H8: '8 Hours', // 🆕 V5: Added
   D1: '1 Day',
 };
 ```
@@ -145,7 +145,7 @@ export const TIMEFRAME_LABELS: Record<Timeframe, string> = {
 // 🆕 V5: Commercial SaaS tier system
 
 export const TIER_SYMBOLS = {
-  FREE: ['XAUUSD'],  // Only 1 symbol
+  FREE: ['XAUUSD'], // Only 1 symbol
   PRO: [
     'AUDUSD',
     'BTCUSD',
@@ -157,7 +157,7 @@ export const TIER_SYMBOLS = {
     'USDJPY',
     'XAGUSD',
     'XAUUSD',
-  ],  // 10 symbols
+  ], // 10 symbols
 } as const;
 
 export type UserTier = 'FREE' | 'PRO';

@@ -1,63 +1,84 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Button } from '@/components/ui/button'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Bell, Check, AlertTriangle, Info, Star, Ticket, MoreVertical, Clock, CheckCircle2 } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAffiliateConfig } from '@/lib/hooks/useAffiliateConfig';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Bell,
+  Check,
+  AlertTriangle,
+  Info,
+  Star,
+  Ticket,
+  MoreVertical,
+  Clock,
+  CheckCircle2,
+} from 'lucide-react';
 
 interface Notification {
-  id: string
-  type: 'alert' | 'warning' | 'system' | 'upgrade' | 'billing' | 'discount_reminder'
-  title: string
-  message: string
-  timestamp: Date
-  read: boolean
-  priority?: 'normal' | 'high' | 'urgent'
+  id: string;
+  type:
+    | 'alert'
+    | 'warning'
+    | 'system'
+    | 'upgrade'
+    | 'billing'
+    | 'discount_reminder';
+  title: string;
+  message: string;
+  timestamp: Date;
+  read: boolean;
+  priority?: 'normal' | 'high' | 'urgent';
   action?: {
-    label: string
-    url: string
-  }
+    label: string;
+    url: string;
+  };
   cta?: {
-    label: string
-    onClick: () => void
-    className?: string
-  }
+    label: string;
+    onClick: () => void;
+    className?: string;
+  };
   metadata?: {
-    symbol?: string
-    timeframe?: string
-    category?: string
-    renewalDate?: string
-    daysUntilRenewal?: number
-  }
+    symbol?: string;
+    timeframe?: string;
+    category?: string;
+    renewalDate?: string;
+    daysUntilRenewal?: number;
+  };
 }
 
 export default function NotificationBell() {
-  const router = useRouter()
-  const [open, setOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<string>('all')
-  const [notifications, setNotifications] = useState<Notification[]>([])
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('all');
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   // ✅ CRITICAL: Use SystemConfig hook for dynamic percentages
-  const { discountPercent, calculateDiscountedPrice, isLoading } = useAffiliateConfig()
+  const { discountPercent, calculateDiscountedPrice, isLoading } =
+    useAffiliateConfig();
 
-  const basePrice = 29.0
-  const discountedPrice = calculateDiscountedPrice(basePrice)
-  const savings = basePrice - discountedPrice
+  const basePrice = 29.0;
+  const discountedPrice = calculateDiscountedPrice(basePrice);
+  const savings = basePrice - discountedPrice;
 
   // Generate mock notifications with dynamic discount values
   useEffect(() => {
-    if (isLoading) return
+    if (isLoading) return;
 
-    const renewalDate = new Date()
-    renewalDate.setDate(renewalDate.getDate() + 10)
+    const renewalDate = new Date();
+    renewalDate.setDate(renewalDate.getDate() + 10);
     const renewalDateStr = renewalDate.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
-    })
+    });
 
     const mockNotifications: Notification[] = [
       // Type 6: Day -10 Discount Reminder
@@ -78,8 +99,8 @@ export default function NotificationBell() {
         cta: {
           label: 'Enter Code Now',
           onClick: () => {
-            setOpen(false)
-            router.push('/dashboard/settings/billing')
+            setOpen(false);
+            router.push('/dashboard/settings/billing');
           },
           className:
             'bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs mt-2 transition-colors',
@@ -95,7 +116,8 @@ export default function NotificationBell() {
         id: '2',
         type: 'alert',
         title: 'Alert Triggered: Gold H1 Support',
-        message: 'XAUUSD has reached $2,645.00 (B-B1 Support). Current price: $2,645.80',
+        message:
+          'XAUUSD has reached $2,645.00 (B-B1 Support). Current price: $2,645.80',
         timestamp: new Date(Date.now() - 2 * 60000), // 2 mins ago
         read: false,
         action: {
@@ -122,8 +144,8 @@ export default function NotificationBell() {
         cta: {
           label: 'Enter Code',
           onClick: () => {
-            setOpen(false)
-            router.push('/dashboard/settings/billing')
+            setOpen(false);
+            router.push('/dashboard/settings/billing');
           },
           className:
             'bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs mt-2 transition-colors',
@@ -139,7 +161,8 @@ export default function NotificationBell() {
         id: '4',
         type: 'warning',
         title: 'Price Approaching Target',
-        message: 'EURUSD is $0.0012 away from your alert at $1.0850 (P-P2 Resistance)',
+        message:
+          'EURUSD is $0.0012 away from your alert at $1.0850 (P-P2 Resistance)',
         timestamp: new Date(Date.now() - 10 * 60000), // 10 mins ago
         read: false,
         action: {
@@ -168,8 +191,8 @@ export default function NotificationBell() {
         cta: {
           label: 'Enter Code NOW',
           onClick: () => {
-            setOpen(false)
-            router.push('/dashboard/settings/billing')
+            setOpen(false);
+            router.push('/dashboard/settings/billing');
           },
           className:
             'bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs mt-2 animate-pulse transition-colors',
@@ -185,7 +208,8 @@ export default function NotificationBell() {
         id: '6',
         type: 'system',
         title: 'New Feature Available',
-        message: 'Advanced chart tools are now available for PRO users. Check them out!',
+        message:
+          'Advanced chart tools are now available for PRO users. Check them out!',
         timestamp: new Date(Date.now() - 3600000), // 1 hour ago
         read: true,
         action: {
@@ -201,7 +225,8 @@ export default function NotificationBell() {
         id: '7',
         type: 'upgrade',
         title: 'Upgrade to PRO',
-        message: "You've used 4/5 FREE alerts. Upgrade to PRO for 20 alerts and more features.",
+        message:
+          "You've used 4/5 FREE alerts. Upgrade to PRO for 20 alerts and more features.",
         timestamp: new Date(Date.now() - 3 * 3600000), // 3 hours ago
         read: true,
         action: {
@@ -232,7 +257,8 @@ export default function NotificationBell() {
         id: '9',
         type: 'billing',
         title: 'Trial Ending Soon',
-        message: 'Your 7-day PRO trial ends in 2 days. Update your payment method to continue.',
+        message:
+          'Your 7-day PRO trial ends in 2 days. Update your payment method to continue.',
         timestamp: new Date(Date.now() - 86400000), // 1 day ago
         read: true,
         action: {
@@ -277,92 +303,96 @@ export default function NotificationBell() {
         id: '12',
         type: 'warning',
         title: 'Multiple Alerts Near Trigger',
-        message: 'You have 3 alerts that may trigger soon. Check your dashboard.',
+        message:
+          'You have 3 alerts that may trigger soon. Check your dashboard.',
         timestamp: new Date(Date.now() - 8 * 3600000), // 8 hours ago
         read: true,
         metadata: {
           category: 'Alert',
         },
       },
-    ]
+    ];
 
-    setNotifications(mockNotifications)
-  }, [isLoading, discountPercent, savings, basePrice, router])
+    setNotifications(mockNotifications);
+  }, [isLoading, discountPercent, savings, basePrice, router]);
 
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleMarkAsRead = (id: string) => {
-    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)))
-  }
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  };
 
   const handleMarkAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
-  }
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
 
   const handleDelete = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
-  }
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
 
   const handleNotificationClick = (notification: Notification) => {
-    handleMarkAsRead(notification.id)
+    handleMarkAsRead(notification.id);
     if (notification.action && !notification.cta) {
-      router.push(notification.action.url)
-      setOpen(false)
+      router.push(notification.action.url);
+      setOpen(false);
     }
-  }
+  };
 
   const filteredNotifications = notifications.filter((n) => {
-    if (activeTab === 'all') return true
-    if (activeTab === 'unread') return !n.read
+    if (activeTab === 'all') return true;
+    if (activeTab === 'unread') return !n.read;
     if (activeTab === 'billing')
-      return n.type === 'billing' || n.type === 'discount_reminder'
-    if (activeTab === 'alerts') return n.type === 'alert' || n.type === 'warning'
-    return n.type === activeTab
-  })
+      return n.type === 'billing' || n.type === 'discount_reminder';
+    if (activeTab === 'alerts')
+      return n.type === 'alert' || n.type === 'warning';
+    return n.type === activeTab;
+  });
 
   const getNotificationIcon = (notification: Notification) => {
-    const iconClass = 'w-5 h-5'
+    const iconClass = 'w-5 h-5';
 
     switch (notification.type) {
       case 'alert':
-        return <CheckCircle2 className={iconClass} />
+        return <CheckCircle2 className={iconClass} />;
       case 'warning':
-        return <AlertTriangle className={iconClass} />
+        return <AlertTriangle className={iconClass} />;
       case 'system':
-        return <Info className={iconClass} />
+        return <Info className={iconClass} />;
       case 'upgrade':
-        return <Star className={iconClass} />
+        return <Star className={iconClass} />;
       case 'discount_reminder':
-        return <Ticket className={iconClass} />
+        return <Ticket className={iconClass} />;
       case 'billing':
-        return <Clock className={iconClass} />
+        return <Clock className={iconClass} />;
       default:
-        return <Bell className={iconClass} />
+        return <Bell className={iconClass} />;
     }
-  }
+  };
 
   const getNotificationIconBg = (notification: Notification) => {
     if (notification.priority === 'urgent') {
-      return 'bg-gradient-to-br from-red-100 to-orange-100 text-red-600'
+      return 'bg-gradient-to-br from-red-100 to-orange-100 text-red-600';
     }
 
     switch (notification.type) {
       case 'alert':
-        return 'bg-green-100 text-green-600'
+        return 'bg-green-100 text-green-600';
       case 'warning':
-        return 'bg-orange-100 text-orange-600'
+        return 'bg-orange-100 text-orange-600';
       case 'system':
-        return 'bg-blue-100 text-blue-600'
+        return 'bg-blue-100 text-blue-600';
       case 'upgrade':
-        return 'bg-purple-100 text-purple-600'
+        return 'bg-purple-100 text-purple-600';
       case 'discount_reminder':
-        return 'bg-yellow-100 text-yellow-600'
+        return 'bg-yellow-100 text-yellow-600';
       case 'billing':
-        return 'bg-blue-100 text-blue-600'
+        return 'bg-blue-100 text-blue-600';
       default:
-        return 'bg-gray-100 text-gray-600'
+        return 'bg-gray-100 text-gray-600';
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -372,7 +402,7 @@ export default function NotificationBell() {
       >
         <Bell className="h-6 w-6 text-gray-400 animate-pulse" />
       </button>
-    )
+    );
   }
 
   return (
@@ -458,7 +488,9 @@ export default function NotificationBell() {
                 key={notification.id}
                 onClick={() => handleNotificationClick(notification)}
                 className={`flex items-start gap-4 p-4 border-b border-gray-100 cursor-pointer hover:bg-blue-50 transition-colors ${
-                  !notification.read ? 'bg-blue-50/50 border-l-4 border-blue-500' : 'bg-white'
+                  !notification.read
+                    ? 'bg-blue-50/50 border-l-4 border-blue-500'
+                    : 'bg-white'
                 } ${
                   notification.priority === 'urgent'
                     ? 'border-l-4 !border-orange-500 bg-orange-50/30'
@@ -477,17 +509,21 @@ export default function NotificationBell() {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold text-gray-900 text-sm mb-1">
-                    {!notification.read && <span className="text-blue-500 mr-1">•</span>}
+                    {!notification.read && (
+                      <span className="text-blue-500 mr-1">•</span>
+                    )}
                     {notification.title}
                   </h4>
-                  <p className="text-gray-600 text-sm line-clamp-2">{notification.message}</p>
+                  <p className="text-gray-600 text-sm line-clamp-2">
+                    {notification.message}
+                  </p>
 
                   {/* CTA Button */}
                   {notification.cta && (
                     <button
                       onClick={(e) => {
-                        e.stopPropagation()
-                        notification.cta!.onClick()
+                        e.stopPropagation();
+                        notification.cta!.onClick();
                       }}
                       className={notification.cta.className}
                     >
@@ -518,8 +554,8 @@ export default function NotificationBell() {
                   ) : (
                     <button
                       onClick={(e) => {
-                        e.stopPropagation()
-                        handleDelete(notification.id)
+                        e.stopPropagation();
+                        handleDelete(notification.id);
                       }}
                       className="text-gray-400 hover:text-gray-600 p-1"
                       aria-label="Delete notification"
@@ -538,9 +574,9 @@ export default function NotificationBell() {
           <a
             href="/dashboard/notifications"
             onClick={(e) => {
-              e.preventDefault()
-              setOpen(false)
-              router.push('/dashboard/notifications')
+              e.preventDefault();
+              setOpen(false);
+              router.push('/dashboard/notifications');
             }}
             className="text-blue-600 hover:underline font-semibold block"
           >
@@ -548,9 +584,9 @@ export default function NotificationBell() {
           </a>
           <button
             onClick={(e) => {
-              e.preventDefault()
-              setOpen(false)
-              router.push('/dashboard/settings/notifications')
+              e.preventDefault();
+              setOpen(false);
+              router.push('/dashboard/settings/notifications');
             }}
             className="text-gray-600 hover:text-blue-600 text-sm mt-2 block w-full"
           >
@@ -559,23 +595,23 @@ export default function NotificationBell() {
         </div>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
 function formatTime(date: Date): string {
-  const diff = Date.now() - date.getTime()
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
+  const diff = Date.now() - date.getTime();
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
 
-  if (minutes < 1) return 'Just now'
-  if (minutes < 60) return `${minutes}m ago`
-  if (hours < 24) return `${hours}h ago`
-  if (days === 1) return 'Yesterday'
-  if (days < 7) return `${days} days ago`
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days === 1) return 'Yesterday';
+  if (days < 7) return `${days} days ago`;
 
   return date.toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
-  })
+  });
 }

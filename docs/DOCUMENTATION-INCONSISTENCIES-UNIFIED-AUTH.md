@@ -13,6 +13,7 @@
 **Status:** ⚠️ **MAJOR INCONSISTENCIES** - Describes OLD separate auth system
 
 #### Line 24: "Separate affiliate authentication system"
+
 ```diff
 - Separate affiliate authentication system
 + Unified authentication system (single login for SaaS + Affiliate)
@@ -23,6 +24,7 @@
 ---
 
 #### Line 32: Dependencies mention "Affiliate" model
+
 ```diff
 - Part 2 complete (Prisma schema updates for Affiliate, AffiliateCode, Commission models)
 + Part 2 complete (Prisma schema updates for AffiliateProfile, AffiliateCode, Commission models)
@@ -33,6 +35,7 @@
 ---
 
 #### Lines 43-51: File 1/32 describes wrong schema
+
 ```diff
 **File 1/32:** `prisma/schema.prisma` (UPDATE EXISTING)
 
@@ -47,6 +50,7 @@
 ```
 
 **Why Wrong:**
+
 1. There's NO `Affiliate` model with email/password - that would create separate authentication
 2. Schema already has `User.isAffiliate` field and `AffiliateProfile` relationship
 3. Foreign keys use `affiliateProfileId` not `affiliateId`
@@ -54,6 +58,7 @@
 ---
 
 #### Lines 60-68: File 3/32 should NOT exist
+
 ```diff
 **File 3/32:** `lib/auth/affiliate-auth.ts`
 
@@ -66,22 +71,25 @@
 ```
 
 **Why Wrong:** With unified auth:
+
 - Affiliates use same NextAuth JWT system
 - No separate JWT secret needed
 - Use `requireAffiliate()` from `lib/auth/session.ts` instead
 - Session already includes `isAffiliate` boolean
 
 **What to use instead:**
+
 ```typescript
 // From lib/auth/session.ts (already exists)
-export async function isAffiliate(): Promise<boolean>
-export async function requireAffiliate(): Promise<Session>
-export async function getAffiliateProfile()
+export async function isAffiliate(): Promise<boolean>;
+export async function requireAffiliate(): Promise<Session>;
+export async function getAffiliateProfile();
 ```
 
 ---
 
 #### Lines 74, 92, etc.: References to `affiliateId`
+
 ```diff
 - Function: distributeCodes(affiliateId, count, reason)
 - Functions: buildCodeInventoryReport(affiliateId, period)
@@ -92,15 +100,17 @@ export async function getAffiliateProfile()
 ```
 
 **Why Wrong:**
+
 - With unified auth, you identify affiliates by `userId` (from User model)
 - The `AffiliateProfile` links to `User` via `userId`
 - No separate `affiliateId` needed
 
 **Correct pattern:**
+
 ```typescript
 // Get affiliate profile from userId
 const profile = await prisma.affiliateProfile.findUnique({
-  where: { userId: session.user.id }
+  where: { userId: session.user.id },
 });
 
 // Or use helper
@@ -114,6 +124,7 @@ const profile = await getAffiliateProfile();
 **Status:** ⚠️ **INCOMPLETE** - Missing unified auth fields
 
 #### Lines 51, 56: Type extensions incomplete
+
 ```diff
 **File 1/19:** `types/next-auth.d.ts`
 
@@ -132,13 +143,14 @@ Build Steps:
 **Why Wrong:** The types now include unified auth support (`isAffiliate` boolean)
 
 **Actual implementation (types/next-auth.d.ts):**
+
 ```typescript
 interface Session {
   user: {
     id: string;
     tier: 'FREE' | 'PRO';
     role: 'USER' | 'ADMIN';
-    isAffiliate: boolean;  // ← MISSING from docs
+    isAffiliate: boolean; // ← MISSING from docs
     image?: string;
   } & DefaultSession['user'];
 }
@@ -147,6 +159,7 @@ interface Session {
 ---
 
 #### Lines 92-101: Session helpers incomplete
+
 ```diff
 **File 4/19:** `lib/auth/session.ts`
 
@@ -168,16 +181,18 @@ Build Steps:
 **Why Wrong:** Missing affiliate-specific helpers that are now required for unified auth
 
 **Actual implementation (lib/auth/session.ts):**
+
 ```typescript
 // ✅ Already implemented
-export async function isAffiliate(): Promise<boolean>
-export async function requireAffiliate(): Promise<Session>
-export async function getAffiliateProfile()
+export async function isAffiliate(): Promise<boolean>;
+export async function requireAffiliate(): Promise<Session>;
+export async function getAffiliateProfile();
 ```
 
 ---
 
 #### Lines 105-113: Permissions incomplete
+
 ```diff
 **File 5/19:** `lib/auth/permissions.ts`
 
@@ -196,6 +211,7 @@ Build Steps:
 **Why Wrong:** Missing affiliate-specific permissions that are now implemented
 
 **Actual implementation (lib/auth/permissions.ts lines 97-123):**
+
 ```typescript
 case 'affiliate_dashboard':
   const isAffiliateUser = session.user.isAffiliate;
@@ -232,6 +248,7 @@ This file is correctly focused on MT5 integration and doesn't need updates for u
 **Status:** ✅ **CORRECT** - No inconsistencies found
 
 This policy correctly describes:
+
 - NextAuth v4 with JWT sessions
 - Google OAuth + credentials providers
 - Account linking security (verified-only)
@@ -260,12 +277,14 @@ This document correctly describes OAuth integration without conflicting with uni
 **Changes Required:**
 
 1. **Line 24:** Remove "Separate affiliate authentication system"
+
    ```diff
    - Separate affiliate authentication system
    + Unified authentication (affiliates use same NextAuth as SaaS users)
    ```
 
 2. **Line 32:** Update dependencies
+
    ```diff
    - Part 2 complete (Prisma schema updates for Affiliate, AffiliateCode, Commission models)
    + Part 2 complete (Schema already has User.isAffiliate, AffiliateProfile, AffiliateCode, Commission)
@@ -273,6 +292,7 @@ This document correctly describes OAuth integration without conflicting with uni
    ```
 
 3. **Lines 43-51:** Update File 1/32 description
+
    ```diff
    **File 1/32:** `prisma/schema.prisma` (VERIFY EXISTING)
 
@@ -289,6 +309,7 @@ This document correctly describes OAuth integration without conflicting with uni
    ```
 
 4. **Lines 60-68:** DELETE File 3/32 (lib/auth/affiliate-auth.ts)
+
    ```diff
    - **File 3/32:** `lib/auth/affiliate-auth.ts`
    - Create affiliate JWT functions (separate from user auth)
@@ -304,6 +325,7 @@ This document correctly describes OAuth integration without conflicting with uni
    ```
 
 5. **Throughout:** Replace `affiliateId` with `userId` or `affiliateProfileId`
+
    ```diff
    - distributeCodes(affiliateId, count, reason)
    + distributeCodes(userId, count, reason)  // or get from session.user.id
@@ -313,12 +335,14 @@ This document correctly describes OAuth integration without conflicting with uni
    ```
 
 6. **Add Note:** Explain unified auth to Aider
+
    ```markdown
    ## ⚠️ IMPORTANT: Unified Authentication
 
    This Part 17A build assumes **unified authentication** is already implemented (Part 5).
 
    **What this means:**
+
    - Affiliates are regular Users with `isAffiliate = true`
    - No separate Affiliate model with email/password
    - No separate JWT authentication system
@@ -327,6 +351,7 @@ This document correctly describes OAuth integration without conflicting with uni
    - AffiliateProfile links to User via `userId` (1-to-1 relation)
 
    **User Journey:**
+
    1. User registers/signs in → User record (isAffiliate = false)
    2. User clicks "Become Affiliate" → isAffiliate = true, AffiliateProfile created
    3. Same NextAuth session grants access to both SaaS + Affiliate features
@@ -341,6 +366,7 @@ This document correctly describes OAuth integration without conflicting with uni
 **Changes Required:**
 
 1. **Line 51:** Update type extensions
+
    ```diff
    **Purpose:** Extend NextAuth types to include tier and auth method
 
@@ -348,6 +374,7 @@ This document correctly describes OAuth integration without conflicting with uni
    ```
 
 2. **Lines 53-57:** Update build steps
+
    ```diff
    Build Steps:
    1. Create TypeScript declaration file
@@ -361,6 +388,7 @@ This document correctly describes OAuth integration without conflicting with uni
    ```
 
 3. **Lines 92-101:** Update session.ts build steps
+
    ```diff
    Build Steps:
    1. getServerSession wrapper
@@ -380,6 +408,7 @@ This document correctly describes OAuth integration without conflicting with uni
    ```
 
 4. **Lines 105-113:** Update permissions.ts build steps
+
    ```diff
    Build Steps:
    1. hasPermission(user, feature) function
@@ -395,26 +424,31 @@ This document correctly describes OAuth integration without conflicting with uni
    ```
 
 5. **Add Section:** Unified Auth Requirements
+
    ```markdown
    ### Unified Authentication Support
 
    Part 5 now includes support for dual roles (SaaS user + Affiliate):
 
    **Schema Requirements (from Part 2):**
+
    - User.isAffiliate: Boolean @default(false)
    - User.affiliateProfile: AffiliateProfile? (1-to-1 relation)
 
    **Type Requirements:**
+
    - Session.user.isAffiliate: boolean
    - User.isAffiliate: boolean
    - JWT.isAffiliate: boolean
 
    **Helper Requirements:**
+
    - isAffiliate() - check if current user is affiliate
    - requireAffiliate() - require affiliate status or throw 403
    - getAffiliateProfile() - get affiliate profile if exists
 
    **Permission Requirements:**
+
    - affiliate_dashboard - requires isAffiliate = true
    - affiliate_codes - requires isAffiliate = true
    - commission_reports - requires isAffiliate = true
@@ -426,18 +460,18 @@ This document correctly describes OAuth integration without conflicting with uni
 
 ### Files Requiring Updates: 2
 
-| File | Status | Priority | Changes |
-|------|--------|----------|---------|
-| `part-17a-affiliate-portal.md` | ❌ Critical | P1 | Remove separate auth, update schema refs, delete File 3/32 |
-| `part-05-authentication.md` | ⚠️ Incomplete | P2 | Add unified auth fields, update helpers, add affiliate permissions |
+| File                           | Status        | Priority | Changes                                                            |
+| ------------------------------ | ------------- | -------- | ------------------------------------------------------------------ |
+| `part-17a-affiliate-portal.md` | ❌ Critical   | P1       | Remove separate auth, update schema refs, delete File 3/32         |
+| `part-05-authentication.md`    | ⚠️ Incomplete | P2       | Add unified auth fields, update helpers, add affiliate permissions |
 
 ### Files Already Correct: 3
 
-| File | Status | Notes |
-|------|--------|-------|
-| `v5_part_e.md` | ✅ Correct | Not about authentication |
+| File                                      | Status     | Notes                          |
+| ----------------------------------------- | ---------- | ------------------------------ |
+| `v5_part_e.md`                            | ✅ Correct | Not about authentication       |
 | `08-google-oauth-implementation-rules.md` | ✅ Correct | No conflicts with unified auth |
-| `OAUTH_IMPLEMENTATION_READY.md` | ✅ Correct | No conflicts with unified auth |
+| `OAUTH_IMPLEMENTATION_READY.md`           | ✅ Correct | No conflicts with unified auth |
 
 ---
 

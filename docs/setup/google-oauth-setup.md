@@ -17,10 +17,12 @@
 ## PART A: Create Google Cloud Project
 
 ### Step 1: Go to Google Cloud Console
+
 1. Visit: https://console.cloud.google.com/
 2. Sign in with your Google account
 
 ### Step 2: Create New Project
+
 1. **Click** the project dropdown at the top (next to "Google Cloud")
 2. **Click** "NEW PROJECT" button (top right of dropdown)
 3. **Fill in project details:**
@@ -38,6 +40,7 @@
 ## PART B: Enable Google+ API
 
 ### Step 3: Navigate to API Library
+
 1. **Click** the hamburger menu (☰) in top-left
 2. **Hover over** "APIs & Services"
 3. **Click** "Library"
@@ -45,6 +48,7 @@
 **Alternative path:** Dashboard → "Enable APIs and Services"
 
 ### Step 4: Search and Enable Google+ API
+
 1. **Type** "Google+ API" in the search box
 2. **Click** on "Google+ API" from results
 3. **Click** the blue "ENABLE" button
@@ -59,25 +63,30 @@
 ## PART C: Configure OAuth Consent Screen
 
 ### Step 5: Navigate to OAuth Consent Screen
+
 1. **Click** hamburger menu (☰)
 2. **Click** "APIs & Services"
 3. **Click** "OAuth consent screen" (in left sidebar)
 
 ### Step 6: Choose User Type
+
 **Question:** External or Internal?
 
 **Answer:** Choose **"External"**
 
 **Why?**
+
 - **External:** Your app will be available to any Google account user (correct for public SaaS)
 - **Internal:** Only available to Google Workspace organization users (not applicable for you)
 
 **Click** "External" radio button, then **click** "CREATE"
 
 ### Step 7: Fill App Information (Page 1 of 4)
+
 **OAuth consent screen → Edit app registration**
 
 **Required fields:**
+
 - **App name:** `Trading Alerts`
 - **User support email:** `your-email@gmail.com` (select from dropdown)
 - **App logo:** Skip for now (optional)
@@ -91,11 +100,13 @@
 **Click** "SAVE AND CONTINUE"
 
 ### Step 8: Scopes (Page 2 of 4)
+
 **Click** "ADD OR REMOVE SCOPES"
 
 **In the filter box, type:** `userinfo`
 
 **Select these 2 scopes (check the boxes):**
+
 1. ✅ `.../auth/userinfo.email` - See your primary Google Account email address
 2. ✅ `.../auth/userinfo.profile` - See your personal info, including any personal info you've made publicly available
 
@@ -106,7 +117,9 @@
 **✅ Checkpoint:** You should see 2 scopes listed
 
 ### Step 9: Test Users (Page 3 of 4)
+
 **Add your email as a test user:**
+
 1. **Click** "+ ADD USERS"
 2. **Type** your Gmail address
 3. **Click** "ADD"
@@ -115,6 +128,7 @@
 **Why?** While your app is in "Testing" mode, only test users can sign in with Google OAuth.
 
 ### Step 10: Summary (Page 4 of 4)
+
 **Review** your settings, then **click** "BACK TO DASHBOARD"
 
 **✅ Checkpoint:** OAuth consent screen configured. Status shows "Testing"
@@ -124,19 +138,23 @@
 ## PART D: Create OAuth 2.0 Client ID
 
 ### Step 11: Navigate to Credentials
+
 1. **Click** "Credentials" in left sidebar (under OAuth consent screen)
 2. **Click** "+ CREATE CREDENTIALS" at top
 3. **Select** "OAuth client ID"
 
 ### Step 12: Configure Application Type
+
 **Application type:** Select **"Web application"**
 
 **Name:** `Trading Alerts Web Client`
 
 ### Step 13: Configure Authorized JavaScript Origins (Optional but Recommended)
+
 **Click** "+ ADD URI" under "Authorized JavaScript origins"
 
 **Add these 2 URIs:**
+
 1. `http://localhost:3000`
 2. `http://127.0.0.1:3000`
 
@@ -145,6 +163,7 @@
 **Note:** You can add production domain later after deployment
 
 ### Step 14: Configure Authorized Redirect URIs (CRITICAL)
+
 **Click** "+ ADD URI" under "Authorized redirect URIs"
 
 **Add these URIs EXACTLY (no trailing slash):**
@@ -153,11 +172,13 @@
 2. `http://127.0.0.1:3000/api/auth/callback/google`
 
 **Important:**
+
 - ✅ Correct: `http://localhost:3000/api/auth/callback/google`
 - ❌ Wrong: `http://localhost:3000/api/auth/callback/google/` (trailing slash)
 - ❌ Wrong: `http://localhost:3000/api/auth/callback` (missing /google)
 
 **Note:** You'll add production URL later after deployment:
+
 - `https://yourdomain.vercel.app/api/auth/callback/google`
 
 **Click** "CREATE"
@@ -173,20 +194,25 @@ After clicking CREATE, you'll see a popup:
 **"OAuth client created"**
 
 📋 **Your Client ID**
+
 ```
 123456789-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com
 ```
+
 **Copy this** ← Click the copy icon
 
 📋 **Your Client Secret**
+
 ```
 GOCSPX-AbCdEfGhIjKlMnOpQrStUvWx
 ```
+
 **Copy this** ← Click the copy icon
 
 **Click** "OK"
 
 **IMPORTANT:**
+
 - These credentials are **permanent** (they don't change unless you delete them)
 - You can always view them again by clicking on your OAuth client name
 - Keep them **secret** (never commit to Git)
@@ -301,11 +327,13 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/trading_alerts
 5. **Click** "SAVE"
 
 **Also add to Authorized JavaScript origins:**
-   ```
-   https://yourdomain.vercel.app
-   ```
+
+```
+https://yourdomain.vercel.app
+```
 
 **Update Vercel Environment Variables:**
+
 1. Go to Vercel Dashboard → Your Project → Settings → Environment Variables
 2. Add:
    - `GOOGLE_CLIENT_ID` = (same as dev)
@@ -320,10 +348,12 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/trading_alerts
 ### Step 21: Submit for Verification (When Ready for Public)
 
 **While in "Testing" status:**
+
 - Only test users (emails you added) can sign in
 - Good for development and internal testing
 
 **To make public (production):**
+
 1. **Go to** OAuth consent screen
 2. **Click** "PUBLISH APP"
 3. **Click** "CONFIRM"
@@ -356,6 +386,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/trading_alerts
 ### Step 22: Test Locally (After Aider Implements OAuth)
 
 1. **Start dev server:**
+
    ```bash
    pnpm dev
    ```
@@ -378,6 +409,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/trading_alerts
    - User created in database with FREE tier
 
 **If you see an error:**
+
 - Check redirect URI is exact: `/api/auth/callback/google`
 - Verify .env.local has correct credentials
 - Check your email is added as test user
@@ -392,6 +424,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/trading_alerts
 **Cause:** Redirect URI in Google Console doesn't match NextAuth callback URL
 
 **Fix:**
+
 1. Go to Google Console → Credentials → Your OAuth Client
 2. Check "Authorized redirect URIs" section
 3. Ensure EXACT match: `http://localhost:3000/api/auth/callback/google`
@@ -402,6 +435,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/trading_alerts
 **Cause:** GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is incorrect
 
 **Fix:**
+
 1. Go to Google Console → Credentials
 2. Click on your OAuth client
 3. Copy Client ID and Secret again
@@ -413,6 +447,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/trading_alerts
 **Cause:** OAuth consent screen not configured properly
 
 **Fix:**
+
 1. Ensure OAuth consent screen is published (or in Testing mode)
 2. Verify your email is added as test user
 3. Check scopes are added correctly
@@ -422,6 +457,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/trading_alerts
 **Cause:** Database not running or schema not migrated
 
 **Fix:**
+
 1. Ensure PostgreSQL is running
 2. Run migration: `npx prisma migrate dev`
 3. Check DATABASE_URL in .env.local
@@ -445,6 +481,7 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/trading_alerts
 Add both development and production redirect URIs to the **single** OAuth client. This is simpler and recommended for small teams.
 
 **Example:**
+
 ```
 Authorized redirect URIs:
   http://localhost:3000/api/auth/callback/google  ← Dev
@@ -470,11 +507,13 @@ Authorized JavaScript origins:
 **Answer:** ✅ **Correct - NO trailing slash**
 
 **✅ Correct format:**
+
 ```
 http://localhost:3000/api/auth/callback/google
 ```
 
 **❌ Incorrect (will fail):**
+
 ```
 http://localhost:3000/api/auth/callback/google/  ← Trailing slash
 http://localhost:3000/api/auth/callback          ← Missing /google

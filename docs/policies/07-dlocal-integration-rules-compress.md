@@ -8,15 +8,15 @@
 
 ### 1.1 Critical Differences
 
-| Feature | Stripe | dLocal |
-|---------|--------|--------|
-| Auto-Renewal | ✅ Automatic monthly | ❌ Manual payment required |
-| Free Trial | ✅ 7-day trial | ❌ No trial |
-| Subscription Plans | Monthly only | 3-day + Monthly |
-| Discount Codes | ✅ All plans | ❌ Monthly only (NOT 3-day) |
-| Payment Flow | Card authorization → Subscription | One-time payment → Manual activation |
-| Renewal Notifications | Stripe manages | **We send** 3 days before expiry |
-| Expiry Handling | Stripe auto-downgrade | **We downgrade** to FREE |
+| Feature               | Stripe                            | dLocal                               |
+| --------------------- | --------------------------------- | ------------------------------------ |
+| Auto-Renewal          | ✅ Automatic monthly              | ❌ Manual payment required           |
+| Free Trial            | ✅ 7-day trial                    | ❌ No trial                          |
+| Subscription Plans    | Monthly only                      | 3-day + Monthly                      |
+| Discount Codes        | ✅ All plans                      | ❌ Monthly only (NOT 3-day)          |
+| Payment Flow          | Card authorization → Subscription | One-time payment → Manual activation |
+| Renewal Notifications | Stripe manages                    | **We send** 3 days before expiry     |
+| Expiry Handling       | Stripe auto-downgrade             | **We downgrade** to FREE             |
 
 **Rule:** Never apply Stripe's auto-renewal logic to dLocal.
 
@@ -30,22 +30,23 @@ const DLOCAL_PLANS = {
     duration: 3,
     price_usd: 1.99,
     code: 'DLOCAL_3DAY',
-    discountAllowed: false,  // ❌ NO discount codes
+    discountAllowed: false, // ❌ NO discount codes
     trialPeriod: false,
-    autoRenewal: false
+    autoRenewal: false,
   },
   MONTHLY: {
     duration: 30,
-    price_usd: 29.00,
+    price_usd: 29.0,
     code: 'DLOCAL_MONTHLY',
-    discountAllowed: true,   // ✅ Discount codes allowed
+    discountAllowed: true, // ✅ Discount codes allowed
     trialPeriod: false,
-    autoRenewal: false
-  }
+    autoRenewal: false,
+  },
 } as const;
 ```
 
 **Rules:**
+
 - 3-day plan exclusive to dLocal (NOT available with Stripe)
 - Monthly dLocal = same price as Stripe ($29)
 - All dLocal plans require manual renewal
@@ -56,7 +57,10 @@ const DLOCAL_PLANS = {
 ### 1.3 Discount Code Validation
 
 ```typescript
-function canApplyDiscountCode(plan: string, provider: 'stripe' | 'dlocal'): boolean {
+function canApplyDiscountCode(
+  plan: string,
+  provider: 'stripe' | 'dlocal'
+): boolean {
   if (provider === 'stripe') return true;
   if (provider === 'dlocal') {
     return plan === 'DLOCAL_MONTHLY'; // Only monthly, NOT 3-day
@@ -75,12 +79,16 @@ function canApplyDiscountCode(plan: string, provider: 'stripe' | 'dlocal'): bool
 
 ```typescript
 async function processEarlyRenewal(userId: string): Promise<Date> {
-  const currentSub = await prisma.subscription.findUnique({ where: { userId } });
+  const currentSub = await prisma.subscription.findUnique({
+    where: { userId },
+  });
   let newExpiryDate: Date;
 
   if (currentSub?.expiresAt && currentSub.expiresAt > new Date()) {
     // Extend from current expiry
-    newExpiryDate = new Date(currentSub.expiresAt.getTime() + 30 * 24 * 60 * 60 * 1000);
+    newExpiryDate = new Date(
+      currentSub.expiresAt.getTime() + 30 * 24 * 60 * 60 * 1000
+    );
   } else {
     // Start from now
     newExpiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -92,8 +100,8 @@ async function processEarlyRenewal(userId: string): Promise<Date> {
       expiresAt: newExpiryDate,
       tier: 'PRO',
       status: 'ACTIVE',
-      renewalReminderSent: false
-    }
+      renewalReminderSent: false,
+    },
   });
 
   return newExpiryDate;
@@ -109,22 +117,26 @@ async function canPurchaseThreeDayPlan(userId: string): Promise<{
 }> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    include: { subscription: true }
+    include: { subscription: true },
   });
 
   // Check 1: Already used 3-day plan (lifetime restriction)
   if (user.hasUsedThreeDayPlan) {
     return {
       allowed: false,
-      reason: '3-day plan is a one-time offer. Please select monthly plan.'
+      reason: '3-day plan is a one-time offer. Please select monthly plan.',
     };
   }
 
   // Check 2: Has active subscription (any type)
-  if (user.subscription?.expiresAt && user.subscription.expiresAt > new Date()) {
+  if (
+    user.subscription?.expiresAt &&
+    user.subscription.expiresAt > new Date()
+  ) {
     return {
       allowed: false,
-      reason: 'Cannot purchase 3-day plan with active subscription. Use monthly to extend.'
+      reason:
+        'Cannot purchase 3-day plan with active subscription. Use monthly to extend.',
     };
   }
 
@@ -139,6 +151,7 @@ async function canPurchaseThreeDayPlan(userId: string): Promise<{
 **Stripe:** Cancellation allowed (stops auto-renewal)
 
 **dLocal:** NO cancellation feature needed
+
 - No auto-renewal to cancel
 - User paid for fixed period (3 or 30 days)
 - Subscription naturally expires
@@ -151,6 +164,7 @@ async function canPurchaseThreeDayPlan(userId: string): Promise<{
 **Rule:** You receive USD only, regardless of user's payment currency.
 
 **dLocal FX@Transfer Model:**
+
 - Users pay in local currency (INR, PKR, NGN, VND, IDR, THB, ZAR, TRY)
 - dLocal converts to USD at their exchange rate
 - You receive fixed USD amount
@@ -187,15 +201,24 @@ async function canPurchaseThreeDayPlan(userId: string): Promise<{
 }> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    include: { subscription: true }
+    include: { subscription: true },
   });
 
   if (user.hasUsedThreeDayPlan) {
-    return { allowed: false, reason: '3-day plan is one-time introductory offer' };
+    return {
+      allowed: false,
+      reason: '3-day plan is one-time introductory offer',
+    };
   }
 
-  if (user.subscription?.expiresAt && user.subscription.expiresAt > new Date()) {
-    return { allowed: false, reason: 'Cannot purchase with active subscription' };
+  if (
+    user.subscription?.expiresAt &&
+    user.subscription.expiresAt > new Date()
+  ) {
+    return {
+      allowed: false,
+      reason: 'Cannot purchase with active subscription',
+    };
   }
 
   return { allowed: true };
@@ -221,6 +244,7 @@ async function detectMultiAccountAbuse(email: string, methodId: string): Promise
 #### Rule 3: Monitoring (TERTIARY)
 
 Monitor suspicious patterns:
+
 - Multiple accounts from same IP (threshold: 2 within 30 days)
 - Multiple accounts from same device fingerprint
 - Fresh account (<1 hour) purchasing 3-day plan
@@ -292,6 +316,7 @@ export default function CheckoutPage() {
 ```
 
 **Rules:**
+
 - ONE checkout page for both providers
 - Country detection determines available methods
 - Never show 3-day plan when Stripe selected
@@ -392,15 +417,15 @@ enum PaymentStatus { PENDING COMPLETED FAILED REFUNDED CANCELLED }
 
 ### 3.1 dLocal Payment Flow
 
-| Step | Component | Actions |
-|------|-----------|---------|
-| **1. Checkout** | `/checkout` | User selects: country → plan (3-day/monthly) → payment method → discount (if monthly) → clicks "Pay" |
-| **2. API Call** | `POST /api/payments/dlocal/create` | Body: `{ planType, paymentMethodId, country, currency, amount, amountUSD, discountCode? }` |
-| **3. Validation** | `app/api/payments/dlocal/create/route.ts` | Verify: auth, discount code (if monthly), country supported, no active subscription, call dLocal service |
-| **4. Create Payment** | `lib/payments/dlocal-service.ts` | Call dLocal API: `POST /payments` → Create Payment record (status: PENDING) → Return: `{ paymentId, redirectUrl }` |
-| **5. User Payment** | dLocal page | User redirected to `payment.redirectUrl` → Completes payment (UPI, Paytm, etc.) |
-| **6. Webhook** | `POST /api/webhooks/dlocal` | dLocal fires webhook: `{ id, status: 'PAID', amount, currency }` → Verify signature → Update Payment (COMPLETED) → Create/Update Subscription → Upgrade user: FREE → PRO → Set expiresAt → Send email |
-| **7. Redirect** | `/payment/success` | User redirected back → Show success message → PRO access active |
+| Step                  | Component                                 | Actions                                                                                                                                                                                               |
+| --------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1. Checkout**       | `/checkout`                               | User selects: country → plan (3-day/monthly) → payment method → discount (if monthly) → clicks "Pay"                                                                                                  |
+| **2. API Call**       | `POST /api/payments/dlocal/create`        | Body: `{ planType, paymentMethodId, country, currency, amount, amountUSD, discountCode? }`                                                                                                            |
+| **3. Validation**     | `app/api/payments/dlocal/create/route.ts` | Verify: auth, discount code (if monthly), country supported, no active subscription, call dLocal service                                                                                              |
+| **4. Create Payment** | `lib/payments/dlocal-service.ts`          | Call dLocal API: `POST /payments` → Create Payment record (status: PENDING) → Return: `{ paymentId, redirectUrl }`                                                                                    |
+| **5. User Payment**   | dLocal page                               | User redirected to `payment.redirectUrl` → Completes payment (UPI, Paytm, etc.)                                                                                                                       |
+| **6. Webhook**        | `POST /api/webhooks/dlocal`               | dLocal fires webhook: `{ id, status: 'PAID', amount, currency }` → Verify signature → Update Payment (COMPLETED) → Create/Update Subscription → Upgrade user: FREE → PRO → Set expiresAt → Send email |
+| **7. Redirect**       | `/payment/success`                        | User redirected back → Show success message → PRO access active                                                                                                                                       |
 
 ---
 
@@ -417,20 +442,20 @@ export async function checkExpiringSubscriptions() {
       paymentProvider: 'DLOCAL',
       status: 'ACTIVE',
       expiresAt: { gte: new Date(), lte: addDays(new Date(), 3) },
-      renewalReminderSent: false
+      renewalReminderSent: false,
     },
-    include: { user: true }
+    include: { user: true },
   });
 
   for (const sub of expiringIn3Days) {
     await sendRenewalReminderEmail({
       to: sub.user.email,
       expiryDate: sub.expiresAt,
-      renewalLink: `${process.env.APP_URL}/checkout?renew=${sub.id}`
+      renewalLink: `${process.env.APP_URL}/checkout?renew=${sub.id}`,
     });
     await prisma.subscription.update({
       where: { id: sub.id },
-      data: { renewalReminderSent: true }
+      data: { renewalReminderSent: true },
     });
   }
 }
@@ -444,21 +469,21 @@ export async function downgradeExpiredSubscriptions() {
     where: {
       paymentProvider: 'DLOCAL',
       status: 'ACTIVE',
-      expiresAt: { lte: new Date() }
+      expiresAt: { lte: new Date() },
     },
-    include: { user: true }
+    include: { user: true },
   });
 
   for (const sub of expired) {
     await prisma.$transaction([
       prisma.subscription.update({
         where: { id: sub.id },
-        data: { status: 'EXPIRED', tier: 'FREE' }
+        data: { status: 'EXPIRED', tier: 'FREE' },
       }),
       prisma.user.update({
         where: { id: sub.userId },
-        data: { tier: 'FREE' }
-      })
+        data: { tier: 'FREE' },
+      }),
     ]);
     await sendSubscriptionExpiredEmail({ to: sub.user.email });
   }
@@ -470,8 +495,14 @@ export async function downgradeExpiredSubscriptions() {
 ```json
 {
   "crons": [
-    { "path": "/api/cron/check-expiring-subscriptions", "schedule": "0 0 * * *" },
-    { "path": "/api/cron/downgrade-expired-subscriptions", "schedule": "0 * * * *" }
+    {
+      "path": "/api/cron/check-expiring-subscriptions",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/downgrade-expired-subscriptions",
+      "schedule": "0 * * * *"
+    }
   ]
 }
 ```
@@ -482,23 +513,38 @@ export async function downgradeExpiredSubscriptions() {
 
 ### 4.1 Email Templates
 
-| Trigger | Subject | Key Content |
-|---------|---------|-------------|
-| **Payment Confirmed** | ✅ Payment Successful - PRO Activated | Payment: {amount} {currency}. PRO active until {expiryDate}. |
-| **Renewal Reminder (3 days)** | ⏰ PRO expires in 3 days | Expires: {expiryDate}. Renew now. Use code RENEW20 for 20% off. |
-| **Renewal Reminder (1 day)** | 🚨 URGENT: PRO expires tomorrow | Last chance! Expires tomorrow at {expiryTime}. Don't lose PRO features. |
-| **Subscription Expired** | 📉 PRO expired - Downgraded to FREE | PRO expired. Downgraded to FREE tier. Reactivate PRO → /checkout |
-| **Payment Failed** | ❌ Payment Failed | Payment of {amount} {currency} failed. Reason: {failureReason}. Try again. |
+| Trigger                       | Subject                               | Key Content                                                                |
+| ----------------------------- | ------------------------------------- | -------------------------------------------------------------------------- |
+| **Payment Confirmed**         | ✅ Payment Successful - PRO Activated | Payment: {amount} {currency}. PRO active until {expiryDate}.               |
+| **Renewal Reminder (3 days)** | ⏰ PRO expires in 3 days              | Expires: {expiryDate}. Renew now. Use code RENEW20 for 20% off.            |
+| **Renewal Reminder (1 day)**  | 🚨 URGENT: PRO expires tomorrow       | Last chance! Expires tomorrow at {expiryTime}. Don't lose PRO features.    |
+| **Subscription Expired**      | 📉 PRO expired - Downgraded to FREE   | PRO expired. Downgraded to FREE tier. Reactivate PRO → /checkout           |
+| **Payment Failed**            | ❌ Payment Failed                     | Payment of {amount} {currency} failed. Reason: {failureReason}. Try again. |
 
 **Implementation:**
 
 ```typescript
 const DLOCAL_EMAIL_TEMPLATES = {
-  PAYMENT_CONFIRMED: { trigger: 'Webhook: status = PAID', subject: '✅ Payment Successful - PRO Activated' },
-  RENEWAL_REMINDER_3DAYS: { trigger: 'Cron: 3 days before', subject: '⏰ PRO expires in 3 days' },
-  RENEWAL_REMINDER_1DAY: { trigger: 'Cron: 1 day before', subject: '🚨 URGENT: PRO expires tomorrow' },
-  SUBSCRIPTION_EXPIRED: { trigger: 'Cron: expiresAt reached', subject: '📉 PRO expired - Downgraded to FREE' },
-  PAYMENT_FAILED: { trigger: 'Webhook: status = FAILED', subject: '❌ Payment Failed' }
+  PAYMENT_CONFIRMED: {
+    trigger: 'Webhook: status = PAID',
+    subject: '✅ Payment Successful - PRO Activated',
+  },
+  RENEWAL_REMINDER_3DAYS: {
+    trigger: 'Cron: 3 days before',
+    subject: '⏰ PRO expires in 3 days',
+  },
+  RENEWAL_REMINDER_1DAY: {
+    trigger: 'Cron: 1 day before',
+    subject: '🚨 URGENT: PRO expires tomorrow',
+  },
+  SUBSCRIPTION_EXPIRED: {
+    trigger: 'Cron: expiresAt reached',
+    subject: '📉 PRO expired - Downgraded to FREE',
+  },
+  PAYMENT_FAILED: {
+    trigger: 'Webhook: status = FAILED',
+    subject: '❌ Payment Failed',
+  },
 } as const;
 ```
 
@@ -517,7 +563,7 @@ const DLOCAL_SUPPORTED_COUNTRIES = {
   ID: { name: 'Indonesia', currency: 'IDR', locale: 'id-ID' },
   TH: { name: 'Thailand', currency: 'THB', locale: 'th-TH' },
   ZA: { name: 'South Africa', currency: 'ZAR', locale: 'en-ZA' },
-  TR: { name: 'Turkey', currency: 'TRY', locale: 'tr-TR' }
+  TR: { name: 'Turkey', currency: 'TRY', locale: 'tr-TR' },
 } as const;
 
 function isDLocalCountry(countryCode: string): boolean {
@@ -534,7 +580,7 @@ export async function detectUserCountry(): Promise<string | null> {
   if (saved && isDLocalCountry(saved)) return saved;
 
   // 2. IP geolocation
-  const data = await fetch('https://ipapi.co/json/').then(r => r.json());
+  const data = await fetch('https://ipapi.co/json/').then((r) => r.json());
   if (isDLocalCountry(data.country_code)) {
     localStorage.setItem('user_country', data.country_code);
     return data.country_code;
@@ -571,7 +617,12 @@ export async function convertUSDToLocal(
 ): Promise<PriceConversion> {
   const rate = await getExchangeRate('USD', targetCurrency);
   const amountLocal = Math.round(amountUSD * rate);
-  return { amountUSD, amountLocal, currency: targetCurrency, exchangeRate: rate };
+  return {
+    amountUSD,
+    amountLocal,
+    currency: targetCurrency,
+    exchangeRate: rate,
+  };
 }
 ```
 
@@ -579,17 +630,19 @@ export async function convertUSDToLocal(
 
 ```tsx
 // STRIPE: USD only
-{provider === 'stripe' && (
-  <div className="price-usd">$29.00/month</div>
-)}
+{
+  provider === 'stripe' && <div className="price-usd">$29.00/month</div>;
+}
 
 // DLOCAL: Local + USD reference
-{provider === 'dlocal' && (
-  <div>
-    <div className="local-price">₹2,407/month</div>
-    <div className="usd-equivalent">Approximately $29 USD</div>
-  </div>
-)}
+{
+  provider === 'dlocal' && (
+    <div>
+      <div className="local-price">₹2,407/month</div>
+      <div className="usd-equivalent">Approximately $29 USD</div>
+    </div>
+  );
+}
 ```
 
 ---
@@ -618,7 +671,7 @@ export async function getPaymentMethodsForCountry(country: string) {
     id: 'card',
     name: 'Credit/Debit Card',
     provider: 'stripe',
-    recommended: !isDLocalCountry(country)
+    recommended: !isDLocalCountry(country),
   });
 
   return methods;
@@ -679,8 +732,8 @@ export async function createDLocalPayment(data: PaymentData) {
       userId: data.userId,
       metadata: { path: ['idempotencyKey'], equals: idempotencyKey },
       status: { in: ['PENDING', 'COMPLETED'] },
-      createdAt: { gte: new Date(Date.now() - 5 * 60 * 1000) } // Last 5 min
-    }
+      createdAt: { gte: new Date(Date.now() - 5 * 60 * 1000) }, // Last 5 min
+    },
   });
 
   if (existing) {
@@ -689,7 +742,7 @@ export async function createDLocalPayment(data: PaymentData) {
   }
 
   return await prisma.payment.create({
-    data: { ...data, metadata: { idempotencyKey } }
+    data: { ...data, metadata: { idempotencyKey } },
   });
 }
 ```
@@ -708,12 +761,12 @@ export const MOCK_DLOCAL_PAYMENT_METHODS = {
     { id: 'UP', name: 'UPI', type: 'BANK_TRANSFER', recommended: true },
     { id: 'PT', name: 'Paytm', type: 'WALLET', popular: true },
     { id: 'PP', name: 'PhonePe', type: 'WALLET' },
-    { id: 'NB', name: 'Net Banking', type: 'BANK_TRANSFER' }
+    { id: 'NB', name: 'Net Banking', type: 'BANK_TRANSFER' },
   ],
   PK: [
     { id: 'JC', name: 'JazzCash', type: 'WALLET', recommended: true },
-    { id: 'EP', name: 'Easypaisa', type: 'WALLET', popular: true }
-  ]
+    { id: 'EP', name: 'Easypaisa', type: 'WALLET', popular: true },
+  ],
 } as const;
 
 export function getDLocalMethods(country: string) {
@@ -798,16 +851,20 @@ export async function validateDiscountCode(
 ): Promise<DiscountValidationResult> {
   // 1. Check if discount allowed for plan
   if (provider === 'DLOCAL' && planType === 'THREE_DAY') {
-    return { valid: false, reason: 'Discount codes not available for 3-day plans' };
+    return {
+      valid: false,
+      reason: 'Discount codes not available for 3-day plans',
+    };
   }
 
   // 2. Look up code
   const discount = await prisma.discountCode.findUnique({
-    where: { code: code.toUpperCase() }
+    where: { code: code.toUpperCase() },
   });
 
   if (!discount) return { valid: false, reason: 'Invalid discount code' };
-  if (!discount.isActive) return { valid: false, reason: 'Code no longer active' };
+  if (!discount.isActive)
+    return { valid: false, reason: 'Code no longer active' };
   if (discount.expiresAt && discount.expiresAt < new Date()) {
     return { valid: false, reason: 'Code expired' };
   }
@@ -827,7 +884,9 @@ export function DiscountCodeInput({ planType, paymentProvider }: Props) {
   if (paymentProvider === 'DLOCAL' && planType === 'THREE_DAY') return null;
 
   const [code, setCode] = useState('');
-  const [validation, setValidation] = useState<DiscountValidationResult | null>(null);
+  const [validation, setValidation] = useState<DiscountValidationResult | null>(
+    null
+  );
 
   const handleApply = async () => {
     const result = await validateDiscountCode(code, planType, paymentProvider);
@@ -836,10 +895,18 @@ export function DiscountCodeInput({ planType, paymentProvider }: Props) {
 
   return (
     <div>
-      <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Enter discount code" />
+      <input
+        value={code}
+        onChange={(e) => setCode(e.target.value)}
+        placeholder="Enter discount code"
+      />
       <button onClick={handleApply}>Apply</button>
-      {validation && !validation.valid && <p className="error">{validation.reason}</p>}
-      {validation && validation.valid && <p className="success">{validation.discountPercentage}% off!</p>}
+      {validation && !validation.valid && (
+        <p className="error">{validation.reason}</p>
+      )}
+      {validation && validation.valid && (
+        <p className="success">{validation.discountPercentage}% off!</p>
+      )}
     </div>
   );
 }
@@ -851,19 +918,20 @@ export function DiscountCodeInput({ planType, paymentProvider }: Props) {
 
 **Rule:** Escalate these dLocal-specific scenarios to human.
 
-| Trigger | Escalate | Reason | Action |
-|---------|----------|--------|--------|
-| **Payment Method Unavailable** | Yes | dLocal returns no methods for supported country | May indicate API issue. Disable dLocal for country temporarily? |
-| **Exchange Rate Spike** | Yes | Rate changed >10% from last fetch | Large price changes confuse users. Accept new rate or cache? |
-| **Webhook Signature Failures** | Yes | 5+ failures in 1 hour | Security issue or API change. Investigate webhook secret? |
-| **Payment Without Subscription** | Yes | Payment PAID but subscription not created | User paid but no PRO access. Manual activation or refund? |
-| **Duplicate Active Subscriptions** | Yes | User has >1 active subscription | Data integrity issue. Which to keep active? |
+| Trigger                            | Escalate | Reason                                          | Action                                                          |
+| ---------------------------------- | -------- | ----------------------------------------------- | --------------------------------------------------------------- |
+| **Payment Method Unavailable**     | Yes      | dLocal returns no methods for supported country | May indicate API issue. Disable dLocal for country temporarily? |
+| **Exchange Rate Spike**            | Yes      | Rate changed >10% from last fetch               | Large price changes confuse users. Accept new rate or cache?    |
+| **Webhook Signature Failures**     | Yes      | 5+ failures in 1 hour                           | Security issue or API change. Investigate webhook secret?       |
+| **Payment Without Subscription**   | Yes      | Payment PAID but subscription not created       | User paid but no PRO access. Manual activation or refund?       |
+| **Duplicate Active Subscriptions** | Yes      | User has >1 active subscription                 | Data integrity issue. Which to keep active?                     |
 
 ---
 
 ## 11. SUMMARY: DO's and DON'Ts
 
 ### ✅ DO:
+
 - Use existing `subscriptions` table with provider columns
 - Send renewal reminders 3 days before expiry (dLocal only)
 - Manually downgrade dLocal to FREE on expiry
@@ -882,6 +950,7 @@ export function DiscountCodeInput({ planType, paymentProvider }: Props) {
 - Validate country before processing
 
 ### ❌ DON'T:
+
 - Create separate tables for dLocal subscriptions
 - Apply Stripe auto-renewal logic to dLocal
 - Offer free trial for dLocal

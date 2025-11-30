@@ -5,6 +5,7 @@
 This guide provides a **complete admin dashboard** for monitoring and managing 15 MT5 terminals, integrated with your existing admin area.
 
 **Admin Capabilities:**
+
 - ✅ View real-time health status of all 15 terminals
 - ✅ Restart/reconnect individual terminals
 - ✅ View terminal logs and error history
@@ -557,46 +558,45 @@ class MT5Connection:
 ### File: `app/api/admin/mt5-terminals/health/route.ts`
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function GET(req: NextRequest) {
   try {
     // 1. Check admin authentication
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }
-      )
+      );
     }
 
     // 2. Call Flask admin endpoint
-    const flaskUrl = process.env.FLASK_MT5_URL || 'http://localhost:5001'
-    const adminApiKey = process.env.FLASK_ADMIN_API_KEY
+    const flaskUrl = process.env.FLASK_MT5_URL || 'http://localhost:5001';
+    const adminApiKey = process.env.FLASK_ADMIN_API_KEY;
 
     const response = await fetch(`${flaskUrl}/api/admin/terminals/health`, {
       headers: {
-        'X-Admin-API-Key': adminApiKey!
-      }
-    })
+        'X-Admin-API-Key': adminApiKey!,
+      },
+    });
 
     if (!response.ok) {
-      throw new Error(`Flask API returned ${response.status}`)
+      throw new Error(`Flask API returned ${response.status}`);
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
-    return NextResponse.json(data)
-
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('Error fetching MT5 terminal health:', error)
+    console.error('Error fetching MT5 terminal health:', error);
     return NextResponse.json(
       { error: 'Failed to fetch terminal health' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
@@ -604,9 +604,9 @@ export async function GET(req: NextRequest) {
 ### File: `app/api/admin/mt5-terminals/[id]/restart/route.ts`
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(
   req: NextRequest,
@@ -614,56 +614,55 @@ export async function POST(
 ) {
   try {
     // 1. Check admin authentication
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }
-      )
+      );
     }
 
     // 2. Validate terminal ID format
-    const terminalId = params.id
+    const terminalId = params.id;
     if (!terminalId.startsWith('MT5_')) {
       return NextResponse.json(
         { error: 'Invalid terminal ID format' },
         { status: 400 }
-      )
+      );
     }
 
     // 3. Call Flask admin endpoint
-    const flaskUrl = process.env.FLASK_MT5_URL || 'http://localhost:5001'
-    const adminApiKey = process.env.FLASK_ADMIN_API_KEY
+    const flaskUrl = process.env.FLASK_MT5_URL || 'http://localhost:5001';
+    const adminApiKey = process.env.FLASK_ADMIN_API_KEY;
 
     const response = await fetch(
       `${flaskUrl}/api/admin/terminals/${terminalId}/restart`,
       {
         method: 'POST',
         headers: {
-          'X-Admin-API-Key': adminApiKey!
-        }
+          'X-Admin-API-Key': adminApiKey!,
+        },
       }
-    )
+    );
 
     if (!response.ok) {
-      const errorData = await response.json()
-      return NextResponse.json(errorData, { status: response.status })
+      const errorData = await response.json();
+      return NextResponse.json(errorData, { status: response.status });
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
     // 4. Log admin action
-    console.log(`Admin ${session.user.email} restarted terminal ${terminalId}`)
+    console.log(`Admin ${session.user.email} restarted terminal ${terminalId}`);
 
-    return NextResponse.json(data)
-
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('Error restarting MT5 terminal:', error)
+    console.error('Error restarting MT5 terminal:', error);
     return NextResponse.json(
       { error: 'Failed to restart terminal' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
@@ -671,55 +670,54 @@ export async function POST(
 ### File: `app/api/admin/mt5-terminals/restart-all/route.ts`
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export async function POST(req: NextRequest) {
   try {
     // 1. Check admin authentication
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Admin access required' },
         { status: 403 }
-      )
+      );
     }
 
     // 2. Call Flask admin endpoint
-    const flaskUrl = process.env.FLASK_MT5_URL || 'http://localhost:5001'
-    const adminApiKey = process.env.FLASK_ADMIN_API_KEY
+    const flaskUrl = process.env.FLASK_MT5_URL || 'http://localhost:5001';
+    const adminApiKey = process.env.FLASK_ADMIN_API_KEY;
 
     const response = await fetch(
       `${flaskUrl}/api/admin/terminals/restart-all`,
       {
         method: 'POST',
         headers: {
-          'X-Admin-API-Key': adminApiKey!
-        }
+          'X-Admin-API-Key': adminApiKey!,
+        },
       }
-    )
+    );
 
     if (!response.ok) {
-      throw new Error(`Flask API returned ${response.status}`)
+      throw new Error(`Flask API returned ${response.status}`);
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
     // 3. Log critical admin action
     console.warn(
       `⚠️  CRITICAL: Admin ${session.user.email} restarted ALL MT5 terminals`
-    )
+    );
 
-    return NextResponse.json(data)
-
+    return NextResponse.json(data);
   } catch (error) {
-    console.error('Error restarting all MT5 terminals:', error)
+    console.error('Error restarting all MT5 terminals:', error);
     return NextResponse.json(
       { error: 'Failed to restart terminals' },
       { status: 500 }
-    )
+    );
   }
 }
 ```
@@ -1102,6 +1100,7 @@ FLASK_ADMIN_API_KEY=your_admin_api_key_here
 **What's Been Implemented:**
 
 ✅ **Flask Admin Endpoints:**
+
 - `/api/admin/terminals/health` - Get health of all terminals
 - `/api/admin/terminals/{id}/restart` - Restart specific terminal
 - `/api/admin/terminals/restart-all` - Restart all terminals
@@ -1109,11 +1108,13 @@ FLASK_ADMIN_API_KEY=your_admin_api_key_here
 - `/api/admin/terminals/stats` - Aggregate statistics
 
 ✅ **Next.js Admin API Routes:**
+
 - `/api/admin/mt5-terminals/health` - Proxy to Flask
 - `/api/admin/mt5-terminals/[id]/restart` - Restart terminal
 - `/api/admin/mt5-terminals/restart-all` - Restart all
 
 ✅ **Admin Dashboard:**
+
 - Real-time health monitoring (auto-refresh every 30s)
 - Per-terminal status cards with uptime metrics
 - One-click restart for individual terminals
@@ -1123,12 +1124,14 @@ FLASK_ADMIN_API_KEY=your_admin_api_key_here
 - Reconnect count tracking
 
 **Security:**
+
 - ✅ Separate admin API key (not same as regular API key)
 - ✅ Admin role check in Next.js
 - ✅ Audit logging of admin actions
 - ✅ Confirmation dialog for critical operations
 
 **Integration:**
+
 - ✅ Follows seed code patterns (loguru logging, Flask structure)
 - ✅ Integrates with existing admin dashboard
 - ✅ Uses shadcn/ui components (consistent with your UI)

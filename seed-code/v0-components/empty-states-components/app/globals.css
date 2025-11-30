@@ -77,7 +77,7 @@
 @theme inline {
   --font-sans: 'Geist', 'Geist Fallback';
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
-  
+
   /* Using hex colors instead of incomplete oklch values */
   --color-background: #ffffff;
   --color-foreground: #0a0a0a;
@@ -98,7 +98,7 @@
   --color-border: #e4e4e7;
   --color-input: #e4e4e7;
   --color-ring: #18181b;
-  
+
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.625rem;

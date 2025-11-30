@@ -4,45 +4,46 @@ PROMPT 3: Registration Form Component
 Create a registration form component for Next.js 15 using TypeScript, Tailwind CSS, shadcn/ui, React Hook Form, and Zod validation.
 
 REQUIREMENTS:
+
 1. FORM LAYOUT (Centered card, max-w-md):
    - Card: bg-white, shadow-xl, rounded-xl, p-8
    - Heading: "Create Your Account" (text-3xl, font-bold, text-center, mb-6)
    - Subheading: "Start trading smarter today" (text-gray-600, text-center, mb-8)
 
 2. FORM FIELDS (All with real-time validation):
-   
+
    **Full Name Input:**
    - Label: "Full Name" (font-medium, text-gray-700)
    - Input: placeholder="John Trader"
    - Validation:
-     * Required (show red error: "Name is required")
-     * Min 2 characters (show: "Name must be at least 2 characters")
+     - Required (show red error: "Name is required")
+     - Min 2 characters (show: "Name must be at least 2 characters")
    - Success: Green checkmark icon appears on right
-   
+
    **Email Input:**
    - Label: "Email Address" (font-medium, text-gray-700)
    - Input: type="email", placeholder="john@example.com"
    - Validation:
-     * Required (show: "Email is required")
-     * Valid email format (show: "Invalid email format")
+     - Required (show: "Email is required")
+     - Valid email format (show: "Invalid email format")
    - Success: Green checkmark icon
-   
+
    **Password Input:**
    - Label: "Password" (font-medium, text-gray-700)
    - Input: type="password" with toggle show/hide icon (eye icon)
    - Validation requirements shown below input:
-     * ✅/❌ At least 8 characters
-     * ✅/❌ One uppercase letter
-     * ✅/❌ One lowercase letter
-     * ✅/❌ One number
+     - ✅/❌ At least 8 characters
+     - ✅/❌ One uppercase letter
+     - ✅/❌ One lowercase letter
+     - ✅/❌ One number
    - Live validation: Check marks turn green as requirements met
-   
+
    **Confirm Password Input:**
    - Label: "Confirm Password" (font-medium, text-gray-700)
    - Input: type="password"
    - Validation:
-     * Required (show: "Please confirm your password")
-     * Must match password (show: "Passwords do not match")
+     - Required (show: "Please confirm your password")
+     - Must match password (show: "Passwords do not match")
    - Success: Green checkmark icon
 
 3. TERMS CHECKBOX:
@@ -63,11 +64,12 @@ REQUIREMENTS:
 
 6. SUCCESS MESSAGE:
    - After successful submit, show:
-     * Green checkmark animation
-     * Message: "Account created successfully!"
-     * Redirect text: "Redirecting to dashboard..."
+     - Green checkmark animation
+     - Message: "Account created successfully!"
+     - Redirect text: "Redirecting to dashboard..."
 
 7. VALIDATION SCHEMA (Zod):
+
 ```typescript
 const registrationSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -107,3 +109,4 @@ Include useState for form state and loading
 
 
 Generate complete, production-ready code with all imports that I can copy and run immediately.
+```

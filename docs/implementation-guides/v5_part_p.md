@@ -29,47 +29,64 @@ Helper functions, validation schemas, error handling, caching, email services, a
 ### 1. Validation Schemas (Zod)
 
 **Auth Validations (`lib/validations/auth.ts`):**
+
 ```typescript
 const signupSchema = z.object({
   email: z.string().email('Invalid email'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  name: z.string().min(2, 'Name must be at least 2 characters')
-})
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+});
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email'),
-  password: z.string().min(1, 'Password is required')
-})
+  password: z.string().min(1, 'Password is required'),
+});
 ```
 
 **Alert Validations (`lib/validations/alert.ts`):**
+
 ```typescript
 const createAlertSchema = z.object({
-  symbol: z.enum(['XAUUSD', 'EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'BTCUSD', 'ETHUSD', 'XAGUSD', 'NDX100', 'US30']),
+  symbol: z.enum([
+    'XAUUSD',
+    'EURUSD',
+    'GBPUSD',
+    'USDJPY',
+    'AUDUSD',
+    'BTCUSD',
+    'ETHUSD',
+    'XAGUSD',
+    'NDX100',
+    'US30',
+  ]),
   timeframe: z.enum(['M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'D1']),
   conditionType: z.enum(['price_above', 'price_below', 'price_equals']),
-  targetValue: z.number().positive('Target value must be positive')
-})
+  targetValue: z.number().positive('Target value must be positive'),
+});
 ```
 
 **Watchlist Validations (`lib/validations/watchlist.ts`):**
+
 ```typescript
-const addToWatchlistSchema = z.object({
-  symbol: z.string(),
-  timeframe: z.string()
-}).refine(
-  (data) => isValidSymbolTimeframeCombination(data.symbol, data.timeframe),
-  { message: 'Invalid symbol/timeframe combination for your tier' }
-)
+const addToWatchlistSchema = z
+  .object({
+    symbol: z.string(),
+    timeframe: z.string(),
+  })
+  .refine(
+    (data) => isValidSymbolTimeframeCombination(data.symbol, data.timeframe),
+    { message: 'Invalid symbol/timeframe combination for your tier' }
+  );
 ```
 
 **User Validations (`lib/validations/user.ts`):**
+
 ```typescript
 const updateProfileSchema = z.object({
   name: z.string().min(2).max(50).optional(),
   email: z.string().email().optional(),
-  image: z.string().url().optional()
-})
+  image: z.string().url().optional(),
+});
 ```
 
 ### 2. App Constants
@@ -78,21 +95,21 @@ const updateProfileSchema = z.object({
 
 ```typescript
 // V5: Updated timeframes (7 total)
-export const TIMEFRAMES = ['M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'D1'] as const
+export const TIMEFRAMES = ['M15', 'M30', 'H1', 'H2', 'H4', 'H8', 'D1'] as const;
 
 // V5: All supported symbols (10 for PRO)
 export const SYMBOLS = [
-  'XAUUSD',   // Gold
-  'EURUSD',   // Euro/USD
-  'GBPUSD',   // Pound/USD
-  'USDJPY',   // USD/Yen
-  'AUDUSD',   // Aussie/USD
-  'BTCUSD',   // Bitcoin/USD
-  'ETHUSD',   // Ethereum/USD
-  'XAGUSD',   // Silver
-  'NDX100',   // Nasdaq 100
-  'US30'      // Dow Jones
-] as const
+  'XAUUSD', // Gold
+  'EURUSD', // Euro/USD
+  'GBPUSD', // Pound/USD
+  'USDJPY', // USD/Yen
+  'AUDUSD', // Aussie/USD
+  'BTCUSD', // Bitcoin/USD
+  'ETHUSD', // Ethereum/USD
+  'XAGUSD', // Silver
+  'NDX100', // Nasdaq 100
+  'US30', // Dow Jones
+] as const;
 
 // Tier-based limits
 export const TIER_LIMITS = {
@@ -100,21 +117,21 @@ export const TIER_LIMITS = {
     symbols: ['XAUUSD'],
     timeframes: TIMEFRAMES, // All 7
     maxAlerts: 5,
-    maxWatchlists: 3
+    maxWatchlists: 3,
   },
   PRO: {
-    symbols: SYMBOLS,  // All 10
+    symbols: SYMBOLS, // All 10
     timeframes: TIMEFRAMES, // All 7
     maxAlerts: 20,
-    maxWatchlists: 10
-  }
-} as const
+    maxWatchlists: 10,
+  },
+} as const;
 
 // Pricing
 export const PRICING = {
   FREE: 0,
-  PRO: 29
-} as const
+  PRO: 29,
+} as const;
 ```
 
 ### 3. Helper Functions
@@ -124,23 +141,23 @@ export const PRICING = {
 ```typescript
 // Generate random ID
 export function generateId(prefix: string = ''): string {
-  const random = Math.random().toString(36).substring(2, 15)
-  return prefix ? `${prefix}_${random}` : random
+  const random = Math.random().toString(36).substring(2, 15);
+  return prefix ? `${prefix}_${random}` : random;
 }
 
 // Sleep utility
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // Truncate string
 export function truncate(str: string, length: number): string {
-  return str.length > length ? `${str.substring(0, length)}...` : str
+  return str.length > length ? `${str.substring(0, length)}...` : str;
 }
 
 // Check if value is defined
 export function isDefined<T>(value: T | null | undefined): value is T {
-  return value !== null && value !== undefined
+  return value !== null && value !== undefined;
 }
 ```
 
@@ -148,44 +165,50 @@ export function isDefined<T>(value: T | null | undefined): value is T {
 
 ```typescript
 // Format currency
-export function formatCurrency(amount: number, currency: string = 'USD'): string {
+export function formatCurrency(
+  amount: number,
+  currency: string = 'USD'
+): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency
-  }).format(amount)
+    currency,
+  }).format(amount);
 }
 
 // Format date
-export function formatDate(date: Date | string, format: string = 'short'): string {
-  const d = typeof date === 'string' ? new Date(date) : date
+export function formatDate(
+  date: Date | string,
+  format: string = 'short'
+): string {
+  const d = typeof date === 'string' ? new Date(date) : date;
   return new Intl.DateTimeFormat('en-US', {
-    dateStyle: format as any
-  }).format(d)
+    dateStyle: format as any,
+  }).format(d);
 }
 
 // Format relative time (e.g., "2 hours ago")
 export function formatRelativeTime(date: Date | string): string {
-  const d = typeof date === 'string' ? new Date(date) : date
-  const now = new Date()
-  const diff = now.getTime() - d.getTime()
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const now = new Date();
+  const diff = now.getTime() - d.getTime();
 
-  const seconds = Math.floor(diff / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
 
-  if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`
-  if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`
-  if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
-  return 'just now'
+  if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+  if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+  if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+  return 'just now';
 }
 
 // Format number (e.g., 1000 → 1K)
 export function formatCompactNumber(num: number): string {
   return new Intl.NumberFormat('en-US', {
     notation: 'compact',
-    compactDisplay: 'short'
-  }).format(num)
+    compactDisplay: 'short',
+  }).format(num);
 }
 ```
 
@@ -200,28 +223,28 @@ export class APIError extends Error {
     public code: string,
     message: string
   ) {
-    super(message)
-    this.name = 'APIError'
+    super(message);
+    this.name = 'APIError';
   }
 
   static badRequest(message: string, code: string = 'BAD_REQUEST') {
-    return new APIError(400, code, message)
+    return new APIError(400, code, message);
   }
 
   static unauthorized(message: string = 'Unauthorized') {
-    return new APIError(401, 'UNAUTHORIZED', message)
+    return new APIError(401, 'UNAUTHORIZED', message);
   }
 
   static forbidden(message: string = 'Forbidden') {
-    return new APIError(403, 'FORBIDDEN', message)
+    return new APIError(403, 'FORBIDDEN', message);
   }
 
   static notFound(message: string = 'Not found') {
-    return new APIError(404, 'NOT_FOUND', message)
+    return new APIError(404, 'NOT_FOUND', message);
   }
 
   static internal(message: string = 'Internal server error') {
-    return new APIError(500, 'INTERNAL_ERROR', message)
+    return new APIError(500, 'INTERNAL_ERROR', message);
   }
 }
 ```
@@ -234,7 +257,7 @@ export function handleAPIError(error: unknown) {
     return Response.json(
       { error: error.message, code: error.code },
       { status: error.statusCode }
-    )
+    );
   }
 
   // Prisma errors
@@ -242,15 +265,15 @@ export function handleAPIError(error: unknown) {
     return Response.json(
       { error: 'Resource already exists', code: 'DUPLICATE' },
       { status: 409 }
-    )
+    );
   }
 
   // Default error
-  console.error('Unhandled error:', error)
+  console.error('Unhandled error:', error);
   return Response.json(
     { error: 'Internal server error', code: 'INTERNAL_ERROR' },
     { status: 500 }
-  )
+  );
 }
 ```
 
@@ -259,19 +282,19 @@ export function handleAPIError(error: unknown) {
 **`lib/redis/client.ts`:**
 
 ```typescript
-import Redis from 'ioredis'
+import Redis from 'ioredis';
 
-export const redis = new Redis(process.env.REDIS_URL!)
+export const redis = new Redis(process.env.REDIS_URL!);
 ```
 
 **`lib/cache/cache-manager.ts`:**
 
 ```typescript
-import { redis } from '@/lib/redis/client'
+import { redis } from '@/lib/redis/client';
 
 export async function getCache<T>(key: string): Promise<T | null> {
-  const value = await redis.get(key)
-  return value ? JSON.parse(value) : null
+  const value = await redis.get(key);
+  return value ? JSON.parse(value) : null;
 }
 
 export async function setCache(
@@ -279,22 +302,29 @@ export async function setCache(
   value: any,
   ttl: number = 300 // 5 minutes default
 ): Promise<void> {
-  await redis.setex(key, ttl, JSON.stringify(value))
+  await redis.setex(key, ttl, JSON.stringify(value));
 }
 
 export async function deleteCache(key: string): Promise<void> {
-  await redis.del(key)
+  await redis.del(key);
 }
 
 // Cache MT5 prices for 1 minute
-export async function cachePrice(symbol: string, timeframe: string, price: number) {
-  const key = `price:${symbol}:${timeframe}`
-  await setCache(key, price, 60)
+export async function cachePrice(
+  symbol: string,
+  timeframe: string,
+  price: number
+) {
+  const key = `price:${symbol}:${timeframe}`;
+  await setCache(key, price, 60);
 }
 
-export async function getCachedPrice(symbol: string, timeframe: string): Promise<number | null> {
-  const key = `price:${symbol}:${timeframe}`
-  return await getCache<number>(key)
+export async function getCachedPrice(
+  symbol: string,
+  timeframe: string
+): Promise<number | null> {
+  const key = `price:${symbol}:${timeframe}`;
+  return await getCache<number>(key);
 }
 ```
 
@@ -303,21 +333,17 @@ export async function getCachedPrice(symbol: string, timeframe: string): Promise
 **`lib/email/email.ts`:**
 
 ```typescript
-import { Resend } from 'resend'
+import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function sendEmail(
-  to: string,
-  subject: string,
-  html: string
-) {
+export async function sendEmail(to: string, subject: string, html: string) {
   await resend.emails.send({
     from: 'Trading Alerts <noreply@tradingalerts.com>',
     to,
     subject,
-    html
-  })
+    html,
+  });
 }
 
 // Reusable templates
@@ -326,21 +352,21 @@ export function getWelcomeEmail(name: string): string {
     <h1>Welcome to Trading Alerts, ${name}!</h1>
     <p>Your account has been created successfully.</p>
     <p>Start by setting up your first alert.</p>
-  `
+  `;
 }
 ```
 
 **`lib/tokens.ts`:**
 
 ```typescript
-import crypto from 'crypto'
+import crypto from 'crypto';
 
 export function generateToken(): string {
-  return crypto.randomBytes(32).toString('hex')
+  return crypto.randomBytes(32).toString('hex');
 }
 
 export function hashToken(token: string): string {
-  return crypto.createHash('sha256').update(token).digest('hex')
+  return crypto.createHash('sha256').update(token).digest('hex');
 }
 ```
 
@@ -374,6 +400,7 @@ export function hashToken(token: string): string {
 ## Environment Variables
 
 **Required:**
+
 ```
 DATABASE_URL=
 NEXTAUTH_URL=
@@ -387,6 +414,7 @@ MT5_API_KEY=
 ```
 
 **Optional:**
+
 ```
 SENTRY_DSN=
 ANALYTICS_ID=

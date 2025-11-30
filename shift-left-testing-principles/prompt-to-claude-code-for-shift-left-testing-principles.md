@@ -2,6 +2,7 @@ MISSION: Implement Shift-Left Testing Infrastructure for Trading Alerts SaaS V7
 
 CONTEXT:
 You have access to the complete repository including:
+
 - New document: `docs/principles/shift-left-testing.md` (explains the "why")
 - Existing: `.github/workflows/README.md` (comprehensive Two-Track CI/CD system)
 - Existing: `.github/workflows/tests.yml` (BLOCKING deployment gate with 102 tests, 92% coverage)
@@ -36,6 +37,7 @@ PART C: LOCAL AUTOMATION LAYER (COMPLEMENTS EXISTING CI/CD)
 ═══════════════════════════════════════════════════════════════════════
 
 CONTEXT: You already have comprehensive GitHub Actions:
+
 - Track 1 (Development CI): 5 non-blocking workflows providing feedback
 - Track 2 (Deployment Gate): tests.yml BLOCKS deployments on failure
 
@@ -48,6 +50,7 @@ SOLUTION: Add local pre-commit and pre-push hooks to catch issues BEFORE CI/CD.
 C1. INSTALL: Husky and lint-staged
 
 Add to package.json scripts:
+
 ```json
 "scripts": {
   "prepare": "husky install",
@@ -56,6 +59,7 @@ Add to package.json scripts:
 ```
 
 Add to package.json:
+
 ```json
 "lint-staged": {
   "*.{ts,tsx}": [
@@ -69,6 +73,7 @@ Add to package.json:
 ```
 
 Add to devDependencies:
+
 ```json
 "husky": "^8.0.3",
 "lint-staged": "^15.2.0"
@@ -77,6 +82,7 @@ Add to devDependencies:
 ─────────────────────────────────────────────────────────────────────
 
 C2. CREATE: .husky/pre-commit
+
 ```bash
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
@@ -94,6 +100,7 @@ Make executable: chmod +x .husky/pre-commit
 ─────────────────────────────────────────────────────────────────────
 
 C3. CREATE: .husky/pre-push
+
 ```bash
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
@@ -118,6 +125,7 @@ Make executable: chmod +x .husky/pre-push
 C4. UPDATE: package.json scripts
 
 Add/update these scripts:
+
 ```json
 "scripts": {
   "type-check": "tsc --noEmit",
@@ -132,6 +140,7 @@ Add/update these scripts:
 C5. UPDATE: .github/workflows/README.md
 
 Add this section AFTER the "Two-Track CI/CD System" section:
+
 ```markdown
 ## 🔧 Local Validation Layer (Shift-Left Testing)
 
@@ -141,14 +150,15 @@ Add this section AFTER the "Two-Track CI/CD System" section:
 
 **Three-Layer Protection:**
 ```
+
 Layer 1: Aider Generation (Policy-Driven)
-    ↓ (90% of issues prevented)
+↓ (90% of issues prevented)
 Layer 2: Local Hooks (Pre-Commit/Pre-Push)
-    ↓ (9% of issues caught, 5-10 seconds)
+↓ (9% of issues caught, 5-10 seconds)
 Layer 3: GitHub Actions (Existing Two-Track CI/CD)
-    ↓ (1% of issues caught, 2-5 minutes)
-    ├─ Track 1: Development CI (non-blocking feedback)
-    └─ Track 2: Deployment Gate (BLOCKS bad deployments)
+↓ (1% of issues caught, 2-5 minutes)
+├─ Track 1: Development CI (non-blocking feedback)
+└─ Track 2: Deployment Gate (BLOCKS bad deployments)
 
 Pre-Commit Hook (runs on every commit):
 
@@ -180,10 +190,13 @@ Track 2 (Deployment Gate) provides FINAL layer (production protection)
 How to Bypass (when needed):
 
 # Skip pre-commit (use sparingly)
+
 git commit --no-verify -m "message"
 
 # Skip pre-push (use sparingly)
+
 git push --no-verify
+
 ```
 
 **Installation:**
@@ -268,8 +281,8 @@ After implementation:
 ✅ Checklists guide Phase 3 completion
 ✅ Metrics track improvement over time
 
-CRITICAL: This implementation COMPLEMENTS your existing Two-Track CI/CD system. 
-It does NOT replace or modify your GitHub Actions workflows. It adds LOCAL 
+CRITICAL: This implementation COMPLEMENTS your existing Two-Track CI/CD system.
+It does NOT replace or modify your GitHub Actions workflows. It adds LOCAL
 validation as Layer 2 between Aider (Layer 1) and GitHub Actions (Layer 3).
 
 Execute all parts systematically and validate each step.
