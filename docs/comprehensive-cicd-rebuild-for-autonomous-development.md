@@ -501,11 +501,11 @@ yaml
 name: API Validation
 
 on:
-pull_request:
-paths: - '**/\*.yaml' - '**/_.yml' - '**/openapi/**'
+pull*request:
+paths: - '**/\*.yaml' - '**/*.yml' - '**/openapi/**'
 push:
 branches: [main]
-paths: - '\*\*/_.yaml' - '\*_/_.yml'
+paths: - '\*\*/_.yaml' - '\*_/\_.yml'
 
 jobs:
 validate-openapi:

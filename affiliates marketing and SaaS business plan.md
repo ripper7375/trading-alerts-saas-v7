@@ -148,9 +148,9 @@ For November, 2025 (sum amount from beginning of month till current date of the 
 No. | Affiliate ID | Name of Affiliate | Country of Affiliates | Social Medias used | Gross Sales | Sales Discount | Commission Earned by Affiliate
 ====================================================================================================================================================
 
-1.             2566956            John               United States       Tiktok, X, Facebook    $ xxxxxx        $ xxxxx               $ xxxxxx
-2.             2666955            Mike                 Indonesia           Tiktok, Youtube      $ xxxxxx        $ xxxxx               $ xxxxxx
-3.             2685558            Beer                 Thailand             Facebook, IG        $ xxxxxx        $ xxxxx               $ xxxxxx
+1.                  2566956            John               United States       Tiktok, X, Facebook    $ xxxxxx        $ xxxxx               $ xxxxxx
+2.                  2666955            Mike                 Indonesia           Tiktok, Youtube      $ xxxxxx        $ xxxxx               $ xxxxxx
+3.                  2685558            Beer                 Thailand             Facebook, IG        $ xxxxxx        $ xxxxx               $ xxxxxx
     Total amounts $ xxxxxxx $ xxxxxx $ xxxxxxxx
 
 When click on October 2025 (B) ---> navigate to same subsidiary report as above but for October 2025
@@ -192,7 +192,7 @@ No. | Time / Date of Payment was received by SaaS | Gross Sales | Sales Discount
 
 1.
 2.
-3.                                                                                                 $  xxxxxxxxxxx
+3.                                                                                                      $  xxxxxxxxxxx
 
 \*\* Admin must declare commission payment date to all affiliates in advance (SaaS must have predetermined commission payment date e.g. every 5th of next month OR must provide input box in allowing admin to fill date of upcoming commission payment in override of predetermined commission payment date)
 

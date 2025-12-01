@@ -285,6 +285,7 @@
    ```
 
 4. **Verify Database**
+
    ```bash
    pnpm db:studio
    ```

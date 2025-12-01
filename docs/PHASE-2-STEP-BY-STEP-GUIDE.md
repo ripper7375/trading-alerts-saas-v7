@@ -1260,7 +1260,7 @@ Show me all files for approval.
 
 1. **jest.config.js** - Jest configuration
 2. **jest.setup.js** - Test setup file
-3. ****tests**/example.test.ts** - Example test
+3. \***\*tests**/example.test.ts\*\* - Example test
 4. **Updated package.json** - New test scripts
 
 **Review the Output:**

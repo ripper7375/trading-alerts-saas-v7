@@ -501,9 +501,9 @@ What: Save your login info
 Why: You'll need for Flask service
 How: Write down:
 
-- Login: ******\_\_\_******
-- Password: ******\_\_\_******
-- Server: ******\_\_\_******
+- Login: **\*\***\_\_\_**\*\***
+- Password: **\*\***\_\_\_**\*\***
+- Server: **\*\***\_\_\_**\*\***
 
 💡 SECURITY: Keep these safe, never commit to GitHub!
 

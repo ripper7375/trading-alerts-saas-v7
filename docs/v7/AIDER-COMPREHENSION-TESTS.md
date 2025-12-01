@@ -1979,9 +1979,9 @@ Once Aider passes with ≥80% (and all critical tests):
 
 **I certify that Aider has demonstrated sufficient understanding of the Trading Alerts SaaS V7 project to proceed with autonomous development in Phase 3.**
 
-- **Date:** ******\_\_\_******
+- **Date:** **\*\***\_\_\_**\*\***
 - **Pass Rate:** **\_**% (\_\_\_\_/46 tests)
-- **Tester Name:** ******\_\_\_******
+- **Tester Name:** **\*\***\_\_\_**\*\***
 - **Ready for Phase 3:** [ ] YES [ ] NO
 
 ---

@@ -30,6 +30,7 @@ document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 }
 
 return (
+
 <div className="min-h-screen">
 {/_ Content sections _/}
 </div>

@@ -2069,7 +2069,8 @@ app/api/alerts/route.ts:42:18 - error TS2345: Argument of type 'string | undefin
 is not assignable to parameter of type 'string'.
 
 42 await createAlert(userId, symbol, timeframe);
-~~~~~~
+
+`````
 
 Type 'string | undefined' is not assignable to type 'string'.
 Type 'undefined' is not assignable to type 'string'.
@@ -2774,3 +2775,4 @@ Awaiting human decision on report performance optimization.
 **End of Escalation Triggers**
 
 These triggers enable Aider with MiniMax M2 to work autonomously while seeking human guidance for exceptions. Update this document as you learn from escalations!
+`````
