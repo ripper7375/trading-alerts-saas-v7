@@ -238,7 +238,9 @@ Build these files **in sequence**:
 
 **Purpose:** Login page with Google OAuth + credentials
 
-**Seed Reference:** `seed-code/v0-components/auth/login-page.tsx`
+**Seed Reference:** `seed-code/v0-components/next-js-login-form/app/page.tsx`
+
+**Custom Component Reference:** `seed-code/v0-components/next-js-login-form/components/login-form.tsx`
 
 **Build Steps:**
 
@@ -255,7 +257,7 @@ Build these files **in sequence**:
 
 **Purpose:** Registration page
 
-**Seed Reference:** `seed-code/v0-components/public-pages/registration-page.tsx`
+**Seed Reference:** `seed-code/v0-components/registration-form-component-v2/app/page.tsx`
 
 **Build Steps:**
 
@@ -285,7 +287,9 @@ Build these files **in sequence**:
 
 **Purpose:** Forgot password page
 
-**Seed Reference:** `seed-code/v0-components/auth/forgot-password-page.tsx`
+**Seed Reference:** `seed-code/v0-components/forgot-password-form/app/page.tsx`
+
+**Custom Component Reference:** `seed-code/v0-components/forgot-password-form/components/forgot-password-flow.tsx`
 
 **Build Steps:**
 
@@ -314,7 +318,9 @@ Build these files **in sequence**:
 
 **Purpose:** Dedicated admin login page (separate from user login)
 
-**Seed Reference:** `seed-code/v0-components/auth/login-page.tsx`
+**Seed Reference:** `seed-code/v0-components/next-js-login-form/app/page.tsx`
+
+**Custom Component Reference:** `seed-code/v0-components/next-js-login-form/components/login-form.tsx`
 
 **Build Steps:**
 

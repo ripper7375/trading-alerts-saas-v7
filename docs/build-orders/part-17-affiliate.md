@@ -254,7 +254,7 @@
 - Affiliate-specific layout (separate from user dashboard)
 - Sidebar navigation: Dashboard, Codes, Commissions, Profile
 - Header with affiliate name and logout button
-- Seed: `seed-code/v0-components/dashboard/settings-layout.tsx` (adapt for affiliate)
+- Seed: `seed-code/v0-components/part-17a-affiliate-dashboard/app/affiliate/dashboard/page.tsx`
 - Dependencies: Files 3, 13
 - Commit: `feat(affiliate): add affiliate portal layout`
 
@@ -263,7 +263,7 @@
 - Registration page
 - Form: email, password, fullName, country, paymentMethod, paymentDetails, terms checkbox
 - Submit to POST /api/affiliate/auth/register
-- Seed: `seed-code/v0-components/dashboard/profile-settings.tsx` (adapt for registration)
+- Seed: `seed-code/v0-components/part-17a-affiliate-registration/app/affiliate/register/page.tsx`
 - Dependencies: File 11
 - Commit: `feat(affiliate): add registration page`
 
@@ -535,7 +535,7 @@
 
 - Quick stats display card
 - Props: { title, value, icon, trend }
-- Seed: `seed-code/v0-components/dashboard/stats-card.tsx`
+- Note: Build from scratch (no seed component available)
 - Dependencies: None
 - Commit: `feat(components): add affiliate stats card`
 

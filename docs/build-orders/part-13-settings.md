@@ -35,13 +35,16 @@
 **File 1/17:** `app/(dashboard)/settings/layout.tsx`
 
 - Settings layout with sidebar navigation
-- Seed: `seed-code/v0-components/dashboard/settings-layout.tsx`
+- Seed: `seed-code/v0-components/settings-page-with-tabs-v3/app/settings/page.tsx`
 - Commit: `feat(settings): add settings layout`
 
 **File 2/17:** `app/(dashboard)/settings/profile/page.tsx`
 
 - Profile editing (name, email, image)
-- Seed: `seed-code/v0-components/dashboard/profile-settings.tsx`
+- Seed: `seed-code/v0-components/profile-settings-form/app/profile/settings/page.tsx`
+- Custom Components:
+  - `seed-code/v0-components/profile-settings-form/components/photo-upload-modal.tsx`
+  - `seed-code/v0-components/profile-settings-form/components/unsaved-changes-modal.tsx`
 - Commit: `feat(settings): add profile settings page`
 
 **File 3/17:** `app/(dashboard)/settings/appearance/page.tsx`
@@ -65,7 +68,7 @@
 - Show current tier (FREE/PRO)
 - Upgrade/cancel buttons
 - Invoice history
-- Seed: `seed-code/v0-components/dashboard/billing-page.tsx`
+- Seed: `seed-code/v0-components/billing-and-subscription-page-v3/app/billing/page.tsx`
 - Commit: `feat(settings): add billing settings for 2-tier system`
 
 **File 7/17:** `app/(dashboard)/settings/language/page.tsx`

@@ -137,7 +137,10 @@
 **File 19/25:** `app/(marketing)/page.tsx`
 
 - Landing page
-- Seed: `seed-code/v0-components/public-pages/homepage.tsx`
+- Seed: `seed-code/v0-components/next-js-marketing-homepage-v2/app/page.tsx`
+- Custom Components:
+  - `seed-code/v0-components/empty-states-components/components/empty-states.tsx`
+  - `seed-code/v0-components/user-profile-dropdown/components/user-profile-dropdown.tsx`
 - Commit: `feat(marketing): add landing page`
 
 ### Public Assets (1 file)

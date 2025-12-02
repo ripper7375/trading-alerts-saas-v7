@@ -240,7 +240,8 @@
 
 - Quick stats display card
 - Props: { title, value, icon, trend }
-- Seed: `seed-code/v0-components/dashboard/stats-card.tsx`
+- Seed: `seed-code/v0-components/part-17b-admin-affiliate-management/app/admin/affiliates/page.tsx`
+- Seed: `seed-code/v0-components/part-17b-admin-pnl-report/app/admin/affiliates/pnl-report/page.tsx`
 - Dependencies: None
 - Commit: `feat(components): add affiliate stats card`
 

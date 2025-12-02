@@ -259,7 +259,7 @@
 - **Auth:** Check session.user.isAffiliate (redirect if false)
 - Sidebar navigation: Dashboard, Codes, Commissions, Profile
 - Header with affiliate name and NextAuth signOut button
-- Seed: `seed-code/v0-components/dashboard/settings-layout.tsx` (adapt for affiliate)
+- Seed: `seed-code/v0-components/part-17a-affiliate-dashboard/app/affiliate/dashboard/page.tsx`
 - Dependencies: Part 5 (NextAuth session)
 - Commit: `feat(affiliate): add affiliate portal layout`
 
@@ -270,7 +270,7 @@
 - **Note:** No email/password fields - user already authenticated
 - Form: fullName, country, paymentMethod, paymentDetails, terms checkbox
 - Submit to POST /api/affiliate/auth/register
-- Seed: `seed-code/v0-components/dashboard/profile-settings.tsx` (adapt for registration)
+- Seed: `seed-code/v0-components/part-17a-affiliate-registration/app/affiliate/register/page.tsx`
 - Dependencies: File 11, Part 5 (NextAuth session)
 - Commit: `feat(affiliate): add registration page`
 

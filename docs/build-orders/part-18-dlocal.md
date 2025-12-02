@@ -38,6 +38,18 @@
 - Part 2 complete (Prisma schema updates for Payment model, Subscription fields)
 - Part 12 complete (Stripe integration)
 
+**V0 Seed Components (UI reference patterns):**
+
+- `seed-code/v0-components/part-18-payment-method-selector/app/page.tsx`
+- `seed-code/v0-components/part-18-price-display-component/app/page.tsx`
+- `seed-code/v0-components/part-18-renewal-reminder-email/app/preview-renewal-email/page.tsx`
+- `seed-code/v0-components/part-18-unified-checkout/app/checkout/page.tsx`
+
+**V0 Custom Components (business logic patterns):**
+
+- `seed-code/v0-components/part-18-payment-method-selector/components/payment-method-selector.tsx`
+- `seed-code/v0-components/part-18-price-display-component/components/price-display.tsx`
+
 ---
 
 ## Build Summary
