@@ -162,6 +162,11 @@ read:
   # /read-only docs/implementation-guides/v5_part_e.md              # ~5k
   # /read-only docs/policies/08-google-oauth-implementation-rules.md # ~4k
   # /read-only docs/OAUTH_IMPLEMENTATION_READY.md                   # ~2k
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/next-js-login-form/app/page.tsx
+  # /read-only seed-code/v0-components/registration-form-component-v2/app/page.tsx
+  # /read-only seed-code/v0-components/forgot-password-form/app/page.tsx
 
   # ==========================================================================
   # PART 6: FLASK MT5 SERVICE (~16k tokens)
@@ -184,6 +189,11 @@ read:
   # When building: 9 dashboard component files
   # /read-only docs/build-orders/part-08-dashboard.md               # ~2k
   # /read-only docs/implementation-guides/v5_part_h.md              # ~4k
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/dashboard-layout/app/page.tsx
+  # /read-only seed-code/v0-components/dashboard-home-component/app/page.tsx
+  # /read-only seed-code/v0-components/footer-component/app/page.tsx
 
   # ==========================================================================
   # PART 9: CHARTS (~6k tokens)
@@ -191,6 +201,10 @@ read:
   # When building: 8 chart component files
   # /read-only docs/build-orders/part-09-charts.md                  # ~2k
   # /read-only docs/implementation-guides/v5_part_i.md              # ~4k
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/trading-chart-component/app/page.tsx
+  # /read-only seed-code/v0-components/chart-controls-component/app/page.tsx
 
   # ==========================================================================
   # PART 10: WATCHLIST (~6k tokens)
@@ -198,6 +212,9 @@ read:
   # When building: 8 watchlist files
   # /read-only docs/build-orders/part-10-watchlist.md               # ~2k
   # /read-only docs/implementation-guides/v5_part_j.md              # ~4k
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/watchlist-page-component/app/watchlist/page.tsx
 
   # ==========================================================================
   # PART 11: ALERTS (~6k tokens)
@@ -205,6 +222,11 @@ read:
   # When building: 10 alert system files
   # /read-only docs/build-orders/part-11-alerts.md                  # ~2k
   # /read-only docs/implementation-guides/v5_part_k.md              # ~4k
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/alerts-management-page/app/page.tsx
+  # /read-only seed-code/v0-components/create-price-alert-modal/app/page.tsx
+  # /read-only seed-code/v0-components/alert-card-component/app/page.tsx
 
   # ==========================================================================
   # PART 12: E-COMMERCE & BILLING (~7k tokens)
@@ -212,6 +234,10 @@ read:
   # When building: 11 Stripe integration files
   # /read-only docs/build-orders/part-12-ecommerce.md               # ~2k
   # /read-only docs/implementation-guides/v5_part_l.md              # ~5k
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/pricing-page-component-v3/app/pricing/page.tsx
+  # /read-only seed-code/v0-components/billing-and-subscription-page-v3/app/billing/page.tsx
 
   # ==========================================================================
   # PART 13: SETTINGS (~6k tokens)
@@ -219,6 +245,10 @@ read:
   # When building: 17 settings page files
   # /read-only docs/build-orders/part-13-settings.md                # ~2k
   # /read-only docs/implementation-guides/v5_part_m.md              # ~4k
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/settings-page-with-tabs-v3/app/settings/page.tsx
+  # /read-only seed-code/v0-components/profile-settings-form/app/profile/settings/page.tsx
 
   # ==========================================================================
   # PART 14: ADMIN DASHBOARD (~6k tokens)
@@ -226,6 +256,11 @@ read:
   # When building: 9 admin portal files
   # /read-only docs/build-orders/part-14-admin.md                   # ~2k
   # /read-only docs/implementation-guides/v5_part_n.md              # ~4k
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/part-14-admin-dashboard-overview/app/admin/dashboard/page.tsx
+  # /read-only seed-code/v0-components/part-14-admin-user-management/app/admin/users/page.tsx
+  # /read-only seed-code/v0-components/part-14-api-usage-analytics/app/admin/api-usage/page.tsx
 
   # ==========================================================================
   # PART 15: NOTIFICATIONS (~6k tokens)
@@ -233,6 +268,9 @@ read:
   # When building: 9 notification system files
   # /read-only docs/build-orders/part-15-notifications.md           # ~2k
   # /read-only docs/implementation-guides/v5_part_o.md              # ~4k
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/notification-component-v3/app/page.tsx
 
   # ==========================================================================
   # PART 16: UTILITIES (~6k tokens)
@@ -240,6 +278,11 @@ read:
   # When building: 25 utility files
   # /read-only docs/build-orders/part-16-utilities.md               # ~2k
   # /read-only docs/implementation-guides/v5_part_p.md              # ~4k
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/next-js-marketing-homepage-v2/app/page.tsx
+  # /read-only seed-code/v0-components/empty-states-components/app/page.tsx
+  # /read-only seed-code/v0-components/user-profile-dropdown/app/page.tsx
 
   # ==========================================================================
   # PART 17A: AFFILIATE MARKETING - AFFILIATE PORTAL (~14k tokens)
@@ -248,6 +291,10 @@ read:
   # /read-only docs/build-orders/part-17a-affiliate-portal.md       # ~7k
   # /read-only docs/implementation-guides/v5_part_q.md              # ~9k (first half)
   # /read-only docs/AFFILIATE-MARKETING-DESIGN.md                   # ~5k (optional)
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/part-17a-affiliate-dashboard/app/affiliate/dashboard/page.tsx
+  # /read-only seed-code/v0-components/part-17a-affiliate-registration/app/affiliate/register/page.tsx
   #
   # Token Budget: 147k (base) + 14k (part) + 25k (conversation/code) = 186k
   # Margin: 18.8k tokens ✅ SAFE
@@ -261,6 +308,10 @@ read:
   # When building: 35 admin/automation files (Phases E-H)
   # /read-only docs/build-orders/part-17b-admin-automation.md       # ~7k
   # /read-only docs/implementation-guides/v5_part_q.md              # ~9k (second half)
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/part-17b-admin-affiliate-management/app/admin/affiliates/page.tsx
+  # /read-only seed-code/v0-components/part-17b-admin-pnl-report/app/admin/affiliates/pnl-report/page.tsx
   #
   # Token Budget: 147k (base) + 12k (part) + 25k (conversation/code) = 184k
   # Margin: 20.8k tokens ✅ SAFE
@@ -276,6 +327,12 @@ read:
   # /read-only docs/implementation-guides/v5_part_r.md              # ~19k (comprehensive)
   # /read-only docs/dlocal-openapi-endpoints.yaml                   # ~7k
   # /read-only docs/policies/07-dlocal-integration-rules-compress.md # ~7k (dLocal-specific policies)
+  #
+  # V0 Seed Components (reference patterns):
+  # /read-only seed-code/v0-components/part-18-payment-method-selector/app/page.tsx
+  # /read-only seed-code/v0-components/part-18-price-display-component/app/page.tsx
+  # /read-only seed-code/v0-components/part-18-renewal-reminder-email/app/preview-renewal-email/page.tsx
+  # /read-only seed-code/v0-components/part-18-unified-checkout/app/checkout/page.tsx
   #
   # Token Budget: 140k (base) + 19k (part) + 25k (conversation/code) = 184k
   # Margin: 20.8k tokens ✅ SAFE
