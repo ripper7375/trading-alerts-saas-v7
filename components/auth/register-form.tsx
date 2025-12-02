@@ -3,9 +3,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation'; // Although unused warning before, using it for consistency or potential future use is fine, but if strict, ensure usage or remove. Logic here doesn't use router.push, so maybe remove import if not used? 
-// Actually, let's keep it consistent. If not used, remove it to satisfy lint. 
-// Wait, previous code HAD router but unused. I will REMOVE router to fix lint.
 import { z } from 'zod';
 
 import SocialAuthButtons from './social-auth-buttons';
