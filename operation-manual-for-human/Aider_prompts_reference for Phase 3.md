@@ -2,6 +2,38 @@
 
 **Critical Update:** Use `/read-only` for build order files, NOT `/add`
 
+## 🌟 V0 Seed Code References - Automatically Available
+
+**IMPORTANT:** Aider automatically loads 52 seed code reference files via `.aider.conf.yml`:
+- **31 V0 page.tsx components** - UI demo implementations
+- **20 V0 custom components** - Business logic patterns
+- **1 Python AI engine** - Market AI engine for Part 6
+
+These files are configured as **read-only references** and provide:
+- UI layout patterns and component structure
+- Form handling and validation examples
+- React patterns and TypeScript types
+- Styling conventions (Tailwind CSS)
+- Interactive behaviors and state management
+
+**You don't need to manually load these files** - they're automatically available in every Aider session.
+
+**Relevant seed components by part:**
+- **Part 5 (Authentication):** next-js-login-form, registration-form-component-v2, forgot-password-form
+- **Part 6 (Flask MT5):** market_ai_engine.py (Python reference)
+- **Part 8 (Dashboard):** dashboard-home-component, dashboard-layout-component, dashboard-navigation-footer
+- **Part 9 (Charts):** trading-chart-component, chart-controls-component
+- **Part 10 (Watchlist):** watchlist-page-component
+- **Part 11 (Alerts):** alerts-list-page, alert-creation-modal-component, alert-card-component
+- **Part 12 (E-commerce):** pricing-table-component
+- **Part 13 (Settings):** settings-page-layout-component, profile-settings-page, subscription-management-page
+- **Part 15 (Notifications):** notification-bell-icon-component
+- **Part 16 (Utilities):** empty-states-component, user-menu-component
+- **Part 17 (Affiliate):** affiliate-dashboard-component, affiliate-portal-referrals-page, admin-affiliate-analytics-page
+- **Part 18 (dLocal):** part-18-payment-method-selector, part-18-price-display-component, part-18-unified-checkout
+
+**Note:** Build order files now reference these correct V0 paths with the actual folder structure (e.g., `seed-code/v0-components/next-js-login-form/app/page.tsx`).
+
 ---
 
 ## 📌 Starting Part 1 (Foundation)
@@ -172,6 +204,13 @@ Build Part 5: Authentication (Unified System with RBAC)
 
 Follow the build order in part-05-authentication.md exactly.
 
+**V0 Seed Components Available (auto-loaded):**
+- next-js-login-form/app/page.tsx + components/login-form.tsx
+- registration-form-component-v2/app/page.tsx + components/registration-form.tsx
+- forgot-password-form/app/page.tsx + components/forgot-password-flow.tsx
+
+Use these as UI/UX patterns for form layouts, validation, and user flows.
+
 Requirements:
 - Build all 20 authentication files (includes admin login page)
 - Implement Google OAuth + Email/Password (NextAuth v4)
@@ -235,6 +274,11 @@ Start with File 1/20: types/next-auth.d.ts
 Build Part 6: Flask MT5 Service
 
 Follow the build order in part-06-flask-mt5.md exactly.
+
+**Python Seed Reference Available (auto-loaded):**
+- seed-code/market_ai_engine.py - Market AI engine logic and data processing patterns
+
+Use this as reference for Flask structure, MT5 integration patterns, and AI engine logic.
 
 Requirements:
 - Build all 15 Flask microservice files
@@ -319,9 +363,12 @@ Build Part X: [Part Name]
 
 Follow the build order in part-0X-[name].md exactly.
 
+**V0 Seed Components:** Check the "Relevant seed components by part" section at the top of this document to see which V0 components are available for this part. These are automatically loaded and provide UI patterns, component structure, and business logic examples.
+
 Requirements:
 - Build all files in sequence
 - Use patterns from 05-coding-patterns-compress.md
+- Reference V0 seed components for UI/UX patterns where applicable
 - QUALITY GATES (MANDATORY):
   * All functions must have explicit return types
   * No 'any' types (use proper TypeScript interfaces)
@@ -354,6 +401,13 @@ Start with File 1/[total]: [first-file]
 Build Part 17A: Affiliate Portal (Phases A-D)
 
 Follow the build order in part-17a-affiliate-portal.md exactly.
+
+**V0 Seed Components Available (auto-loaded):**
+- affiliate-dashboard-component/app/page.tsx + components/affiliate-dashboard.tsx
+- affiliate-portal-referrals-page/app/page.tsx + components/affiliate-referrals.tsx
+- admin-affiliate-analytics-page/app/page.tsx
+
+Use these as UI patterns for affiliate portal pages, dashboard layouts, and data visualization.
 
 Requirements:
 - Build all 32 files in sequence (Phases A, B, C, D)
@@ -393,6 +447,12 @@ Complete through File 32/32.
 Build Part 17B: Admin Portal & Automation (Phases E-H)
 
 Follow the build order in part-17b-admin-automation.md exactly.
+
+**V0 Seed Components Available (auto-loaded):**
+- admin-affiliate-analytics-page/app/page.tsx
+- affiliate-dashboard-component/components/affiliate-dashboard.tsx (for admin views)
+
+Use these as UI patterns for admin BI reports, analytics dashboards, and data tables.
 
 Requirements:
 - Build all 35 files in sequence (Phases E, F, G, H)
@@ -436,6 +496,14 @@ Build Part 18 Session 1: dLocal Foundation
 
 Follow the build order in part-18-dlocal.md.
 
+**V0 Seed Components Available (auto-loaded):**
+- part-18-payment-method-selector/app/page.tsx + components/payment-method-selector.tsx
+- part-18-price-display-component/app/page.tsx + components/price-display.tsx
+- part-18-unified-checkout/app/checkout/page.tsx
+- part-18-renewal-reminder-email/app/preview-renewal-email/page.tsx
+
+Use these as UI patterns for payment flows, price displays, and checkout experiences.
+
 Requirements:
 - Build Files 1-9 (Database Layer, Types & Constants, Services)
 - Files 1-2: Database models (Payment, Subscription fields)
@@ -462,6 +530,8 @@ Stop after File 9/37.
 Build Part 18 Session 2: dLocal Payment API Routes
 
 Continue Part 18 with Files 10-18.
+
+**V0 Seed Components:** Same as Session 1 - all Part 18 components are available for reference.
 
 Requirements:
 - Implement all payment processing API routes
@@ -490,6 +560,8 @@ Build Part 18 Session 3: UI Components & Automation
 
 Continue Part 18 with Files 19-31.
 
+**V0 Seed Components:** Use payment-method-selector, price-display-component, unified-checkout, and renewal-reminder-email as UI/UX patterns for Files 19-29.
+
 Requirements:
 - Build all frontend components, unified checkout, email templates, and cron jobs
 - Files 19-24: Frontend components (country selector, plan selector, payment method grid, price display, discount input, payment button)
@@ -516,6 +588,8 @@ Stop after File 31/37.
 Build Part 18 Session 4: Documentation & Deployment Config
 
 Complete Part 18 with Files 32-37.
+
+**V0 Seed Components:** Not needed for documentation files.
 
 Requirements:
 - Complete all documentation and configuration files
@@ -774,10 +848,15 @@ ls -la .aider.conf.yml
 
 ---
 
-**Document Version:** 3.0 (Part 17 Split + Part 18 Corrected)
-**Last Updated:** 2025-11-26
+**Document Version:** 4.0 (V0 Seed Code References Added)
+**Last Updated:** 2025-12-02
 **Critical Updates:**
 
-- Part 17 split into 17A (32 files) + 17B (35 files) for token safety
-- Part 18 corrected: 37 files (not 45), sessions realigned
+- **V4.0 (2025-12-02):** Added V0 seed code references section - 52 seed files automatically loaded via .aider.conf.yml
+  - 31 V0 page.tsx components for UI patterns
+  - 20 custom components for business logic
+  - 1 Python AI engine (market_ai_engine.py)
+  - Updated all part prompts to reference relevant seed components
+  - Build order files now have correct V0 paths (e.g., seed-code/v0-components/next-js-login-form/app/page.tsx)
+- **V3.0 (2025-11-26):** Part 17 split into 17A (32 files) + 17B (35 files) for token safety; Part 18 corrected: 37 files (not 45), sessions realigned
   **Status:** ✅ Tested and Verified
