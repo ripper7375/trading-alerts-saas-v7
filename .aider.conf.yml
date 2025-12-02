@@ -167,6 +167,10 @@ read:
   # /read-only seed-code/v0-components/next-js-login-form/app/page.tsx
   # /read-only seed-code/v0-components/registration-form-component-v2/app/page.tsx
   # /read-only seed-code/v0-components/forgot-password-form/app/page.tsx
+  #
+  # V0 Custom Components (business logic & patterns):
+  # /read-only seed-code/v0-components/next-js-login-form/components/login-form.tsx
+  # /read-only seed-code/v0-components/forgot-password-form/components/forgot-password-flow.tsx
 
   # ==========================================================================
   # PART 6: FLASK MT5 SERVICE (~16k tokens)
@@ -194,6 +198,10 @@ read:
   # /read-only seed-code/v0-components/dashboard-layout/app/page.tsx
   # /read-only seed-code/v0-components/dashboard-home-component/app/page.tsx
   # /read-only seed-code/v0-components/footer-component/app/page.tsx
+  #
+  # V0 Custom Components (business logic & patterns):
+  # /read-only seed-code/v0-components/dashboard-home-component/components/dashboard-home.tsx
+  # /read-only seed-code/v0-components/footer-component/components/marketing-footer.tsx
 
   # ==========================================================================
   # PART 9: CHARTS (~6k tokens)
@@ -205,6 +213,13 @@ read:
   # V0 Seed Components (reference patterns):
   # /read-only seed-code/v0-components/trading-chart-component/app/page.tsx
   # /read-only seed-code/v0-components/chart-controls-component/app/page.tsx
+  #
+  # V0 Custom Components (business logic & patterns):
+  # /read-only seed-code/v0-components/trading-chart-component/components/trading-chart.tsx
+  # /read-only seed-code/v0-components/chart-controls-component/components/chart-controls.tsx
+  # /read-only seed-code/v0-components/chart-controls-component/components/symbol-selector.tsx
+  # /read-only seed-code/v0-components/chart-controls-component/components/timeframe-selector.tsx
+  # /read-only seed-code/v0-components/chart-controls-component/components/upgrade-modal.tsx
 
   # ==========================================================================
   # PART 10: WATCHLIST (~6k tokens)
@@ -227,6 +242,10 @@ read:
   # /read-only seed-code/v0-components/alerts-management-page/app/page.tsx
   # /read-only seed-code/v0-components/create-price-alert-modal/app/page.tsx
   # /read-only seed-code/v0-components/alert-card-component/app/page.tsx
+  #
+  # V0 Custom Components (business logic & patterns):
+  # /read-only seed-code/v0-components/alert-card-component/components/alert-card.tsx
+  # /read-only seed-code/v0-components/create-price-alert-modal/components/create-alert-modal.tsx
 
   # ==========================================================================
   # PART 12: E-COMMERCE & BILLING (~7k tokens)
@@ -249,6 +268,10 @@ read:
   # V0 Seed Components (reference patterns):
   # /read-only seed-code/v0-components/settings-page-with-tabs-v3/app/settings/page.tsx
   # /read-only seed-code/v0-components/profile-settings-form/app/profile/settings/page.tsx
+  #
+  # V0 Custom Components (business logic & patterns):
+  # /read-only seed-code/v0-components/profile-settings-form/components/photo-upload-modal.tsx
+  # /read-only seed-code/v0-components/profile-settings-form/components/unsaved-changes-modal.tsx
 
   # ==========================================================================
   # PART 14: ADMIN DASHBOARD (~6k tokens)
@@ -271,6 +294,9 @@ read:
   #
   # V0 Seed Components (reference patterns):
   # /read-only seed-code/v0-components/notification-component-v3/app/page.tsx
+  #
+  # V0 Custom Components (business logic & patterns):
+  # /read-only seed-code/v0-components/notification-component-v3/components/notification-bell.tsx
 
   # ==========================================================================
   # PART 16: UTILITIES (~6k tokens)
@@ -283,6 +309,10 @@ read:
   # /read-only seed-code/v0-components/next-js-marketing-homepage-v2/app/page.tsx
   # /read-only seed-code/v0-components/empty-states-components/app/page.tsx
   # /read-only seed-code/v0-components/user-profile-dropdown/app/page.tsx
+  #
+  # V0 Custom Components (business logic & patterns):
+  # /read-only seed-code/v0-components/empty-states-components/components/empty-states.tsx
+  # /read-only seed-code/v0-components/user-profile-dropdown/components/user-profile-dropdown.tsx
 
   # ==========================================================================
   # PART 17A: AFFILIATE MARKETING - AFFILIATE PORTAL (~14k tokens)
@@ -333,6 +363,10 @@ read:
   # /read-only seed-code/v0-components/part-18-price-display-component/app/page.tsx
   # /read-only seed-code/v0-components/part-18-renewal-reminder-email/app/preview-renewal-email/page.tsx
   # /read-only seed-code/v0-components/part-18-unified-checkout/app/checkout/page.tsx
+  #
+  # V0 Custom Components (business logic & patterns):
+  # /read-only seed-code/v0-components/part-18-payment-method-selector/components/payment-method-selector.tsx
+  # /read-only seed-code/v0-components/part-18-price-display-component/components/price-display.tsx
   #
   # Token Budget: 140k (base) + 19k (part) + 25k (conversation/code) = 184k
   # Margin: 20.8k tokens ✅ SAFE
