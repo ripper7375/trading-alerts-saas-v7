@@ -58,7 +58,8 @@
 - Load candlestick data
 - Overlay indicators (fractal horizontal/diagonal)
 - Real-time updates
-- Seed: `seed-code/v0-components/charts/trading-chart.tsx`
+- Seed: `seed-code/v0-components/trading-chart-component/app/page.tsx`
+- Custom Component: `seed-code/v0-components/trading-chart-component/components/trading-chart.tsx`
 - Commit: `feat(charts): add TradingView chart component`
 
 **File 4/8:** `components/charts/indicator-overlay.tsx`
@@ -73,7 +74,12 @@
 - Timeframe selector (tier-filtered)
 - Zoom controls
 - Export button (PRO only)
-- Seed: `seed-code/v0-components/components/chart-controls.tsx`
+- Seed: `seed-code/v0-components/chart-controls-component/app/page.tsx`
+- Custom Components:
+  - `seed-code/v0-components/chart-controls-component/components/chart-controls.tsx`
+  - `seed-code/v0-components/chart-controls-component/components/symbol-selector.tsx`
+  - `seed-code/v0-components/chart-controls-component/components/timeframe-selector.tsx`
+  - `seed-code/v0-components/chart-controls-component/components/upgrade-modal.tsx`
 - Commit: `feat(charts): add chart controls with tier filtering`
 
 **File 6/8:** `components/charts/timeframe-selector.tsx`

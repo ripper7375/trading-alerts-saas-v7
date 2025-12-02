@@ -42,7 +42,7 @@
 - FREE vs PRO comparison
 - Upgrade button
 - Symbol/timeframe comparison table
-- Seed: `seed-code/v0-components/public-pages/pricing-page.tsx`
+- Seed: `seed-code/v0-components/pricing-page-component-v3/app/pricing/page.tsx`
 - Commit: `feat(pricing): add pricing page for 2-tier system`
 
 **File 2/11:** `app/api/subscription/route.ts`

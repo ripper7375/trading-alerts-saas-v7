@@ -36,7 +36,7 @@
 - Alerts list page
 - Create alert button
 - Filter by status
-- Seed: `seed-code/v0-components/dashboard/alerts-list.tsx`
+- Seed: `seed-code/v0-components/alerts-management-page/app/page.tsx`
 - Commit: `feat(alerts): add alerts list page`
 
 **File 2/10:** `app/(dashboard)/alerts/new/page.tsx`
@@ -76,7 +76,8 @@
 - Timeframe selector
 - Condition type selector
 - Target value input
-- Seed: `seed-code/v0-components/dashboard/alert-creation-modal.tsx`
+- Seed: `seed-code/v0-components/create-price-alert-modal/app/page.tsx`
+- Custom Component: `seed-code/v0-components/create-price-alert-modal/components/create-alert-modal.tsx`
 - Commit: `feat(alerts): add alert form component`
 
 **File 7/10:** `components/alerts/alert-card.tsx`
@@ -84,7 +85,8 @@
 - Individual alert display
 - Status, symbol, condition
 - Edit/delete buttons
-- Seed: `seed-code/v0-components/alerts/alert-card.tsx`
+- Seed: `seed-code/v0-components/alert-card-component/app/page.tsx`
+- Custom Component: `seed-code/v0-components/alert-card-component/components/alert-card.tsx`
 - Commit: `feat(alerts): add alert card component`
 
 **File 8/10:** `lib/jobs/alert-checker.ts`

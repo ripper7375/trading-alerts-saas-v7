@@ -38,7 +38,7 @@
 - Create watchlist button
 - List of watchlist items (symbol + timeframe)
 - Tier-based add limits
-- Seed: `seed-code/v0-components/dashboard/watchlist-page.tsx`
+- Seed: `seed-code/v0-components/watchlist-page-component/app/watchlist/page.tsx`
 - Commit: `feat(watchlist): add watchlist page`
 
 **File 2/8:** `app/api/watchlist/route.ts`

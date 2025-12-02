@@ -37,6 +37,10 @@
 - Called by `/api/indicators` routes
 - Validates tier access before data retrieval
 
+**Seed Code Reference:**
+
+- `seed-code/market_ai_engine.py` - Market AI engine logic and patterns for data processing
+
 ---
 
 ## File Build Order

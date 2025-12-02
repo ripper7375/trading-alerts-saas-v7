@@ -50,7 +50,8 @@
 - Stats cards: alerts count, watchlists, tier info
 - Recent alerts widget
 - Watchlist widget
-- Seed: `seed-code/v0-components/dashboard/dashboard-overview.tsx`
+- Seed: `seed-code/v0-components/dashboard-home-component/app/page.tsx`
+- Custom Component: `seed-code/v0-components/dashboard-home-component/components/dashboard-home.tsx`
 - Commit: `feat(dashboard): add overview page`
 
 **File 3/9:** `components/layout/header.tsx`
@@ -77,7 +78,8 @@
 
 - Dashboard footer
 - Links, copyright
-- Seed: `seed-code/v0-components/components/footer.tsx`
+- Seed: `seed-code/v0-components/footer-component/app/page.tsx`
+- Custom Component: `seed-code/v0-components/footer-component/components/marketing-footer.tsx`
 - Commit: `feat(layout): add footer`
 
 **File 7/9:** `components/dashboard/stats-card.tsx`

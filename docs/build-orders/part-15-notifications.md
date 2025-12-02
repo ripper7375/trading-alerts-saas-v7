@@ -50,7 +50,8 @@
 
 - Notification bell icon with badge
 - Dropdown with recent notifications
-- Seed: `seed-code/v0-components/components/notification-bell.tsx`
+- Seed: `seed-code/v0-components/notification-component-v3/app/page.tsx`
+- Custom Component: `seed-code/v0-components/notification-component-v3/components/notification-bell.tsx`
 - Commit: `feat(notifications): add notification bell component`
 
 **File 5/9:** `components/notifications/notification-list.tsx`

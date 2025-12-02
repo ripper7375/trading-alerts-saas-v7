@@ -804,86 +804,195 @@ Parts 13, 14, 15, 16
 
 ## SEED CODE: V0.dev Component References
 
-**Scope:** Visual references and seed code for UI frontend components (20 total components)
+**Scope:** Visual references and seed code for UI frontend components (31 total components + 1 Python AI engine)
 
 **Purpose:** These files serve as visual prototypes and coding patterns for Aider to build production-ready components for the complete Trading Alerts SaaS V7 UI.
 
-**Complete Folder Structure:**
+**Actual Folder Structure (as implemented):**
 
 ```
-seed-code/v0-components/
-├── README.md                          # Complete mapping guide (20 components)
+seed-code/
+├── market_ai_engine.py                # Flask MT5 AI engine reference (Part 6)
 │
-├── public-pages/                      # 3 marketing/public components
-│   ├── homepage.tsx                   # → app/(marketing)/page.tsx
-│   ├── homepage-package.json
-│   ├── pricing-page.tsx               # → app/(marketing)/pricing/page.tsx
-│   ├── pricing-package.json
-│   ├── registration-page.tsx          # → app/(auth)/register/page.tsx
-│   └── registration-package.json
-│
-├── auth/                              # 2 authentication components
-│   ├── login-page.tsx                 # → app/(auth)/login/page.tsx
-│   ├── login-package.json
-│   ├── forgot-password-page.tsx       # → app/(auth)/forgot-password/page.tsx
-│   └── forgot-password-package.json
-│
-├── dashboard/                         # 8 dashboard page components
-│   ├── dashboard-overview.tsx         # → app/(dashboard)/dashboard/page.tsx
-│   ├── dashboard-package.json
-│   ├── watchlist-page.tsx             # → app/(dashboard)/watchlist/page.tsx
-│   ├── watchlist-package.json
-│   ├── alert-creation-modal.tsx       # → components/alerts/alert-modal.tsx
-│   ├── alert-modal-package.json
-│   ├── alerts-list.tsx                # → app/(dashboard)/alerts/page.tsx
-│   ├── alerts-package.json
-│   ├── billing-page.tsx               # → app/(dashboard)/settings/billing/page.tsx
-│   ├── billing-package.json
-│   ├── settings-layout.tsx            # → app/(dashboard)/settings/layout.tsx
-│   ├── settings-package.json
-│   ├── profile-settings.tsx           # → app/(dashboard)/settings/profile/page.tsx
-│   └── profile-package.json
-│
-├── components/                        # 4 reusable UI components
-│   ├── chart-controls.tsx             # → components/charts/chart-controls.tsx
-│   ├── chart-controls-package.json
-│   ├── empty-states.tsx               # → components/ui/empty-state.tsx
-│   ├── empty-states-package.json
-│   ├── notification-bell.tsx          # → components/layout/notification-bell.tsx
-│   ├── notification-package.json
-│   ├── user-menu.tsx                  # → components/layout/user-menu.tsx
-│   ├── user-menu-package.json
-│   ├── footer.tsx                     # → components/layout/footer.tsx
-│   └── footer-package.json
-│
-├── layouts/                           # 3 existing seed components (REFERENCE ONLY)
-│   ├── dashboard-layout.tsx           # → app/(dashboard)/layout.tsx
-│   ├── dashboard-page.tsx
-│   ├── dashboard-package.json
-│   ├── dashboard-globals.css
-│   └── professional-trader-avatar.png
-│
-├── charts/                            # Existing chart seed component
-│   ├── trading-chart.tsx              # → components/charts/trading-chart.tsx
-│   ├── trading-chart-page.tsx
-│   └── trading-chart-package.json
-│
-└── alerts/                            # Existing alert seed component
-    ├── alert-card.tsx                 # → components/alerts/alert-card.tsx
-    ├── alert-card-page.tsx
-    └── alert-card-package.json
+└── v0-components/
+    ├── README.md                      # Complete V0 component mapping guide
+    │
+    # ========== PART 5: AUTHENTICATION (3 components) ==========
+    ├── next-js-login-form/
+    │   ├── app/page.tsx               # → app/(auth)/login/page.tsx
+    │   ├── app/layout.tsx
+    │   ├── components/login-form.tsx  # Custom component with form logic
+    │   ├── components/theme-provider.tsx
+    │   └── components/ui/             # shadcn/ui primitives
+    │
+    ├── registration-form-component-v2/
+    │   ├── app/page.tsx               # → app/(auth)/register/page.tsx
+    │   └── components/...
+    │
+    ├── forgot-password-form/
+    │   ├── app/page.tsx               # → app/(auth)/forgot-password/page.tsx
+    │   ├── components/forgot-password-flow.tsx  # Custom component
+    │   └── components/...
+    │
+    # ========== PART 8: DASHBOARD (3 components) ==========
+    ├── dashboard-layout/
+    │   ├── app/page.tsx               # → app/(dashboard)/layout.tsx
+    │   └── components/...
+    │
+    ├── dashboard-home-component/
+    │   ├── app/page.tsx               # → app/(dashboard)/page.tsx
+    │   ├── components/dashboard-home.tsx  # Custom component
+    │   └── components/...
+    │
+    ├── footer-component/
+    │   ├── app/page.tsx               # → components/layout/footer.tsx
+    │   ├── components/marketing-footer.tsx  # Custom component
+    │   └── components/...
+    │
+    # ========== PART 9: CHARTS (2 components) ==========
+    ├── trading-chart-component/
+    │   ├── app/page.tsx               # → components/charts/trading-chart.tsx
+    │   ├── components/trading-chart.tsx  # Custom component (523 lines)
+    │   └── components/...
+    │
+    ├── chart-controls-component/
+    │   ├── app/page.tsx               # → components/charts/chart-controls.tsx
+    │   ├── components/chart-controls.tsx      # Main component
+    │   ├── components/symbol-selector.tsx     # Sub-component
+    │   ├── components/timeframe-selector.tsx  # Sub-component
+    │   ├── components/upgrade-modal.tsx       # Modal component
+    │   └── components/...
+    │
+    # ========== PART 10: WATCHLIST (1 component) ==========
+    ├── watchlist-page-component/
+    │   ├── app/watchlist/page.tsx     # → app/(dashboard)/watchlist/page.tsx
+    │   └── components/...
+    │
+    # ========== PART 11: ALERTS (3 components) ==========
+    ├── alerts-management-page/
+    │   ├── app/page.tsx               # → app/(dashboard)/alerts/page.tsx
+    │   └── components/...
+    │
+    ├── create-price-alert-modal/
+    │   ├── app/page.tsx               # → components/alerts/alert-modal.tsx
+    │   ├── components/create-alert-modal.tsx  # Custom component
+    │   └── components/...
+    │
+    ├── alert-card-component/
+    │   ├── app/page.tsx               # → components/alerts/alert-card.tsx
+    │   ├── components/alert-card.tsx  # Custom component (241 lines)
+    │   └── components/...
+    │
+    # ========== PART 12: E-COMMERCE (2 components) ==========
+    ├── pricing-page-component-v3/
+    │   ├── app/pricing/page.tsx       # → app/(marketing)/pricing/page.tsx
+    │   └── components/...
+    │
+    ├── billing-and-subscription-page-v3/
+    │   ├── app/billing/page.tsx       # → app/(dashboard)/settings/billing/page.tsx
+    │   └── components/...
+    │
+    # ========== PART 13: SETTINGS (2 components) ==========
+    ├── settings-page-with-tabs-v3/
+    │   ├── app/settings/page.tsx      # → app/(dashboard)/settings/layout.tsx
+    │   └── components/...
+    │
+    ├── profile-settings-form/
+    │   ├── app/profile/settings/page.tsx           # → app/(dashboard)/settings/profile/page.tsx
+    │   ├── components/photo-upload-modal.tsx       # Custom modal component
+    │   ├── components/unsaved-changes-modal.tsx    # Custom modal component
+    │   └── components/...
+    │
+    # ========== PART 14: ADMIN DASHBOARD (3 components) ==========
+    ├── part-14-admin-dashboard-overview/
+    │   ├── app/admin/dashboard/page.tsx  # → app/admin/dashboard/page.tsx
+    │   └── components/...
+    │
+    ├── part-14-admin-user-management/
+    │   ├── app/admin/users/page.tsx   # → app/admin/users/page.tsx
+    │   └── components/...
+    │
+    ├── part-14-api-usage-analytics/
+    │   ├── app/admin/api-usage/page.tsx  # → app/admin/api-usage/page.tsx
+    │   └── components/...
+    │
+    # ========== PART 15: NOTIFICATIONS (1 component) ==========
+    ├── notification-component-v3/
+    │   ├── app/page.tsx               # → components/layout/notification-bell.tsx
+    │   ├── components/notification-bell.tsx  # Custom component
+    │   └── components/...
+    │
+    # ========== PART 16: UTILITIES (3 components) ==========
+    ├── next-js-marketing-homepage-v2/
+    │   ├── app/page.tsx               # → app/(marketing)/page.tsx
+    │   └── components/...
+    │
+    ├── empty-states-components/
+    │   ├── app/page.tsx               # → components/ui/empty-state.tsx
+    │   ├── components/empty-states.tsx  # Custom component
+    │   └── components/...
+    │
+    ├── user-profile-dropdown/
+    │   ├── app/page.tsx               # → components/layout/user-menu.tsx
+    │   ├── components/user-profile-dropdown.tsx  # Custom component
+    │   └── components/...
+    │
+    # ========== PART 17A: AFFILIATE PORTAL (2 components) ==========
+    ├── part-17a-affiliate-dashboard/
+    │   ├── app/affiliate/dashboard/page.tsx  # → app/affiliate/dashboard/page.tsx
+    │   └── components/...
+    │
+    ├── part-17a-affiliate-registration/
+    │   ├── app/affiliate/register/page.tsx  # → app/affiliate/register/page.tsx
+    │   └── components/...
+    │
+    # ========== PART 17B: AFFILIATE ADMIN (2 components) ==========
+    ├── part-17b-admin-affiliate-management/
+    │   ├── app/admin/affiliates/page.tsx  # → app/admin/affiliates/page.tsx
+    │   └── components/...
+    │
+    ├── part-17b-admin-pnl-report/
+    │   ├── app/admin/affiliates/pnl-report/page.tsx  # → app/admin/affiliates/pnl-report/page.tsx
+    │   └── components/...
+    │
+    # ========== PART 18: DLOCAL PAYMENTS (4 components) ==========
+    ├── part-18-payment-method-selector/
+    │   ├── app/page.tsx               # → components/payments/payment-method-selector.tsx
+    │   ├── components/payment-method-selector.tsx  # Custom component
+    │   └── components/...
+    │
+    ├── part-18-price-display-component/
+    │   ├── app/page.tsx               # → components/payments/price-display.tsx
+    │   ├── components/price-display.tsx  # Custom component
+    │   └── components/...
+    │
+    ├── part-18-renewal-reminder-email/
+    │   ├── app/preview-renewal-email/page.tsx  # → Email template preview
+    │   └── components/...
+    │
+    └── part-18-unified-checkout/
+        ├── app/checkout/page.tsx      # → app/checkout/page.tsx
+        └── components/...
 ```
 
 **Component Categories:**
 
-| Category            | Components | Purpose                                                      |
-| ------------------- | ---------- | ------------------------------------------------------------ |
-| Public Pages        | 3          | Marketing, pricing, registration                             |
-| Authentication      | 2          | Login, password reset                                        |
-| Dashboard Pages     | 8          | Main app pages (dashboard, watchlist, alerts, settings)      |
-| Reusable Components | 4          | UI components (controls, empty states, notifications, menus) |
-| Existing Seed       | 3          | Original seed components (layouts, charts, alerts)           |
-| **Total**           | **20**     | **Complete UI frontend coverage**                            |
+| Category              | Components | Purpose                                                      |
+| --------------------- | ---------- | ------------------------------------------------------------ |
+| Authentication        | 3          | Login, register, password reset                              |
+| Dashboard             | 3          | Layout, home page, footer                                    |
+| Charts                | 2          | Trading chart, chart controls with tier filtering            |
+| Watchlist             | 1          | Symbol+timeframe management                                  |
+| Alerts                | 3          | Alert list, create modal, alert card                         |
+| E-commerce            | 2          | Pricing page, billing/subscription                           |
+| Settings              | 2          | Settings layout, profile with modals                         |
+| Admin Dashboard       | 3          | Admin overview, user management, API analytics               |
+| Notifications         | 1          | Notification bell dropdown                                   |
+| Utilities             | 3          | Marketing homepage, empty states, user menu                  |
+| Affiliate Portal      | 2          | Affiliate dashboard, registration                            |
+| Affiliate Admin       | 2          | Admin affiliate management, P&L reports                      |
+| dLocal Payments       | 4          | Payment methods, price display, email, checkout              |
+| **Total**             | **31**     | **Complete UI frontend coverage + 20 custom components**     |
 
 **How Aider Uses These Files:**
 
@@ -893,28 +1002,28 @@ seed-code/v0-components/
    - Replace mock data with real API calls
    - Add tier validation logic
    - Add authentication checks (session management)
-   - Example: `public-pages/homepage.tsx` → `app/(marketing)/page.tsx`
+   - Example: `next-js-marketing-homepage-v2/app/page.tsx` → `app/(marketing)/page.tsx`
 
 2. **Pattern 2: Component Extraction**
    - Extract reusable components from seed files
    - Create standalone component files
    - Add tier-based filtering and validation
    - Connect to real-time data sources
-   - Example: `components/chart-controls.tsx` → `components/charts/chart-controls.tsx`
+   - Example: `chart-controls-component/components/chart-controls.tsx` → `components/charts/chart-controls.tsx`
 
 3. **Pattern 3: Modal/Dialog Components**
    - Adapt modal UI from seed files
    - Add form validation (React Hook Form + Zod)
    - Connect to API endpoints
    - Add success/error handling
-   - Example: `dashboard/alert-creation-modal.tsx` → `components/alerts/alert-modal.tsx`
+   - Example: `create-price-alert-modal/app/page.tsx` → `components/alerts/alert-modal.tsx`
 
 4. **Pattern 4: Layout Wrappers**
    - Use as structural template
    - Add NextAuth session handling
    - Integrate tier badges and user menus
    - Add responsive navigation
-   - Example: `dashboard/settings-layout.tsx` → `app/(dashboard)/settings/layout.tsx`
+   - Example: `settings-page-with-tabs-v3/app/settings/page.tsx` → `app/(dashboard)/settings/layout.tsx`
 
 **Key Features of All Seed Components:**
 
@@ -958,9 +1067,12 @@ seed-code/v0-components/
 ```
 V0.dev Generation
     ↓
-seed-code/v0-components/{category}/{component-name}.tsx
+seed-code/v0-components/{component-name}/app/page.tsx
+seed-code/v0-components/{component-name}/components/{custom-component}.tsx
     ↓
 Aider Reads (via .aider.conf.yml)
+    ├── 31 main page.tsx files (UI demos)
+    └── 20 custom component files (business logic)
     ↓
 Aider Adapts with:
     ├── API Integration (real endpoints)
@@ -980,6 +1092,8 @@ Production Files:
     ├── app/(marketing)/* (public pages)
     ├── app/(auth)/* (authentication)
     ├── app/(dashboard)/* (main app)
+    ├── app/admin/* (admin portal)
+    ├── app/affiliate/* (affiliate portal)
     └── components/* (reusable UI)
 ```
 
@@ -998,7 +1112,7 @@ Production Files:
 - `date-fns@^3.0.6` - Date formatting
 - `react-image-crop@^10.1.5` - Avatar cropping
 
-**File Count:** ~50 seed component files (20 components × ~2.5 files each)
+**File Count:** 31 V0 component directories + 20 custom component files + 1 Python AI engine = 52 total seed reference files
 
 **Usage in .aider.conf.yml:**
 
@@ -1011,7 +1125,7 @@ All seed component files are configured as `read-only` references in Aider's con
 - Form structure and validation patterns
 - Responsive design breakpoints
 
-**API Endpoints Required (from all 17 new components):**
+**API Endpoints Required (from V0 components):**
 
 | Endpoint                    | Method                   | Used By                  | Purpose              |
 | --------------------------- | ------------------------ | ------------------------ | -------------------- |
@@ -1025,10 +1139,12 @@ All seed component files are configured as `read-only` references in Aider's con
 | `/api/user/profile`         | GET, PATCH               | Profile Settings         | Update profile       |
 | `/api/notifications`        | GET, PATCH               | Notification Bell        | Manage notifications |
 
-**Production File Mapping (Complete):**
+**Production File Mapping (Conceptual Overview):**
+
+> **Note:** The names below are simplified for clarity. For actual V0 file paths, see the "SEED CODE: V0.dev Component References" section earlier in this document. The complete folder structure shows all 31 components with their actual paths (e.g., `next-js-login-form/app/page.tsx` instead of `login-page.tsx`).
 
 ```
-17 New Components → Production Locations:
+V0 Components → Production Locations (Conceptual):
 
 Public Pages:
   1. homepage.tsx          → app/(marketing)/page.tsx
@@ -1819,6 +1935,6 @@ docs/trading_alerts_openapi.yaml         # Add dLocal endpoints
 | 16       | Utilities           | ~25     | ⭐⭐       | Low           |
 | 17       | Affiliate Marketing | ~67     | ⭐⭐       | High          |
 | 18       | dLocal Payments     | ~45     | ⭐⭐       | High          |
-| **Seed** | **V0 Components**   | **~50** | **⭐⭐⭐** | **Reference** |
+| **Seed** | **V0 Components**   | **~52** | **⭐⭐⭐** | **Reference** |
 
-**Total: ~170 production files + ~50 seed reference files (20 components)**
+**Total: ~170 production files + ~52 seed reference files (31 V0 components + 20 custom components + 1 Python AI engine)**
