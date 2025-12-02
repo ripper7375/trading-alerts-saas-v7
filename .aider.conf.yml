@@ -179,6 +179,9 @@ read:
   # /read-only docs/build-orders/part-06-flask-mt5.md               # ~2k
   # /read-only docs/implementation-guides/v5_part_f.md              # ~4k
   # /read-only docs/flask_mt5_openapi.yaml                          # ~10k
+  #
+  # Seed Code (AI Engine reference):
+  # /read-only seed-code/market_ai_engine.py                        # ~9.5k
 
   # ==========================================================================
   # PART 7: INDICATORS API (~6k tokens)
