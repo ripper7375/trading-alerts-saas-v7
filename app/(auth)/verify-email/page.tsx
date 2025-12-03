@@ -1,16 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
+import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
 
-export default function VerifyEmailPage(): JSX.Element {
+function VerifyEmailContent(): JSX.Element {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get('token');
 
-  const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'missing'>('loading');
+  const [status, setStatus] = useState<
+    'loading' | 'success' | 'error' | 'missing'
+  >('loading');
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
@@ -53,8 +55,12 @@ export default function VerifyEmailPage(): JSX.Element {
         return (
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto text-indigo-600" />
-            <h2 className="mt-4 text-xl font-semibold text-gray-900">Verifying your email...</h2>
-            <p className="mt-2 text-sm text-gray-600">Please wait while we verify your email address.</p>
+            <h2 className="mt-4 text-xl font-semibold text-gray-900">
+              Verifying your email...
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Please wait while we verify your email address.
+            </p>
           </div>
         );
 
@@ -62,12 +68,26 @@ export default function VerifyEmailPage(): JSX.Element {
         return (
           <div className="text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-              <svg className="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              <svg
+                className="h-6 w-6 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
               </svg>
             </div>
-            <h2 className="mt-4 text-xl font-semibold text-green-600">Email verified successfully!</h2>
-            <p className="mt-2 text-sm text-gray-600">Redirecting to login...</p>
+            <h2 className="mt-4 text-xl font-semibold text-green-600">
+              Email verified successfully!
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Redirecting to login...
+            </p>
           </div>
         );
 
@@ -75,11 +95,23 @@ export default function VerifyEmailPage(): JSX.Element {
         return (
           <div className="text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-              <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              <svg
+                className="h-6 w-6 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
               </svg>
             </div>
-            <h2 className="mt-4 text-xl font-semibold text-red-600">Verification failed</h2>
+            <h2 className="mt-4 text-xl font-semibold text-red-600">
+              Verification failed
+            </h2>
             <p className="mt-2 text-sm text-gray-600">{error}</p>
             <div className="mt-6">
               <Link
@@ -96,12 +128,26 @@ export default function VerifyEmailPage(): JSX.Element {
         return (
           <div className="text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-              <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              <svg
+                className="h-6 w-6 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                ></path>
               </svg>
             </div>
-            <h2 className="mt-4 text-xl font-semibold text-red-600">Invalid verification link</h2>
-            <p className="mt-2 text-sm text-gray-600">The verification link is missing or invalid.</p>
+            <h2 className="mt-4 text-xl font-semibold text-red-600">
+              Invalid verification link
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              The verification link is missing or invalid.
+            </p>
             <div className="mt-6">
               <Link
                 href="/login"
@@ -126,5 +172,23 @@ export default function VerifyEmailPage(): JSX.Element {
         </div>
       </div>
     </div>
+  );
+}
+
+// Wrap with Suspense for useSearchParams
+export default function VerifyEmailPage(): JSX.Element {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <Loader2 className="w-10 h-10 mx-auto animate-spin text-indigo-600" />
+            <p className="text-gray-600 mt-4">Loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
