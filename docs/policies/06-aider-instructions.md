@@ -254,6 +254,123 @@ Follow this **exact workflow** for every file you build:
 
 **IMPORTANT:** Build-order files (step 2) are your PRIMARY source for knowing WHAT to build and WHEN. Implementation guides (step 3) tell you WHY and provide business context.
 
+### STEP 1.5: CREATE PLACEHOLDER FILES (LIFELINE STRATEGY)
+
+**⚠️ IMPORTANT - DEPENDENCY MANAGEMENT**
+
+Before building the main files for a part, create **empty placeholder files** for any imports that don't exist yet. This prevents TypeScript errors and provides flexibility if build order changes.
+
+**When to Create Placeholders:**
+
+```
+IF current file will import from files not yet built:
+   THEN create placeholder files FIRST
+```
+
+**Placeholder File Requirements:**
+
+1. **Proper file extension:** `.ts`, `.tsx`, `.py`
+2. **Valid syntax:** No compilation errors
+3. **TODO comment:** Indicates which part will implement it
+4. **Minimal export:** Type-appropriate export to satisfy imports
+
+**Placeholder Types by File:**
+
+**React Component Placeholder:**
+```tsx
+// components/alerts/alert-form.tsx (placeholder for Part 16)
+// TODO: Properly implement in Part 16
+
+export default function AlertFormPlaceholder() {
+  return null
+}
+```
+
+**API Route Placeholder:**
+```typescript
+// app/api/indicators/[symbol]/route.ts (placeholder for Part 7)
+// TODO: Properly implement in Part 7
+
+import { NextResponse } from 'next/server'
+
+export async function GET() {
+  return NextResponse.json(
+    { error: 'Not implemented' },
+    { status: 501 }
+  )
+}
+```
+
+**Utility Function Placeholder:**
+```typescript
+// lib/tier-validation.ts (placeholder for Part 15)
+// TODO: Properly implement in Part 15
+
+export function validateTierAccess(): boolean {
+  throw new Error('Not implemented - will be built in Part 15')
+}
+```
+
+**Type Definition Placeholder:**
+```typescript
+// types/alert.ts (placeholder for Part 8)
+// TODO: Properly type in Part 8
+
+export type Alert = any
+```
+
+**Workflow:**
+
+```
+STEP 0 (NEW): Create Placeholder Files
+   ↓
+1. Scan build-order for current part
+2. Identify all imports that reference future files
+3. For each missing import:
+   a. Create directory if needed
+   b. Create placeholder file
+   c. Add TODO comment with part number
+   d. Add minimal export matching expected type
+4. Commit placeholders:
+   git add [placeholder files]
+   git commit -m "chore(part-X): add placeholder files for dependencies
+
+   Placeholders created:
+   - components/foo.tsx (Part Y)
+   - lib/bar.ts (Part Z)
+
+   These prevent TypeScript errors and act as lifeline if build order changes."
+
+THEN proceed to STEP 2 (Plan Implementation)
+```
+
+**Example - Part 11 (Alerts) Placeholder Creation:**
+
+```
+Part 11 will import:
+- @/lib/tier-validation (built in Part 4)
+- @/components/ui/button (built in Part 3)
+- @/types/alert (built in Part 2)
+
+Check: Do these files exist?
+- Part 4 complete? ✅ Yes → No placeholder needed
+- Part 3 complete? ❌ No → Create placeholder for button.tsx
+- Part 2 complete? ✅ Yes → No placeholder needed
+
+Action: Create placeholder:
+- components/ui/button.tsx
+```
+
+**Benefits:**
+
+✅ **No TypeScript Errors** - All imports resolve
+✅ **Builds Don't Break** - Each part compiles successfully
+✅ **Clear TODOs** - Know what needs implementation
+✅ **Flexibility** - Build order can change without breaking everything
+✅ **CI/CD Works** - Tests pass (placeholders throw only when called)
+
+---
+
 ### STEP 2: PLAN IMPLEMENTATION
 
 ```
@@ -1480,18 +1597,19 @@ Build in this order for logical dependencies:
 
 ## SUMMARY OF KEY PRINCIPLES
 
-1. **Follow the 7-Step Workflow** (Read → Plan → Generate → Validate → Decide → Act → Update)
-2. **Reference Patterns** (05-coding-patterns.md is your cookbook)
-3. **Validate Every File** (Claude Code validation before committing)
-4. **Auto-Fix When Possible** (max 3 attempts, then escalate)
-5. **Escalate Early** (don't guess - ask when unclear)
-6. **Update Policies** (learn from escalations)
-7. **Track Progress** (PROGRESS.md after each file)
-8. **Use MiniMax M2 Efficiently** (batch operations, minimize redundant calls)
-9. **Communicate Progress** (every 3 files, not every file)
-10. **Test Suggestions** (provide testing instructions for human)
-11. **Affiliate Marketing (Part 17):** Use Patterns 7-10, separate JWT, crypto-secure codes, webhook-only commissions
-12. **dLocal Payment (Part 18):** Use Patterns 11-12, single Subscription model, real-time currency conversion, 3-day plan anti-abuse, country-based provider selection
+1. **Follow the 7.5-Step Workflow** (Read → Create Placeholders (LIFELINE) → Plan → Generate → Validate → Decide → Act → Update)
+2. **Create Placeholder Files First** (LIFELINE STRATEGY - prevent TypeScript errors for missing imports)
+3. **Reference Patterns** (05-coding-patterns.md is your cookbook)
+4. **Validate Every File** (Claude Code validation before committing)
+5. **Auto-Fix When Possible** (max 3 attempts, then escalate)
+6. **Escalate Early** (don't guess - ask when unclear)
+7. **Update Policies** (learn from escalations)
+8. **Track Progress** (PROGRESS.md after each file)
+9. **Use MiniMax M2 Efficiently** (batch operations, minimize redundant calls)
+10. **Communicate Progress** (every 3 files, not every file)
+11. **Test Suggestions** (provide testing instructions for human)
+12. **Affiliate Marketing (Part 17):** Use Patterns 7-10, separate JWT, crypto-secure codes, webhook-only commissions
+13. **dLocal Payment (Part 18):** Use Patterns 11-12, single Subscription model, real-time currency conversion, 3-day plan anti-abuse, country-based provider selection
 
 **Remember:** You are Aider with MiniMax M2 - cost-effective, autonomous, policy-driven development. Your goal is to build quality code while minimizing human intervention for repetitive tasks. Escalate for exceptions, auto-fix for common issues, and always follow the policies.
 
