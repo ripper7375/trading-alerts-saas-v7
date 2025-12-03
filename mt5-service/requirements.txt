@@ -1,6 +1,5 @@
 # Flask MT5 Service Dependencies
-# This is a placeholder file for CI/CD workflows
-# Actual dependencies will be defined during Phase 3 implementation
+# Updated during Phase 3 - Part 6 implementation
 
 # Core Flask dependencies
 Flask==3.0.0
@@ -21,6 +20,14 @@ python-dotenv==1.0.0
 # Validation
 pydantic==2.5.0
 
-# Testing (will be moved to requirements-dev.txt)
+# Logging
+colorlog==6.8.0
+
+# Production server
+gunicorn==21.2.0
+gevent==23.9.1
+
+# Testing (dev dependencies)
 pytest==7.4.3
 pytest-cov==4.1.0
+pytest-flask==1.3.0
