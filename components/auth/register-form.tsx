@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useSearchParams } from 'next/navigation';
-import { z } from 'zod';
 import { Eye, EyeOff, Check, X, CheckCircle2, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import SocialAuthButtons from './social-auth-buttons';
 
@@ -168,7 +168,9 @@ export default function RegisterForm(): JSX.Element {
                 🎉 20% discount activated! You&apos;ll pay $23.20/month for PRO.
               </p>
             )}
-            <p className="text-gray-600 mb-4">Please check your email to verify your account.</p>
+            <p className="text-gray-600 mb-4">
+              Please check your email to verify your account.
+            </p>
             <Link
               href="/login"
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
@@ -194,7 +196,10 @@ export default function RegisterForm(): JSX.Element {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Full Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Full Name
             </label>
             <div className="relative">
@@ -225,7 +230,10 @@ export default function RegisterForm(): JSX.Element {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Email Address
             </label>
             <div className="relative">
@@ -256,7 +264,10 @@ export default function RegisterForm(): JSX.Element {
 
           {/* Password */}
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Password
             </label>
             <div className="relative">
@@ -272,7 +283,11 @@ export default function RegisterForm(): JSX.Element {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
               >
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
             </div>
 
@@ -285,7 +300,13 @@ export default function RegisterForm(): JSX.Element {
                   ) : (
                     <X className="w-4 h-4 text-gray-400" />
                   )}
-                  <span className={passwordValidation.minLength ? 'text-green-600' : 'text-gray-600'}>
+                  <span
+                    className={
+                      passwordValidation.minLength
+                        ? 'text-green-600'
+                        : 'text-gray-600'
+                    }
+                  >
                     At least 8 characters
                   </span>
                 </div>
@@ -295,7 +316,13 @@ export default function RegisterForm(): JSX.Element {
                   ) : (
                     <X className="w-4 h-4 text-gray-400" />
                   )}
-                  <span className={passwordValidation.hasUppercase ? 'text-green-600' : 'text-gray-600'}>
+                  <span
+                    className={
+                      passwordValidation.hasUppercase
+                        ? 'text-green-600'
+                        : 'text-gray-600'
+                    }
+                  >
                     One uppercase letter
                   </span>
                 </div>
@@ -305,7 +332,13 @@ export default function RegisterForm(): JSX.Element {
                   ) : (
                     <X className="w-4 h-4 text-gray-400" />
                   )}
-                  <span className={passwordValidation.hasLowercase ? 'text-green-600' : 'text-gray-600'}>
+                  <span
+                    className={
+                      passwordValidation.hasLowercase
+                        ? 'text-green-600'
+                        : 'text-gray-600'
+                    }
+                  >
                     One lowercase letter
                   </span>
                 </div>
@@ -315,7 +348,13 @@ export default function RegisterForm(): JSX.Element {
                   ) : (
                     <X className="w-4 h-4 text-gray-400" />
                   )}
-                  <span className={passwordValidation.hasNumber ? 'text-green-600' : 'text-gray-600'}>
+                  <span
+                    className={
+                      passwordValidation.hasNumber
+                        ? 'text-green-600'
+                        : 'text-gray-600'
+                    }
+                  >
                     One number
                   </span>
                 </div>
@@ -325,7 +364,10 @@ export default function RegisterForm(): JSX.Element {
 
           {/* Confirm Password */}
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Confirm Password
             </label>
             <div className="relative">
@@ -337,7 +379,9 @@ export default function RegisterForm(): JSX.Element {
                 className={`w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 ${
                   errors.confirmPassword && touchedFields.confirmPassword
                     ? 'border-red-500'
-                    : touchedFields.confirmPassword && confirmPassword === password && password
+                    : touchedFields.confirmPassword &&
+                        confirmPassword === password &&
+                        password
                       ? 'border-green-500'
                       : 'border-gray-300'
                 }`}
@@ -347,7 +391,11 @@ export default function RegisterForm(): JSX.Element {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
               >
-                {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                {showConfirmPassword ? (
+                  <EyeOff className="w-5 h-5" />
+                ) : (
+                  <Eye className="w-5 h-5" />
+                )}
               </button>
               {touchedFields.confirmPassword &&
                 confirmPassword === password &&
@@ -366,7 +414,10 @@ export default function RegisterForm(): JSX.Element {
 
           {/* REFERRAL CODE - Business Critical Feature */}
           <div>
-            <label htmlFor="referralCode" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="referralCode"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Referral Code (Optional)
             </label>
             <p className="text-xs text-blue-600 mb-1">
@@ -425,7 +476,8 @@ export default function RegisterForm(): JSX.Element {
               <>
                 <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
                   <Check className="w-4 h-4 flex-shrink-0" />
-                  Valid code! You&apos;ll get 20% off PRO ($23.20/month instead of $29)
+                  Valid code! You&apos;ll get 20% off PRO ($23.20/month instead
+                  of $29)
                 </p>
                 <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold mt-2 inline-block">
                   🎉 20% DISCOUNT APPLIED
@@ -449,13 +501,22 @@ export default function RegisterForm(): JSX.Element {
               className="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
             />
             <div className="flex-1">
-              <label htmlFor="terms" className="text-sm text-gray-700 leading-relaxed cursor-pointer">
+              <label
+                htmlFor="terms"
+                className="text-sm text-gray-700 leading-relaxed cursor-pointer"
+              >
                 I agree to the{' '}
-                <Link href="/terms" className="text-blue-600 underline hover:text-blue-700">
+                <Link
+                  href="/terms"
+                  className="text-blue-600 underline hover:text-blue-700"
+                >
                   Terms of Service
                 </Link>{' '}
                 and{' '}
-                <Link href="/privacy" className="text-blue-600 underline hover:text-blue-700">
+                <Link
+                  href="/privacy"
+                  className="text-blue-600 underline hover:text-blue-700"
+                >
                   Privacy Policy
                 </Link>
               </label>
@@ -498,7 +559,9 @@ export default function RegisterForm(): JSX.Element {
             <div className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-white text-gray-500">Or register with</span>
+            <span className="px-4 bg-white text-gray-500">
+              Or register with
+            </span>
           </div>
         </div>
 
@@ -509,16 +572,25 @@ export default function RegisterForm(): JSX.Element {
         <div className="text-center mt-6 space-y-2">
           <p className="text-gray-600 text-sm">
             Already have an account?{' '}
-            <Link href="/login" className="text-blue-600 font-semibold hover:underline">
+            <Link
+              href="/login"
+              className="text-blue-600 font-semibold hover:underline"
+            >
               Login
             </Link>
           </p>
           <div className="flex items-center justify-center gap-2 text-sm flex-wrap">
-            <Link href="/forgot-password" className="text-blue-600 hover:underline">
+            <Link
+              href="/forgot-password"
+              className="text-blue-600 hover:underline"
+            >
               Forgot password?
             </Link>
             <span className="text-gray-300">—</span>
-            <Link href="/affiliate/join" className="text-blue-600 hover:underline text-xs">
+            <Link
+              href="/affiliate/join"
+              className="text-blue-600 hover:underline text-xs"
+            >
               Don&apos;t have a referral code? Join our Affiliate Program
             </Link>
           </div>

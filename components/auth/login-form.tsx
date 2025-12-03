@@ -1,13 +1,20 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  Check,
+  AlertCircle,
+  CheckCircle2,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { z } from 'zod';
-import { Eye, EyeOff, Loader2, Check, AlertCircle, CheckCircle2 } from 'lucide-react';
-import Link from 'next/link';
 
 import SocialAuthButtons from './social-auth-buttons';
 
@@ -33,14 +40,10 @@ export default function LoginForm(): JSX.Element {
     register,
     handleSubmit,
     formState: { errors, isValid, touchedFields },
-    watch,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     mode: 'onChange',
   });
-
-  const emailValue = watch('email');
-  const passwordValue = watch('password');
 
   const onSubmit = async (data: LoginFormData): Promise<void> => {
     setIsSubmitting(true);
@@ -93,7 +96,8 @@ export default function LoginForm(): JSX.Element {
         };
       case 'locked':
         return {
-          title: 'Your account has been locked due to too many failed login attempts.',
+          title:
+            'Your account has been locked due to too many failed login attempts.',
           subtitle: 'Please reset your password or contact support.',
           bg: 'bg-orange-50',
           border: 'border-orange-500',
@@ -124,7 +128,9 @@ export default function LoginForm(): JSX.Element {
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 animate-bounce">
               <CheckCircle2 className="w-10 h-10 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Welcome back!
+            </h2>
             <p className="text-gray-600">Redirecting to dashboard...</p>
           </div>
         </div>
@@ -136,8 +142,12 @@ export default function LoginForm(): JSX.Element {
     <div className="w-full max-w-md">
       <div className="bg-white rounded-lg shadow-xl p-8">
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold mb-2 text-gray-900">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to your Trading Alerts account</p>
+          <h1 className="text-3xl font-bold mb-2 text-gray-900">
+            Welcome Back
+          </h1>
+          <p className="text-gray-600">
+            Sign in to your Trading Alerts account
+          </p>
         </div>
 
         {/* Error Alert */}
@@ -146,11 +156,18 @@ export default function LoginForm(): JSX.Element {
             className={`${errorConfig.bg} border-l-4 ${errorConfig.border} rounded-lg p-4 mb-6 relative animate-in slide-in-from-top duration-300`}
           >
             <div className="flex items-start gap-3">
-              <AlertCircle className={`${errorConfig.icon} flex-shrink-0 mt-0.5`} size={20} />
+              <AlertCircle
+                className={`${errorConfig.icon} flex-shrink-0 mt-0.5`}
+                size={20}
+              />
               <div className="flex-1">
-                <p className={`${errorConfig.text} font-medium text-sm`}>{errorConfig.title}</p>
+                <p className={`${errorConfig.text} font-medium text-sm`}>
+                  {errorConfig.title}
+                </p>
                 {errorConfig.subtitle && (
-                  <p className={`${errorConfig.text} text-sm mt-1`}>{errorConfig.subtitle}</p>
+                  <p className={`${errorConfig.text} text-sm mt-1`}>
+                    {errorConfig.subtitle}
+                  </p>
                 )}
                 {error === 'locked' && (
                   <Link
@@ -174,7 +191,10 @@ export default function LoginForm(): JSX.Element {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Email Field */}
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
               Email Address
             </label>
             <div className="relative">
@@ -203,7 +223,10 @@ export default function LoginForm(): JSX.Element {
               )}
             </div>
             {errors.email && (
-              <p id="email-error" className="text-red-600 text-sm mt-1 flex items-center gap-1">
+              <p
+                id="email-error"
+                className="text-red-600 text-sm mt-1 flex items-center gap-1"
+              >
                 <span>⚠️</span>
                 {errors.email.message}
               </p>
@@ -212,7 +235,10 @@ export default function LoginForm(): JSX.Element {
 
           {/* Password Field */}
           <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
               Password
             </label>
             <div className="relative">
@@ -228,7 +254,9 @@ export default function LoginForm(): JSX.Element {
                       ? 'border-green-500 focus:ring-green-500'
                       : 'border-gray-300'
                 }`}
-                aria-describedby={errors.password ? 'password-error' : undefined}
+                aria-describedby={
+                  errors.password ? 'password-error' : undefined
+                }
               />
               <button
                 type="button"
@@ -240,7 +268,10 @@ export default function LoginForm(): JSX.Element {
               </button>
             </div>
             {errors.password && (
-              <p id="password-error" className="text-red-600 text-sm mt-1 flex items-center gap-1">
+              <p
+                id="password-error"
+                className="text-red-600 text-sm mt-1 flex items-center gap-1"
+              >
                 <span>⚠️</span>
                 {errors.password.message}
               </p>
@@ -256,11 +287,17 @@ export default function LoginForm(): JSX.Element {
                 {...register('rememberMe')}
                 className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
               />
-              <label htmlFor="rememberMe" className="text-sm text-gray-600 cursor-pointer font-normal">
+              <label
+                htmlFor="rememberMe"
+                className="text-sm text-gray-600 cursor-pointer font-normal"
+              >
                 Remember me for 30 days
               </label>
             </div>
-            <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline font-medium">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-blue-600 hover:underline font-medium"
+            >
               Forgot password?
             </Link>
           </div>
@@ -298,7 +335,10 @@ export default function LoginForm(): JSX.Element {
         {/* Footer Links */}
         <div className="text-center mt-6">
           <span className="text-gray-600">Don&apos;t have an account?</span>
-          <Link href="/register" className="text-blue-600 font-semibold hover:underline ml-1">
+          <Link
+            href="/register"
+            className="text-blue-600 font-semibold hover:underline ml-1"
+          >
             Sign up for free →
           </Link>
         </div>

@@ -1,11 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import {
   Lock,
   Key,
@@ -18,6 +13,11 @@ import {
   Check,
   X,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 // Validation schemas
 const emailSchema = z.object({
@@ -43,15 +43,19 @@ type EmailFormData = z.infer<typeof emailSchema>;
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
 type Step = 'request' | 'confirmation' | 'reset' | 'success';
-type ErrorType = 'not-found' | 'rate-limit' | 'server' | 'expired' | 'invalid' | null;
+type ErrorType =
+  | 'not-found'
+  | 'rate-limit'
+  | 'server'
+  | 'expired'
+  | 'invalid'
+  | null;
 
 export default function ForgotPasswordPage(): JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>('request');
   const [email, setEmail] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<ErrorType>(null);
   const [countdown, setCountdown] = useState(600); // 10 minutes in seconds
   const [autoRedirectCountdown, setAutoRedirectCountdown] = useState(3);
@@ -82,8 +86,9 @@ export default function ForgotPasswordPage(): JSX.Element {
       const timer = setInterval(() => {
         setCountdown((prev) => prev - 1);
       }, 1000);
-      return () => clearInterval(timer);
+      return (): void => clearInterval(timer);
     }
+    return undefined;
   }, [error, countdown]);
 
   // Auto-redirect countdown
@@ -92,10 +97,11 @@ export default function ForgotPasswordPage(): JSX.Element {
       const timer = setInterval(() => {
         setAutoRedirectCountdown((prev) => prev - 1);
       }, 1000);
-      return () => clearInterval(timer);
+      return (): void => clearInterval(timer);
     } else if (step === 'success' && autoRedirectCountdown === 0) {
       router.push('/login');
     }
+    return undefined;
   }, [step, autoRedirectCountdown, router]);
 
   const formatTime = (seconds: number): string => {
@@ -128,7 +134,9 @@ export default function ForgotPasswordPage(): JSX.Element {
           searchParams={searchParams}
         />
       )}
-      {step === 'success' && <SuccessStep autoRedirectCountdown={autoRedirectCountdown} />}
+      {step === 'success' && (
+        <SuccessStep autoRedirectCountdown={autoRedirectCountdown} />
+      )}
     </div>
   );
 }
@@ -202,13 +210,20 @@ function RequestResetStep({
         <div className="flex justify-center mb-4">
           <Lock className="w-16 h-16 text-gray-700" />
         </div>
-        <h1 className="text-3xl font-bold mb-2 text-gray-900">Forgot Password?</h1>
-        <p className="text-gray-600">No worries, we&apos;ll send you reset instructions</p>
+        <h1 className="text-3xl font-bold mb-2 text-gray-900">
+          Forgot Password?
+        </h1>
+        <p className="text-gray-600">
+          No worries, we&apos;ll send you reset instructions
+        </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Email Address
           </label>
           <input
@@ -219,7 +234,9 @@ function RequestResetStep({
             {...register('email')}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
-          {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>}
+          {errors.email && (
+            <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+          )}
           <p className="text-xs text-gray-500 mt-1">
             Enter the email address associated with your account
           </p>
@@ -231,9 +248,13 @@ function RequestResetStep({
               <AlertTriangle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm text-yellow-800">
-                  No account found with that email address. Please check and try again.
+                  No account found with that email address. Please check and try
+                  again.
                 </p>
-                <Link href="/register" className="text-sm text-blue-600 underline mt-1 block">
+                <Link
+                  href="/register"
+                  className="text-sm text-blue-600 underline mt-1 block"
+                >
                   Create an account
                 </Link>
               </div>
@@ -247,7 +268,8 @@ function RequestResetStep({
               <AlertTriangle className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm text-orange-800">
-                  Too many password reset requests. Please wait 10 minutes before trying again.
+                  Too many password reset requests. Please wait 10 minutes
+                  before trying again.
                 </p>
                 <p className="text-sm text-orange-800 font-mono mt-1">
                   Try again in {formatTime(countdown)}
@@ -290,8 +312,8 @@ function RequestResetStep({
         <div className="flex gap-3">
           <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
           <p className="text-sm text-blue-800">
-            You&apos;ll receive an email with a link to reset your password. The link will expire in 1
-            hour.
+            You&apos;ll receive an email with a link to reset your password. The
+            link will expire in 1 hour.
           </p>
         </div>
       </div>
@@ -329,18 +351,26 @@ function ConfirmationStep({
         <div className="flex justify-center mb-6">
           <CheckCircle2 className="w-20 h-20 text-green-600 animate-in zoom-in duration-500" />
         </div>
-        <h1 className="text-3xl font-bold mb-2 text-gray-900">Check Your Email</h1>
-        <p className="text-gray-600 mb-2">We&apos;ve sent password reset instructions to:</p>
+        <h1 className="text-3xl font-bold mb-2 text-gray-900">
+          Check Your Email
+        </h1>
+        <p className="text-gray-600 mb-2">
+          We&apos;ve sent password reset instructions to:
+        </p>
         <div className="inline-block bg-gray-100 px-4 py-2 rounded-lg">
           <p className="text-lg font-semibold text-gray-900">{email}</p>
         </div>
       </div>
 
       <div className="bg-white border-2 border-gray-200 rounded-xl p-6 mt-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Next Steps:</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          Next Steps:
+        </h2>
         <ol className="space-y-2 list-decimal list-inside">
           <li className="text-gray-700">Open the email from Trading Alerts</li>
-          <li className="text-gray-700">Click the &apos;Reset Password&apos; button</li>
+          <li className="text-gray-700">
+            Click the &apos;Reset Password&apos; button
+          </li>
           <li className="text-gray-700">Create your new password</li>
         </ol>
       </div>
@@ -465,7 +495,9 @@ function ResetPasswordStep({
         setStep('success');
       } else {
         const result = await response.json();
-        setError(result.error || 'Failed to reset password. The link may have expired.');
+        setError(
+          result.error || 'Failed to reset password. The link may have expired.'
+        );
       }
     } catch (err) {
       console.error(err);
@@ -511,13 +543,20 @@ function ResetPasswordStep({
         <div className="flex justify-center mb-4">
           <Key className="w-16 h-16 text-gray-700" />
         </div>
-        <h1 className="text-3xl font-bold mb-2 text-gray-900">Create New Password</h1>
-        <p className="text-gray-600">Choose a strong password for your account</p>
+        <h1 className="text-3xl font-bold mb-2 text-gray-900">
+          Create New Password
+        </h1>
+        <p className="text-gray-600">
+          Choose a strong password for your account
+        </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             New Password
           </label>
           <div className="relative">
@@ -533,7 +572,11 @@ function ResetPasswordStep({
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
             >
-              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
             </button>
           </div>
 
@@ -566,7 +609,11 @@ function ResetPasswordStep({
                   ) : (
                     <X className="w-4 h-4 text-gray-400" />
                   )}
-                  <span className={validations.length ? 'text-green-600' : 'text-gray-600'}>
+                  <span
+                    className={
+                      validations.length ? 'text-green-600' : 'text-gray-600'
+                    }
+                  >
                     At least 8 characters
                   </span>
                 </div>
@@ -576,7 +623,11 @@ function ResetPasswordStep({
                   ) : (
                     <X className="w-4 h-4 text-gray-400" />
                   )}
-                  <span className={validations.uppercase ? 'text-green-600' : 'text-gray-600'}>
+                  <span
+                    className={
+                      validations.uppercase ? 'text-green-600' : 'text-gray-600'
+                    }
+                  >
                     One uppercase letter
                   </span>
                 </div>
@@ -586,7 +637,11 @@ function ResetPasswordStep({
                   ) : (
                     <X className="w-4 h-4 text-gray-400" />
                   )}
-                  <span className={validations.lowercase ? 'text-green-600' : 'text-gray-600'}>
+                  <span
+                    className={
+                      validations.lowercase ? 'text-green-600' : 'text-gray-600'
+                    }
+                  >
                     One lowercase letter
                   </span>
                 </div>
@@ -596,7 +651,11 @@ function ResetPasswordStep({
                   ) : (
                     <X className="w-4 h-4 text-gray-400" />
                   )}
-                  <span className={validations.number ? 'text-green-600' : 'text-gray-600'}>
+                  <span
+                    className={
+                      validations.number ? 'text-green-600' : 'text-gray-600'
+                    }
+                  >
                     One number
                   </span>
                 </div>
@@ -606,7 +665,10 @@ function ResetPasswordStep({
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            htmlFor="confirmPassword"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
             Confirm New Password
           </label>
           <div className="relative">
@@ -622,14 +684,22 @@ function ResetPasswordStep({
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
             >
-              {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showConfirmPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
             </button>
-            {confirmPassword && password === confirmPassword && !errors.confirmPassword && (
-              <Check className="w-5 h-5 text-green-600 absolute right-10 top-1/2 -translate-y-1/2" />
-            )}
+            {confirmPassword &&
+              password === confirmPassword &&
+              !errors.confirmPassword && (
+                <Check className="w-5 h-5 text-green-600 absolute right-10 top-1/2 -translate-y-1/2" />
+              )}
           </div>
           {errors.confirmPassword && (
-            <p className="text-sm text-red-600 mt-1">{errors.confirmPassword.message}</p>
+            <p className="text-sm text-red-600 mt-1">
+              {errors.confirmPassword.message}
+            </p>
           )}
         </div>
 
@@ -659,16 +729,23 @@ function ResetPasswordStep({
 }
 
 // Success State
-function SuccessStep({ autoRedirectCountdown }: { autoRedirectCountdown: number }): JSX.Element {
+function SuccessStep({
+  autoRedirectCountdown,
+}: {
+  autoRedirectCountdown: number;
+}): JSX.Element {
   return (
     <div className="bg-white shadow-xl p-8 rounded-lg animate-in fade-in duration-300">
       <div className="text-center">
         <div className="flex justify-center mb-6">
           <CheckCircle2 className="w-20 h-20 text-green-600 animate-in zoom-in duration-500" />
         </div>
-        <h1 className="text-3xl font-bold mb-2 text-gray-900">Password Reset Successful!</h1>
+        <h1 className="text-3xl font-bold mb-2 text-gray-900">
+          Password Reset Successful!
+        </h1>
         <p className="text-gray-600 mb-8">
-          Your password has been successfully reset. You can now log in with your new password.
+          Your password has been successfully reset. You can now log in with
+          your new password.
         </p>
 
         <Link
