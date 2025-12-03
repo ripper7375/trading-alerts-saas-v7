@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -51,7 +51,7 @@ type ErrorType =
   | 'invalid'
   | null;
 
-export default function ForgotPasswordPage(): JSX.Element {
+function ForgotPasswordForm(): JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState<Step>('request');
@@ -760,5 +760,25 @@ function SuccessStep({
         </p>
       </div>
     </div>
+  );
+}
+
+// Wrap with Suspense for useSearchParams
+export default function ForgotPasswordPage(): JSX.Element {
+  return (
+    <Suspense
+      fallback={
+        <div className="w-full max-w-md">
+          <div className="bg-white shadow-xl p-8 rounded-lg">
+            <div className="text-center py-8">
+              <Loader2 className="w-10 h-10 mx-auto animate-spin text-indigo-600" />
+              <p className="text-gray-600 mt-4">Loading...</p>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <ForgotPasswordForm />
+    </Suspense>
   );
 }
