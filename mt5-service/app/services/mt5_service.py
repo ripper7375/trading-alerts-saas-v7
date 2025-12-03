@@ -4,11 +4,16 @@ MT5 Service - MetaTrader 5 Integration
 Connects to MT5 terminal and retrieves indicator data.
 """
 
-import MetaTrader5 as mt5
 import logging
 from typing import Dict, Any, List
 from datetime import datetime
-from app.utils.constants import TIMEFRAME_MAP
+from app.utils.constants import TIMEFRAME_MAP, MT5_AVAILABLE
+
+# Try to import MetaTrader5
+try:
+    import MetaTrader5 as mt5
+except ImportError:
+    mt5 = None
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +33,10 @@ def get_indicator_data(symbol: str, timeframe: str, bars: int = 1000) -> Dict[st
     Raises:
         Exception: If MT5 connection or data retrieval fails
     """
+    # Check if MT5 is available
+    if not MT5_AVAILABLE or mt5 is None:
+        raise Exception("MetaTrader5 is not installed. This service requires Windows with MT5 installed.")
+
     try:
         # Initialize MT5 connection
         if not mt5.initialize():

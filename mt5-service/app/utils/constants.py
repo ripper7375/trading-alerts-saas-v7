@@ -4,8 +4,29 @@ Constants - Tier System Configuration
 Defines symbol access, timeframe access, and MT5 timeframe mappings.
 """
 
-import MetaTrader5 as mt5
 from typing import Dict, List
+
+# Try to import MetaTrader5, but provide fallback constants for testing/CI
+try:
+    import MetaTrader5 as mt5
+    MT5_AVAILABLE = True
+except ImportError:
+    # Fallback constants for testing on non-Windows systems
+    MT5_AVAILABLE = False
+
+    class MT5Fallback:
+        """Fallback MT5 constants for testing"""
+        TIMEFRAME_M5 = 5
+        TIMEFRAME_M15 = 15
+        TIMEFRAME_M30 = 30
+        TIMEFRAME_H1 = 16385
+        TIMEFRAME_H2 = 16386
+        TIMEFRAME_H4 = 16388
+        TIMEFRAME_H8 = 32769
+        TIMEFRAME_H12 = 49153
+        TIMEFRAME_D1 = 16408
+
+    mt5 = MT5Fallback()
 
 # ============================================================================
 # TIMEFRAME MAPPING (9 timeframes total)

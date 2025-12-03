@@ -7,7 +7,7 @@ from typing import Dict, Any, Tuple
 import logging
 
 # Blueprint will be registered in __init__.py
-indicators_bp = Blueprint('indicators', __name__)
+indicators_bp = Blueprint('indicators', __name__, url_prefix='/api')
 
 logger = logging.getLogger(__name__)
 
