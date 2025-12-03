@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { signIn, getSession, signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, ShieldAlert } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { signIn, getSession, signOut } from 'next-auth/react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 // Distinct styling for Admin Portal
@@ -50,7 +50,7 @@ export default function AdminLoginPage(): JSX.Element {
       if (result?.ok) {
         // 2. CRITICAL CHECK: Verify Admin Role immediately after login
         const session = await getSession();
-        
+
         if (session?.user?.role !== 'ADMIN') {
           // If user logged in but is NOT an admin, force logout immediately
           await signOut({ redirect: false });
@@ -85,7 +85,7 @@ export default function AdminLoginPage(): JSX.Element {
               Restricted Access. System Administrators only.
             </p>
           </div>
-          
+
           <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div className="rounded-md shadow-sm -space-y-px">
               <div>
@@ -128,10 +128,15 @@ export default function AdminLoginPage(): JSX.Element {
               <div className="rounded-md bg-red-50 p-4 border border-red-200">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <ShieldAlert className="h-5 w-5 text-red-400" aria-hidden="true" />
+                    <ShieldAlert
+                      className="h-5 w-5 text-red-400"
+                      aria-hidden="true"
+                    />
                   </div>
                   <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">{error}</h3>
+                    <h3 className="text-sm font-medium text-red-800">
+                      {error}
+                    </h3>
                   </div>
                 </div>
               </div>
@@ -154,11 +159,14 @@ export default function AdminLoginPage(): JSX.Element {
               </button>
             </div>
           </form>
-          
+
           <div className="mt-6 text-center">
-             <a href="/login" className="text-sm text-slate-500 hover:text-slate-700 underline">
-               Return to User Login
-             </a>
+            <a
+              href="/login"
+              className="text-sm text-slate-500 hover:text-slate-700 underline"
+            >
+              Return to User Login
+            </a>
           </div>
         </div>
       </div>
